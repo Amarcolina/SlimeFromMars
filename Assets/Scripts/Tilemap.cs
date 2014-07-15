@@ -1,4 +1,7 @@
 ﻿using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 using System.Collections;
 
 public struct TilemapOffset {
@@ -85,23 +88,8 @@ public class Tilemap : MonoBehaviour {
         return tileChunk.getTile(chunkOffset);
     }
 
-    [ContextMenu ("testit")]
-    public void example() {
-        _tilemapChunks = new TileChunk[1, 1];
-        _chunkOriginOffset = new TilemapOffset(0, 0);
-
-        for (int i = -20; i < 20; i++) {
-            for (int j = -20; j < 20; j++) {
-                setTileGameObject(new TilemapOffset(i, j), null);
-            }
-        } 
-    }
-
-    public void setTileGameObject(Vector2 position, GameObject tileObject) {
-        setTileGameObject(getTilemapOffset(position), tileObject);
-    }
-
-    public void setTileGameObject(TilemapOffset offset, GameObject tileObject) {
+#if UNITY_EDITOR
+    public void setTilePrefab(TilemapOffset offset, GameObject prefab) {
         expandTilemapToIncludeOffset(offset);
         TilemapOffset chunkOffset = new TilemapOffset(tileChunkMod(offset.x), tileChunkMod(offset.y));
         TilemapOffset chunkLocation = (offset - chunkOffset - _chunkOriginOffset * TileChunk.CHUNK_SIZE) / TileChunk.CHUNK_SIZE;
@@ -119,17 +107,13 @@ public class Tilemap : MonoBehaviour {
             DestroyImmediate(currentTile);
         }
 
-        /*
-        GameObject newTileObject = new GameObject("Tile(" + offset.x + "," + offset.y + ")");
-        Tile tileComponent = newTileObject.AddComponent<Tile>();
-        tileComponent.setSpecification(specification);
-
+        GameObject newTileObject = (GameObject) PrefabUtility.InstantiatePrefab(prefab);
+        newTileObject.name = "Tile(" + offset.x + "," + offset.y + ")";
         newTileObject.transform.parent = tileChunk.gameObject.transform;
         newTileObject.transform.position = new Vector3(offset.x, offset.y, 0) * TILE_SIZE;
-         * */
-
-        //tileChunk.setTile(chunkOffset, newTileObject);
+        tileChunk.setTile(chunkOffset, newTileObject);
     }
+#endif
 
     private int tileChunkMod(int x) {
         return (x % TileChunk.CHUNK_SIZE + TileChunk.CHUNK_SIZE) % TileChunk.CHUNK_SIZE;

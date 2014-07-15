@@ -2,10 +2,10 @@
 using UnityEditor;
 using System.Collections;
 
-[CustomEditor (typeof (Tilemap))]
+[CustomEditor(typeof(Tilemap))]
 public class TilemapEditor : Editor {
     public const int PREVIEW_BORDER = 5;
-    public const int PREVIEW_SIZE = 64; 
+    public const int PREVIEW_SIZE = 64;
     static GameObject currentTilePrefab;
 
     public override void OnInspectorGUI() {
@@ -16,7 +16,7 @@ public class TilemapEditor : Editor {
         Rect lastRect = GUILayoutUtility.GetLastRect();
         GUI.Box(lastRect, "");
 
-        GameObject newTile = (GameObject) EditorGUILayout.ObjectField("Current Tile", currentTilePrefab, typeof(GameObject), false);
+        GameObject newTile = (GameObject)EditorGUILayout.ObjectField("Current Tile", currentTilePrefab, typeof(GameObject), false);
         if (newTile && newTile.GetComponent<Tile>()) {
             currentTilePrefab = newTile;
         }
@@ -78,7 +78,7 @@ public class TilemapEditor : Editor {
                 mouseMove();
                 break;
             case EventType.MouseDrag:
-                //mouseDrag();
+                mouseDrag();
                 break;
             case EventType.layout:
                 HandleUtility.AddDefaultControl(controlID);
@@ -89,49 +89,59 @@ public class TilemapEditor : Editor {
     }
 
     private void mouseDown() {
-
+        if (Event.current.button == 0) {
+            handleMouseDraw(Event.current.mousePosition, Event.current.mousePosition);
+        }
     }
 
     private void mouseMove() {
 
     }
 
-    /*
     private void mouseDrag() {
         if (Event.current.button == 0) {
-            Tilemap tilemap = target as Tilemap;
-            Vector2 intersectionStart;
-            if (getTilemapIntersection(Event.current.mousePosition - Event.current.delta, out intersectionStart)) {
-                Vector2 intersectionEnd;
-                if (getTilemapIntersection(Event.current.mousePosition, out intersectionEnd)) {
-                    TilemapOffset startPosition = Tilemap.getTilemapOffset(intersectionStart);
-                    TilemapOffset endPosition = Tilemap.getTilemapOffset(intersectionEnd);
-                    Vector2 startPositionV = new Vector2(startPosition.x, startPosition.y);
-                    Vector2 endPositionV = new Vector2(endPosition.x, endPosition.y);
-                    float distance = Vector2.Distance(startPositionV, endPositionV);
+            handleMouseDraw(Event.current.mousePosition - Event.current.delta, Event.current.mousePosition);
+        }
+    }
 
-                    if (distance > 0.5f) {
-                        int prevX = 0, prevY = 0;
-                        bool set = false;
-                        for (float d = 0; d <= distance; d += 0.5f) {
-                            Vector2 lerpedV = Vector2.Lerp(startPositionV, endPositionV, d / distance);
-                            int x = (int)lerpedV.x;
-                            int y = (int)lerpedV.y;
-                            if (!set || prevX != x || prevY != y) {
-                                tilemap.setTileGameObject(new TilemapOffset(x, y), currentSpecification);
-                            }
-                            prevX = x;
-                            prevY = y;
-                            set = true;
+    private void handleMouseDraw(Vector2 start, Vector2 end) {
+        
+        Vector2 intersectionStart;
+        if (getTilemapIntersection(start, out intersectionStart)) {
+            Vector2 intersectionEnd;
+            if (getTilemapIntersection(end, out intersectionEnd)) {
+                TilemapOffset startPosition = Tilemap.getTilemapOffset(intersectionStart);
+                TilemapOffset endPosition = Tilemap.getTilemapOffset(intersectionEnd);
+                Vector2 startPositionV = new Vector2(startPosition.x, startPosition.y);
+                Vector2 endPositionV = new Vector2(endPosition.x, endPosition.y);
+                float distance = Vector2.Distance(startPositionV, endPositionV);
+
+                if (distance > 0.5f) {
+                    int prevX = 0, prevY = 0;
+                    bool set = false;
+                    for (float d = 0; d <= distance; d += 0.5f) {
+                        Vector2 lerpedV = Vector2.Lerp(startPositionV, endPositionV, d / distance);
+                        int x = (int)lerpedV.x;
+                        int y = (int)lerpedV.y;
+                        if (!set || prevX != x || prevY != y) {
+                            drawToTilemap(new TilemapOffset(x, y));
                         }
-                    } else {
-                        tilemap.setTileGameObject(endPosition, currentSpecification);
+                        prevX = x;
+                        prevY = y;
+                        set = true;
                     }
-                    
-                    Event.current.Use();
+                } else {
+                    drawToTilemap(endPosition);
                 }
+
+                Event.current.Use();
             }
         }
+    }
+
+    private void drawToTilemap(TilemapOffset position){
+        Tilemap tilemap = target as Tilemap;
+        tilemap.setTilePrefab(position, currentTilePrefab);
     }
 
     private bool getTilemapIntersection(Vector2 position, out Vector2 intersection) {
@@ -145,5 +155,4 @@ public class TilemapEditor : Editor {
         intersection = Vector2.zero;
         return false;
     }
-     * */
 }

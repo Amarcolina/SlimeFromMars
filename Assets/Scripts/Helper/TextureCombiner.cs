@@ -19,9 +19,9 @@ public class TextureCombiner : MonoBehaviour {
             }
         }
 
-        for(int i=0; i<length; i++){
+        for (int i = 0; i < length; i++) {
             if (orderedSprites[i].texture.width != orderedSprites[i - 1].texture.width || orderedSprites[i].texture.height != orderedSprites[i - 1].texture.height) {
-                Debug.LogError("Cannot combine Sprites of different sizes!\Sprites " + orderedSprites[i] + " and " + orderedSprites[i - 1] + " have different sizes!");
+                Debug.LogError("Cannot combine Sprites of different sizes!\nSprites " + orderedSprites[i] + " and " + orderedSprites[i - 1] + " have different sizes!");
                 return null;
             }
         }

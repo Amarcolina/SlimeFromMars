@@ -3,6 +3,9 @@ using System.Collections;
 
 [RequireComponent (typeof (SpriteRenderer))]
 public class Tile : MonoBehaviour {
+    private const string GROUND_LAYER_NAME = "TileGround";
+    private const string OVERLAY_LAYER_NAME = "TileOverlay";
+
     public bool isWalkable = true;
     public bool isDeadly = false;
     public Sprite groundSprite;
@@ -19,11 +22,18 @@ public class Tile : MonoBehaviour {
 
     public void Start() {
         updateTileWithSettings();
+
+        if (overlaySprite) {
+            _overlayObject = new GameObject("Tile Overlay");
+            _overlayRenderer = _overlayObject.AddComponent<SpriteRenderer>();
+            _overlayRenderer.sortingLayerName = OVERLAY_LAYER_NAME;
+        }
     }
 
     public void updateTileWithSettings() {
         _groundRenderer = GetComponent<SpriteRenderer>();
-        _combinedGroundSprite = TextureCombiner.combineTextures(groundSprite, groundEffectSprite);
+        _groundRenderer.sortingLayerName = GROUND_LAYER_NAME;
+        _combinedGroundSprite = TextureCombiner.combineTextures(groundSprite, groundEffectSprite, objectSprite, objectEffectSprite);
         _groundRenderer.sprite = _combinedGroundSprite;
     }
 }

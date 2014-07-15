@@ -176,7 +176,6 @@ public class Tilemap : MonoBehaviour {
 
     public void OnDrawGizmos() {
         if (_tilemapChunks == null) {
-            Debug.Log("remaking it");
             clear();
         }
         for (int x = 0; x < _tilemapChunks.width; x++) {

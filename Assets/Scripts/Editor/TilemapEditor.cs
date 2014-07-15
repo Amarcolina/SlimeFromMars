@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEditor;
 using System.Collections;
+using System.IO;
 using System.Collections.Generic;
 
 [CustomEditor(typeof(Tilemap))]
@@ -64,7 +65,7 @@ public class TilemapEditor : Editor {
         }
 
         if (GUILayout.Button("Recalculate tilemap textures")) {
-            Tilemap.recalculateTileImages();
+            TilemapImageFixer.updateAllTileImages();
         }
 
         GUI.color = new Color(1.0f, 0.2f, 0.2f);
@@ -122,7 +123,6 @@ public class TilemapEditor : Editor {
     private void handleMouseDraw(Vector2 start, Vector2 end) {
         Undo.RecordObject(target, "Tilemap modified");
 
-
         Vector2 intersectionStart;
         if (getTilemapIntersection(start, out intersectionStart)) {
             Vector2 intersectionEnd;
@@ -156,9 +156,16 @@ public class TilemapEditor : Editor {
         }
     }
 
+    private GameObject newTileObject() {
+        GameObject newTileObject = (GameObject)PrefabUtility.InstantiatePrefab(currentTilePrefab);
+        return newTileObject;
+    }
+
+    
+
     private void drawToTilemap(Vector2Int position){
         Tilemap tilemap = target as Tilemap;
-        tilemap.setTilePrefab(position, currentTilePrefab);
+        tilemap.setTileGameObject(position, newTileObject());
     }
 
     private bool getTilemapIntersection(Vector2 position, out Vector2 intersection) {

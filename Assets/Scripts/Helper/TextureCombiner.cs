@@ -6,6 +6,9 @@ public class TextureCombiner : MonoBehaviour {
     private static Dictionary<long, Sprite> _textureDictionary = new Dictionary<long, Sprite>();
 
     public static void clearCachedSprites() {
+        foreach (var pair in _textureDictionary) {
+            DestroyImmediate(pair.Value);
+        }
         _textureDictionary.Clear();
     }
 
@@ -18,7 +21,11 @@ public class TextureCombiner : MonoBehaviour {
         }
 
         if (_textureDictionary.ContainsKey(hash)) {
-            return _textureDictionary[hash];
+            Sprite ret = _textureDictionary[hash];
+            if (ret) {
+                return ret;
+            }
+            _textureDictionary.Remove(hash);
         }
 
         int length = 0;

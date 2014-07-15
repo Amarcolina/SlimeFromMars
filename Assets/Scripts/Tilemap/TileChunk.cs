@@ -23,6 +23,10 @@ public class TileChunk : ScriptableObject {
         _chunkGameObject = chunkGameObject;
     }
 
+    public void OnDestroy() {
+        DestroyImmediate(_tiles);
+    }
+
     public GameObject getTile(Vector2Int location) {
         return _tiles[location.x, location.y];
     }

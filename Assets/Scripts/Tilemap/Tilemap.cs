@@ -16,20 +16,7 @@ public class Tilemap : MonoBehaviour {
     public Vector2Int _chunkOriginOffset = new Vector2Int(0, 0);
 
 #if UNITY_EDITOR
-    public static void recalculateTileImages() {
-        TextureCombiner.clearCachedSprites();
-        HashSet<GameObject> tilePrefabs = new HashSet<GameObject>();
-        Tile[] tiles = FindObjectsOfType<Tile>();
-        foreach (Tile tile in tiles) {
-            GameObject prefab = (GameObject)PrefabUtility.GetPrefabParent(tile.gameObject);
-            if (prefab) {
-                if (!tilePrefabs.Contains(prefab)) {
-                    tilePrefabs.Add(prefab);
-                    prefab.GetComponent<Tile>().updateTileWithSettings();
-                }
-            }
-        }
-    }
+    
 #endif
 
     public void clear() {
@@ -39,9 +26,21 @@ public class Tilemap : MonoBehaviour {
                 DestroyImmediate(child.gameObject);
             }
         }
+
+        for (int i = 0; i < _tilemapChunks.width; i++) {
+            for (int j = 0; j < _tilemapChunks.height; j++) {
+                DestroyImmediate(_tilemapChunks[i, j]);
+            }
+        }
+        DestroyImmediate(_tilemapChunks);
+
         _tilemapChunks = ScriptableObject.CreateInstance<Array2DTC>();
         _tilemapChunks.init(1, 1);
         _chunkOriginOffset = new Vector2Int(0, 0);
+    }
+
+    private void destroyTilemap() {
+        
     }
 
     public static Vector2Int getTilemapLocation(Vector2 position) {
@@ -74,7 +73,7 @@ public class Tilemap : MonoBehaviour {
     }
 
 #if UNITY_EDITOR
-    public void setTilePrefab(Vector2Int tileLocation, GameObject prefab) {
+    public void setTileGameObject(Vector2Int tileLocation, GameObject newTileObject) {
         expandTilemapToIncludeLocation(tileLocation);
         Vector2Int tileInChunkLocation = new Vector2Int(tileChunkMod(tileLocation.x), tileChunkMod(tileLocation.y));
         Vector2Int chunkLocation = (tileLocation - tileInChunkLocation - _chunkOriginOffset * TileChunk.CHUNK_SIZE) / TileChunk.CHUNK_SIZE;
@@ -92,12 +91,10 @@ public class Tilemap : MonoBehaviour {
         if (currentTile != null) {
             DestroyImmediate(currentTile);
         }
-
-        GameObject newTileObject = (GameObject) PrefabUtility.InstantiatePrefab(prefab);
+  
         newTileObject.name += "(" + tileLocation.x + "," + tileLocation.y + ")";
         newTileObject.transform.parent = tileChunk.gameObject.transform;
         newTileObject.transform.position = new Vector3(tileLocation.x, tileLocation.y, 0) * TILE_SIZE;
-        newTileObject.GetComponent<Tile>().updateTileWithSettings();
         tileChunk.setTile(tileInChunkLocation, newTileObject);
     }
 #endif
@@ -128,6 +125,7 @@ public class Tilemap : MonoBehaviour {
             }
         }
 
+        DestroyImmediate(_tilemapChunks);
         _tilemapChunks = newChunkArray;
         _chunkOriginOffset = _chunkOriginOffset - new Vector2Int(increaseLeftX, increaseUpY);
     }

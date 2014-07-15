@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEditor;
 using System.Collections;
+using System.IO;
 
 [InitializeOnLoad]
 public class TilemapImageFixer : MonoBehaviour {
@@ -10,14 +11,26 @@ public class TilemapImageFixer : MonoBehaviour {
         currentScene = EditorApplication.currentScene;
         EditorApplication.hierarchyWindowChanged += hierarchyWindowChanged;
         if (EditorApplication.timeSinceStartup < 1.0f) {
-            Tilemap.recalculateTileImages();
+            updateAllTileImages();
         }
     }
 
     private static void hierarchyWindowChanged() {
         if (currentScene != EditorApplication.currentScene) {
             currentScene = EditorApplication.currentScene;
-            Tilemap.recalculateTileImages();
+            updateAllTileImages();
+        }
+    }
+
+    public static void updateAllTileImages() {
+        TextureCombiner.clearCachedSprites();
+        string[] tilePaths = Directory.GetFiles("Assets/Resources/TilePrefabs/", "*.prefab");
+        foreach (string totalPath in tilePaths) {
+            string assetPath = totalPath.Substring("Assets/Resources/".Length);
+            assetPath = assetPath.Substring(0, assetPath.Length - ".prefab".Length);
+
+            GameObject tilePrefab = (GameObject)Resources.Load(assetPath);
+            tilePrefab.GetComponent<Tile>().updateTileWithSettings();
         }
     }
 }

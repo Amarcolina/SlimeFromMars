@@ -29,10 +29,22 @@ public class Tile : MonoBehaviour {
         }
     }
 
+    public void OnDestroy() {
+        if (_combinedGroundSprite) {
+            DestroyImmediate(_combinedGroundSprite);
+        }
+    }
+
     public void updateTileWithSettings() {
         _groundRenderer = GetComponent<SpriteRenderer>();
         _groundRenderer.sortingLayerName = GROUND_LAYER_NAME;
+
+        Sprite oldCombinedSprite = _combinedGroundSprite;
         _combinedGroundSprite = TextureCombiner.combineTextures(groundSprite, groundEffectSprite, objectSprite);
+        if (oldCombinedSprite != _combinedGroundSprite) {
+            DestroyImmediate(oldCombinedSprite);
+        }
+
         _groundRenderer.sprite = _combinedGroundSprite;
     }
 }

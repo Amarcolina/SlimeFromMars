@@ -23,8 +23,6 @@ public class Tile : MonoBehaviour {
 
     public void updateTileWithSettings() {
         _groundRenderer = GetComponent<SpriteRenderer>();
-
-
         _combinedGroundSprite = TextureCombiner.combineTextures(groundSprite, groundEffectSprite);
         _groundRenderer.sprite = _combinedGroundSprite;
     }

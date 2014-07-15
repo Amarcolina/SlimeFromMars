@@ -5,6 +5,10 @@ using System.Collections.Generic;
 public class TextureCombiner : MonoBehaviour {
     private static Dictionary<long, Sprite> _textureDictionary = new Dictionary<long, Sprite>();
 
+    public static void clearCachedSprites() {
+        _textureDictionary.Clear();
+    }
+
     public static Sprite combineTextures(params Sprite[] sprites) {
         long hash = 0;
         foreach (Sprite s in sprites) {

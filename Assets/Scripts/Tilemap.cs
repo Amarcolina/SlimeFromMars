@@ -4,6 +4,7 @@ using UnityEditor;
 #endif
 using System.Collections;
 
+[System.Serializable]
 public struct TilemapOffset {
     public readonly int x, y;
 
@@ -29,15 +30,18 @@ public struct TilemapOffset {
     }
 }
 
+
+
 public class Tilemap : MonoBehaviour {
     public const float TILE_SIZE = 1.0f;
-    private TileChunk[,] _tilemapChunks = new TileChunk[1, 1];
-    private TilemapOffset _chunkOriginOffset = new TilemapOffset(0, 0);
+    public Array2DTC _tilemapChunks = null;
+    public TilemapOffset _chunkOriginOffset = new TilemapOffset(0, 0);
 
-    class TileChunk {
+    [System.Serializable]
+    public class TileChunk : ScriptableObject{
         public const int CHUNK_SIZE = 8;
-        private GameObject[,] _tiles = new GameObject[CHUNK_SIZE, CHUNK_SIZE];
-        private GameObject _chunkGameObject = null;
+        public Array2DGO _tiles = null;
+        public GameObject _chunkGameObject = null;
 
         public GameObject gameObject {
             get {
@@ -45,7 +49,9 @@ public class Tilemap : MonoBehaviour {
             }
         }
 
-        public TileChunk(GameObject chunkGameObject) {
+        public void init(GameObject chunkGameObject) {
+            _tiles = ScriptableObject.CreateInstance<Array2DGO>();
+            _tiles.init(CHUNK_SIZE, CHUNK_SIZE);
             _chunkGameObject = chunkGameObject;
         }
 
@@ -65,7 +71,8 @@ public class Tilemap : MonoBehaviour {
                 DestroyImmediate(child.gameObject);
             }
         }
-        _tilemapChunks = new TileChunk[1, 1];
+        _tilemapChunks = ScriptableObject.CreateInstance<Array2DTC>();
+        _tilemapChunks.init(1, 1);
         _chunkOriginOffset = new TilemapOffset(0, 0);
     }
 
@@ -108,7 +115,8 @@ public class Tilemap : MonoBehaviour {
         if (tileChunk == null) {
             GameObject newTileChunkGameObject = new GameObject("TileChunk(" + chunkLocation.x + "," + chunkLocation.y + ")");
             newTileChunkGameObject.transform.parent = transform;
-            tileChunk = new TileChunk(newTileChunkGameObject);
+            tileChunk = ScriptableObject.CreateInstance<TileChunk>();
+            tileChunk.init(newTileChunkGameObject); 
             _tilemapChunks[chunkLocation.x, chunkLocation.y] = tileChunk;
         }
 
@@ -117,11 +125,10 @@ public class Tilemap : MonoBehaviour {
             DestroyImmediate(currentTile);
         }
 
-        GameObject newTileObject = (GameObject) PrefabUtility.InstantiatePrefab(prefab);
+        GameObject newTileObject = (GameObject) PrefabUtility.InstantiatePrefab(prefab);     
         newTileObject.name = "Tile(" + offset.x + "," + offset.y + ")";
         newTileObject.transform.parent = tileChunk.gameObject.transform;
         newTileObject.transform.position = new Vector3(offset.x, offset.y, 0) * TILE_SIZE;
-        newTileObject.GetComponent<Tile>().updateTileWithSettings();
         tileChunk.setTile(chunkOffset, newTileObject);
     }
 #endif
@@ -133,9 +140,9 @@ public class Tilemap : MonoBehaviour {
     private void expandTilemapToIncludeOffset(TilemapOffset offset) {
         TilemapOffset transformedOffset = offset - _chunkOriginOffset * 8;
         int increaseLeftX = Mathf.Max(0, -transformedOffset.x + TileChunk.CHUNK_SIZE - 1) / TileChunk.CHUNK_SIZE;
-        int increaseRightX = Mathf.Max(0, transformedOffset.x - _tilemapChunks.GetLength(0) * TileChunk.CHUNK_SIZE + TileChunk.CHUNK_SIZE) / TileChunk.CHUNK_SIZE;
+        int increaseRightX = Mathf.Max(0, transformedOffset.x - _tilemapChunks.width * TileChunk.CHUNK_SIZE + TileChunk.CHUNK_SIZE) / TileChunk.CHUNK_SIZE;
         int increaseUpY = Mathf.Max(0, -transformedOffset.y + TileChunk.CHUNK_SIZE - 1) / TileChunk.CHUNK_SIZE;
-        int increaseDownY = Mathf.Max(0, transformedOffset.y - _tilemapChunks.GetLength(1) * TileChunk.CHUNK_SIZE + TileChunk.CHUNK_SIZE) / TileChunk.CHUNK_SIZE;
+        int increaseDownY = Mathf.Max(0, transformedOffset.y - _tilemapChunks.height * TileChunk.CHUNK_SIZE + TileChunk.CHUNK_SIZE) / TileChunk.CHUNK_SIZE;
         int increaseX = Mathf.Max(increaseLeftX, increaseRightX);
         int increaseY = Mathf.Max(increaseUpY, increaseDownY);
 
@@ -143,10 +150,11 @@ public class Tilemap : MonoBehaviour {
             return;
         }
 
-        TileChunk[,] newChunkArray = new TileChunk[_tilemapChunks.GetLength(0) + increaseX, _tilemapChunks.GetLength(1) + increaseY];
+        Array2DTC newChunkArray = ScriptableObject.CreateInstance<Array2DTC>();
+        newChunkArray.init(_tilemapChunks.width + increaseX, _tilemapChunks.height + increaseY);
 
-        for (int x = 0; x < _tilemapChunks.GetLength(0); x++) {
-            for (int y = 0; y < _tilemapChunks.GetLength(1); y++) {
+        for (int x = 0; x < _tilemapChunks.width; x++) {
+            for (int y = 0; y < _tilemapChunks.height; y++) {
                 newChunkArray[x + increaseLeftX, y + increaseUpY] = _tilemapChunks[x, y];
             }
         }
@@ -156,8 +164,12 @@ public class Tilemap : MonoBehaviour {
     }
 
     public void OnDrawGizmos() {
-        for (int x = 0; x < _tilemapChunks.GetLength(0); x++) {
-            for (int y = 0; y < _tilemapChunks.GetLength(1); y++) {
+        if (_tilemapChunks == null) {
+            Debug.Log("remaking it");
+            clear();
+        }
+        for (int x = 0; x < _tilemapChunks.width; x++) {
+            for (int y = 0; y < _tilemapChunks.height; y++) {
                 Vector2 cRight = Vector2.right * TileChunk.CHUNK_SIZE * TILE_SIZE;
                 Vector2 cUp = Vector2.up * TileChunk.CHUNK_SIZE * TILE_SIZE;
                 Vector2 v = new Vector2(x + _chunkOriginOffset.x, y + _chunkOriginOffset.y) * TileChunk.CHUNK_SIZE * TILE_SIZE - Vector2.one * TILE_SIZE / 2.0f;

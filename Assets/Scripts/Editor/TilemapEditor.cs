@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using UnityEditor;
 using System.Collections;
+using System.Collections.Generic;
 
 [CustomEditor(typeof(Tilemap))]
 public class TilemapEditor : Editor {
@@ -28,7 +29,10 @@ public class TilemapEditor : Editor {
             while (prop.NextVisible(true)) {
                 EditorGUILayout.PropertyField(prop);
             }
-            obj.ApplyModifiedProperties();
+
+            if (obj.ApplyModifiedProperties()) {
+                currentTilePrefab.GetComponent<Tile>().updateTileWithSettings();
+            }
 
             Rect borderRect = GUILayoutUtility.GetRect(PREVIEW_SIZE + PREVIEW_BORDER * 2, PREVIEW_SIZE + PREVIEW_BORDER * 2);
             float diffWidth = borderRect.width - (PREVIEW_SIZE + PREVIEW_BORDER * 2);
@@ -57,6 +61,21 @@ public class TilemapEditor : Editor {
                 PrefabUtility.CreatePrefab(newPrefabPath, currentTilePrefab);
                 currentTilePrefab = Resources.Load<GameObject>(newPrefabPath2);
                 Debug.Log(currentTilePrefab);
+            }
+        }
+
+        if (GUILayout.Button("Recalculate tilemap textures")) {
+            TextureCombiner.clearCachedSprites();
+            HashSet<GameObject> tilePrefabs = new HashSet<GameObject>();
+            Tile[] tiles = FindObjectsOfType<Tile>();
+            foreach (Tile tile in tiles) {
+                GameObject prefab = (GameObject) PrefabUtility.GetPrefabParent(tile.gameObject);
+                if (prefab) {
+                    if (!tilePrefabs.Contains(prefab)) {
+                        tilePrefabs.Add(prefab);
+                        prefab.GetComponent<Tile>().updateTileWithSettings();
+                    }
+                }
             }
         }
 
@@ -113,6 +132,9 @@ public class TilemapEditor : Editor {
     }
 
     private void handleMouseDraw(Vector2 start, Vector2 end) {
+        Undo.RecordObject(target, "Tilemap modified");
+
+
         Vector2 intersectionStart;
         if (getTilemapIntersection(start, out intersectionStart)) {
             Vector2 intersectionEnd;

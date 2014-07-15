@@ -34,35 +34,12 @@ public struct TilemapOffset {
 
 public class Tilemap : MonoBehaviour {
     public const float TILE_SIZE = 1.0f;
-    public Array2DTC _tilemapChunks = null;
+    [SerializeField]
+    [HideInInspector]
+    private Array2DTC _tilemapChunks = null;
+    [SerializeField]
+    [HideInInspector]
     public TilemapOffset _chunkOriginOffset = new TilemapOffset(0, 0);
-
-    [System.Serializable]
-    public class TileChunk : ScriptableObject{
-        public const int CHUNK_SIZE = 8;
-        public Array2DGO _tiles = null;
-        public GameObject _chunkGameObject = null;
-
-        public GameObject gameObject {
-            get {
-                return _chunkGameObject;
-            }
-        }
-
-        public void init(GameObject chunkGameObject) {
-            _tiles = ScriptableObject.CreateInstance<Array2DGO>();
-            _tiles.init(CHUNK_SIZE, CHUNK_SIZE);
-            _chunkGameObject = chunkGameObject;
-        }
-
-        public GameObject getTile(TilemapOffset offset) {
-            return _tiles[offset.x, offset.y];
-        }
-
-        public void setTile(TilemapOffset offset, GameObject tile) {
-            _tiles[offset.x, offset.y] = tile;
-        }
-    }
 
     public void clear() {
         Transform[] children = GetComponentsInChildren<Transform>();
@@ -129,6 +106,7 @@ public class Tilemap : MonoBehaviour {
         newTileObject.name = "Tile(" + offset.x + "," + offset.y + ")";
         newTileObject.transform.parent = tileChunk.gameObject.transform;
         newTileObject.transform.position = new Vector3(offset.x, offset.y, 0) * TILE_SIZE;
+        newTileObject.GetComponent<Tile>().updateTileWithSettings();
         tileChunk.setTile(chunkOffset, newTileObject);
     }
 #endif

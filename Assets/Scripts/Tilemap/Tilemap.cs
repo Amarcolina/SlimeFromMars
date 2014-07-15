@@ -118,7 +118,7 @@ public class Tilemap : MonoBehaviour {
         }
 
         GameObject newTileObject = (GameObject) PrefabUtility.InstantiatePrefab(prefab);     
-        newTileObject.name = "Tile(" + offset.x + "," + offset.y + ")";
+        newTileObject.name += "(" + offset.x + "," + offset.y + ")";
         newTileObject.transform.parent = tileChunk.gameObject.transform;
         newTileObject.transform.position = new Vector3(offset.x, offset.y, 0) * TILE_SIZE;
         newTileObject.GetComponent<Tile>().updateTileWithSettings();

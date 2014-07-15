@@ -3,12 +3,12 @@ using System.Collections;
 
 [System.Serializable]
 public class Array2D<T> : ScriptableObject where T : class{
-    //[SerializeField]
-    public T[] _array;
-    //[SerializeField]
-    public int _width;
-    //[SerializeField]
-    public int _height;
+    [SerializeField]
+    private T[] _array;
+    [SerializeField]
+    private int _width;
+    [SerializeField]
+    private int _height;
 
     public void init(int width, int height) {
         _array = new T[height * width];

@@ -6,11 +6,26 @@ using System.Collections;
 
 [System.Serializable]
 public struct TilemapOffset {
-    public readonly int x, y;
+    [SerializeField]
+    private int _x;
+    [SerializeField]
+    private int _y;
+
+    public int x {
+        get {
+            return _x;
+        }
+    }
+
+    public int y {
+        get {
+            return _y;
+        }
+    }
 
     public TilemapOffset(int x, int y) {
-        this.x = x;
-        this.y = y;
+        _x = x;
+        _y = y;
     }
 
     public static TilemapOffset operator +(TilemapOffset a, TilemapOffset b) {

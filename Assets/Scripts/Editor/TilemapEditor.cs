@@ -50,14 +50,13 @@ public class TilemapEditor : Editor {
             drawSprite(previewRect, currentTile.groundSprite);
             drawSprite(previewRect, currentTile.groundEffectSprite);
             drawSprite(previewRect, currentTile.objectSprite);
-            drawSprite(previewRect, currentTile.objectEffectSprite);
             drawSprite(previewRect, currentTile.overlaySprite);
 
             GUILayout.Space(EditorGUIUtility.singleLineHeight);
 
             if (GUILayout.Button("Create copy of tile")) {
-                string newPrefabPath = "Assets/Resources/Tiles/" + currentTilePrefab.name + " Copy.prefab";
-                string newPrefabPath2 = "Tiles/" + currentTilePrefab.name + " Copy";
+                string newPrefabPath = "Assets/Resources/TilePrefabs/" + currentTilePrefab.name + " Copy.prefab";
+                string newPrefabPath2 = "TilePrefabs/" + currentTilePrefab.name + " Copy";
                 PrefabUtility.CreatePrefab(newPrefabPath, currentTilePrefab);
                 currentTilePrefab = Resources.Load<GameObject>(newPrefabPath2);
                 Debug.Log(currentTilePrefab);
@@ -65,18 +64,7 @@ public class TilemapEditor : Editor {
         }
 
         if (GUILayout.Button("Recalculate tilemap textures")) {
-            TextureCombiner.clearCachedSprites();
-            HashSet<GameObject> tilePrefabs = new HashSet<GameObject>();
-            Tile[] tiles = FindObjectsOfType<Tile>();
-            foreach (Tile tile in tiles) {
-                GameObject prefab = (GameObject) PrefabUtility.GetPrefabParent(tile.gameObject);
-                if (prefab) {
-                    if (!tilePrefabs.Contains(prefab)) {
-                        tilePrefabs.Add(prefab);
-                        prefab.GetComponent<Tile>().updateTileWithSettings();
-                    }
-                }
-            }
+            Tilemap.recalculateTileImages();
         }
 
         GUI.color = new Color(1.0f, 0.2f, 0.2f);

@@ -3,6 +3,7 @@
 using UnityEditor;
 #endif
 using System.Collections;
+using System.Collections.Generic;
 
 [System.Serializable]
 public struct TilemapOffset {
@@ -46,7 +47,7 @@ public struct TilemapOffset {
 }
 
 
-
+[InitializeOnLoad]
 public class Tilemap : MonoBehaviour {
     public const float TILE_SIZE = 1.0f;
     [SerializeField]
@@ -55,6 +56,23 @@ public class Tilemap : MonoBehaviour {
     [SerializeField]
     [HideInInspector]
     public TilemapOffset _chunkOriginOffset = new TilemapOffset(0, 0);
+
+#if UNITY_EDITOR
+    public static void recalculateTileImages() {
+        TextureCombiner.clearCachedSprites();
+        HashSet<GameObject> tilePrefabs = new HashSet<GameObject>();
+        Tile[] tiles = FindObjectsOfType<Tile>();
+        foreach (Tile tile in tiles) {
+            GameObject prefab = (GameObject)PrefabUtility.GetPrefabParent(tile.gameObject);
+            if (prefab) {
+                if (!tilePrefabs.Contains(prefab)) {
+                    tilePrefabs.Add(prefab);
+                    prefab.GetComponent<Tile>().updateTileWithSettings();
+                }
+            }
+        }
+    }
+#endif
 
     public void clear() {
         Transform[] children = GetComponentsInChildren<Transform>();

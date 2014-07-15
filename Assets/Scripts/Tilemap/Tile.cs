@@ -11,7 +11,6 @@ public class Tile : MonoBehaviour {
     public Sprite groundSprite;
     public Sprite groundEffectSprite;
     public Sprite objectSprite;
-    public Sprite objectEffectSprite;
     public Sprite overlaySprite;
 
     private Sprite _combinedGroundSprite;
@@ -33,7 +32,7 @@ public class Tile : MonoBehaviour {
     public void updateTileWithSettings() {
         _groundRenderer = GetComponent<SpriteRenderer>();
         _groundRenderer.sortingLayerName = GROUND_LAYER_NAME;
-        _combinedGroundSprite = TextureCombiner.combineTextures(groundSprite, groundEffectSprite, objectSprite, objectEffectSprite);
+        _combinedGroundSprite = TextureCombiner.combineTextures(groundSprite, groundEffectSprite, objectSprite);
         _groundRenderer.sprite = _combinedGroundSprite;
     }
 }

@@ -1,26 +1,36 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-
+using System;
 public class Astar : MonoBehaviour {
-    //Diagnol (Chebyshev) distance - grid allows 8 directions of movement
-    float start, goal, D;
-    //if cost is D
-    private float heuristic(node){
-    float dx = abs(node.x - goal.x);
-    float dy = abs(node.y - goal.y);
-    return D * max(dx, dy);
-    }
-    //if cost !D
-    private float heuristic(node){
-    float dx = abs(node.x - goal.x);
-    float dy = abs(node.y - goal.y);
-    return D * (dx + dy) + (D2 - 2 * D) * min(dx, dy);
-    }
+    class Node: IComparable {
+        Vector2Int position; //tilemap position of node
+        private const float ORTHOGANAL_COST = 1;
+        private const float DIAGANOL_COST = 1.5f;
 
-    public List<Node> A-star(){
-         private BinaryHeap openList = new BinaryHeap();
+        //Using Diaganol (Chebyshev) distance - grid allows 8 directions of movement
+        //Calculates the heuristic of the node
+        private float heuristic(Vector2Int goal){
+            float dx = Mathf.Abs(position.x - goal.x);
+            float dy = Mathf.Abs(position.y - goal.y);
+            return ORTHOGANAL_COST * (dx + dy) + (DIAGANOL_COST - 2 * ORTHOGANAL_COST) * Mathf.Min(dx, dy);
+        } 
+        
+        /*//if cost is D
+        private float heuristic(Node node){
+        float dx = Mathf.Abs(node.x - goal.x);
+        float dy = Mathf.Abs(node.y - goal.y);
+        return D * Mathf.Max(dx, dy);
+        }*/
+    }
+    
 
+   
+
+    public List<Node> Astar(){
+        private BinaryMinHeap<Node> openList = new BinaryMinHeap<Node>();
+        private List<Node> path = new List<Node>();
+        /*
     OPEN = priority queue containing START
 CLOSED = empty set
 while lowest rank in OPEN is not the GOAL:
@@ -40,6 +50,8 @@ while lowest rank in OPEN is not the GOAL:
 
 reconstruct reverse path from goal to start
 by following parent pointers
+         */
+    return path;
     }
    
 }

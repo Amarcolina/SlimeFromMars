@@ -27,7 +27,7 @@ public struct TilemapOffset {
 }
 
 public class Tilemap : MonoBehaviour {
-    public const float TILEMAP_SIZE = 10.0f;
+    public const float TILE_SIZE = 1.0f;
     private TileChunk[,] _tilemapChunks = new TileChunk[1, 1];
     private TilemapOffset _chunkOriginOffset = new TilemapOffset(0, 0);
 
@@ -56,9 +56,9 @@ public class Tilemap : MonoBehaviour {
         }
     }
 
-    public TilemapOffset getTilemapOffset(Vector2 position) {
-        return new TilemapOffset((int)System.Math.Round(position.x / TILEMAP_SIZE, System.MidpointRounding.ToEven),
-                                 (int)System.Math.Round(position.y / TILEMAP_SIZE, System.MidpointRounding.ToEven));
+    public static TilemapOffset getTilemapOffset(Vector2 position) {
+        return new TilemapOffset((int)System.Math.Round(position.x / TILE_SIZE, System.MidpointRounding.ToEven),
+                                 (int)System.Math.Round(position.y / TILE_SIZE, System.MidpointRounding.ToEven));
     }
 
     public Tile getTile(Vector2 position) {
@@ -85,14 +85,26 @@ public class Tilemap : MonoBehaviour {
         return tileChunk.getTile(chunkOffset);
     }
 
-    public void setTileGameObject(Vector2 position, Tile tile) {
+    [ContextMenu ("testit")]
+    public void example() {
+        _tilemapChunks = new TileChunk[1, 1];
+        _chunkOriginOffset = new TilemapOffset(0, 0);
+
+        for (int i = -20; i < 20; i++) {
+            for (int j = -20; j < 20; j++) {
+                setTileGameObject(new TilemapOffset(i, j), null);
+            }
+        } 
+    }
+
+    public void setTileGameObject(Vector2 position, TileSpecification tile) {
         setTileGameObject(getTilemapOffset(position), tile);
     }
 
-    public void setTileGameObject(TilemapOffset offset, Tile tile) {
+    public void setTileGameObject(TilemapOffset offset, TileSpecification tile) {
         expandTilemapToIncludeOffset(offset);
         TilemapOffset chunkOffset = new TilemapOffset(tileChunkMod(offset.x), tileChunkMod(offset.y));
-        TilemapOffset chunkLocation = (offset - chunkOffset) / TileChunk.CHUNK_SIZE;
+        TilemapOffset chunkLocation = (offset - chunkOffset - _chunkOriginOffset * TileChunk.CHUNK_SIZE) / TileChunk.CHUNK_SIZE;
         TileChunk tileChunk = _tilemapChunks[chunkLocation.x, chunkLocation.y];
 
         if (tileChunk == null) {
@@ -104,7 +116,7 @@ public class Tilemap : MonoBehaviour {
 
         GameObject currentTile = tileChunk.getTile(chunkOffset);
         if (currentTile != null) {
-            Destroy(currentTile);
+            DestroyImmediate(currentTile);
         }
         GameObject newTileObject = new GameObject("Tile(" + offset.x + "," + offset.y + ")");
         newTileObject.transform.parent = tileChunk.gameObject.transform;
@@ -117,12 +129,13 @@ public class Tilemap : MonoBehaviour {
 
     private void expandTilemapToIncludeOffset(TilemapOffset offset) {
         TilemapOffset transformedOffset = offset - _chunkOriginOffset * 8;
-        int increaseLeftX = Mathf.Max(0, -transformedOffset.x);
-        int increaseRightX = Mathf.Max(0, transformedOffset.x - _tilemapChunks.GetLength(0) * TileChunk.CHUNK_SIZE);
-        int increaseUpY = Mathf.Max(0, -transformedOffset.y);
-        int increaseDownY = Mathf.Max(0, transformedOffset.y - _tilemapChunks.GetLength(1) * TileChunk.CHUNK_SIZE);
+        int increaseLeftX = Mathf.Max(0, -transformedOffset.x + TileChunk.CHUNK_SIZE - 1) / TileChunk.CHUNK_SIZE;
+        int increaseRightX = Mathf.Max(0, transformedOffset.x - _tilemapChunks.GetLength(0) * TileChunk.CHUNK_SIZE + TileChunk.CHUNK_SIZE) / TileChunk.CHUNK_SIZE;
+        int increaseUpY = Mathf.Max(0, -transformedOffset.y + TileChunk.CHUNK_SIZE - 1) / TileChunk.CHUNK_SIZE;
+        int increaseDownY = Mathf.Max(0, transformedOffset.y - _tilemapChunks.GetLength(1) * TileChunk.CHUNK_SIZE + TileChunk.CHUNK_SIZE) / TileChunk.CHUNK_SIZE;
         int increaseX = Mathf.Max(increaseLeftX, increaseRightX);
         int increaseY = Mathf.Max(increaseUpY, increaseDownY);
+
         if (increaseX == 0 && increaseY == 0) {
             return;
         }
@@ -136,6 +149,40 @@ public class Tilemap : MonoBehaviour {
         }
 
         _tilemapChunks = newChunkArray;
-        _chunkOriginOffset = _chunkOriginOffset + new TilemapOffset(increaseLeftX, increaseUpY);
+        _chunkOriginOffset = _chunkOriginOffset - new TilemapOffset(increaseLeftX, increaseUpY);
+    }
+
+    public void OnDrawGizmos() {
+        for (int x = 0; x < _tilemapChunks.GetLength(0); x++) {
+            for (int y = 0; y < _tilemapChunks.GetLength(1); y++) {
+                Vector2 cRight = Vector2.right * TileChunk.CHUNK_SIZE * TILE_SIZE;
+                Vector2 cUp = Vector2.up * TileChunk.CHUNK_SIZE * TILE_SIZE;
+                Vector2 v = new Vector2(x + _chunkOriginOffset.x, y + _chunkOriginOffset.y) * TileChunk.CHUNK_SIZE * TILE_SIZE - Vector2.one * TILE_SIZE / 2.0f;
+                Gizmos.color = Color.black;
+                Gizmos.DrawLine(v, v + cRight);
+                Gizmos.DrawLine(v, v + cUp);
+                Gizmos.DrawLine(v + cRight, v + cRight + cUp);
+                Gizmos.DrawLine(v + cUp, v + cRight + cUp);
+
+                TileChunk chunk = _tilemapChunks[x, y];
+                if (chunk != null) {
+                    for (int dx = 0; dx < TileChunk.CHUNK_SIZE; dx++) {
+                        for (int dy = 0; dy < TileChunk.CHUNK_SIZE; dy++) {
+                            GameObject obj = chunk.getTile(new TilemapOffset(dx, dy));
+                            if (obj == null) {
+                                Vector2 v2 = v + new Vector2(dx, dy) * TILE_SIZE;
+                                Vector2 tRight = Vector2.right * TILE_SIZE;
+                                Vector2 tUp = Vector2.up * TILE_SIZE;
+                                Gizmos.color = new Color(0.2f, 0.2f, 0.2f);
+                                Gizmos.DrawLine(v2, v2 + tRight);
+                                Gizmos.DrawLine(v2, v2 + tUp);
+                                Gizmos.DrawLine(v2 + tRight, v2 + tRight + tUp);
+                                Gizmos.DrawLine(v2 + tUp, v2 + tRight + tUp);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }

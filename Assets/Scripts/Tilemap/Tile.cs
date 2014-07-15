@@ -13,38 +13,38 @@ public class Tile : MonoBehaviour {
     public Sprite objectSprite;
     public Sprite overlaySprite;
 
-    private Sprite _combinedGroundSprite;
-
-    private SpriteRenderer _groundRenderer;
-    private GameObject _overlayObject;
-    private SpriteRenderer _overlayRenderer;
-
-    public void Start() {
-        updateTileWithSettings();
-
-        if (overlaySprite) {
-            _overlayObject = new GameObject("Tile Overlay");
-            _overlayRenderer = _overlayObject.AddComponent<SpriteRenderer>();
-            _overlayRenderer.sortingLayerName = OVERLAY_LAYER_NAME;
-        }
-    }
-
-    public void OnDestroy() {
-        if (_combinedGroundSprite) {
-            DestroyImmediate(_combinedGroundSprite);
-        }
-    }
+    private SpriteRenderer _groundSpriteRenderer;
+    private SpriteRenderer _groundEffectSpriteRenderer;
+    private SpriteRenderer _objectSpriteRenderer;
+    private SpriteRenderer _overlaySpriteRenderer;
 
     public void updateTileWithSettings() {
-        _groundRenderer = GetComponent<SpriteRenderer>();
-        _groundRenderer.sortingLayerName = GROUND_LAYER_NAME;
+        _groundSpriteRenderer = GetComponent<SpriteRenderer>();
+        _groundSpriteRenderer.sprite = groundSprite;
+        _groundSpriteRenderer.sortingLayerName = "TileGround";
 
-        Sprite oldCombinedSprite = _combinedGroundSprite;
-        _combinedGroundSprite = TextureCombiner.combineTextures(groundSprite, groundEffectSprite, objectSprite);
-        if (oldCombinedSprite != _combinedGroundSprite) {
-            DestroyImmediate(oldCombinedSprite);
+        Transform[] children = GetComponentsInChildren<Transform>();
+        foreach (Transform child in children) {
+            if (child != transform) {
+                DestroyImmediate(child.gameObject);
+            }
         }
 
-        _groundRenderer.sprite = _combinedGroundSprite;
+        _groundEffectSpriteRenderer = createRenderer("GroundEffect", groundEffectSprite, "TileGroundEffect");
+        _objectSpriteRenderer = createRenderer("Object", objectSprite, "TileObject");
+        _overlaySpriteRenderer = createRenderer("Overlay", overlaySprite, "TileOverlay");
+    }
+
+    private SpriteRenderer createRenderer(string objName, Sprite sprite, string layerName) {
+        if (sprite) {
+            GameObject rendererObject = new GameObject(objName);
+            rendererObject.transform.parent = transform;
+            rendererObject.transform.position = transform.position;
+            SpriteRenderer spriteRenderer = rendererObject.AddComponent<SpriteRenderer>();
+            spriteRenderer.sprite = sprite;
+            spriteRenderer.sortingLayerName = layerName;
+            return spriteRenderer;
+        }
+        return null;
     }
 }

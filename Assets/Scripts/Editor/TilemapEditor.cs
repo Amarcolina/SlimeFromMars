@@ -32,7 +32,7 @@ public class TilemapEditor : Editor {
             }
 
             if (obj.ApplyModifiedProperties()) {
-                currentTilePrefab.GetComponent<Tile>().updateTileWithSettings();
+                updateTilePrefab();
             }
 
             Rect borderRect = GUILayoutUtility.GetRect(PREVIEW_SIZE + PREVIEW_BORDER * 2, PREVIEW_SIZE + PREVIEW_BORDER * 2);
@@ -64,9 +64,11 @@ public class TilemapEditor : Editor {
             }
         }
 
+        /*
         if (GUILayout.Button("Recalculate tilemap textures")) {
             TilemapImageFixer.updateAllTileImages();
         }
+         * */
 
         GUI.color = new Color(1.0f, 0.2f, 0.2f);
         if (GUILayout.Button("Reset Tilemap")) {
@@ -81,6 +83,14 @@ public class TilemapEditor : Editor {
         if (sprite) {
             GUI.DrawTexture(rect, sprite.texture, ScaleMode.StretchToFill);
         }
+    }
+
+    private void updateTilePrefab() {
+        GameObject obj = (GameObject) PrefabUtility.InstantiatePrefab(currentTilePrefab);
+        obj.hideFlags = HideFlags.HideAndDontSave;
+        obj.GetComponent<Tile>().updateTileWithSettings();
+        PrefabUtility.ReplacePrefab(obj, currentTilePrefab);
+        DestroyImmediate(obj);
     }
 
     public void OnSceneGUI() {

@@ -11,10 +11,21 @@ public class Tile : MonoBehaviour {
     public Sprite objectEffectSprite;
     public Sprite overlaySprite;
 
+    private Sprite _combinedGroundSprite;
+
     private SpriteRenderer _groundRenderer;
     private GameObject _overlayObject;
     private SpriteRenderer _overlayRenderer;
 
+    public void Start() {
+        updateTileWithSettings();
+    }
+
     public void updateTileWithSettings() {
+        _groundRenderer = GetComponent<SpriteRenderer>();
+
+
+        _combinedGroundSprite = TextureCombiner.combineTextures(groundSprite.texture, groundEffectSprite.texture, objectSprite.texture, objectEffectSprite.texture);
+        _groundRenderer.sprite = _combinedGroundSprite;
     }
 }

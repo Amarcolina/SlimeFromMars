@@ -25,7 +25,7 @@ public class Tile : MonoBehaviour {
         _groundRenderer = GetComponent<SpriteRenderer>();
 
 
-        _combinedGroundSprite = TextureCombiner.combineTextures(groundSprite, groundEffectSprite, objectSprite, objectEffectSprite);
+        _combinedGroundSprite = TextureCombiner.combineTextures(groundSprite, groundEffectSprite);
         _groundRenderer.sprite = _combinedGroundSprite;
     }
 }

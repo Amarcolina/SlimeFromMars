@@ -59,6 +59,14 @@ public class TilemapEditor : Editor {
                 Debug.Log(currentTilePrefab);
             }
         }
+
+        GUI.color = new Color(1.0f, 0.2f, 0.2f);
+        if (GUILayout.Button("Reset Tilemap")) {
+            if (EditorUtility.DisplayDialog("Erase Tilemap", "Are you sure you want to erase the entire tilemap?", "Erase!", "Keep it")) {
+                Tilemap tilemap = target as Tilemap;
+                tilemap.clear();
+            }
+        }
     }
 
     private void drawSprite(Rect rect, Sprite sprite) {
@@ -89,7 +97,7 @@ public class TilemapEditor : Editor {
     }
 
     private void mouseDown() {
-        if (Event.current.button == 0) {
+        if (Event.current.button == 0 && currentTilePrefab) {
             handleMouseDraw(Event.current.mousePosition, Event.current.mousePosition);
         }
     }
@@ -99,13 +107,12 @@ public class TilemapEditor : Editor {
     }
 
     private void mouseDrag() {
-        if (Event.current.button == 0) {
+        if (Event.current.button == 0 && currentTilePrefab) {
             handleMouseDraw(Event.current.mousePosition - Event.current.delta, Event.current.mousePosition);
         }
     }
 
     private void handleMouseDraw(Vector2 start, Vector2 end) {
-        
         Vector2 intersectionStart;
         if (getTilemapIntersection(start, out intersectionStart)) {
             Vector2 intersectionEnd;

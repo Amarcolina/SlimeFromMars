@@ -34,7 +34,6 @@ public class Tilemap : MonoBehaviour {
     private TileChunk[,] _tilemapChunks = new TileChunk[1, 1];
     private TilemapOffset _chunkOriginOffset = new TilemapOffset(0, 0);
 
-
     class TileChunk {
         public const int CHUNK_SIZE = 8;
         private GameObject[,] _tiles = new GameObject[CHUNK_SIZE, CHUNK_SIZE];
@@ -57,6 +56,17 @@ public class Tilemap : MonoBehaviour {
         public void setTile(TilemapOffset offset, GameObject tile) {
             _tiles[offset.x, offset.y] = tile;
         }
+    }
+
+    public void clear() {
+        Transform[] children = GetComponentsInChildren<Transform>();
+        foreach (Transform child in children) {
+            if (child && child != transform) {
+                DestroyImmediate(child.gameObject);
+            }
+        }
+        _tilemapChunks = new TileChunk[1, 1];
+        _chunkOriginOffset = new TilemapOffset(0, 0);
     }
 
     public static TilemapOffset getTilemapOffset(Vector2 position) {
@@ -111,6 +121,7 @@ public class Tilemap : MonoBehaviour {
         newTileObject.name = "Tile(" + offset.x + "," + offset.y + ")";
         newTileObject.transform.parent = tileChunk.gameObject.transform;
         newTileObject.transform.position = new Vector3(offset.x, offset.y, 0) * TILE_SIZE;
+        newTileObject.GetComponent<Tile>().updateTileWithSettings();
         tileChunk.setTile(chunkOffset, newTileObject);
     }
 #endif

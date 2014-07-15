@@ -3,21 +3,37 @@ using System.Collections;
 
 [RequireComponent (typeof (SpriteRenderer))]
 public class Tile : MonoBehaviour {
-    public bool isWalkable;
-    public Sprite groundSprite = null;
-    public Sprite objectSprite = null;
-    public Sprite effectSprite = null;
-    public Sprite overlaySprite = null;
-    
-    private int _tileX, _tileY;
+    public string tester;
+    /*
+    private GameObject _floorSprite;
+    private GameObject _objectSprite;
+    private GameObject _overlaySprite;
+    private TileSpecification _specification;
 
-    // Use this for initialization
-    void Start() {
-
+    public void setSpecification(TileSpecification specification) {
+        _specification = specification;
+        updateSpriteObject(ref _floorSprite, specification.floorSprite, "FloorSprite", 0.0f);
+        updateSpriteObject(ref _objectSprite, specification.objectSprite, "ObjectSprite", 0.1f);
+        updateSpriteObject(ref _overlaySprite, specification.overlaySprite, "OverlaySprite", 0.2f);
     }
 
-    // Update is called once per frame
-    void Update() {
-
+    private void updateSpriteObject(ref GameObject obj, Sprite sprite, string name, float zOffset) {
+        if (sprite == null) {
+            if (obj != null) {
+                DestroyImmediate(obj);
+            }
+        }else{
+            if (obj == null) {
+                obj = new GameObject(name);
+                obj.transform.parent = transform;
+                obj.AddComponent<SpriteRenderer>();
+            }
+            Vector3 pos = obj.transform.position;
+            pos.z = zOffset;
+            obj.transform.position = pos;
+            SpriteRenderer spriteRenderer = obj.GetComponent<SpriteRenderer>();
+            spriteRenderer.sprite = sprite;
+        }
     }
+     * */
 }

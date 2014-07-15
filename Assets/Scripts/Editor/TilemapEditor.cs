@@ -4,30 +4,52 @@ using System.Collections;
 
 [CustomEditor (typeof (Tilemap))]
 public class TilemapEditor : Editor {
-    TileSpecification currentSpecification;
-
+    public const int PREVIEW_BORDER = 5;
+    public const int PREVIEW_SIZE = 64; 
+    GameObject currentTilePrefab;
 
     public override void OnInspectorGUI() {
         base.OnInspectorGUI();
 
-
-        if (currentSpecification == null) {
-            currentSpecification = ScriptableObject.CreateInstance<TileSpecification>();
+        GameObject newTile = (GameObject) EditorGUILayout.ObjectField(currentTilePrefab, typeof(GameObject), false);
+        if (newTile.GetComponent<Tile>()) {
+            currentTilePrefab = newTile;
         }
 
-        EditorGUILayout.LabelField("Current Tile");
-        SerializedObject obj = new SerializedObject(currentSpecification);
-        SerializedProperty prop = obj.GetIterator();
-        prop.NextVisible(true);
-        while (prop.NextVisible(true)) {
-            EditorGUILayout.PropertyField(prop);
-        }
-        obj.ApplyModifiedProperties();
+        if (currentTilePrefab) {
+            EditorGUILayout.LabelField("Current Tile");
+            SerializedObject obj = new SerializedObject(currentTilePrefab.GetComponent<Tile>());
+            SerializedProperty prop = obj.GetIterator();
+            prop.NextVisible(true);
+            while (prop.NextVisible(true)) {
+                EditorGUILayout.PropertyField(prop);
+            }
+            //obj.ApplyModifiedProperties();
 
-        if (currentSpecification.floorSprite) {
-            GUILayout.Box(currentSpecification.floorSprite.texture);
+            Rect borderRect = GUILayoutUtility.GetRect(PREVIEW_SIZE + PREVIEW_BORDER * 2, PREVIEW_SIZE + PREVIEW_BORDER * 2);
+            float diffWidth = borderRect.width - (PREVIEW_SIZE + PREVIEW_BORDER * 2);
+            borderRect.x += diffWidth / 2.0f;
+            borderRect.width = borderRect.width - diffWidth;
+
+            Rect previewRect = borderRect;
+            previewRect.x += PREVIEW_BORDER;
+            previewRect.y += PREVIEW_BORDER;
+            previewRect.width -= PREVIEW_BORDER * 2;
+            previewRect.height -= PREVIEW_BORDER * 2;
+
+            /*
+            GUI.Box(borderRect, new GUIContent());
+            if (currentSpecification.floorSprite) {
+                GUI.DrawTexture(previewRect, currentSpecification.floorSprite.texture, ScaleMode.StretchToFill);
+            }
+            if (currentSpecification.objectSprite) {
+                GUI.DrawTexture(previewRect, currentSpecification.objectSprite.texture, ScaleMode.ScaleToFit);
+            }
+            if (currentSpecification.overlaySprite) {
+                GUI.DrawTexture(previewRect, currentSpecification.overlaySprite.texture, ScaleMode.ScaleToFit);
+            }
+             * */
         }
-        
     }
 
     public void OnSceneGUI() {
@@ -41,7 +63,7 @@ public class TilemapEditor : Editor {
                 mouseMove();
                 break;
             case EventType.MouseDrag:
-                mouseDrag();
+                //mouseDrag();
                 break;
             case EventType.layout:
                 HandleUtility.AddDefaultControl(controlID);
@@ -59,6 +81,7 @@ public class TilemapEditor : Editor {
 
     }
 
+    /*
     private void mouseDrag() {
         if (Event.current.button == 0) {
             Tilemap tilemap = target as Tilemap;
@@ -80,14 +103,14 @@ public class TilemapEditor : Editor {
                             int x = (int)lerpedV.x;
                             int y = (int)lerpedV.y;
                             if (!set || prevX != x || prevY != y) {
-                                tilemap.setTileGameObject(new TilemapOffset(x, y), null);
+                                tilemap.setTileGameObject(new TilemapOffset(x, y), currentSpecification);
                             }
                             prevX = x;
                             prevY = y;
                             set = true;
                         }
                     } else {
-                        tilemap.setTileGameObject(endPosition, null);
+                        tilemap.setTileGameObject(endPosition, currentSpecification);
                     }
                     
                     Event.current.Use();
@@ -107,4 +130,5 @@ public class TilemapEditor : Editor {
         intersection = Vector2.zero;
         return false;
     }
+     * */
 }

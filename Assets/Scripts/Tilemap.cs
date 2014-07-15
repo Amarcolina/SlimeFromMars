@@ -97,11 +97,11 @@ public class Tilemap : MonoBehaviour {
         } 
     }
 
-    public void setTileGameObject(Vector2 position, TileSpecification tile) {
-        setTileGameObject(getTilemapOffset(position), tile);
+    public void setTileGameObject(Vector2 position, GameObject tileObject) {
+        setTileGameObject(getTilemapOffset(position), tileObject);
     }
 
-    public void setTileGameObject(TilemapOffset offset, TileSpecification tile) {
+    public void setTileGameObject(TilemapOffset offset, GameObject tileObject) {
         expandTilemapToIncludeOffset(offset);
         TilemapOffset chunkOffset = new TilemapOffset(tileChunkMod(offset.x), tileChunkMod(offset.y));
         TilemapOffset chunkLocation = (offset - chunkOffset - _chunkOriginOffset * TileChunk.CHUNK_SIZE) / TileChunk.CHUNK_SIZE;
@@ -118,9 +118,17 @@ public class Tilemap : MonoBehaviour {
         if (currentTile != null) {
             DestroyImmediate(currentTile);
         }
+
+        /*
         GameObject newTileObject = new GameObject("Tile(" + offset.x + "," + offset.y + ")");
+        Tile tileComponent = newTileObject.AddComponent<Tile>();
+        tileComponent.setSpecification(specification);
+
         newTileObject.transform.parent = tileChunk.gameObject.transform;
-        tileChunk.setTile(chunkOffset, newTileObject);
+        newTileObject.transform.position = new Vector3(offset.x, offset.y, 0) * TILE_SIZE;
+         * */
+
+        //tileChunk.setTile(chunkOffset, newTileObject);
     }
 
     private int tileChunkMod(int x) {
@@ -158,11 +166,6 @@ public class Tilemap : MonoBehaviour {
                 Vector2 cRight = Vector2.right * TileChunk.CHUNK_SIZE * TILE_SIZE;
                 Vector2 cUp = Vector2.up * TileChunk.CHUNK_SIZE * TILE_SIZE;
                 Vector2 v = new Vector2(x + _chunkOriginOffset.x, y + _chunkOriginOffset.y) * TileChunk.CHUNK_SIZE * TILE_SIZE - Vector2.one * TILE_SIZE / 2.0f;
-                Gizmos.color = Color.black;
-                Gizmos.DrawLine(v, v + cRight);
-                Gizmos.DrawLine(v, v + cUp);
-                Gizmos.DrawLine(v + cRight, v + cRight + cUp);
-                Gizmos.DrawLine(v + cUp, v + cRight + cUp);
 
                 TileChunk chunk = _tilemapChunks[x, y];
                 if (chunk != null) {
@@ -182,6 +185,12 @@ public class Tilemap : MonoBehaviour {
                         }
                     }
                 }
+
+                Gizmos.color = Color.black;
+                Gizmos.DrawLine(v, v + cRight);
+                Gizmos.DrawLine(v, v + cUp);
+                Gizmos.DrawLine(v + cRight, v + cRight + cUp);
+                Gizmos.DrawLine(v + cUp, v + cRight + cUp);
             }
         }
     }

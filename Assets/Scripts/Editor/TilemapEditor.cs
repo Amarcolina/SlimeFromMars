@@ -90,7 +90,7 @@ public class TilemapEditor : Editor {
                 mouseMove();
                 break;
             case EventType.mouseDown:
-                mouseMove();
+                mouseDown();
                 break;
             case EventType.MouseDrag:
                 mouseDrag();
@@ -127,8 +127,8 @@ public class TilemapEditor : Editor {
         if (getTilemapIntersection(start, out intersectionStart)) {
             Vector2 intersectionEnd;
             if (getTilemapIntersection(end, out intersectionEnd)) {
-                TilemapOffset startPosition = Tilemap.getTilemapOffset(intersectionStart);
-                TilemapOffset endPosition = Tilemap.getTilemapOffset(intersectionEnd);
+                Vector2Int startPosition = Tilemap.getTilemapLocation(intersectionStart);
+                Vector2Int endPosition = Tilemap.getTilemapLocation(intersectionEnd);
                 Vector2 startPositionV = new Vector2(startPosition.x, startPosition.y);
                 Vector2 endPositionV = new Vector2(endPosition.x, endPosition.y);
                 float distance = Vector2.Distance(startPositionV, endPositionV);
@@ -141,7 +141,7 @@ public class TilemapEditor : Editor {
                         int x = (int)lerpedV.x;
                         int y = (int)lerpedV.y;
                         if (!set || prevX != x || prevY != y) {
-                            drawToTilemap(new TilemapOffset(x, y));
+                            drawToTilemap(new Vector2Int(x, y));
                         }
                         prevX = x;
                         prevY = y;
@@ -156,7 +156,7 @@ public class TilemapEditor : Editor {
         }
     }
 
-    private void drawToTilemap(TilemapOffset position){
+    private void drawToTilemap(Vector2Int position){
         Tilemap tilemap = target as Tilemap;
         tilemap.setTilePrefab(position, currentTilePrefab);
     }

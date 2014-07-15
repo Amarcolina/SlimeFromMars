@@ -5,48 +5,6 @@ using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
 
-[System.Serializable]
-public struct TilemapOffset {
-    [SerializeField]
-    private int _x;
-    [SerializeField]
-    private int _y;
-
-    public int x {
-        get {
-            return _x;
-        }
-    }
-
-    public int y {
-        get {
-            return _y;
-        }
-    }
-
-    public TilemapOffset(int x, int y) {
-        _x = x;
-        _y = y;
-    }
-
-    public static TilemapOffset operator +(TilemapOffset a, TilemapOffset b) {
-        return new TilemapOffset(a.x + b.x, a.y + b.y);
-    }
-
-    public static TilemapOffset operator -(TilemapOffset a, TilemapOffset b) {
-        return new TilemapOffset(a.x - b.x, a.y - b.y);
-    }
-
-    public static TilemapOffset operator *(TilemapOffset a, int x) {
-        return new TilemapOffset(a.x * x, a.y * x);
-    }
-
-    public static TilemapOffset operator /(TilemapOffset a, int d) {
-        return new TilemapOffset(a.x / d, a.y / d);
-    }
-}
-
-
 [InitializeOnLoad]
 public class Tilemap : MonoBehaviour {
     public const float TILE_SIZE = 1.0f;
@@ -55,7 +13,7 @@ public class Tilemap : MonoBehaviour {
     private Array2DTC _tilemapChunks = null;
     [SerializeField]
     [HideInInspector]
-    public TilemapOffset _chunkOriginOffset = new TilemapOffset(0, 0);
+    public Vector2Int _chunkOriginOffset = new Vector2Int(0, 0);
 
 #if UNITY_EDITOR
     public static void recalculateTileImages() {
@@ -83,43 +41,43 @@ public class Tilemap : MonoBehaviour {
         }
         _tilemapChunks = ScriptableObject.CreateInstance<Array2DTC>();
         _tilemapChunks.init(1, 1);
-        _chunkOriginOffset = new TilemapOffset(0, 0);
+        _chunkOriginOffset = new Vector2Int(0, 0);
     }
 
-    public static TilemapOffset getTilemapOffset(Vector2 position) {
-        return new TilemapOffset((int)System.Math.Round(position.x / TILE_SIZE, System.MidpointRounding.ToEven),
+    public static Vector2Int getTilemapLocation(Vector2 position) {
+        return new Vector2Int((int)System.Math.Round(position.x / TILE_SIZE, System.MidpointRounding.ToEven),
                                  (int)System.Math.Round(position.y / TILE_SIZE, System.MidpointRounding.ToEven));
     }
 
     public Tile getTile(Vector2 position) {
-        return getTile(getTilemapOffset(position));
+        return getTile(getTilemapLocation(position));
     }
 
-    public Tile getTile(TilemapOffset offset) {
-        return getTileGameObject(offset).GetComponent<Tile>();
+    public Tile getTile(Vector2Int location) {
+        return getTileGameObject(location).GetComponent<Tile>();
     }
 
     public GameObject getTileGameObject(Vector2 position) {
-        return getTileGameObject(getTilemapOffset(position));
+        return getTileGameObject(getTilemapLocation(position));
     }
 
-    public GameObject getTileGameObject(TilemapOffset offset) {
-        TilemapOffset chunkOffset = new TilemapOffset(tileChunkMod(offset.x), tileChunkMod(offset.y));
-        TilemapOffset chunkLocation = (offset - chunkOffset) / TileChunk.CHUNK_SIZE;
+    public GameObject getTileGameObject(Vector2Int tileLocation) {
+        Vector2Int tileInChunkLocation = new Vector2Int(tileChunkMod(tileLocation.x), tileChunkMod(tileLocation.y));
+        Vector2Int chunkLocation = (tileLocation - tileInChunkLocation) / TileChunk.CHUNK_SIZE;
         TileChunk tileChunk = _tilemapChunks[chunkLocation.x, chunkLocation.y];
 
         if (tileChunk == null) {
             return null;
         }
 
-        return tileChunk.getTile(chunkOffset);
+        return tileChunk.getTile(tileInChunkLocation);
     }
 
 #if UNITY_EDITOR
-    public void setTilePrefab(TilemapOffset offset, GameObject prefab) {
-        expandTilemapToIncludeOffset(offset);
-        TilemapOffset chunkOffset = new TilemapOffset(tileChunkMod(offset.x), tileChunkMod(offset.y));
-        TilemapOffset chunkLocation = (offset - chunkOffset - _chunkOriginOffset * TileChunk.CHUNK_SIZE) / TileChunk.CHUNK_SIZE;
+    public void setTilePrefab(Vector2Int tileLocation, GameObject prefab) {
+        expandTilemapToIncludeLocation(tileLocation);
+        Vector2Int tileInChunkLocation = new Vector2Int(tileChunkMod(tileLocation.x), tileChunkMod(tileLocation.y));
+        Vector2Int chunkLocation = (tileLocation - tileInChunkLocation - _chunkOriginOffset * TileChunk.CHUNK_SIZE) / TileChunk.CHUNK_SIZE;
         TileChunk tileChunk = _tilemapChunks[chunkLocation.x, chunkLocation.y];
 
         if (tileChunk == null) {
@@ -130,17 +88,17 @@ public class Tilemap : MonoBehaviour {
             _tilemapChunks[chunkLocation.x, chunkLocation.y] = tileChunk;
         }
 
-        GameObject currentTile = tileChunk.getTile(chunkOffset);
+        GameObject currentTile = tileChunk.getTile(tileInChunkLocation);
         if (currentTile != null) {
             DestroyImmediate(currentTile);
         }
 
-        GameObject newTileObject = (GameObject) PrefabUtility.InstantiatePrefab(prefab);     
-        newTileObject.name += "(" + offset.x + "," + offset.y + ")";
+        GameObject newTileObject = (GameObject) PrefabUtility.InstantiatePrefab(prefab);
+        newTileObject.name += "(" + tileLocation.x + "," + tileLocation.y + ")";
         newTileObject.transform.parent = tileChunk.gameObject.transform;
-        newTileObject.transform.position = new Vector3(offset.x, offset.y, 0) * TILE_SIZE;
+        newTileObject.transform.position = new Vector3(tileLocation.x, tileLocation.y, 0) * TILE_SIZE;
         newTileObject.GetComponent<Tile>().updateTileWithSettings();
-        tileChunk.setTile(chunkOffset, newTileObject);
+        tileChunk.setTile(tileInChunkLocation, newTileObject);
     }
 #endif
 
@@ -148,12 +106,12 @@ public class Tilemap : MonoBehaviour {
         return (x % TileChunk.CHUNK_SIZE + TileChunk.CHUNK_SIZE) % TileChunk.CHUNK_SIZE;
     }
 
-    private void expandTilemapToIncludeOffset(TilemapOffset offset) {
-        TilemapOffset transformedOffset = offset - _chunkOriginOffset * 8;
-        int increaseLeftX = Mathf.Max(0, -transformedOffset.x + TileChunk.CHUNK_SIZE - 1) / TileChunk.CHUNK_SIZE;
-        int increaseRightX = Mathf.Max(0, transformedOffset.x - _tilemapChunks.width * TileChunk.CHUNK_SIZE + TileChunk.CHUNK_SIZE) / TileChunk.CHUNK_SIZE;
-        int increaseUpY = Mathf.Max(0, -transformedOffset.y + TileChunk.CHUNK_SIZE - 1) / TileChunk.CHUNK_SIZE;
-        int increaseDownY = Mathf.Max(0, transformedOffset.y - _tilemapChunks.height * TileChunk.CHUNK_SIZE + TileChunk.CHUNK_SIZE) / TileChunk.CHUNK_SIZE;
+    private void expandTilemapToIncludeLocation(Vector2Int tileLocation) {
+        Vector2Int tilemapArrayIndex = tileLocation - _chunkOriginOffset * 8;
+        int increaseLeftX = Mathf.Max(0, -tilemapArrayIndex.x + TileChunk.CHUNK_SIZE - 1) / TileChunk.CHUNK_SIZE;
+        int increaseRightX = Mathf.Max(0, tilemapArrayIndex.x - _tilemapChunks.width * TileChunk.CHUNK_SIZE + TileChunk.CHUNK_SIZE) / TileChunk.CHUNK_SIZE;
+        int increaseUpY = Mathf.Max(0, -tilemapArrayIndex.y + TileChunk.CHUNK_SIZE - 1) / TileChunk.CHUNK_SIZE;
+        int increaseDownY = Mathf.Max(0, tilemapArrayIndex.y - _tilemapChunks.height * TileChunk.CHUNK_SIZE + TileChunk.CHUNK_SIZE) / TileChunk.CHUNK_SIZE;
         int increaseX = Mathf.Max(increaseLeftX, increaseRightX);
         int increaseY = Mathf.Max(increaseUpY, increaseDownY);
 
@@ -171,7 +129,7 @@ public class Tilemap : MonoBehaviour {
         }
 
         _tilemapChunks = newChunkArray;
-        _chunkOriginOffset = _chunkOriginOffset - new TilemapOffset(increaseLeftX, increaseUpY);
+        _chunkOriginOffset = _chunkOriginOffset - new Vector2Int(increaseLeftX, increaseUpY);
     }
 
     public void OnDrawGizmos() {
@@ -188,7 +146,7 @@ public class Tilemap : MonoBehaviour {
                 if (chunk != null) {
                     for (int dx = 0; dx < TileChunk.CHUNK_SIZE; dx++) {
                         for (int dy = 0; dy < TileChunk.CHUNK_SIZE; dy++) {
-                            GameObject obj = chunk.getTile(new TilemapOffset(dx, dy));
+                            GameObject obj = chunk.getTile(new Vector2Int(dx, dy));
                             if (obj == null) {
                                 Vector2 v2 = v + new Vector2(dx, dy) * TILE_SIZE;
                                 Vector2 tRight = Vector2.right * TILE_SIZE;

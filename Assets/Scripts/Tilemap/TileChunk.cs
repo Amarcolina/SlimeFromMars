@@ -23,11 +23,11 @@ public class TileChunk : ScriptableObject {
         _chunkGameObject = chunkGameObject;
     }
 
-    public GameObject getTile(TilemapOffset offset) {
-        return _tiles[offset.x, offset.y];
+    public GameObject getTile(Vector2Int location) {
+        return _tiles[location.x, location.y];
     }
 
-    public void setTile(TilemapOffset offset, GameObject tile) {
-        _tiles[offset.x, offset.y] = tile;
+    public void setTile(Vector2Int location, GameObject tile) {
+        _tiles[location.x, location.y] = tile;
     }
 }

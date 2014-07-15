@@ -6,25 +6,29 @@ using System.Collections;
 public class TilemapEditor : Editor {
     public const int PREVIEW_BORDER = 5;
     public const int PREVIEW_SIZE = 64; 
-    GameObject currentTilePrefab;
+    static GameObject currentTilePrefab;
 
     public override void OnInspectorGUI() {
         base.OnInspectorGUI();
 
-        GameObject newTile = (GameObject) EditorGUILayout.ObjectField(currentTilePrefab, typeof(GameObject), false);
-        if (newTile.GetComponent<Tile>()) {
+        GUILayout.Space(EditorGUIUtility.singleLineHeight);
+        GUILayout.Label("Tilemap Editor");
+        Rect lastRect = GUILayoutUtility.GetLastRect();
+        GUI.Box(lastRect, "");
+
+        GameObject newTile = (GameObject) EditorGUILayout.ObjectField("Current Tile", currentTilePrefab, typeof(GameObject), false);
+        if (newTile && newTile.GetComponent<Tile>()) {
             currentTilePrefab = newTile;
         }
 
         if (currentTilePrefab) {
-            EditorGUILayout.LabelField("Current Tile");
             SerializedObject obj = new SerializedObject(currentTilePrefab.GetComponent<Tile>());
             SerializedProperty prop = obj.GetIterator();
             prop.NextVisible(true);
             while (prop.NextVisible(true)) {
                 EditorGUILayout.PropertyField(prop);
             }
-            //obj.ApplyModifiedProperties();
+            obj.ApplyModifiedProperties();
 
             Rect borderRect = GUILayoutUtility.GetRect(PREVIEW_SIZE + PREVIEW_BORDER * 2, PREVIEW_SIZE + PREVIEW_BORDER * 2);
             float diffWidth = borderRect.width - (PREVIEW_SIZE + PREVIEW_BORDER * 2);
@@ -37,18 +41,29 @@ public class TilemapEditor : Editor {
             previewRect.width -= PREVIEW_BORDER * 2;
             previewRect.height -= PREVIEW_BORDER * 2;
 
-            /*
             GUI.Box(borderRect, new GUIContent());
-            if (currentSpecification.floorSprite) {
-                GUI.DrawTexture(previewRect, currentSpecification.floorSprite.texture, ScaleMode.StretchToFill);
+            Tile currentTile = currentTilePrefab.GetComponent<Tile>();
+            drawSprite(previewRect, currentTile.groundSprite);
+            drawSprite(previewRect, currentTile.groundEffectSprite);
+            drawSprite(previewRect, currentTile.objectSprite);
+            drawSprite(previewRect, currentTile.objectEffectSprite);
+            drawSprite(previewRect, currentTile.overlaySprite);
+
+            GUILayout.Space(EditorGUIUtility.singleLineHeight);
+
+            if (GUILayout.Button("Create copy of tile")) {
+                string newPrefabPath = "Assets/Resources/Tiles/" + currentTilePrefab.name + " Copy.prefab";
+                string newPrefabPath2 = "Tiles/" + currentTilePrefab.name + " Copy";
+                PrefabUtility.CreatePrefab(newPrefabPath, currentTilePrefab);
+                currentTilePrefab = Resources.Load<GameObject>(newPrefabPath2);
+                Debug.Log(currentTilePrefab);
             }
-            if (currentSpecification.objectSprite) {
-                GUI.DrawTexture(previewRect, currentSpecification.objectSprite.texture, ScaleMode.ScaleToFit);
-            }
-            if (currentSpecification.overlaySprite) {
-                GUI.DrawTexture(previewRect, currentSpecification.overlaySprite.texture, ScaleMode.ScaleToFit);
-            }
-             * */
+        }
+    }
+
+    private void drawSprite(Rect rect, Sprite sprite) {
+        if (sprite) {
+            GUI.DrawTexture(rect, sprite.texture, ScaleMode.StretchToFill);
         }
     }
 

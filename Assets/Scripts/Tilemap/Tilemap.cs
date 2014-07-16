@@ -5,6 +5,7 @@ using UnityEditor;
 using System.Collections;
 using System.Collections.Generic;
 
+
 [InitializeOnLoad]
 public class Tilemap : MonoBehaviour {
     public const float TILE_SIZE = 1.0f;
@@ -14,6 +15,8 @@ public class Tilemap : MonoBehaviour {
     [SerializeField]
     [HideInInspector]
     public Vector2Int _chunkOriginOffset = new Vector2Int(0, 0);
+
+    private delegate void NeighborBuilderDelegate(Vector2Int delta);
 
     /* Clears the tilemap of all tiles, and sets up all internal
      * variables to contain an empty tilemap.  This properly destroys
@@ -87,14 +90,36 @@ public class Tilemap : MonoBehaviour {
         return getTileGameObject(getTilemapLocation(position));
     }
 
-
     //####################################################################################################
-    /* Returns the neighbors to a specific location in the tilemap.
-     * The user can specify if they want to include the diagonal
-     * tiles in the neighbor list, as well as if they want to include
-     * non-walkable tiles in the list
+    /* Returns the neighboring position to a specific location in the tilemap.
+     * The user can specify if they want to include the diagonal tiles in the 
+     * neighbor list, as well as if they want to include non-walkable tiles in the list
      */
-    delegate void NeighborBuilderDelegate(Vector2Int delta);
+    public List<Vector2Int> getNeighboringPositions(Vector2Int position, bool includeNonWalkable = false, bool includeDiagonal = true) {
+        List<Vector2Int> neighborList = new List<Vector2Int>();
+
+        NeighborBuilderDelegate buildNeighborList = delegate(Vector2Int delta) {
+            Tile tile = getTile(position + delta);
+            if (tile != null) {
+                if (tile.isWalkable || includeNonWalkable) {
+                    neighborList.Add(position + delta);
+                }
+            }
+        };
+
+        buildNeighborList(Vector2Int.right);
+        buildNeighborList(Vector2Int.left);
+        buildNeighborList(Vector2Int.up);
+        buildNeighborList(Vector2Int.down);
+        if (includeDiagonal) {
+            buildNeighborList(position + Vector2Int.right + Vector2Int.up);
+            buildNeighborList(position + Vector2Int.right + Vector2Int.down);
+            buildNeighborList(position + Vector2Int.left + Vector2Int.up);
+            buildNeighborList(position + Vector2Int.left + Vector2Int.down);
+        }
+        return neighborList;
+    }
+
     public List<Tile> getNeighboringTiles(Vector2Int position, bool includeNonWalkable = false, bool includeDiagonal = true) {
         List<Tile> neighborList = new List<Tile>();
 
@@ -118,10 +143,6 @@ public class Tilemap : MonoBehaviour {
             buildNeighborList(position + Vector2Int.left + Vector2Int.down);
         }
         return neighborList;
-    }
-
-    public List<Tile> getNeighboringTiles(Vector2 position, bool includeDiagonal = true) {
-        return getNeighboringTiles(getTilemapLocation(position), includeDiagonal);
     }
 
     //####################################################################################################

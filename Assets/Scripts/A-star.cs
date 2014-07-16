@@ -57,7 +57,7 @@ public class Astar : MonoBehaviour {
         }
     }
 
-    public List<Node> Astar(Vector2Int start, Vector2Int goal) {
+    public List<Node> runAstar(Vector2Int start, Vector2Int goal) {
 
         List<Node> finalPath = new List<Node>();//path from start to goal
         BinaryMinHeap<Node> openList = new BinaryMinHeap<Node>();//nodes to be examined

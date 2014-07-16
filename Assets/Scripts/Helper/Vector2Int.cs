@@ -62,4 +62,34 @@ public class Vector2Int {
     public static bool operator !=(Vector2Int a, Vector2Int b) {
         return a.x != b.x || a.y != b.y;
     }
+
+    public static Vector2Int right {
+        get {
+            return new Vector2Int(1, 0);
+        }
+    }
+
+    public static Vector2Int left {
+        get {
+            return new Vector2Int(-1, 0);
+        }
+    }
+
+    public static Vector2Int up {
+        get {
+            return new Vector2Int(0, 1);
+        }
+    }
+
+    public static Vector2Int down {
+        get {
+            return new Vector2Int(0, -1);
+        }
+    }
+
+    public static Vector2Int zero {
+        get {
+            return new Vector2Int(0, 0);
+        }
+    }
 }

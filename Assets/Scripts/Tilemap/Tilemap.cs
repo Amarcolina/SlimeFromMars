@@ -225,6 +225,7 @@ public class Tilemap : MonoBehaviour {
 
         //The offset is at the top left corner, and so only needs to be modified
         // if we have increased in that direction
+        Undo.RecordObject(this, "Updated chunk origin offset");
         _chunkOriginOffset = _chunkOriginOffset - new Vector2Int(increaseLeftX, increaseUpY);
     }
 

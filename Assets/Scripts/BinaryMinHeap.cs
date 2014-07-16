@@ -14,17 +14,53 @@ public class BinaryMinHeap<GenericItem> : MonoBehaviour where GenericItem : ICom
     }
 
     //removes the minimum element in the tree and restructures tree with minHeapify to maintain integrity
-    public GenericItem extractRoot() {
+    public GenericItem extractElement(int i) {
         if (getHeapSize() < 0) {
             throw new ArgumentOutOfRangeException();
         }
-        GenericItem minElement = getRoot();
-        heap[0] = heap[getHeapSize() - 1];
+        GenericItem extractedElement = heap[i];
+        heap[i] = heap[getHeapSize() - 1];
         heap.RemoveAt(getHeapSize() - 1);
-        this.minHeapify(0);
-        return minElement;
+        if (extractedElement.CompareTo(heap[i]) < 0) {
+            bubbleUp();
+        } else {
+            this.minHeapify(i);
+        }
+        
+        return extractedElement;
     }
 
+    public GenericItem extractElement(GenericItem element){
+        GenericItem extractedElement = element;
+        int index = 0;
+        while(index < getHeapSize()){
+          if(element.CompareTo(heap[index]) == 0){//if we've found the elment we're looking for, extract it
+              extractedElement = heap[index];//save the value
+              break;//no need to keep searching
+          } 
+            index++;
+        }
+        heap[index] = heap[getHeapSize() - 1];//fill empty spot left by extractedElement with last element in heap
+        heap.RemoveAt(getHeapSize() - 1);//remove erroneous last element
+        if (extractedElement.CompareTo(heap[index]) < 0) {//if the element was less than value at that index, bubbleUp
+            bubbleUp();
+        } else {//else bubbledDown
+            this.minHeapify(i);
+        }
+        return extractedElement;
+    }
+
+    public bool contains(GenericItem element) {
+        bool exists = false;
+        for (int i = 0; i < getHeapSize(); i++) {
+            if (element.Equals(heap[i])) {
+                exists = true;
+                break;
+            }       
+        }
+        return exists;
+    }
+    
     public GenericItem peekAtElement(int i) {
         return heap[i];
     }

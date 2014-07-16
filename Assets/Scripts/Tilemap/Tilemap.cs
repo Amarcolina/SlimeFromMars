@@ -16,8 +16,7 @@ public class Tilemap : MonoBehaviour {
     [HideInInspector]
     public Vector2Int _chunkOriginOffset = new Vector2Int(0, 0);
 
-    private delegate void NeighborBuilderDelegate(Vector2Int delta);
-
+    
     /* Clears the tilemap of all tiles, and sets up all internal
      * variables to contain an empty tilemap.  This properly destroys
      * all internal variables and external tiles
@@ -76,8 +75,12 @@ public class Tilemap : MonoBehaviour {
      */
     public GameObject getTileGameObject(Vector2Int tileLocation) {
         Vector2Int tileInChunkLocation = new Vector2Int(tileChunkMod(tileLocation.x), tileChunkMod(tileLocation.y));
-        Vector2Int chunkLocation = (tileLocation - tileInChunkLocation) / TileChunk.CHUNK_SIZE;
-        TileChunk tileChunk = _tilemapChunks[chunkLocation.x, chunkLocation.y];
+        Vector2Int chunkLocation = (tileLocation - tileInChunkLocation - _chunkOriginOffset * TileChunk.CHUNK_SIZE) / TileChunk.CHUNK_SIZE;
+
+        TileChunk tileChunk = null;
+        if (_tilemapChunks.isInRange(chunkLocation)) {
+            tileChunk = _tilemapChunks[chunkLocation.x, chunkLocation.y];
+        }
 
         if (tileChunk == null) {
             return null;
@@ -97,52 +100,44 @@ public class Tilemap : MonoBehaviour {
      */
     public List<Vector2Int> getNeighboringPositions(Vector2Int position, bool includeNonWalkable = false, bool includeDiagonal = true) {
         List<Vector2Int> neighborList = new List<Vector2Int>();
-
-        NeighborBuilderDelegate buildNeighborList = delegate(Vector2Int delta) {
-            Tile tile = getTile(position + delta);
-            if (tile != null) {
-                if (tile.isWalkable || includeNonWalkable) {
-                    neighborList.Add(position + delta);
-                }
-            }
+        FoundNeighborFunc func = delegate(Vector2Int tilePosition) {
+            neighborList.Add(tilePosition);
         };
-
-        buildNeighborList(Vector2Int.right);
-        buildNeighborList(Vector2Int.left);
-        buildNeighborList(Vector2Int.up);
-        buildNeighborList(Vector2Int.down);
-        if (includeDiagonal) {
-            buildNeighborList(position + Vector2Int.right + Vector2Int.up);
-            buildNeighborList(position + Vector2Int.right + Vector2Int.down);
-            buildNeighborList(position + Vector2Int.left + Vector2Int.up);
-            buildNeighborList(position + Vector2Int.left + Vector2Int.down);
-        }
+        findNeighboringLocationsInternal(position, func, includeNonWalkable, includeDiagonal);
         return neighborList;
     }
 
     public List<Tile> getNeighboringTiles(Vector2Int position, bool includeNonWalkable = false, bool includeDiagonal = true) {
         List<Tile> neighborList = new List<Tile>();
+        FoundNeighborFunc func = delegate(Vector2Int tilePosition) {
+            neighborList.Add(getTile(tilePosition));
+        };
+        findNeighboringLocationsInternal(position, func, includeNonWalkable, includeDiagonal);
+        return neighborList;
+    }
 
+    private delegate void NeighborBuilderDelegate(Vector2Int delta);
+    private delegate void FoundNeighborFunc(Vector2Int tilePosition);
+    private void findNeighboringLocationsInternal(Vector2Int position, FoundNeighborFunc func, bool includeNonWalkable = false, bool includeDiagonal = true){
         NeighborBuilderDelegate buildNeighborList = delegate(Vector2Int delta) {
             Tile tile = getTile(position + delta);
             if (tile != null) {
                 if (tile.isWalkable || includeNonWalkable) {
-                    neighborList.Add(tile);
+                    func(position + delta);
                 }
             }
         };
 
+        if (includeDiagonal) {
+            buildNeighborList(Vector2Int.right + Vector2Int.up);
+            buildNeighborList(Vector2Int.right + Vector2Int.down);
+            buildNeighborList(Vector2Int.left + Vector2Int.up);
+            buildNeighborList(Vector2Int.left + Vector2Int.down);
+        }
         buildNeighborList(Vector2Int.right);
         buildNeighborList(Vector2Int.left);
         buildNeighborList(Vector2Int.up);
         buildNeighborList(Vector2Int.down);
-        if (includeDiagonal) {
-            buildNeighborList(position + Vector2Int.right + Vector2Int.up);
-            buildNeighborList(position + Vector2Int.right + Vector2Int.down);
-            buildNeighborList(position + Vector2Int.left + Vector2Int.up);
-            buildNeighborList(position + Vector2Int.left + Vector2Int.down);
-        }
-        return neighborList;
     }
 
     //####################################################################################################

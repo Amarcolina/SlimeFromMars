@@ -22,9 +22,9 @@ public class BinaryMinHeap<GenericItem> : MonoBehaviour where GenericItem : ICom
         heap[i] = heap[getHeapSize() - 1];
         heap.RemoveAt(getHeapSize() - 1);
         if (extractedElement.CompareTo(heap[i]) < 0) {
-            bubbleUp();
-        } else {
             this.minHeapify(i);
+        } else {
+            bubbleUp();
         }
         
         return extractedElement;
@@ -34,7 +34,7 @@ public class BinaryMinHeap<GenericItem> : MonoBehaviour where GenericItem : ICom
         GenericItem extractedElement = element;
         int index = 0;
         while(index < getHeapSize()){
-          if(element.CompareTo(heap[index]) == 0){//if we've found the elment we're looking for, extract it
+          if(element.Equals(heap[index])){//if we've found the elment we're looking for, extract it
               extractedElement = heap[index];//save the value
               break;//no need to keep searching
           } 
@@ -42,10 +42,10 @@ public class BinaryMinHeap<GenericItem> : MonoBehaviour where GenericItem : ICom
         }
         heap[index] = heap[getHeapSize() - 1];//fill empty spot left by extractedElement with last element in heap
         heap.RemoveAt(getHeapSize() - 1);//remove erroneous last element
-        if (extractedElement.CompareTo(heap[index]) < 0) {//if the element was less than value at that index, bubbleUp
-            bubbleUp();
-        } else {//else bubbledDown
+        if (extractedElement.CompareTo(heap[index]) < 0) {//if the extractedElement was less than the element at that index, bubbleDown
             this.minHeapify(i);
+        } else {//else bubbleUp   
+            bubbleUp();
         }
         return extractedElement;
     }

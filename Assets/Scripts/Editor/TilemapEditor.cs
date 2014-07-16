@@ -74,7 +74,7 @@ public class TilemapEditor : Editor {
         if (GUILayout.Button("Reset Tilemap")) {
             if (EditorUtility.DisplayDialog("Erase Tilemap", "Are you sure you want to erase the entire tilemap?", "Erase!", "Keep it")) {
                 Tilemap tilemap = target as Tilemap;
-                tilemap.clear();
+                tilemap.clearTilemap();
             }
         }
     }

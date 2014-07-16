@@ -24,7 +24,7 @@ public class TilemapEditor : Editor {
     }
 
     public override void OnInspectorGUI() {
-        base.OnInspectorGUI();
+        //base.OnInspectorGUI();
 
         displayEditorHeader();
         displayTileChoiceScroller();
@@ -34,6 +34,7 @@ public class TilemapEditor : Editor {
             GUILayout.Space(EditorGUIUtility.singleLineHeight);
             displayTilePreview();
             displayCopyButton();
+            GUILayout.Space(EditorGUIUtility.singleLineHeight);
         }
 
         displayResetButton();
@@ -44,7 +45,6 @@ public class TilemapEditor : Editor {
      * from the drop down
      */
     private void displayEditorHeader() {
-        GUILayout.Space(EditorGUIUtility.singleLineHeight);
         GUILayout.Label("Tilemap Editor");
         Rect lastRect = GUILayoutUtility.GetLastRect();
         GUI.Box(lastRect, "");
@@ -129,6 +129,8 @@ public class TilemapEditor : Editor {
     }
 
     private void displayCopyButton() {
+        GUILayout.BeginHorizontal();
+        GUILayout.FlexibleSpace();
         if (GUILayout.Button("Create copy of tile")) {
             string newPrefabPath = "Assets/Resources/TilePrefabs/" + currentTilePrefab.name + " Copy.prefab";
             string newPrefabPath2 = "TilePrefabs/" + currentTilePrefab.name + " Copy";
@@ -136,6 +138,8 @@ public class TilemapEditor : Editor {
             currentTilePrefab = Resources.Load<GameObject>(newPrefabPath2);
             _tilePrefabs.Add(currentTilePrefab);
         }
+        GUILayout.FlexibleSpace();
+        GUILayout.EndHorizontal();
     }
 
     private void displayResetButton() {

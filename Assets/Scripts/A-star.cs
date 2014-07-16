@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 public class Astar : MonoBehaviour {
+
     class Node : IComparable {
         Vector2Int position; //tilemap position of node
         private const float ORTHOGANAL_COST = 1;
@@ -64,6 +65,7 @@ public class Astar : MonoBehaviour {
         Tilemap tileMap = null;
         Dictionary<Vector2Int, Node> nodePostionMap = new Dictionary<Vector2Int, Node>();
         Node startNode = new Node(start, null, goal);
+        Node goalNode = null;
         nodePostionMap.Add(startNode.getPosition(), startNode);
 
         openList.insert(startNode);
@@ -92,12 +94,14 @@ public class Astar : MonoBehaviour {
                     neighborNode.setParent(current);
                 }
             }
-            //reconstruct reverse path from goal to start by following parent pointers
-            finalPath.Add(current);
-            while (current.getParent() != null) {
-                current = current.getParent();
-                finalPath.Insert(0, current);
-            }
+        }
+        goalNode = openList.peekAtElement(0);
+
+        //reconstruct reverse path from goal to start by following parent pointers
+        finalPath.Add(goalNode);
+        while (goalNode.getParent() != null) {
+            goalNode = goalNode.getParent();
+            finalPath.Insert(0, goalNode);
         }
         return finalPath;
     }

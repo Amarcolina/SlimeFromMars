@@ -18,6 +18,14 @@ public class Tile : MonoBehaviour {
     private SpriteRenderer _objectSpriteRenderer;
     private SpriteRenderer _overlaySpriteRenderer;
 
+    /* This method causes the Tile object to update the sprite
+     * renderers with the correct sprites, as well as (re)construct
+     * the child game objects for the additional sprite overlays
+     * 
+     * This method is usually called by the tilemap editor so
+     * that the prefabs are updated correctly in the editor
+     * to remain visible
+     */
     public void updateTileWithSettings() {
         _groundSpriteRenderer = GetComponent<SpriteRenderer>();
         _groundSpriteRenderer.sprite = groundSprite;

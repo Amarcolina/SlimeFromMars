@@ -17,6 +17,13 @@ public class TileChunk : ScriptableObject {
         }
     }
 
+    /* This is the stand-in for a constructor, since ScriptableObjects
+     * cannot be instantiated using constructors.  Calling this method
+     * initializes the class properly.  The passed in game object is
+     * a game object used by the tilemap to structure and organize
+     * tiles.  Any tile within this chunk will end up being a child of
+     * the given game object
+     */
     public void init(GameObject chunkGameObject) {
         _tiles = ScriptableObject.CreateInstance<Array2DGO>();
         _tiles.init(CHUNK_SIZE, CHUNK_SIZE);
@@ -27,10 +34,18 @@ public class TileChunk : ScriptableObject {
         DestroyImmediate(_tiles);
     }
 
+    /* Used to access a tile from this chunk.  The input is the 
+     * LOCAL position inside of this chunk.  Each index must
+     * range from 0 to CHUNK_SIZE - 1.  
+     */
     public GameObject getTile(Vector2Int location) {
         return _tiles[location.x, location.y];
     }
 
+    /* Used to set a tile for this chunk.  The input is the 
+     * LOCAL position inside of this chunk.  Each index must
+     * range from 0 to CHUNK_SIZE - 1.  
+     */
     public void setTile(Vector2Int location, GameObject tile) {
         _tiles[location.x, location.y] = tile;
     }

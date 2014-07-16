@@ -47,18 +47,10 @@ public class Tilemap : MonoBehaviour {
                                  (int)System.Math.Round(position.y / TILE_SIZE, System.MidpointRounding.ToEven));
     }
 
+    //####################################################################################################
     /* Given a 2D world position, return the tile that is located
      * at that position.  This returns the Tile component, not
      * the GameObject itself. If there is no Tile located at that
-     * position, null is returned.
-     */
-    public Tile getTile(Vector2 position) {
-        return getTile(getTilemapLocation(position));
-    }
-
-    /* Given a 2D integer tile position, return the tile that
-     * is located at that position.  This returns the Tile component,
-     * not the gameObject itself.  If there is no Tile located at that
      * position, null is returned.
      */
     public Tile getTile(Vector2Int location) {
@@ -69,15 +61,11 @@ public class Tilemap : MonoBehaviour {
         return tileObj.GetComponent<Tile>();
     }
 
-    /* Given a 2D world position, returns the Tile GameObject that
-     * is located at that position.  This returns the GameObject 
-     * itself, which has the Tile component connected.  If there is 
-     * no Tile located at that position, null is returned.
-     */
-    public GameObject getTileGameObject(Vector2 position) {
-        return getTileGameObject(getTilemapLocation(position));
+    public Tile getTile(Vector2 position) {
+        return getTile(getTilemapLocation(position));
     }
 
+    //####################################################################################################
     /* Given a 2D integer tilemap position, this returns the Tile
      * Gameobject that is located at that position.  This returns the 
      * GameObject itself, which has the Tile component connected.
@@ -95,6 +83,48 @@ public class Tilemap : MonoBehaviour {
         return tileChunk.getTile(tileInChunkLocation);
     }
 
+    public GameObject getTileGameObject(Vector2 position) {
+        return getTileGameObject(getTilemapLocation(position));
+    }
+
+
+    //####################################################################################################
+    /* Returns the neighbors to a specific location in the tilemap.
+     * The user can specify if they want to include the diagonal
+     * tiles in the neighbor list, as well as if they want to include
+     * non-walkable tiles in the list
+     */
+    delegate void NeighborBuilderDelegate(Vector2Int delta);
+    public List<Tile> getNeighboringTiles(Vector2Int position, bool includeNonWalkable = false, bool includeDiagonal = true) {
+        List<Tile> neighborList = new List<Tile>();
+
+        NeighborBuilderDelegate buildNeighborList = delegate(Vector2Int delta) {
+            Tile tile = getTile(position + delta);
+            if (tile != null) {
+                if (tile.isWalkable || includeNonWalkable) {
+                    neighborList.Add(tile);
+                }
+            }
+        };
+
+        buildNeighborList(Vector2Int.right);
+        buildNeighborList(Vector2Int.left);
+        buildNeighborList(Vector2Int.up);
+        buildNeighborList(Vector2Int.down);
+        if (includeDiagonal) {
+            buildNeighborList(position + Vector2Int.right + Vector2Int.up);
+            buildNeighborList(position + Vector2Int.right + Vector2Int.down);
+            buildNeighborList(position + Vector2Int.left + Vector2Int.up);
+            buildNeighborList(position + Vector2Int.left + Vector2Int.down);
+        }
+        return neighborList;
+    }
+
+    public List<Tile> getNeighboringTiles(Vector2 position, bool includeDiagonal = true) {
+        return getNeighboringTiles(getTilemapLocation(position), includeDiagonal);
+    }
+
+    //####################################################################################################
     /* USUALLY ONLY FOR USE BY THE EDITOR
      * 
      * Given a Tile GameObject, place it at the given integer Tile location.  If
@@ -120,7 +150,7 @@ public class Tilemap : MonoBehaviour {
             GameObject newTileChunkGameObject = new GameObject("TileChunk(" + chunkLocation.x + "," + chunkLocation.y + ")");
             newTileChunkGameObject.transform.parent = transform;
             tileChunk = ScriptableObject.CreateInstance<TileChunk>();
-            tileChunk.init(newTileChunkGameObject); 
+            tileChunk.init(newTileChunkGameObject);
             _tilemapChunks[chunkLocation.x, chunkLocation.y] = tileChunk;
         }
 
@@ -129,7 +159,7 @@ public class Tilemap : MonoBehaviour {
         if (currentTile != null) {
             DestroyImmediate(currentTile);
         }
-  
+
         newTileObject.name += "(" + tileLocation.x + "," + tileLocation.y + ")";
         newTileObject.transform.parent = tileChunk.gameObject.transform;
         newTileObject.transform.position = new Vector3(tileLocation.x, tileLocation.y, 0) * TILE_SIZE;

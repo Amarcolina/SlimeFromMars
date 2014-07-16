@@ -7,7 +7,12 @@ public class Astar : MonoBehaviour {
         Vector2Int position; //tilemap position of node
         private const float ORTHOGANAL_COST = 1;
         private const float DIAGANOL_COST = 1.5f;
+        private Node parent;
 
+        public Node(Vector2Int position, Node parent) {
+            this.position = position;
+            this.parent = parent;
+        }
         //Using Diaganol (Chebyshev) distance - grid allows 8 directions of movement
         //Calculates the heuristic of the node
         private float heuristic(Vector2Int goal){
@@ -15,21 +20,18 @@ public class Astar : MonoBehaviour {
             float dy = Mathf.Abs(position.y - goal.y);
             return ORTHOGANAL_COST * (dx + dy) + (DIAGANOL_COST - 2 * ORTHOGANAL_COST) * Mathf.Min(dx, dy);
         } 
-        
-        /*//if cost is D
-        private float heuristic(Node node){
-        float dx = Mathf.Abs(node.x - goal.x);
-        float dy = Mathf.Abs(node.y - goal.y);
-        return D * Mathf.Max(dx, dy);
-        }*/
     }
-    
 
-   
+    public List<Node> Astar(Vector2Int start, Vector2Int goal){
+        List<Node> finalPath = new List<Node>();//path from start to goal
+        BinaryMinHeap<Node> openList = new BinaryMinHeap<Node>();//nodes to be examined
+        HashSet<Node> closedList = new HashSet<Node>();
 
-    public List<Node> Astar(){
-        private BinaryMinHeap<Node> openList = new BinaryMinHeap<Node>();
-        private List<Node> path = new List<Node>();
+        Node startNode = new Node(start, null);
+        openList.insert(startNode);
+        
+
+        return finalPath;
         /*
     OPEN = priority queue containing START
 CLOSED = empty set
@@ -51,7 +53,5 @@ while lowest rank in OPEN is not the GOAL:
 reconstruct reverse path from goal to start
 by following parent pointers
          */
-    return path;
     }
-   
 }

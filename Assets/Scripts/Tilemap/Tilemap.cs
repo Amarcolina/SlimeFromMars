@@ -250,7 +250,7 @@ public class Tilemap : MonoBehaviour {
         _chunkOriginOffset = _chunkOriginOffset - new Vector2Int(increaseLeftX, increaseUpY);
     }
 
-    public void OnDrawGizmos() {
+    public void OnDrawGizmosSelected() {
         if (_tilemapChunks == null) {
             clearTilemap();
         }

@@ -63,6 +63,17 @@ public class Vector2Int {
         return a.x != b.x || a.y != b.y;
     }
 
+    public override bool Equals(object obj) {
+        if (!(obj is Vector2Int)) {
+            return false;
+        }
+        return (Vector2Int)obj == this;
+    }
+
+    public override int GetHashCode() {
+        return x*(1 << 8) + y;
+    }
+
     public static Vector2Int right {
         get {
             return new Vector2Int(1, 0);

@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 [CustomEditor(typeof(Tilemap))]
 public class TilemapEditor : Editor {
-    public const int PREVIEW_BORDER = 5;
+    public const int PREVIEW_BORDER = 9;
     public const int PREVIEW_SIZE = 64;
 
     public const int SCROLL_SIZE = 32;
@@ -23,9 +23,11 @@ public class TilemapEditor : Editor {
         refreshTilePrefabList();
     }
 
+    /* Draws the new inspector interfatce for the tilemap.  This allows
+     * the user to select the current tile that they are drawing with, as
+     * well as modify tiles, create new tiles, and reset the tilemap.
+     */
     public override void OnInspectorGUI() {
-        //base.OnInspectorGUI();
-
         displayEditorHeader();
         displayTileChoiceScroller();
 
@@ -93,7 +95,9 @@ public class TilemapEditor : Editor {
         GUILayout.EndScrollView();
     }
 
-    /* Draws the 
+    /* Draws the dynamic editor which allows the user to edit the tile
+     * as if it was in the inspector.  This allows access to all fields
+     * of the Tile component of the tile.
      */
     private void displayTileFieldEditor() {
         SerializedObject obj = new SerializedObject(currentTilePrefab.GetComponent<Tile>());
@@ -108,6 +112,8 @@ public class TilemapEditor : Editor {
         }
     }
 
+    /* Draws the preview image of the current sprite.
+     */
     private void displayTilePreview() {
         Rect borderRect = GUILayoutUtility.GetRect(PREVIEW_SIZE + PREVIEW_BORDER * 2, PREVIEW_SIZE + PREVIEW_BORDER * 2);
         float diffWidth = borderRect.width - (PREVIEW_SIZE + PREVIEW_BORDER * 2);
@@ -128,6 +134,10 @@ public class TilemapEditor : Editor {
         drawSprite(previewRect, currentTile.overlaySprite);
     }
 
+    /* Displays the Copy button, and handles the logic when a tile is copied.
+     * Copied tiles get their own new name, and are immidiately selected.  
+     * The copied prefab goes into the default Resources/TilePrefabs directory
+     */
     private void displayCopyButton() {
         GUILayout.BeginHorizontal();
         GUILayout.FlexibleSpace();
@@ -136,12 +146,16 @@ public class TilemapEditor : Editor {
             string newPrefabPath2 = "TilePrefabs/" + currentTilePrefab.name + " Copy";
             PrefabUtility.CreatePrefab(newPrefabPath, currentTilePrefab);
             currentTilePrefab = Resources.Load<GameObject>(newPrefabPath2);
-            _tilePrefabs.Add(currentTilePrefab);
+            refreshTilePrefabList();
         }
         GUILayout.FlexibleSpace();
         GUILayout.EndHorizontal();
     }
 
+    /* Displays the reset button.  Pressing this button clears the entire tilemap.
+     * There is a confirmation menu that is displayed to ensure that the user
+     * does not destroy the tilemap by accident
+     */
     private void displayResetButton() {
         GUI.color = new Color(1.0f, 0.2f, 0.2f);
         if (GUILayout.Button("Reset Tilemap")) {
@@ -153,6 +167,8 @@ public class TilemapEditor : Editor {
         GUI.color = Color.white;
     }
 
+    /* This method handles the painting of tiles onto the tilemap
+     */
     public void OnSceneGUI() {
         int controlID = GUIUtility.GetControlID(GetHashCode(), FocusType.Passive);
 
@@ -215,8 +231,6 @@ public class TilemapEditor : Editor {
     }
 
     private void handleMouseDraw(Vector2 start, Vector2 end) {
-        Undo.RecordObject(target, "Tilemap modified");
-
         Vector2 intersectionStart;
         if (getTilemapIntersection(start, out intersectionStart)) {
             Vector2 intersectionEnd;
@@ -252,6 +266,7 @@ public class TilemapEditor : Editor {
 
     private GameObject newTileObject() {
         GameObject newTileObject = (GameObject)PrefabUtility.InstantiatePrefab(currentTilePrefab);
+        Undo.RegisterCreatedObjectUndo(newTileObject, "Added new tiles");
         return newTileObject;
     }
 

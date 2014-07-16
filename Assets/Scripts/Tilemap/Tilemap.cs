@@ -20,21 +20,27 @@ public class Tilemap : MonoBehaviour {
      * all internal variables and external tiles
      */
     public void clearTilemap() {
+        Undo.RecordObject(this, "Cleared tilemap");
         Transform[] children = GetComponentsInChildren<Transform>();
         foreach (Transform child in children) {
             if (child && child != transform) {
-                DestroyImmediate(child.gameObject);
+                Undo.DestroyObjectImmediate(child.gameObject);
             }
         }
 
-        for (int i = 0; i < _tilemapChunks.width; i++) {
-            for (int j = 0; j < _tilemapChunks.height; j++) {
-                DestroyImmediate(_tilemapChunks[i, j]);
+        if (_tilemapChunks) {
+            for (int i = 0; i < _tilemapChunks.width; i++) {
+                for (int j = 0; j < _tilemapChunks.height; j++) {
+                    if (_tilemapChunks[i, j]) {
+                        Undo.DestroyObjectImmediate(_tilemapChunks[i, j]);
+                    }
+                }
             }
+            Undo.DestroyObjectImmediate(_tilemapChunks);
         }
-        DestroyImmediate(_tilemapChunks);
 
         _tilemapChunks = ScriptableObject.CreateInstance<Array2DTC>();
+        Undo.RegisterCreatedObjectUndo(_tilemapChunks, "Created new default tilemap chunk array");
         _tilemapChunks.init(1, 1);
         _chunkOriginOffset = new Vector2Int(0, 0);
     }
@@ -148,21 +154,25 @@ public class Tilemap : MonoBehaviour {
         //If the chunk doesn't exist, we need to create it
         if (tileChunk == null) {
             GameObject newTileChunkGameObject = new GameObject("TileChunk(" + chunkLocation.x + "," + chunkLocation.y + ")");
-            newTileChunkGameObject.transform.parent = transform;
+            Undo.RegisterCreatedObjectUndo(newTileChunkGameObject, "Created new tile chunk game object");
+            Undo.SetTransformParent(newTileChunkGameObject.transform, transform, "Moved new object to be a child of Tilemap");
             tileChunk = ScriptableObject.CreateInstance<TileChunk>();
+            Undo.RegisterCreatedObjectUndo(tileChunk, "Created new tile chunk data structure");
             tileChunk.init(newTileChunkGameObject);
+            Undo.RecordObject(_tilemapChunks, "Added new chunk to tilemap chunks");
             _tilemapChunks[chunkLocation.x, chunkLocation.y] = tileChunk;
         }
 
         GameObject currentTile = tileChunk.getTile(tileInChunkLocation);
         //If the tile already exists, we need to destroy it first
         if (currentTile != null) {
-            DestroyImmediate(currentTile);
+            Undo.DestroyObjectImmediate(currentTile);
         }
 
         newTileObject.name += "(" + tileLocation.x + "," + tileLocation.y + ")";
-        newTileObject.transform.parent = tileChunk.gameObject.transform;
+        Undo.SetTransformParent(newTileObject.transform, tileChunk.gameObject.transform, "Connected tile to chunk object");
         newTileObject.transform.position = new Vector3(tileLocation.x, tileLocation.y, 0) * TILE_SIZE;
+        Undo.RecordObject(tileChunk, "Added new tile to a Tile Chunk");
         tileChunk.setTile(tileInChunkLocation, newTileObject);
     }
 #endif
@@ -198,19 +208,20 @@ public class Tilemap : MonoBehaviour {
         }
 
         //Create a new array which is the propper increased size
-        Array2DTC newChunkArray = ScriptableObject.CreateInstance<Array2DTC>();
-        newChunkArray.init(_tilemapChunks.width + increaseX, _tilemapChunks.height + increaseY);
+        Array2DTC copiedArray = _tilemapChunks;
+        Undo.RecordObject(this, "Updated tile chunk with a new array");
+        _tilemapChunks = ScriptableObject.CreateInstance<Array2DTC>();
+        Undo.RegisterCreatedObjectUndo(_tilemapChunks, "created a new tilemap object");
+        _tilemapChunks.init(copiedArray.width + increaseX, copiedArray.height + increaseY);
 
         //Copy the old array into the new one
-        for (int x = 0; x < _tilemapChunks.width; x++) {
-            for (int y = 0; y < _tilemapChunks.height; y++) {
-                newChunkArray[x + increaseLeftX, y + increaseUpY] = _tilemapChunks[x, y];
+        for (int x = 0; x < copiedArray.width; x++) {
+            for (int y = 0; y < copiedArray.height; y++) {
+                _tilemapChunks[x + increaseLeftX, y + increaseUpY] = copiedArray[x, y];
             }
         }
 
-        //Destroy the old tilemap and assign the new one
-        DestroyImmediate(_tilemapChunks);
-        _tilemapChunks = newChunkArray;
+        Undo.DestroyObjectImmediate(copiedArray);
 
         //The offset is at the top left corner, and so only needs to be modified
         // if we have increased in that direction

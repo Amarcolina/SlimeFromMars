@@ -57,9 +57,9 @@ public class Astar : MonoBehaviour {
         }
     }
 
-    public List<Node> runAstar(Vector2Int start, Vector2Int goal) {
+    public List<Vector2Int> runAstar(Vector2Int start, Vector2Int goal) {
 
-        List<Node> finalPath = new List<Node>();//path from start to goal
+        List<Vector2Int> finalPath = new List<Vector2Int>();//path from start to goal
         BinaryMinHeap<Node> openList = new BinaryMinHeap<Node>();//nodes to be examined
         HashSet<Node> closedList = new HashSet<Node>();
         Tilemap tileMap = null;
@@ -96,16 +96,16 @@ public class Astar : MonoBehaviour {
             }
         }
         goalNode = openList.peekAtElement(0);
-
         //reconstruct reverse path from goal to start by following parent pointers
-        finalPath.Add(goalNode);
-        while (goalNode.getParent() != null) {
+        finalPath.Add(goalNode.getPosition());
+        while (goalNode.getParent().getPosition() != null) {
             goalNode = goalNode.getParent();
-            finalPath.Insert(0, goalNode);
+            finalPath.Insert(0, goalNode.getPosition());
         }
         return finalPath;
     }
 
+    //the cost of moving directly from one node to another
     public float movementCost(Node current, Node neighbor) {
         float dx = current.getPosition().x - neighbor.getPosition().x;
         float dy = current.getPosition().y - neighbor.getPosition().y;

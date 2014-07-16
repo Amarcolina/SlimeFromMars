@@ -23,16 +23,6 @@ public class TilemapEditor : Editor {
         refreshTilePrefabList();
     }
 
-    private void refreshTilePrefabList() {
-        string[] paths = Directory.GetFiles("Assets/Resources/TilePrefabs/", "*.prefab");
-        _tilePrefabs.Clear();
-        foreach (string path in paths) {
-            string resourcePath = path.Substring("Assets/Resources/".Length);
-            resourcePath = resourcePath.Substring(0, resourcePath.Length - ".prefab".Length);
-            _tilePrefabs.Add((GameObject)Resources.Load(resourcePath));
-        }
-    }
-
     public override void OnInspectorGUI() {
         base.OnInspectorGUI();
 
@@ -41,16 +31,18 @@ public class TilemapEditor : Editor {
 
         if (currentTilePrefab != null) {
             displayTileFieldEditor();
-            displayTilePreview();
-
             GUILayout.Space(EditorGUIUtility.singleLineHeight);
-
+            displayTilePreview();
             displayCopyButton();
         }
 
         displayResetButton();
     }
 
+    /* Draws the header for the editor.  This includes the Title bar, as
+     * well as the Current Tile field which allows you to select the tile
+     * from the drop down
+     */
     private void displayEditorHeader() {
         GUILayout.Space(EditorGUIUtility.singleLineHeight);
         GUILayout.Label("Tilemap Editor");
@@ -63,6 +55,9 @@ public class TilemapEditor : Editor {
         }
     }
 
+    /* Draws the scrollable field where you are able to select a
+     * tile by clicking on it's preview.
+     */
     private void displayTileChoiceScroller() {
         float height = Mathf.Min(SCROLL_SIZE * SCROLL_VERTICAL_COUNT, (Mathf.Floor(_tilePrefabs.Count / (float)SCROLL_HORIZONTAL_COUNT) + 1) * SCROLL_SIZE);
         prefabScroll = GUILayout.BeginScrollView(prefabScroll, GUILayout.Height(height));
@@ -98,6 +93,8 @@ public class TilemapEditor : Editor {
         GUILayout.EndScrollView();
     }
 
+    /* Draws the 
+     */
     private void displayTileFieldEditor() {
         SerializedObject obj = new SerializedObject(currentTilePrefab.GetComponent<Tile>());
         SerializedProperty prop = obj.GetIterator();
@@ -176,6 +173,16 @@ public class TilemapEditor : Editor {
     private void drawSprite(Rect rect, Sprite sprite) {
         if (sprite) {
             GUI.DrawTexture(rect, sprite.texture, ScaleMode.ScaleToFit);
+        }
+    }
+
+    private void refreshTilePrefabList() {
+        string[] paths = Directory.GetFiles("Assets/Resources/TilePrefabs/", "*.prefab");
+        _tilePrefabs.Clear();
+        foreach (string path in paths) {
+            string resourcePath = path.Substring("Assets/Resources/".Length);
+            resourcePath = resourcePath.Substring(0, resourcePath.Length - ".prefab".Length);
+            _tilePrefabs.Add((GameObject)Resources.Load(resourcePath));
         }
     }
 

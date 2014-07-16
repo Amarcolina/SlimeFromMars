@@ -64,12 +64,6 @@ public class TilemapEditor : Editor {
             }
         }
 
-        /*
-        if (GUILayout.Button("Recalculate tilemap textures")) {
-            TilemapImageFixer.updateAllTileImages();
-        }
-         * */
-
         GUI.color = new Color(1.0f, 0.2f, 0.2f);
         if (GUILayout.Button("Reset Tilemap")) {
             if (EditorUtility.DisplayDialog("Erase Tilemap", "Are you sure you want to erase the entire tilemap?", "Erase!", "Keep it")) {
@@ -77,20 +71,6 @@ public class TilemapEditor : Editor {
                 tilemap.clearTilemap();
             }
         }
-    }
-
-    private void drawSprite(Rect rect, Sprite sprite) {
-        if (sprite) {
-            GUI.DrawTexture(rect, sprite.texture, ScaleMode.StretchToFill);
-        }
-    }
-
-    private void updateTilePrefab() {
-        GameObject obj = (GameObject) PrefabUtility.InstantiatePrefab(currentTilePrefab);
-        obj.hideFlags = HideFlags.HideAndDontSave;
-        obj.GetComponent<Tile>().updateTileWithSettings();
-        PrefabUtility.ReplacePrefab(obj, currentTilePrefab);
-        DestroyImmediate(obj);
     }
 
     public void OnSceneGUI() {
@@ -114,6 +94,20 @@ public class TilemapEditor : Editor {
         }
     }
 
+    private void drawSprite(Rect rect, Sprite sprite) {
+        if (sprite) {
+            GUI.DrawTexture(rect, sprite.texture, ScaleMode.StretchToFill);
+        }
+    }
+
+    private void updateTilePrefab() {
+        GameObject obj = (GameObject)PrefabUtility.InstantiatePrefab(currentTilePrefab);
+        obj.hideFlags = HideFlags.HideAndDontSave;
+        obj.GetComponent<Tile>().updateTileWithSettings();
+        PrefabUtility.ReplacePrefab(obj, currentTilePrefab);
+        DestroyImmediate(obj);
+    }
+
     private void mouseDown() {
         if (Event.current.button == 0 && currentTilePrefab) {
             handleMouseDraw(Event.current.mousePosition, Event.current.mousePosition);
@@ -121,7 +115,7 @@ public class TilemapEditor : Editor {
     }
 
     private void mouseMove() {
-
+        //TODO: Possible mouse cell highlight
     }
 
     private void mouseDrag() {
@@ -170,8 +164,6 @@ public class TilemapEditor : Editor {
         GameObject newTileObject = (GameObject)PrefabUtility.InstantiatePrefab(currentTilePrefab);
         return newTileObject;
     }
-
-    
 
     private void drawToTilemap(Vector2Int position){
         Tilemap tilemap = target as Tilemap;

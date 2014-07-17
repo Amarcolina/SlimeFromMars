@@ -16,6 +16,13 @@ public class Tilemap : MonoBehaviour {
     [HideInInspector]
     public Vector2Int _chunkOriginOffset = new Vector2Int(0, 0);
 
+    private static Tilemap _tilemapInstance;
+    public static Tilemap getInstance() {
+        if (_tilemapInstance == null) {
+            _tilemapInstance = FindObjectOfType<Tilemap>();
+        }
+        return _tilemapInstance;
+    }
     
     /* Clears the tilemap of all tiles, and sets up all internal
      * variables to contain an empty tilemap.  This properly destroys

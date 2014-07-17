@@ -1,10 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-/*CONVENTIONS:
- * Although a mutation item may have multiple affinities, each affinity must be of value 100.
- * Non-mutation item affinities should have values that do not exceed 20.
- */
+//Energy is given based off item's size when consumed
+//Enemies are also considered consumeable
 public enum ItemSize {
     SMALL = 5,
     MEDIUM = 10,
@@ -12,11 +10,14 @@ public enum ItemSize {
 }
 
 public class GenericConsumeable : MonoBehaviour {
-    
+    //items have elemenal affinity values as well as default energy value
     public ItemSize size;
     public int acid;
     public int bio;
     public int electricity;
 
-    public bool isMutation = false;
+    //flags item with special mutation property and type
+    public bool isAcidMutation = false;
+    public bool isBioMutation = false;
+    public bool isElectricityMutation = false;
 }

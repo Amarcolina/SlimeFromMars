@@ -55,7 +55,7 @@ public class Astar : MonoBehaviour {
         }
     }
 
-    public static Path runAstar(Vector2Int start, Vector2Int goal) {
+    public static Path findPath(Vector2Int start, Vector2Int goal) {  
         if (start == null || goal == null) {
             return null;
         }

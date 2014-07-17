@@ -6,14 +6,47 @@ using System.Collections.Generic;
 
 [CustomEditor(typeof(Tilemap))]
 public class TilemapEditor : Editor {
-    public const int PREVIEW_BORDER = 5;
+    public const int PREVIEW_BORDER = 9;
     public const int PREVIEW_SIZE = 64;
+
+    public const int SCROLL_SIZE = 32;
+    public const int SCROLL_BORDER = 2;
+    public const int SCROLL_HORIZONTAL_COUNT = 8;
+    public const int SCROLL_VERTICAL_COUNT = 3;
+
     static GameObject currentTilePrefab;
+    static Vector2 prefabScroll = Vector2.zero;
 
+    public List<GameObject> _tilePrefabs = new List<GameObject>();
+
+    public void OnEnable() {
+        refreshTilePrefabList();
+    }
+
+    /* Draws the new inspector interfatce for the tilemap.  This allows
+     * the user to select the current tile that they are drawing with, as
+     * well as modify tiles, create new tiles, and reset the tilemap.
+     */
     public override void OnInspectorGUI() {
-        base.OnInspectorGUI();
+        displayEditorHeader();
+        displayTileChoiceScroller();
 
-        GUILayout.Space(EditorGUIUtility.singleLineHeight);
+        if (currentTilePrefab != null) {
+            displayTileFieldEditor();
+            GUILayout.Space(EditorGUIUtility.singleLineHeight);
+            displayTilePreview();
+            displayCopyButton();
+            GUILayout.Space(EditorGUIUtility.singleLineHeight);
+        }
+
+        displayResetButton();
+    }
+
+    /* Draws the header for the editor.  This includes the Title bar, as
+     * well as the Current Tile field which allows you to select the tile
+     * from the drop down
+     */
+    private void displayEditorHeader() {
         GUILayout.Label("Tilemap Editor");
         Rect lastRect = GUILayoutUtility.GetLastRect();
         GUI.Box(lastRect, "");
@@ -22,54 +55,108 @@ public class TilemapEditor : Editor {
         if (newTile && newTile.GetComponent<Tile>()) {
             currentTilePrefab = newTile;
         }
+    }
 
-        if (currentTilePrefab) {
-            SerializedObject obj = new SerializedObject(currentTilePrefab.GetComponent<Tile>());
-            SerializedProperty prop = obj.GetIterator();
-            prop.NextVisible(true);
-            while (prop.NextVisible(true)) {
-                EditorGUILayout.PropertyField(prop);
+    /* Draws the scrollable field where you are able to select a
+     * tile by clicking on it's preview.
+     */
+    private void displayTileChoiceScroller() {
+        float height = Mathf.Min(SCROLL_SIZE * SCROLL_VERTICAL_COUNT, (Mathf.Floor(_tilePrefabs.Count / (float)SCROLL_HORIZONTAL_COUNT) + 1) * SCROLL_SIZE);
+        prefabScroll = GUILayout.BeginScrollView(prefabScroll, GUILayout.Height(height));
+        int index = 0;
+        while (index < _tilePrefabs.Count) {
+            GUILayout.BeginHorizontal();
+            for (int i = 0; i < SCROLL_HORIZONTAL_COUNT; i++) {
+                Rect buttonRect = GUILayoutUtility.GetRect(SCROLL_SIZE, SCROLL_SIZE);
+                Rect textureRect = buttonRect;
+                textureRect.x += SCROLL_BORDER;
+                textureRect.y += SCROLL_BORDER;
+                textureRect.width -= SCROLL_BORDER * 2;
+                textureRect.height -= SCROLL_BORDER * 2;
+                if (index < _tilePrefabs.Count) {
+                    GameObject prefab = _tilePrefabs[index];
+                    if (prefab == currentTilePrefab) {
+                        GUI.backgroundColor = Color.blue;
+                    }
+                    if (GUI.Button(buttonRect, "")) {
+                        currentTilePrefab = prefab;
+                    }
+                    GUI.backgroundColor = Color.white;
+
+                    drawSprite(textureRect, prefab.GetComponent<Tile>().groundSprite);
+                    drawSprite(textureRect, prefab.GetComponent<Tile>().groundEffectSprite);
+                    drawSprite(textureRect, prefab.GetComponent<Tile>().objectSprite);
+                    drawSprite(textureRect, prefab.GetComponent<Tile>().overlaySprite);
+                }
+                index++;
             }
+            GUILayout.EndHorizontal();
+        }
+        GUILayout.EndScrollView();
+    }
 
-            if (obj.ApplyModifiedProperties()) {
-                updateTilePrefab();
-            }
-
-            Rect borderRect = GUILayoutUtility.GetRect(PREVIEW_SIZE + PREVIEW_BORDER * 2, PREVIEW_SIZE + PREVIEW_BORDER * 2);
-            float diffWidth = borderRect.width - (PREVIEW_SIZE + PREVIEW_BORDER * 2);
-            borderRect.x += diffWidth / 2.0f;
-            borderRect.width = borderRect.width - diffWidth;
-
-            Rect previewRect = borderRect;
-            previewRect.x += PREVIEW_BORDER;
-            previewRect.y += PREVIEW_BORDER;
-            previewRect.width -= PREVIEW_BORDER * 2;
-            previewRect.height -= PREVIEW_BORDER * 2;
-
-            GUI.Box(borderRect, new GUIContent());
-            Tile currentTile = currentTilePrefab.GetComponent<Tile>();
-            drawSprite(previewRect, currentTile.groundSprite);
-            drawSprite(previewRect, currentTile.groundEffectSprite);
-            drawSprite(previewRect, currentTile.objectSprite);
-            drawSprite(previewRect, currentTile.overlaySprite);
-
-            GUILayout.Space(EditorGUIUtility.singleLineHeight);
-
-            if (GUILayout.Button("Create copy of tile")) {
-                string newPrefabPath = "Assets/Resources/TilePrefabs/" + currentTilePrefab.name + " Copy.prefab";
-                string newPrefabPath2 = "TilePrefabs/" + currentTilePrefab.name + " Copy";
-                PrefabUtility.CreatePrefab(newPrefabPath, currentTilePrefab);
-                currentTilePrefab = Resources.Load<GameObject>(newPrefabPath2);
-                Debug.Log(currentTilePrefab);
-            }
+    /* Draws the dynamic editor which allows the user to edit the tile
+     * as if it was in the inspector.  This allows access to all fields
+     * of the Tile component of the tile.
+     */
+    private void displayTileFieldEditor() {
+        SerializedObject obj = new SerializedObject(currentTilePrefab.GetComponent<Tile>());
+        SerializedProperty prop = obj.GetIterator();
+        prop.NextVisible(true);
+        while (prop.NextVisible(true)) {
+            EditorGUILayout.PropertyField(prop);
         }
 
-        /*
-        if (GUILayout.Button("Recalculate tilemap textures")) {
-            TilemapImageFixer.updateAllTileImages();
+        if (obj.ApplyModifiedProperties()) {
+            updateTilePrefab();
         }
-         * */
+    }
 
+    /* Draws the preview image of the current sprite.
+     */
+    private void displayTilePreview() {
+        Rect borderRect = GUILayoutUtility.GetRect(PREVIEW_SIZE + PREVIEW_BORDER * 2, PREVIEW_SIZE + PREVIEW_BORDER * 2);
+        float diffWidth = borderRect.width - (PREVIEW_SIZE + PREVIEW_BORDER * 2);
+        borderRect.x += diffWidth / 2.0f;
+        borderRect.width = borderRect.width - diffWidth;
+
+        Rect previewRect = borderRect;
+        previewRect.x += PREVIEW_BORDER;
+        previewRect.y += PREVIEW_BORDER;
+        previewRect.width -= PREVIEW_BORDER * 2;
+        previewRect.height -= PREVIEW_BORDER * 2;
+
+        GUI.Box(borderRect, new GUIContent());
+        Tile currentTile = currentTilePrefab.GetComponent<Tile>();
+        drawSprite(previewRect, currentTile.groundSprite);
+        drawSprite(previewRect, currentTile.groundEffectSprite);
+        drawSprite(previewRect, currentTile.objectSprite);
+        drawSprite(previewRect, currentTile.overlaySprite);
+    }
+
+    /* Displays the Copy button, and handles the logic when a tile is copied.
+     * Copied tiles get their own new name, and are immidiately selected.  
+     * The copied prefab goes into the default Resources/TilePrefabs directory
+     */
+    private void displayCopyButton() {
+        GUILayout.BeginHorizontal();
+        GUILayout.FlexibleSpace();
+        if (GUILayout.Button("Create copy of tile")) {
+            string newPrefabPath = "Assets/Resources/TilePrefabs/" + currentTilePrefab.name + " Copy.prefab";
+            string newPrefabPath2 = "TilePrefabs/" + currentTilePrefab.name + " Copy";
+            PrefabUtility.CreatePrefab(newPrefabPath, currentTilePrefab);
+            currentTilePrefab = Resources.Load<GameObject>(newPrefabPath2);
+            refreshTilePrefabList();
+        }
+        GUILayout.FlexibleSpace();
+        GUILayout.EndHorizontal();
+    }
+
+    /* Displays the reset button.  Pressing this button clears the entire tilemap.
+     * There is a confirmation menu that is displayed to ensure that the user
+     * does not destroy the tilemap by accident
+     */
+    private void displayResetButton() {
         GUI.color = new Color(1.0f, 0.2f, 0.2f);
         if (GUILayout.Button("Reset Tilemap")) {
             if (EditorUtility.DisplayDialog("Erase Tilemap", "Are you sure you want to erase the entire tilemap?", "Erase!", "Keep it")) {
@@ -77,22 +164,11 @@ public class TilemapEditor : Editor {
                 tilemap.clearTilemap();
             }
         }
+        GUI.color = Color.white;
     }
 
-    private void drawSprite(Rect rect, Sprite sprite) {
-        if (sprite) {
-            GUI.DrawTexture(rect, sprite.texture, ScaleMode.StretchToFill);
-        }
-    }
-
-    private void updateTilePrefab() {
-        GameObject obj = (GameObject) PrefabUtility.InstantiatePrefab(currentTilePrefab);
-        obj.hideFlags = HideFlags.HideAndDontSave;
-        obj.GetComponent<Tile>().updateTileWithSettings();
-        PrefabUtility.ReplacePrefab(obj, currentTilePrefab);
-        DestroyImmediate(obj);
-    }
-
+    /* This method handles the painting of tiles onto the tilemap
+     */
     public void OnSceneGUI() {
         int controlID = GUIUtility.GetControlID(GetHashCode(), FocusType.Passive);
 
@@ -114,6 +190,30 @@ public class TilemapEditor : Editor {
         }
     }
 
+    private void drawSprite(Rect rect, Sprite sprite) {
+        if (sprite) {
+            GUI.DrawTexture(rect, sprite.texture, ScaleMode.ScaleToFit);
+        }
+    }
+
+    private void refreshTilePrefabList() {
+        string[] paths = Directory.GetFiles("Assets/Resources/TilePrefabs/", "*.prefab");
+        _tilePrefabs.Clear();
+        foreach (string path in paths) {
+            string resourcePath = path.Substring("Assets/Resources/".Length);
+            resourcePath = resourcePath.Substring(0, resourcePath.Length - ".prefab".Length);
+            _tilePrefabs.Add((GameObject)Resources.Load(resourcePath));
+        }
+    }
+
+    private void updateTilePrefab() {
+        GameObject obj = (GameObject)PrefabUtility.InstantiatePrefab(currentTilePrefab);
+        obj.hideFlags = HideFlags.HideAndDontSave;
+        obj.GetComponent<Tile>().updateTileWithSettings();
+        PrefabUtility.ReplacePrefab(obj, currentTilePrefab);
+        DestroyImmediate(obj);
+    }
+
     private void mouseDown() {
         if (Event.current.button == 0 && currentTilePrefab) {
             handleMouseDraw(Event.current.mousePosition, Event.current.mousePosition);
@@ -121,7 +221,7 @@ public class TilemapEditor : Editor {
     }
 
     private void mouseMove() {
-
+        //TODO: Possible mouse cell highlight
     }
 
     private void mouseDrag() {
@@ -131,8 +231,6 @@ public class TilemapEditor : Editor {
     }
 
     private void handleMouseDraw(Vector2 start, Vector2 end) {
-        Undo.RecordObject(target, "Tilemap modified");
-
         Vector2 intersectionStart;
         if (getTilemapIntersection(start, out intersectionStart)) {
             Vector2 intersectionEnd;
@@ -168,10 +266,9 @@ public class TilemapEditor : Editor {
 
     private GameObject newTileObject() {
         GameObject newTileObject = (GameObject)PrefabUtility.InstantiatePrefab(currentTilePrefab);
+        Undo.RegisterCreatedObjectUndo(newTileObject, "Added new tiles");
         return newTileObject;
     }
-
-    
 
     private void drawToTilemap(Vector2Int position){
         Tilemap tilemap = target as Tilemap;

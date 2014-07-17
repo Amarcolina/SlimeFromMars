@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System;
 public class Astar : MonoBehaviour {
 
-    class Node : IComparable {
+    public class Node : IComparable {
         Vector2Int position; //tilemap position of node
         private const float ORTHOGANAL_COST = 1;
         private const float DIAGANOL_COST = 1.5f;

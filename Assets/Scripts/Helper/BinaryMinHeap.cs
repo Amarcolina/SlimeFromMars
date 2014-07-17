@@ -10,7 +10,7 @@ public class BinaryMinHeap<GenericItem> : MonoBehaviour where GenericItem : ICom
 
     public void insert(GenericItem node_data) { 
         heap.Add(node_data);//adds element and updates length of list
-        bubbleUp();
+        bubbleUp(heap.Count - 1);
     }
 
     //removes the minimum element in the tree and restructures tree with minHeapify to maintain integrity
@@ -27,7 +27,7 @@ public class BinaryMinHeap<GenericItem> : MonoBehaviour where GenericItem : ICom
         if (extractedElement.CompareTo(heap[i]) < 0) {
             this.minHeapify(i);
         } else {
-            bubbleUp();
+            bubbleUp(i);
         }
         
         return extractedElement;
@@ -51,7 +51,7 @@ public class BinaryMinHeap<GenericItem> : MonoBehaviour where GenericItem : ICom
         if (extractedElement.CompareTo(heap[index]) < 0) {//if the extractedElement was less than the element at that index, bubbleDown
             this.minHeapify(i);
         } else {//else bubbleUp   
-            bubbleUp();
+            bubbleUp(i);
         }
         return extractedElement;
     }
@@ -90,8 +90,7 @@ public class BinaryMinHeap<GenericItem> : MonoBehaviour where GenericItem : ICom
             this.minHeapify(smallest);
         }
     }  
-    private void bubbleUp(){
-        i = getHeapSize() - 1;
+    private void bubbleUp(int i){
         while (i > 0) {
             j = ((i + 1)/2 )- 1;
             //compares two elements to see if child is in correct place

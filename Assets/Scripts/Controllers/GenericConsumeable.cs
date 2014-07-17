@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
-//this class handles affinities of items and how the can effect the slime.
+
+//Energy is given based off item's size when consumed
+//Enemies are also considered consumeable
 public enum ItemSize {
     SMALL = 5,
     MEDIUM = 10,
@@ -8,13 +10,13 @@ public enum ItemSize {
 }
 
 public class GenericConsumeable : MonoBehaviour {
-    
+    //items have elemenal affinity values as well as default energy value
     public ItemSize size;
     public int acid;
     public int bio;
     public int electricity;
 
-    public bool isMutation = false;
+    //flags item with special mutation property and type
     public bool isAcidMutation = false;
     public bool isBioMutation = false;
     public bool isElectricityMutation = false;

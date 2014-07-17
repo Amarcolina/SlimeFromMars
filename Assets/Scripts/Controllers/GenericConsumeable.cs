@@ -2,7 +2,6 @@
 using System.Collections;
 
 /*CONVENTIONS:
- * Although a mutation item may have multiple affinities, each affinity must be of value 100.
  * Non-mutation item affinities should have values that do not exceed 20.
  */
 public enum ItemSize {
@@ -19,4 +18,8 @@ public class GenericConsumeable : MonoBehaviour {
     public int electricity;
 
     public bool isMutation = false;
+    public bool isAcidMutation = false;
+    public bool isBioMutation = false;
+    public bool isElectricityMutation = false;
+
 }

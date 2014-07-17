@@ -29,9 +29,15 @@ public class SlimeController : MonoBehaviour {
         energy = (int)eatenItem.size + acidLevel * eatenItem.acid + bioLevel * eatenItem.bio + electricityLevel * eatenItem.electricity;
 
         if (eatenItem.isMutation) {
-            acidLevel += eatenItem.acid/100;
-            electricityLevel += eatenItem.electricity/100;
-            bioLevel += eatenItem.bio/100;
+            if (eatenItem.isAcidMutation) {
+                acidLevel++;
+            }
+            if (eatenItem.isElectricityMutation) {
+                electricityLevel++;
+            }
+            if (eatenItem.isBioMutation) {
+                bioLevel++;
+            }
         }
     }
 

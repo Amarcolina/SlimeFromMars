@@ -55,7 +55,7 @@ public class Astar : MonoBehaviour {
         }
     }
 
-    public static Path runAstar(Vector2Int start, Vector2Int goal) {  
+    public static Path findPath(Vector2Int start, Vector2Int goal) {  
         BinaryMinHeap<Node> openList = new BinaryMinHeap<Node>();//nodes to be examined
         HashSet<Node> closedList = new HashSet<Node>();
         Tilemap tileMap = null;

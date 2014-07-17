@@ -16,14 +16,8 @@ public class Tilemap : MonoBehaviour {
     [HideInInspector]
     public Vector2Int _chunkOriginOffset = new Vector2Int(0, 0);
 
-    private static Tilemap _tilemapInstance;
-    public static Tilemap getInstance() {
-        if (_tilemapInstance == null) {
-            _tilemapInstance = FindObjectOfType<Tilemap>();
-        }
-        return _tilemapInstance;
-    }
-    
+    private delegate void NeighborBuilderDelegate(Vector2Int delta);
+
     /* Clears the tilemap of all tiles, and sets up all internal
      * variables to contain an empty tilemap.  This properly destroys
      * all internal variables and external tiles
@@ -81,25 +75,6 @@ public class Tilemap : MonoBehaviour {
     }
 
     //####################################################################################################
-    /* Returns whether or not a given position represents a space that can
-     * be walked on.  If there is no tile at the given location, this method
-     * returns false.  If there is a tile at the given location, this method
-     * returns whether or not that tile is walkable
-     */
-
-    public bool isWalkable(Vector2Int position) {
-        Tile tile = getTile(position);
-        if (tile == null) {
-            return false;
-        }
-        return tile.isWalkable;
-    }
-
-    public bool isWalkable(Vector2 position) {
-        return isWalkable(getTilemapLocation(position));
-    }
-
-    //####################################################################################################
     /* Given a 2D integer tilemap position, this returns the Tile
      * Gameobject that is located at that position.  This returns the 
      * GameObject itself, which has the Tile component connected.
@@ -107,12 +82,8 @@ public class Tilemap : MonoBehaviour {
      */
     public GameObject getTileGameObject(Vector2Int tileLocation) {
         Vector2Int tileInChunkLocation = new Vector2Int(tileChunkMod(tileLocation.x), tileChunkMod(tileLocation.y));
-        Vector2Int chunkLocation = (tileLocation - tileInChunkLocation - _chunkOriginOffset * TileChunk.CHUNK_SIZE) / TileChunk.CHUNK_SIZE;
-
-        TileChunk tileChunk = null;
-        if (_tilemapChunks.isInRange(chunkLocation)) {
-            tileChunk = _tilemapChunks[chunkLocation.x, chunkLocation.y];
-        }
+        Vector2Int chunkLocation = (tileLocation - tileInChunkLocation) / TileChunk.CHUNK_SIZE;
+        TileChunk tileChunk = _tilemapChunks[chunkLocation.x, chunkLocation.y];
 
         if (tileChunk == null) {
             return null;
@@ -132,64 +103,52 @@ public class Tilemap : MonoBehaviour {
      */
     public List<Vector2Int> getNeighboringPositions(Vector2Int position, bool includeNonWalkable = false, bool includeDiagonal = true) {
         List<Vector2Int> neighborList = new List<Vector2Int>();
-        FoundNeighborFunc func = delegate(Vector2Int tilePosition) {
-            neighborList.Add(tilePosition);
-        };
-        findNeighboringLocationsInternal(position, func, includeNonWalkable, includeDiagonal);
-        return neighborList;
-    }
 
-    public List<Vector2Int> getNeighboringPositions(Vector2 position, bool includeNonWalkable = false, bool includeDiagonal = true) {
-        return getNeighboringPositions(getTilemapLocation(position), includeNonWalkable, includeDiagonal);
-    }
-
-    public List<Tile> getNeighboringTiles(Vector2Int position, bool includeNonWalkable = false, bool includeDiagonal = true) {
-        List<Tile> neighborList = new List<Tile>();
-        FoundNeighborFunc func = delegate(Vector2Int tilePosition) {
-            neighborList.Add(getTile(tilePosition));
-        };
-        findNeighboringLocationsInternal(position, func, includeNonWalkable, includeDiagonal);
-        return neighborList;
-    }
-
-    public List<Tile> getNeighboringTiles(Vector2 position, bool includeNonWalkable = false, bool includeDiagonal = true) {
-        return getNeighboringTiles(getTilemapLocation(position), includeNonWalkable, includeDiagonal);
-    }
-
-    private delegate void NeighborBuilderDelegate(Vector2Int delta);
-    private delegate void FoundNeighborFunc(Vector2Int tilePosition);
-    private void findNeighboringLocationsInternal(Vector2Int position, FoundNeighborFunc func, bool includeNonWalkable = false, bool includeDiagonal = true){
         NeighborBuilderDelegate buildNeighborList = delegate(Vector2Int delta) {
             Tile tile = getTile(position + delta);
             if (tile != null) {
                 if (tile.isWalkable || includeNonWalkable) {
-                    func(position + delta);
+                    neighborList.Add(position + delta);
                 }
             }
         };
 
-        if (includeDiagonal) {
-            if (isWalkable(position + Vector2Int.right)) {
-                if (isWalkable(position + Vector2Int.up)) {
-                    buildNeighborList(Vector2Int.right + Vector2Int.up);
-                }
-                if (isWalkable(position + Vector2Int.down)) {
-                    buildNeighborList(Vector2Int.right + Vector2Int.down);
-                }
-            }
-            if (isWalkable(position + Vector2Int.left)) {
-                if (isWalkable(position + Vector2Int.up)) {
-                    buildNeighborList(Vector2Int.left + Vector2Int.up);
-                }
-                if (isWalkable(position + Vector2Int.down)) {
-                    buildNeighborList(Vector2Int.left + Vector2Int.down);
-                }
-            }
-        }
         buildNeighborList(Vector2Int.right);
         buildNeighborList(Vector2Int.left);
         buildNeighborList(Vector2Int.up);
         buildNeighborList(Vector2Int.down);
+        if (includeDiagonal) {
+            buildNeighborList(position + Vector2Int.right + Vector2Int.up);
+            buildNeighborList(position + Vector2Int.right + Vector2Int.down);
+            buildNeighborList(position + Vector2Int.left + Vector2Int.up);
+            buildNeighborList(position + Vector2Int.left + Vector2Int.down);
+        }
+        return neighborList;
+    }
+
+    public List<Tile> getNeighboringTiles(Vector2Int position, bool includeNonWalkable = false, bool includeDiagonal = true) {
+        List<Tile> neighborList = new List<Tile>();
+
+        NeighborBuilderDelegate buildNeighborList = delegate(Vector2Int delta) {
+            Tile tile = getTile(position + delta);
+            if (tile != null) {
+                if (tile.isWalkable || includeNonWalkable) {
+                    neighborList.Add(tile);
+                }
+            }
+        };
+
+        buildNeighborList(Vector2Int.right);
+        buildNeighborList(Vector2Int.left);
+        buildNeighborList(Vector2Int.up);
+        buildNeighborList(Vector2Int.down);
+        if (includeDiagonal) {
+            buildNeighborList(position + Vector2Int.right + Vector2Int.up);
+            buildNeighborList(position + Vector2Int.right + Vector2Int.down);
+            buildNeighborList(position + Vector2Int.left + Vector2Int.up);
+            buildNeighborList(position + Vector2Int.left + Vector2Int.down);
+        }
+        return neighborList;
     }
 
     //####################################################################################################

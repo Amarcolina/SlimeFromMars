@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
-
+//this class handles affinities of items and how the can effect the slime.
 public enum ItemSize {
     SMALL = 5,
     MEDIUM = 10,

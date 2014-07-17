@@ -43,6 +43,7 @@ public class SlimeController : MonoBehaviour {
 
     public void useAcidOffense() { 
         //multiply acidLevel to attack power (radius?) to get offense output
+        //do same for defense
     }
     public void useElectricityOffense() {
     }

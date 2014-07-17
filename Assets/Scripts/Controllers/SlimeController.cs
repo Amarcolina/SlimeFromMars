@@ -1,6 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+/*This class keeps track of slime attribute values, mutation types, offense/defense abilities based on mutation type, and offense/defense values
+ * 
+ */
 public class SlimeController : MonoBehaviour {
     private int energy;
     private int acidLevel;
@@ -30,5 +33,20 @@ public class SlimeController : MonoBehaviour {
             electricityLevel += eatenItem.electricity/100;
             bioLevel += eatenItem.bio/100;
         }
+    }
+
+    public void useAcidOffense() { 
+    }
+    public void useElectricityOffense() {
+    }
+    public void useBioOffense() {
+    }
+
+
+    public void useAcidDefense() {
+    }
+    public void useElectricityDefense() {
+    }
+    public void useBioDefense() {
     }
 }

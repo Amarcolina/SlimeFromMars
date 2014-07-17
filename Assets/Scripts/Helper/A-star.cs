@@ -105,7 +105,7 @@ public class Astar : MonoBehaviour {
     }
 
     //the cost of moving directly from one node to another
-    private float movementCost(Node current, Node neighbor) {
+    private static float movementCost(Node current, Node neighbor) {
         float dx = current.getPosition().x - neighbor.getPosition().x;
         float dy = current.getPosition().y - neighbor.getPosition().y;
         return (Mathf.Sqrt(dx * dx + dy * dy));

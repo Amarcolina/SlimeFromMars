@@ -16,6 +16,14 @@ public class Tilemap : MonoBehaviour {
     [HideInInspector]
     public Vector2Int _chunkOriginOffset = new Vector2Int(0, 0);
 
+    private static Tilemap _tilemapInstance;
+    public static Tilemap getInstance() {
+        if (_tilemapInstance == null) {
+            _tilemapInstance = FindObjectOfType<Tilemap>();
+        }
+        return _tilemapInstance;
+    }
+
     private delegate void NeighborBuilderDelegate(Vector2Int delta);
 
     /* Clears the tilemap of all tiles, and sets up all internal

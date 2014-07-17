@@ -1,9 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-/*CONVENTIONS:
- * Non-mutation item affinities should have values that do not exceed 20.
- */
 public enum ItemSize {
     SMALL = 5,
     MEDIUM = 10,
@@ -21,5 +18,4 @@ public class GenericConsumeable : MonoBehaviour {
     public bool isAcidMutation = false;
     public bool isBioMutation = false;
     public bool isElectricityMutation = false;
-
 }

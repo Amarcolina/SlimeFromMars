@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 [RequireComponent (typeof (SpriteRenderer))]
 public class Tile : MonoBehaviour {
@@ -17,6 +18,35 @@ public class Tile : MonoBehaviour {
     private SpriteRenderer _groundEffectSpriteRenderer;
     private SpriteRenderer _objectSpriteRenderer;
     private SpriteRenderer _overlaySpriteRenderer;
+
+    private const int MAX_POOL_SIZE = 8;
+    private static Stack<HashSet<TileEntity>> _tileEntitySetPool = new Stack<HashSet<TileEntity>>();
+    private HashSet<TileEntity> _containedTileEntities = null;
+
+    public void addTileEntity(TileEntity tileEntity) {
+        if (_containedTileEntities == null) {
+            if (_tileEntitySetPool.Count != 0) {
+                _containedTileEntities = _tileEntitySetPool.Pop();
+            } else {
+                _containedTileEntities = new HashSet<TileEntity>();
+            }
+        }
+        _containedTileEntities.Add(tileEntity);
+    }
+
+    public void removeTileEntity(TileEntity tileEntity) {
+        _containedTileEntities.Remove(tileEntity);
+        if (_containedTileEntities.Count == 0) {
+            if (_tileEntitySetPool.Count != MAX_POOL_SIZE) {
+                _tileEntitySetPool.Push(_containedTileEntities);
+            }
+            _containedTileEntities = null;
+        }
+    }
+
+    public HashSet<TileEntity> getTileEntities() {
+        return _containedTileEntities;
+    }
 
     /* This method causes the Tile object to update the sprite
      * renderers with the correct sprites, as well as (re)construct

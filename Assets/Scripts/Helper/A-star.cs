@@ -55,7 +55,11 @@ public class Astar : MonoBehaviour {
         }
     }
 
-    public static Path runAstar(Vector2Int start, Vector2Int goal) {  
+    public static Path findPath(Vector2Int start, Vector2Int goal) {  
+        if (start == null || goal == null) {
+            return null;
+        }
+
         BinaryMinHeap<Node> openList = new BinaryMinHeap<Node>();//nodes to be examined
         HashSet<Node> closedList = new HashSet<Node>();
         Tilemap tileMap = null;
@@ -89,6 +93,13 @@ public class Astar : MonoBehaviour {
                     openList.insert(neighborNode);
                     neighborNode.setParent(current);
                 }
+            }
+
+            //If the heap is zero, that means we have not found the goal and we have run out
+            //of places to check.  In this case we have failed to find a path and we must
+            //return null
+            if (openList.getHeapSize() == 0) {
+                return null;
             }
         }
 

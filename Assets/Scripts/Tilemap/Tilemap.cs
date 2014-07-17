@@ -107,6 +107,10 @@ public class Tilemap : MonoBehaviour {
         return neighborList;
     }
 
+    public List<Vector2Int> getNeighboringPositions(Vector2 position, bool includeNonWalkable = false, bool includeDiagonal = true) {
+        return getNeighboringPositions(getTilemapLocation(position), includeNonWalkable, includeDiagonal);
+    }
+
     public List<Tile> getNeighboringTiles(Vector2Int position, bool includeNonWalkable = false, bool includeDiagonal = true) {
         List<Tile> neighborList = new List<Tile>();
         FoundNeighborFunc func = delegate(Vector2Int tilePosition) {
@@ -114,6 +118,10 @@ public class Tilemap : MonoBehaviour {
         };
         findNeighboringLocationsInternal(position, func, includeNonWalkable, includeDiagonal);
         return neighborList;
+    }
+
+    public List<Tile> getNeighboringTiles(Vector2 position, bool includeNonWalkable = false, bool includeDiagonal = true) {
+        return getNeighboringTiles(getTilemapLocation(position), includeNonWalkable, includeDiagonal);
     }
 
     private delegate void NeighborBuilderDelegate(Vector2Int delta);

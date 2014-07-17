@@ -68,6 +68,25 @@ public class Tilemap : MonoBehaviour {
     }
 
     //####################################################################################################
+    /* Returns whether or not a given position represents a space that can
+     * be walked on.  If there is no tile at the given location, this method
+     * returns false.  If there is a tile at the given location, this method
+     * returns whether or not that tile is walkable
+     */
+
+    public bool isWalkable(Vector2Int position) {
+        Tile tile = getTile(position);
+        if (tile == null) {
+            return false;
+        }
+        return tile.isWalkable;
+    }
+
+    public bool isWalkable(Vector2 position) {
+        return isWalkable(getTilemapLocation(position));
+    }
+
+    //####################################################################################################
     /* Given a 2D integer tilemap position, this returns the Tile
      * Gameobject that is located at that position.  This returns the 
      * GameObject itself, which has the Tile component connected.
@@ -137,10 +156,22 @@ public class Tilemap : MonoBehaviour {
         };
 
         if (includeDiagonal) {
-            buildNeighborList(Vector2Int.right + Vector2Int.up);
-            buildNeighborList(Vector2Int.right + Vector2Int.down);
-            buildNeighborList(Vector2Int.left + Vector2Int.up);
-            buildNeighborList(Vector2Int.left + Vector2Int.down);
+            if (isWalkable(position + Vector2Int.right)) {
+                if (isWalkable(position + Vector2Int.up)) {
+                    buildNeighborList(Vector2Int.right + Vector2Int.up);
+                }
+                if (isWalkable(position + Vector2Int.down)) {
+                    buildNeighborList(Vector2Int.right + Vector2Int.down);
+                }
+            }
+            if (isWalkable(position + Vector2Int.left)) {
+                if (isWalkable(position + Vector2Int.up)) {
+                    buildNeighborList(Vector2Int.left + Vector2Int.up);
+                }
+                if (isWalkable(position + Vector2Int.down)) {
+                    buildNeighborList(Vector2Int.left + Vector2Int.down);
+                }
+            }
         }
         buildNeighborList(Vector2Int.right);
         buildNeighborList(Vector2Int.left);

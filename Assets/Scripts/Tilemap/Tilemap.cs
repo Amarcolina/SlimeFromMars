@@ -170,13 +170,23 @@ public class Tilemap : MonoBehaviour {
      * to create and maintain the arrays needed for the tilemap.
      */
 #if UNITY_EDITOR
-    public void setTileGameObject(Vector2Int tileLocation, GameObject newTileObject) {
+    public void setTileGameObject(Vector2Int tilePosition, GameObject tileGameObject) {
+        Tile tileObject = tileGameObject.GetComponent<Tile>();
+        Vector2Int tileSize = tileObject.getTileSize();
+        for (int i = 0; i < tileSize.x; i++) {
+            for (int j = 0; j < tileSize.y; j++) {
+                setSingleTileInternal(tilePosition + new Vector2Int(i, j), tileGameObject, i == 0 && j == 0);
+            }
+        }
+    }
+
+    private void setSingleTileInternal(Vector2Int tilePosition, GameObject tileObject, bool updateTilePosition) {
         //expand the tilemap if we need to
-        expandTilemapToIncludeLocation(tileLocation);
+        expandTilemapToIncludeLocation(tilePosition);
         //Get the location within the chunk where the tile is located
-        Vector2Int tileInChunkLocation = new Vector2Int(tileChunkMod(tileLocation.x), tileChunkMod(tileLocation.y));
+        Vector2Int tileInChunkLocation = new Vector2Int(tileChunkMod(tilePosition.x), tileChunkMod(tilePosition.y));
         //Get the location of the chunk where the tile is located
-        Vector2Int chunkLocation = (tileLocation - tileInChunkLocation - _chunkOriginOffset * TileChunk.CHUNK_SIZE) / TileChunk.CHUNK_SIZE;
+        Vector2Int chunkLocation = (tilePosition - tileInChunkLocation - _chunkOriginOffset * TileChunk.CHUNK_SIZE) / TileChunk.CHUNK_SIZE;
         //Get the specific chunk that contains the tile
         TileChunk tileChunk = _tilemapChunks[chunkLocation.x, chunkLocation.y];
 
@@ -198,11 +208,17 @@ public class Tilemap : MonoBehaviour {
             Undo.DestroyObjectImmediate(currentTile);
         }
 
-        newTileObject.name += "(" + tileLocation.x + "," + tileLocation.y + ")";
-        Undo.SetTransformParent(newTileObject.transform, tileChunk.gameObject.transform, "Connected tile to chunk object");
-        newTileObject.transform.position = new Vector3(tileLocation.x, tileLocation.y, 0) * TILE_SIZE;
         Undo.RecordObject(tileChunk, "Added new tile to a Tile Chunk");
-        tileChunk.setTile(tileInChunkLocation, newTileObject);
+        tileChunk.setTile(tileInChunkLocation, tileObject);
+
+        if (updateTilePosition) {
+            tileObject.name += "(" + tilePosition.x + "," + tilePosition.y + ")";
+            Undo.SetTransformParent(tileObject.transform, tileChunk.gameObject.transform, "Connected tile to chunk object");
+            Tile tile = tileObject.GetComponent<Tile>();
+            Vector2Int positionOffset = tile.getTileSize() - new Vector2Int(1, 1);
+            Vector3 posOff = new Vector3(positionOffset.x, positionOffset.y, 0) / 2.0f;
+            tileObject.transform.position = (new Vector3(tilePosition.x, tilePosition.y, 0) + posOff) * TILE_SIZE;   
+        }
     }
 #endif
 

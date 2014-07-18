@@ -8,21 +8,24 @@ public class Slime : MonoBehaviour {
     public const float TIME_PER_EXPAND = 1.0f;
 
     private static Sprite[] _slimeSpriteLookup = null;
-    private static int[] _slimeSpriteAngleLookup = { 0, 0, 90, 0, 180, 0, 90, 0, 270, 270, 180, 270, 180,  180, 90, 0 };
+    private const int[] _slimeSpriteAngleLookup = { 0, 0, 90, 0, 180, 0, 90, 0, 270, 270, 180, 270, 180,  180, 90, 0 };
 
+    private bool _isSolid = false;
     private Tile _myTile;
     private Tilemap _tilemap;
     private SpriteRenderer _slimeRenderer;
-
-    private bool _isSolid = false;
+    
     private float _percentHealth = 1.0f;
     private int _slimeNeighbors = 0;
-
-    private float currentOpacity = 0.0f;
+    private float _currentOpacity = 0.0f;
 
     private Path _currentExpandPath = null;
     private float _timeUntilExpand = 0.0f;
 
+    /* This initializes the _slimeSpriteLookup table.  This is a static table and so this
+     * method only needs to be called once.  The table is static so tat all slime objects
+     * can use the same sprites.
+     */
     private void initSlimeSprites() {
         Sprite slimeSprite0x1 = Resources.Load<Sprite>("Sprites/Slime/Slime-0x1");
         Sprite slimeSprite0x3 = Resources.Load<Sprite>("Sprites/Slime/Slime-0x3");
@@ -47,6 +50,12 @@ public class Slime : MonoBehaviour {
         _slimeSpriteLookup[0xF] = slimeSprite0xF;
     }
 
+    /* This method does the following:
+     *      Initializes the slime sprite lookup table if it is not already initialized
+     *      Creates the gameobject to display the slime sprite
+     *      Updates the neighbor count of this slime
+     *      Lets all neighboring slimes know that this slime has been added
+     */
     public void Awake() {
         if (_slimeSpriteLookup == null) {
             initSlimeSprites();
@@ -61,28 +70,38 @@ public class Slime : MonoBehaviour {
         _slimeRenderer = slimeRendererObject.AddComponent<SpriteRenderer>();
         _slimeRenderer.sortingLayerName = "Slime";
 
-        updateNeighborCount(true, 1);
+        updateNeighborCount(true);
     }
 
+    /* Handles destruction of this tile.  It lets all neighboring 
+     * slime tiles know this one has been destroyed.  It also destroys
+     * the game object used for the slime sprite display
+     */
     public void OnDestroy() {
-        updateNeighborCount(true, _isSolid ? -1 : 0);
+        updateNeighborCount(true);
+        Destroy(_slimeRenderer.gameObject);
     }
 
-    public void forceSlimeUpdate(int modifyNeighborCount = 0) {
+    /* Forces this slime to wake up.  This causes it to recount it's
+     * neighbors, as well as start the Update cycle until it can fall
+     * asleep again
+     */
+    public void wakeUpSlime() {
         enabled = true;
-        _slimeNeighbors += modifyNeighborCount;
         updateNeighborCount(false);
     }
 
-    [ContextMenu ("Toggle Solidity")]
-    public void toggleSolid() {
-        setSolid(!_isSolid);
-    }
-
-    public void setSolid(bool isSolid) {
-        if (_isSolid != isSolid) {
-            _isSolid = isSolid;
-            forceSlimeUpdate();
+    /* Sets whether or not this slime should be solid.  Solid slime blocks
+     * always stay around, even if they have no neighbors.  Un-Solid slime
+     * blocks can only exist if they are touching at least 1 solid slime block
+     * 
+     * This method handles the addition of new slime blocks that may need
+     * to be created, and also wakes the slime up
+     */
+    public void setSolid(bool shouldBeSolid) {
+        if (_isSolid != shouldBeSolid) {
+            _isSolid = shouldBeSolid;
+            wakeUpSlime();
 
             if (_isSolid) {
                 List<Tile> neighbors = _tilemap.getNeighboringTiles(transform.position);
@@ -93,10 +112,23 @@ public class Slime : MonoBehaviour {
                 }
             }
 
-            updateNeighborCount(true, _isSolid ? 1 : -1);
+            updateNeighborCount(true);
         }
     }
 
+    /* The update loop is only proccessed if this slime is awake.
+     * Every loop, the slime will try to go to sleep if it is able.
+     * Every loop, it does the following:
+     *      Checks to see if it is currently following a path
+     *          If it is not time yet to expand, wait (prevent sleep)
+     *          If it is time, expand
+     *      Updates the current opacity to match the goal opacity
+     *          If the current is not at the goal, move it towards the goal (prevent sleep)
+     *      Handles health regeneration
+     *          If the current health is not at maximum, regenerate (prevents sleep)
+     * 
+     * After all these actions are complete, go to sleep if we are able
+     */
     public void Update() {
         bool canGoToSleep = true;
 
@@ -109,10 +141,10 @@ public class Slime : MonoBehaviour {
         }
 
         float goalOpacity = getGoalOpacity();
-        if (currentOpacity != goalOpacity) {
-            currentOpacity = Mathf.MoveTowards(currentOpacity, goalOpacity, OPACITY_CHANGE_SPEED * Time.deltaTime);
-            if (currentOpacity <= 0.0f) {
-                destroySlime();
+        if (_currentOpacity != goalOpacity) {
+            _currentOpacity = Mathf.MoveTowards(_currentOpacity, goalOpacity, OPACITY_CHANGE_SPEED * Time.deltaTime);
+            if (_currentOpacity <= 0.0f) {
+                Destroy(this);
             }
             canGoToSleep = false;
         }
@@ -127,29 +159,25 @@ public class Slime : MonoBehaviour {
         }
     }
 
+    /* This damages the slime and lowers its total health
+     * This wakes up the slime
+     */
     public void damageSlime(float percentDamage) {
         _percentHealth -= percentDamage;
+        wakeUpSlime();
     }
 
-    public void destroySlime() {
-        Destroy(this);
-    }
-
-    [ContextMenu ("Request example path")]
-    public void requestExamplePath() {
-        Path path = new Path();
-        Vector2Int myPos = Tilemap.getTilemapLocation(transform.position);
-        path.addNodeToEnd(myPos + Vector2Int.right);
-        path.addNodeToEnd(myPos + Vector2Int.right*2);
-        path.addNodeToEnd(myPos + Vector2Int.right*3);
-        path.addNodeToEnd(myPos + Vector2Int.right*4);
-        path.addNodeToEnd(myPos + Vector2Int.right*5);
-        path.addNodeToEnd(myPos + Vector2Int.right*6);
-        requestExpansionAllongPath(path);
-    }
-
+    /* Requests that this slime expand allong the given path.  It will expand 
+     * to the current node in the path.  This triggers a chain reaction where
+     * the expanded slime follows the next node and so on
+     * 
+     * The user can specify a delay until the expansion occurs.  This is also
+     * used internally in the chain reaction to control expand speed
+     * 
+     * This wakes up the slime
+     */
     public void requestExpansionAllongPath(Path path, float timeUntilExpand = 0.0f) {
-        forceSlimeUpdate();
+        wakeUpSlime();
         _currentExpandPath = path;
         _timeUntilExpand = timeUntilExpand;
         if (_timeUntilExpand <= 0.0f) {
@@ -157,7 +185,14 @@ public class Slime : MonoBehaviour {
         }
     }
 
-    public void expandSlime() {
+    /* This is an internal method that handles the expansion of the slime
+     * This calculates the node that we are expanding into, and handles
+     * the creation of a new slime object if needed
+     * 
+     * This also handles the linking to the new slime node so that
+     * the chain reaction can be sustained.  
+     */
+    private void expandSlime() {
         Vector2Int nextNode = _currentExpandPath.getNext();
 
         Tile newSlimeTile = _tilemap.getTile(nextNode);
@@ -183,7 +218,7 @@ public class Slime : MonoBehaviour {
         return opacity;
     }
 
-    private void updateNeighborCount(bool forceNeighborUpdates = false, int modifyNeighborCount = 0) {
+    private void updateNeighborCount(bool forceNeighborUpdates = false) {
         List<Tile> neighbors = _tilemap.getNeighboringTiles(transform.position);
         _slimeNeighbors = 0;
 
@@ -204,7 +239,7 @@ public class Slime : MonoBehaviour {
                     _slimeNeighbors++;
                 }
                 if (forceNeighborUpdates) {
-                    slime.forceSlimeUpdate(modifyNeighborCount);
+                    slime.wakeUpSlime();
                 }
             }
         }

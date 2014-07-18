@@ -101,10 +101,21 @@ public class TilemapEditor : Editor {
      */
     private void displayTileFieldEditor() {
         SerializedObject obj = new SerializedObject(currentTilePrefab.GetComponent<Tile>());
+
+        Tile currentTile = currentTilePrefab.GetComponent<Tile>();
+        Vector2Int currentTileSize = currentTile.getTileSize();
+
         SerializedProperty prop = obj.GetIterator();
         prop.NextVisible(true);
         while (prop.NextVisible(true)) {
-            EditorGUILayout.PropertyField(prop);
+            if (prop.name == "isWalkable" && currentTileSize.x != 1 && currentTileSize.y != 1) {
+                EditorGUI.BeginDisabledGroup(true);
+                EditorGUILayout.PropertyField(prop);
+                prop.boolValue = false;
+                EditorGUI.EndDisabledGroup();
+            } else {
+                EditorGUILayout.PropertyField(prop);
+            }
         }
 
         if (obj.ApplyModifiedProperties()) {
@@ -171,11 +182,9 @@ public class TilemapEditor : Editor {
      */
     public void OnSceneGUI() {
         int controlID = GUIUtility.GetControlID(GetHashCode(), FocusType.Passive);
+        mouseHighlight();
 
         switch (Event.current.type) {
-            case EventType.mouseMove:
-                mouseMove();
-                break;
             case EventType.mouseDown:
                 mouseDown();
                 break;
@@ -220,8 +229,25 @@ public class TilemapEditor : Editor {
         }
     }
 
-    private void mouseMove() {
-        //TODO: Possible mouse cell highlight
+    private void mouseHighlight() {
+        if(currentTilePrefab != null){
+            Tile currentTile = currentTilePrefab.GetComponent<Tile>();
+            Vector2 intersection;
+            if(getTilemapIntersection(Event.current.mousePosition, out intersection)){
+                Vector2Int tilePos = Tilemap.getTilemapLocation(intersection);
+                intersection = new Vector2(tilePos.x * Tilemap.TILE_SIZE, tilePos.y * Tilemap.TILE_SIZE);
+
+                intersection -= (Vector2.up + Vector2.right) / 2.0f;
+                Vector2Int size = currentTile.getTileSize();
+
+                Handles.color = Color.blue;
+                Handles.DrawAAPolyLine(15.0f, intersection, intersection + Vector2.right * size.x);
+                Handles.DrawAAPolyLine(15.0f, intersection, intersection + Vector2.up * size.y);
+                Handles.DrawAAPolyLine(15.0f, intersection + Vector2.right * size.x, intersection + Vector2.up * size.y + Vector2.right * size.x);
+                Handles.DrawAAPolyLine(15.0f, intersection + Vector2.up * size.y, intersection + Vector2.up * size.y + Vector2.right * size.x);
+                HandleUtility.Repaint();
+            }
+        }
     }
 
     private void mouseDrag() {

@@ -200,6 +200,10 @@ public class Tilemap : MonoBehaviour {
      */
 #if UNITY_EDITOR
     public void setTileGameObject(Vector2Int tilePosition, GameObject tileGameObject) {
+        if (_tilemapChunks == null) {
+            clearTilemap();
+        }
+
         Tile tileObject = tileGameObject.GetComponent<Tile>();
         Vector2Int tileSize = tileObject.getTileSize();
         for (int i = 0; i < tileSize.x; i++) {

@@ -188,7 +188,7 @@ public class TilemapEditor : Editor {
             case EventType.mouseDown:
                 mouseDown();
                 break;
-            case EventType.MouseDrag:
+            case EventType.mouseDrag:
                 mouseDrag();
                 break;
             case EventType.layout:
@@ -252,6 +252,12 @@ public class TilemapEditor : Editor {
 
     private void mouseDrag() {
         if (Event.current.button == 0 && currentTilePrefab) {
+            Tile currentTile = currentTilePrefab.GetComponent<Tile>();
+            Vector2Int currentTileSize = currentTile.getTileSize();
+            if (currentTileSize.x != 1 && currentTileSize.y != 1) {
+                return;
+            }
+
             handleMouseDraw(Event.current.mousePosition - Event.current.delta, Event.current.mousePosition);
         }
     }

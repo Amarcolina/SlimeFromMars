@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
-
+using System.Collections.Generic;
 /*This class keeps track of slime attribute values, mutation types, offense/defense abilities based on mutation type, and offense/defense values
  * 
  */
@@ -26,11 +26,13 @@ public class SlimeController : MonoBehaviour {
         if (Input.GetMouseButtonDown(0)) {
             highlightSlimeTile();
         }
-       
+
         if (currentSelectedSlime == null) {
             renderer.enabled = false;
         }
+
         //if slime and food overlap, consume
+        attemptToEat();
     }
 
     public void consume(GenericConsumeable eatenItem) {
@@ -48,6 +50,7 @@ public class SlimeController : MonoBehaviour {
         if (eatenItem.isBioMutation) {
             bioLevel++;
         }
+        Destroy(eatenItem);
     }
 
     public void highlightSlimeTile() {
@@ -72,6 +75,18 @@ public class SlimeController : MonoBehaviour {
         return tilemap.getTile(cursorPosition);
     }
 
+    public void attemptToEat() {
+        Tile tileComponent = currentSelectedSlime.GetComponent<Tile>();
+        HashSet<TileEntity> entities = tileComponent.getTileEntities();
+        if (entities != null) {
+            foreach (TileEntity entity in entities) {
+                GenericConsumeable possibleConsumeable = entity.GetComponent<GenericConsumeable>();
+                if (possibleConsumeable != null) {
+                    consume(possibleConsumeable);
+                }
+            }
+        }
+    }
     public void useAcidOffense() {
         //multiply acidLevel to attack power (radius?) to get offense output
         //do same for defense

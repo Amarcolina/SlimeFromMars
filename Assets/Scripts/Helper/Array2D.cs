@@ -23,6 +23,10 @@ public class Array2D<T> : ScriptableObject where T : class{
         _height = height;
     }
 
+    public bool isInRange(Vector2Int index) {
+        return index.x >= 0 && index.y >= 0 && index.x < width && index.y < height;
+    }
+
     /* Gets the width of the array
      */
     public int width {

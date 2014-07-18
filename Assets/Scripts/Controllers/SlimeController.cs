@@ -12,7 +12,7 @@ public class SlimeController : MonoBehaviour {
     private int acidLevel;
     private int electricityLevel;
     private int bioLevel;
-
+    private Slime currentSelectedSlime;
     // Use this for initialization
     void Start() {
         acidLevel = 0;
@@ -25,6 +25,10 @@ public class SlimeController : MonoBehaviour {
     void Update() {
         if (Input.GetMouseButtonDown(0)) {
             highlightSlimeTile();
+        }
+       
+        if (currentSelectedSlime == null) {
+            renderer.enabled = false;
         }
         //if slime and food overlap, consume
     }
@@ -47,22 +51,27 @@ public class SlimeController : MonoBehaviour {
     }
 
     public void highlightSlimeTile() {
-        //finds the cursorPosition and then uses cursorPosition to find position of tileUnderCursor
-       Camera testCam = Camera.main;
-       Vector2 cursorPosition = testCam.ScreenToWorldPoint(Input.mousePosition);
-       Tilemap tilemap = Tilemap.getInstance();
-       Tile tileUnderCursor = tilemap.getTile(cursorPosition);
-        
+        Tile tileUnderCursor = getTilePositionUnderCursor();
+
         //gets the slime component under the highlighted tile, if it exists
-       Slime slimeTile = tileUnderCursor.GetComponent<Slime>();
-       if (slimeTile != null) {
-           //makes sprite visible
-           renderer.enabled = true;
-           //moves highlighter to tile position
-           transform.position = tileUnderCursor.transform.position;
-       }
-        
+        Slime slimeTile = tileUnderCursor.GetComponent<Slime>();
+        if (slimeTile != null) {
+            //makes sprite visible
+            renderer.enabled = true;
+            currentSelectedSlime = slimeTile;
+            //moves highlighter to tile position
+            transform.position = tileUnderCursor.transform.position;
+        }
     }
+
+    public Tile getTilePositionUnderCursor() {
+        //finds the cursorPosition and then uses cursorPosition to find position of tileUnderCursor
+        Camera testCam = Camera.main;
+        Vector2 cursorPosition = testCam.ScreenToWorldPoint(Input.mousePosition);
+        Tilemap tilemap = Tilemap.getInstance();
+        return tilemap.getTile(cursorPosition);
+    }
+
     public void useAcidOffense() {
         //multiply acidLevel to attack power (radius?) to get offense output
         //do same for defense

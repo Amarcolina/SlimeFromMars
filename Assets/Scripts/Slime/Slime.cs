@@ -7,6 +7,8 @@ public class Slime : MonoBehaviour {
     public const float HEALTH_REGEN_RATE = 0.1f;
     public const float TIME_PER_EXPAND = 1.0f;
 
+    public bool startSolid = false;
+
     private static Sprite[] _slimeSpriteLookup = null;
     private static int[] _slimeSpriteAngleLookup = { 0, 0, 90, 0, 180, 0, 90, 0, 270, 270, 180, 270, 180,  180, 90, 0 };
 
@@ -71,6 +73,10 @@ public class Slime : MonoBehaviour {
         _slimeRenderer.sortingLayerName = "Slime";
 
         updateNeighborCount(true);
+
+        if (startSolid) {
+            setSolid(true);
+        }
     }
 
     /* Handles destruction of this tile.  It lets all neighboring 
@@ -114,6 +120,10 @@ public class Slime : MonoBehaviour {
 
             updateNeighborCount(true);
         }
+    }
+
+    public bool isSolid() {
+        return _isSolid;
     }
 
     /* The update loop is only proccessed if this slime is awake.

@@ -2,8 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System;
-public class Astar : MonoBehaviour {
 
+public class Astar : MonoBehaviour {
     public class Node : IComparable {
         Vector2Int position; //tilemap position of node
         private const float ORTHOGANAL_COST = 1;
@@ -41,8 +41,6 @@ public class Astar : MonoBehaviour {
 
         //Using Diaganol (Chebyshev) distance - grid allows 8 directions of movement
         //Calculates the heuristic of the node
-
-
         public int CompareTo(object obj) {
             if (obj == null) {
                 return 1;
@@ -57,9 +55,11 @@ public class Astar : MonoBehaviour {
         }
     }
 
-    public List<Vector2Int> runAstar(Vector2Int start, Vector2Int goal) {
+    public static Path findPath(Vector2Int start, Vector2Int goal) {  
+        if (start == null || goal == null) {
+            return null;
+        }
 
-        List<Vector2Int> finalPath = new List<Vector2Int>();//path from start to goal
         BinaryMinHeap<Node> openList = new BinaryMinHeap<Node>();//nodes to be examined
         HashSet<Node> closedList = new HashSet<Node>();
         Tilemap tileMap = null;
@@ -94,19 +94,29 @@ public class Astar : MonoBehaviour {
                     neighborNode.setParent(current);
                 }
             }
+
+            //If the heap is zero, that means we have not found the goal and we have run out
+            //of places to check.  In this case we have failed to find a path and we must
+            //return null
+            if (openList.getHeapSize() == 0) {
+                return null;
+            }
         }
+
+        Path finalPath = new Path();//path from start to goal
         goalNode = openList.peekAtElement(0);
         //reconstruct reverse path from goal to start by following parent pointers
-        finalPath.Add(goalNode.getPosition());
+        finalPath.addNodeToStart(goalNode.getPosition());
         while (goalNode.getParent().getPosition() != null) {
             goalNode = goalNode.getParent();
-            finalPath.Insert(0, goalNode.getPosition());
+            finalPath.addNodeToStart(goalNode.getPosition());
         }
+
         return finalPath;
     }
 
     //the cost of moving directly from one node to another
-    public float movementCost(Node current, Node neighbor) {
+    private static float movementCost(Node current, Node neighbor) {
         float dx = current.getPosition().x - neighbor.getPosition().x;
         float dy = current.getPosition().y - neighbor.getPosition().y;
         return (Mathf.Sqrt(dx * dx + dy * dy));

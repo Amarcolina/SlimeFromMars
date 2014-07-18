@@ -5,7 +5,6 @@ using System.Linq;
 
 public class BinaryMinHeap<GenericItem> : MonoBehaviour where GenericItem : IComparable {
     private List<GenericItem> heap = new List<GenericItem>();//list of "nodes" that will make up heap structure
-    private int i, j;
     private GenericItem root;
 
     public void insert(GenericItem node_data) { 
@@ -49,9 +48,9 @@ public class BinaryMinHeap<GenericItem> : MonoBehaviour where GenericItem : ICom
             return extractedElement;
         }
         if (extractedElement.CompareTo(heap[index]) < 0) {//if the extractedElement was less than the element at that index, bubbleDown
-            this.minHeapify(i);
+            this.minHeapify(index);
         } else {//else bubbleUp   
-            bubbleUp(i);
+            bubbleUp(index);
         }
         return extractedElement;
     }
@@ -92,7 +91,7 @@ public class BinaryMinHeap<GenericItem> : MonoBehaviour where GenericItem : ICom
     }  
     private void bubbleUp(int i){
         while (i > 0) {
-            j = ((i + 1)/2 )- 1;
+            int j = ((i + 1)/2 )- 1;
             //compares two elements to see if child is in correct place
             if (heap[j].CompareTo(heap[i]) <= 0) {
                 break;

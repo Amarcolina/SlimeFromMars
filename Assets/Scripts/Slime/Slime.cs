@@ -8,7 +8,7 @@ public class Slime : MonoBehaviour {
     public const float TIME_PER_EXPAND = 1.0f;
 
     private static Sprite[] _slimeSpriteLookup = null;
-    private const int[] _slimeSpriteAngleLookup = { 0, 0, 90, 0, 180, 0, 90, 0, 270, 270, 180, 270, 180,  180, 90, 0 };
+    private static int[] _slimeSpriteAngleLookup = { 0, 0, 90, 0, 180, 0, 90, 0, 270, 270, 180, 270, 180,  180, 90, 0 };
 
     private bool _isSolid = false;
     private Tile _myTile;
@@ -211,7 +211,9 @@ public class Slime : MonoBehaviour {
     }
 
     /* Internal method that gets the goal opacity of the slime.  This is an
-     * indirect measure of health.  An opacity 
+     * indirect measure of health.  An opacity of 0 represents zero health always.
+     * A slime may be less than 100% opacity if it is damaged, or if it is not
+     * solid
      */
     private float getGoalOpacity() {
         float opacity = _percentHealth;
@@ -221,7 +223,13 @@ public class Slime : MonoBehaviour {
         return opacity;
     }
 
-    private void updateNeighborCount(bool forceNeighborUpdates = false) {
+    /* Updates the solid neghbor count of this slime.  This also updates the sprite
+     * used to represent the slime based on the locations of neighboring solid
+     * slimes.
+     * 
+     * An optional bool allows this method to wake up neighboring slimes
+     */
+    private void updateNeighborCount(bool shouldWakeUpNeighbors = false) {
         List<Tile> neighbors = _tilemap.getNeighboringTiles(transform.position);
         _slimeNeighbors = 0;
 
@@ -241,7 +249,7 @@ public class Slime : MonoBehaviour {
 
                     _slimeNeighbors++;
                 }
-                if (forceNeighborUpdates) {
+                if (shouldWakeUpNeighbors) {
                     slime.wakeUpSlime();
                 }
             }

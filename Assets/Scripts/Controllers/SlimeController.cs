@@ -29,10 +29,9 @@ public class SlimeController : MonoBehaviour {
 
         if (currentSelectedSlime == null) {
             renderer.enabled = false;
+        } else {
+            attemptToEat();
         }
-
-        //if slime and food overlap, consume
-        attemptToEat();
     }
 
     public void consume(GenericConsumeable eatenItem) {

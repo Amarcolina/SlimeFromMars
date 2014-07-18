@@ -49,7 +49,7 @@ public class SlimeController : MonoBehaviour {
         if (eatenItem.isBioMutation) {
             bioLevel++;
         }
-        Destroy(eatenItem);
+        Destroy(eatenItem.gameObject);
     }
 
     public void highlightSlimeTile() {

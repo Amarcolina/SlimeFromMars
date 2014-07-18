@@ -5,7 +5,10 @@ using System.Collections;
  * 
  */
 public class SlimeController : MonoBehaviour {
+    //energy is a pool of resources used to move, attack and defend
     private int energy;
+    //levels dictate how much more powerful your attacks/defenses are
+    //levels also give bonuses in energy from items of that attribute
     private int acidLevel;
     private int electricityLevel;
     private int bioLevel;
@@ -28,14 +31,22 @@ public class SlimeController : MonoBehaviour {
         //calculates default item resource value based on size and adds any bonuses
         energy = (int)eatenItem.size + acidLevel * eatenItem.acid + bioLevel * eatenItem.bio + electricityLevel * eatenItem.electricity;
 
-        if (eatenItem.isMutation) {
-            acidLevel += eatenItem.acid/100;
-            electricityLevel += eatenItem.electricity/100;
-            bioLevel += eatenItem.bio/100;
+        //if the eatenItem is a mutation, level up affinity
+        if (eatenItem.isAcidMutation) {
+            acidLevel++;
+        }
+        if (eatenItem.isElectricityMutation) {
+            electricityLevel++;
+        }
+        if (eatenItem.isBioMutation) {
+            bioLevel++;
         }
     }
 
-    public void useAcidOffense() { 
+
+    public void useAcidOffense() {
+        //multiply acidLevel to attack power (radius?) to get offense output
+        //do same for defense
     }
     public void useElectricityOffense() {
     }

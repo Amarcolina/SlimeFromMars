@@ -37,7 +37,7 @@ static public class NGUIMenu
 
 		if (go != null)
 		{
-			Undo.RegisterSceneUndo("Add a Sprite");
+			//Undo.RegisterSceneUndo("Add a Sprite");
 			
 			UISprite sprite = NGUITools.AddWidget<UISprite>(go);
 			sprite.name = "Sprite";
@@ -72,7 +72,7 @@ static public class NGUIMenu
 
 		if (go != null)
 		{
-			Undo.RegisterSceneUndo("Add a Label");
+			//Undo.RegisterSceneUndo("Add a Label");
 
 			UILabel lbl = NGUITools.AddWidget<UILabel>(go);
 			lbl.name = "Label";
@@ -96,7 +96,7 @@ static public class NGUIMenu
 
 		if (go != null)
 		{
-			Undo.RegisterSceneUndo("Add a Texture");
+			//Undo.RegisterSceneUndo("Add a Texture");
 
 			UITexture tex = NGUITools.AddWidget<UITexture>(go);
 			tex.name = "Texture";

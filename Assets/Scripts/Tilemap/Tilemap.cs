@@ -23,35 +23,27 @@ public class Tilemap : MonoBehaviour {
         }
         return _tilemapInstance;
     }
-
-    private delegate void NeighborBuilderDelegate(Vector2Int delta);
-
+    
     /* Clears the tilemap of all tiles, and sets up all internal
      * variables to contain an empty tilemap.  This properly destroys
      * all internal variables and external tiles
      */
     public void clearTilemap() {
-        Undo.RecordObject(this, "Cleared tilemap");
         Transform[] children = GetComponentsInChildren<Transform>();
         foreach (Transform child in children) {
             if (child && child != transform) {
-                Undo.DestroyObjectImmediate(child.gameObject);
+                DestroyImmediate(child.gameObject);
             }
         }
 
-        if (_tilemapChunks) {
-            for (int i = 0; i < _tilemapChunks.width; i++) {
-                for (int j = 0; j < _tilemapChunks.height; j++) {
-                    if (_tilemapChunks[i, j]) {
-                        Undo.DestroyObjectImmediate(_tilemapChunks[i, j]);
-                    }
-                }
+        for (int i = 0; i < _tilemapChunks.width; i++) {
+            for (int j = 0; j < _tilemapChunks.height; j++) {
+                DestroyImmediate(_tilemapChunks[i, j]);
             }
-            Undo.DestroyObjectImmediate(_tilemapChunks);
         }
+        DestroyImmediate(_tilemapChunks);
 
         _tilemapChunks = ScriptableObject.CreateInstance<Array2DTC>();
-        Undo.RegisterCreatedObjectUndo(_tilemapChunks, "Created new default tilemap chunk array");
         _tilemapChunks.init(1, 1);
         _chunkOriginOffset = new Vector2Int(0, 0);
     }
@@ -83,6 +75,25 @@ public class Tilemap : MonoBehaviour {
     }
 
     //####################################################################################################
+    /* Returns whether or not a given position represents a space that can
+     * be walked on.  If there is no tile at the given location, this method
+     * returns false.  If there is a tile at the given location, this method
+     * returns whether or not that tile is walkable
+     */
+
+    public bool isWalkable(Vector2Int position) {
+        Tile tile = getTile(position);
+        if (tile == null) {
+            return false;
+        }
+        return tile.isWalkable;
+    }
+
+    public bool isWalkable(Vector2 position) {
+        return isWalkable(getTilemapLocation(position));
+    }
+
+    //####################################################################################################
     /* Given a 2D integer tilemap position, this returns the Tile
      * Gameobject that is located at that position.  This returns the 
      * GameObject itself, which has the Tile component connected.
@@ -90,8 +101,12 @@ public class Tilemap : MonoBehaviour {
      */
     public GameObject getTileGameObject(Vector2Int tileLocation) {
         Vector2Int tileInChunkLocation = new Vector2Int(tileChunkMod(tileLocation.x), tileChunkMod(tileLocation.y));
-        Vector2Int chunkLocation = (tileLocation - tileInChunkLocation) / TileChunk.CHUNK_SIZE;
-        TileChunk tileChunk = _tilemapChunks[chunkLocation.x, chunkLocation.y];
+        Vector2Int chunkLocation = (tileLocation - tileInChunkLocation - _chunkOriginOffset * TileChunk.CHUNK_SIZE) / TileChunk.CHUNK_SIZE;
+
+        TileChunk tileChunk = null;
+        if (_tilemapChunks.isInRange(chunkLocation)) {
+            tileChunk = _tilemapChunks[chunkLocation.x, chunkLocation.y];
+        }
 
         if (tileChunk == null) {
             return null;
@@ -111,52 +126,64 @@ public class Tilemap : MonoBehaviour {
      */
     public List<Vector2Int> getNeighboringPositions(Vector2Int position, bool includeNonWalkable = false, bool includeDiagonal = true) {
         List<Vector2Int> neighborList = new List<Vector2Int>();
-
-        NeighborBuilderDelegate buildNeighborList = delegate(Vector2Int delta) {
-            Tile tile = getTile(position + delta);
-            if (tile != null) {
-                if (tile.isWalkable || includeNonWalkable) {
-                    neighborList.Add(position + delta);
-                }
-            }
+        FoundNeighborFunc func = delegate(Vector2Int tilePosition) {
+            neighborList.Add(tilePosition);
         };
-
-        buildNeighborList(Vector2Int.right);
-        buildNeighborList(Vector2Int.left);
-        buildNeighborList(Vector2Int.up);
-        buildNeighborList(Vector2Int.down);
-        if (includeDiagonal) {
-            buildNeighborList(position + Vector2Int.right + Vector2Int.up);
-            buildNeighborList(position + Vector2Int.right + Vector2Int.down);
-            buildNeighborList(position + Vector2Int.left + Vector2Int.up);
-            buildNeighborList(position + Vector2Int.left + Vector2Int.down);
-        }
+        findNeighboringLocationsInternal(position, func, includeNonWalkable, includeDiagonal);
         return neighborList;
+    }
+
+    public List<Vector2Int> getNeighboringPositions(Vector2 position, bool includeNonWalkable = false, bool includeDiagonal = true) {
+        return getNeighboringPositions(getTilemapLocation(position), includeNonWalkable, includeDiagonal);
     }
 
     public List<Tile> getNeighboringTiles(Vector2Int position, bool includeNonWalkable = false, bool includeDiagonal = true) {
         List<Tile> neighborList = new List<Tile>();
+        FoundNeighborFunc func = delegate(Vector2Int tilePosition) {
+            neighborList.Add(getTile(tilePosition));
+        };
+        findNeighboringLocationsInternal(position, func, includeNonWalkable, includeDiagonal);
+        return neighborList;
+    }
 
+    public List<Tile> getNeighboringTiles(Vector2 position, bool includeNonWalkable = false, bool includeDiagonal = true) {
+        return getNeighboringTiles(getTilemapLocation(position), includeNonWalkable, includeDiagonal);
+    }
+
+    private delegate void NeighborBuilderDelegate(Vector2Int delta);
+    private delegate void FoundNeighborFunc(Vector2Int tilePosition);
+    private void findNeighboringLocationsInternal(Vector2Int position, FoundNeighborFunc func, bool includeNonWalkable = false, bool includeDiagonal = true){
         NeighborBuilderDelegate buildNeighborList = delegate(Vector2Int delta) {
             Tile tile = getTile(position + delta);
             if (tile != null) {
                 if (tile.isWalkable || includeNonWalkable) {
-                    neighborList.Add(tile);
+                    func(position + delta);
                 }
             }
         };
 
+        if (includeDiagonal) {
+            if (isWalkable(position + Vector2Int.right)) {
+                if (isWalkable(position + Vector2Int.up)) {
+                    buildNeighborList(Vector2Int.right + Vector2Int.up);
+                }
+                if (isWalkable(position + Vector2Int.down)) {
+                    buildNeighborList(Vector2Int.right + Vector2Int.down);
+                }
+            }
+            if (isWalkable(position + Vector2Int.left)) {
+                if (isWalkable(position + Vector2Int.up)) {
+                    buildNeighborList(Vector2Int.left + Vector2Int.up);
+                }
+                if (isWalkable(position + Vector2Int.down)) {
+                    buildNeighborList(Vector2Int.left + Vector2Int.down);
+                }
+            }
+        }
         buildNeighborList(Vector2Int.right);
         buildNeighborList(Vector2Int.left);
         buildNeighborList(Vector2Int.up);
         buildNeighborList(Vector2Int.down);
-        if (includeDiagonal) {
-            buildNeighborList(position + Vector2Int.right + Vector2Int.up);
-            buildNeighborList(position + Vector2Int.right + Vector2Int.down);
-            buildNeighborList(position + Vector2Int.left + Vector2Int.up);
-            buildNeighborList(position + Vector2Int.left + Vector2Int.down);
-        }
-        return neighborList;
     }
 
     //####################################################################################################
@@ -193,21 +220,19 @@ public class Tilemap : MonoBehaviour {
         //If the chunk doesn't exist, we need to create it
         if (tileChunk == null) {
             GameObject newTileChunkGameObject = new GameObject("TileChunk(" + chunkLocation.x + "," + chunkLocation.y + ")");
-            Undo.RegisterCreatedObjectUndo(newTileChunkGameObject, "Created new tile chunk game object");
-            Undo.SetTransformParent(newTileChunkGameObject.transform, transform, "Moved new object to be a child of Tilemap");
+            newTileChunkGameObject.transform.parent = transform;
             tileChunk = ScriptableObject.CreateInstance<TileChunk>();
-            Undo.RegisterCreatedObjectUndo(tileChunk, "Created new tile chunk data structure");
             tileChunk.init(newTileChunkGameObject);
-            Undo.RecordObject(_tilemapChunks, "Added new chunk to tilemap chunks");
             _tilemapChunks[chunkLocation.x, chunkLocation.y] = tileChunk;
         }
 
         GameObject currentTile = tileChunk.getTile(tileInChunkLocation);
         //If the tile already exists, we need to destroy it first
         if (currentTile != null) {
-            Undo.DestroyObjectImmediate(currentTile);
+            DestroyImmediate(currentTile);
         }
 
+<<<<<<< HEAD
         Undo.RecordObject(tileChunk, "Added new tile to a Tile Chunk");
         tileChunk.setTile(tileInChunkLocation, tileObject);
 
@@ -219,6 +244,12 @@ public class Tilemap : MonoBehaviour {
             Vector3 posOff = new Vector3(positionOffset.x, positionOffset.y, 0) / 2.0f;
             tileObject.transform.position = (new Vector3(tilePosition.x, tilePosition.y, 0) + posOff) * TILE_SIZE;   
         }
+=======
+        newTileObject.name += "(" + tileLocation.x + "," + tileLocation.y + ")";
+        newTileObject.transform.parent = tileChunk.gameObject.transform;
+        newTileObject.transform.position = new Vector3(tileLocation.x, tileLocation.y, 0) * TILE_SIZE;
+        tileChunk.setTile(tileInChunkLocation, newTileObject);
+>>>>>>> master
     }
 #endif
 
@@ -253,28 +284,26 @@ public class Tilemap : MonoBehaviour {
         }
 
         //Create a new array which is the propper increased size
-        Array2DTC copiedArray = _tilemapChunks;
-        Undo.RecordObject(this, "Updated tile chunk with a new array");
-        _tilemapChunks = ScriptableObject.CreateInstance<Array2DTC>();
-        Undo.RegisterCreatedObjectUndo(_tilemapChunks, "created a new tilemap object");
-        _tilemapChunks.init(copiedArray.width + increaseX, copiedArray.height + increaseY);
+        Array2DTC newChunkArray = ScriptableObject.CreateInstance<Array2DTC>();
+        newChunkArray.init(_tilemapChunks.width + increaseX, _tilemapChunks.height + increaseY);
 
         //Copy the old array into the new one
-        for (int x = 0; x < copiedArray.width; x++) {
-            for (int y = 0; y < copiedArray.height; y++) {
-                _tilemapChunks[x + increaseLeftX, y + increaseUpY] = copiedArray[x, y];
+        for (int x = 0; x < _tilemapChunks.width; x++) {
+            for (int y = 0; y < _tilemapChunks.height; y++) {
+                newChunkArray[x + increaseLeftX, y + increaseUpY] = _tilemapChunks[x, y];
             }
         }
 
-        Undo.DestroyObjectImmediate(copiedArray);
+        //Destroy the old tilemap and assign the new one
+        DestroyImmediate(_tilemapChunks);
+        _tilemapChunks = newChunkArray;
 
         //The offset is at the top left corner, and so only needs to be modified
         // if we have increased in that direction
-        Undo.RecordObject(this, "Updated chunk origin offset");
         _chunkOriginOffset = _chunkOriginOffset - new Vector2Int(increaseLeftX, increaseUpY);
     }
 
-    public void OnDrawGizmosSelected() {
+    public void OnDrawGizmos() {
         if (_tilemapChunks == null) {
             clearTilemap();
         }

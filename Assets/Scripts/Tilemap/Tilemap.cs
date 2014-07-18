@@ -232,7 +232,6 @@ public class Tilemap : MonoBehaviour {
             DestroyImmediate(currentTile);
         }
 
-<<<<<<< HEAD
         Undo.RecordObject(tileChunk, "Added new tile to a Tile Chunk");
         tileChunk.setTile(tileInChunkLocation, tileObject);
 
@@ -244,12 +243,6 @@ public class Tilemap : MonoBehaviour {
             Vector3 posOff = new Vector3(positionOffset.x, positionOffset.y, 0) / 2.0f;
             tileObject.transform.position = (new Vector3(tilePosition.x, tilePosition.y, 0) + posOff) * TILE_SIZE;   
         }
-=======
-        newTileObject.name += "(" + tileLocation.x + "," + tileLocation.y + ")";
-        newTileObject.transform.parent = tileChunk.gameObject.transform;
-        newTileObject.transform.position = new Vector3(tileLocation.x, tileLocation.y, 0) * TILE_SIZE;
-        tileChunk.setTile(tileInChunkLocation, newTileObject);
->>>>>>> master
     }
 #endif
 

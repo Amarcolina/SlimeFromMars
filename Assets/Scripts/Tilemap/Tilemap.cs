@@ -6,7 +6,6 @@ using System.Collections;
 using System.Collections.Generic;
 
 
-[InitializeOnLoad]
 public class Tilemap : MonoBehaviour {
     public const float TILE_SIZE = 1.0f;
     [SerializeField]

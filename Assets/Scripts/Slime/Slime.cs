@@ -210,6 +210,9 @@ public class Slime : MonoBehaviour {
         _currentExpandPath = null;
     }
 
+    /* Internal method that gets the goal opacity of the slime.  This is an
+     * indirect measure of health.  An opacity 
+     */
     private float getGoalOpacity() {
         float opacity = _percentHealth;
         if (!_isSolid) {

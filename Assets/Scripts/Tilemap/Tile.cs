@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 [RequireComponent (typeof (SpriteRenderer))]
 public class Tile : MonoBehaviour {
+    private const int TILE_PIXEL_SIZE = 64;
     private const string GROUND_LAYER_NAME = "TileGround";
     private const string OVERLAY_LAYER_NAME = "TileOverlay";
 
@@ -22,6 +23,10 @@ public class Tile : MonoBehaviour {
     private const int MAX_POOL_SIZE = 8;
     private static Stack<HashSet<TileEntity>> _tileEntitySetPool = new Stack<HashSet<TileEntity>>();
     private HashSet<TileEntity> _containedTileEntities = null;
+
+    public Vector2Int getTileSize() {
+        return new Vector2Int(groundSprite.texture.width, groundSprite.texture.height) / TILE_PIXEL_SIZE;
+    }
 
     public void addTileEntity(TileEntity tileEntity) {
         if (_containedTileEntities == null) {

@@ -36,12 +36,14 @@ public class Tilemap : MonoBehaviour {
             }
         }
 
-        for (int i = 0; i < _tilemapChunks.width; i++) {
-            for (int j = 0; j < _tilemapChunks.height; j++) {
-                DestroyImmediate(_tilemapChunks[i, j]);
+        if (_tilemapChunks) {
+            for (int i = 0; i < _tilemapChunks.width; i++) {
+                for (int j = 0; j < _tilemapChunks.height; j++) {
+                    DestroyImmediate(_tilemapChunks[i, j]);
+                }
             }
+            DestroyImmediate(_tilemapChunks);
         }
-        DestroyImmediate(_tilemapChunks);
 
         _tilemapChunks = ScriptableObject.CreateInstance<Array2DTC>();
         _tilemapChunks.init(1, 1);

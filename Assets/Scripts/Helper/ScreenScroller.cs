@@ -2,12 +2,12 @@
 using System.Collections;
 
 public class ScreenScroller : MonoBehaviour {
-    int scrollDistance;
-    float scrollSpeed;
+    [MinValue(0)]
+    public int scrollDistance = 1;
+    [MinValue(0)]
+    public float scrollSpeed = 70;
     // Use this for initialization
     void Start() {
-        scrollDistance = 1;
-        scrollSpeed = 70;
     }
 
     // Update is called once per frame
@@ -24,11 +24,11 @@ public class ScreenScroller : MonoBehaviour {
         }
 
         if (mousePosY < scrollDistance) {
-            transform.Translate(transform.forward * -scrollSpeed * Time.deltaTime);
+            transform.Translate(transform.up * -scrollSpeed * Time.deltaTime);
         }
 
         if (mousePosY >= Screen.height - scrollDistance) {
-            transform.Translate(transform.forward * scrollSpeed * Time.deltaTime);
+            transform.Translate(transform.up * scrollSpeed * Time.deltaTime);
         }
 
     }

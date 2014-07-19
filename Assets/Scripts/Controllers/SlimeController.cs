@@ -32,6 +32,15 @@ public class SlimeController : MonoBehaviour {
         } else {
             attemptToEat();
         }
+
+        if (Input.GetMouseButtonDown(1) && currentSelectedSlime != null) {
+            Vector2Int startLocation = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
+            Vector2Int goalLocation = Tilemap.getTilemapLocation(getTilePositionUnderCursor().transform.position);
+            Path astarPath = Astar.findPath(startLocation, goalLocation);
+            astarPath.getNext();
+            currentSelectedSlime.requestExpansionAllongPath(astarPath);
+            highlightSlimeTile();
+        }
     }
 
     public void consume(GenericConsumeable eatenItem) {
@@ -49,6 +58,7 @@ public class SlimeController : MonoBehaviour {
         if (eatenItem.isBioMutation) {
             bioLevel++;
         }
+
         Destroy(eatenItem.gameObject);
     }
 

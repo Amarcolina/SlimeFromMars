@@ -36,9 +36,6 @@ public class SlimeController : MonoBehaviour {
         if (Input.GetMouseButtonDown(1) && currentSelectedSlime != null) {
             Vector2Int startLocation = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
             Vector2Int goalLocation = Tilemap.getTilemapLocation(getTilePositionUnderCursor().transform.position);
-
-            Debug.Log(startLocation.x + " , " + startLocation.y);
-            Debug.Log(goalLocation.x + " , " + goalLocation.y);
             Path astarPath = Astar.findPath(startLocation, goalLocation);
             astarPath.getNext();
             currentSelectedSlime.requestExpansionAllongPath(astarPath);

@@ -23,6 +23,24 @@ public class Path {
         _nodes.Insert(0, node);
     }
 
+    public Vector2Int removeNodeFromStart() {
+        Vector2Int ret = null;
+        if (_nodes.Count != 0) {
+            ret = _nodes[0];
+            _nodes.RemoveAt(0);
+        }
+        return ret;
+    }
+
+    public Vector2Int removeNodeFromEnd() {
+        Vector2Int ret = null;
+        if (_nodes.Count != 0) {
+            ret = _nodes[_nodes.Count - 1];
+            _nodes.RemoveAt(_nodes.Count - 1);
+        }
+        return ret;
+    }
+
     public Vector2Int getStart() {
         return _nodes[0];
     }
@@ -45,5 +63,13 @@ public class Path {
 
     public float getLength() {
         return _length;
+    }
+
+    public int getNodeCount() {
+        return _nodes.Count;
+    }
+
+    public int getNodesLeft() {
+        return _nodes.Count - _currentNode;
     }
 }

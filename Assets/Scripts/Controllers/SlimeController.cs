@@ -50,7 +50,7 @@ public class SlimeController : MonoBehaviour {
             int pathCost = Slime.getPathCost(astarPath);
 
             //if the slime has the energy to move, take the astar path
-            if (hasEnergy(energy, pathCost)) {
+            if (energy >= pathCost) {
                 loseEnergy(pathCost);
                 currentSelectedSlime.requestExpansionAllongPath(astarPath);
             } else { 
@@ -121,14 +121,6 @@ public class SlimeController : MonoBehaviour {
         energy -= cost;
         } 
 
-    public bool hasEnergy(int slimeEnergy, int cost) { 
-        if (energy - cost >= 0) {
-            return true;
-        }
-        else{
-            return false;
-        }
-    }
     //implement get attack cost get defense cost methods?
     public void useAcidOffense() {
         //multiply acidLevel to attack power (radius?) to get offense output

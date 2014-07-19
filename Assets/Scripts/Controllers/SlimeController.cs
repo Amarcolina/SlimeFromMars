@@ -53,7 +53,7 @@ public class SlimeController : MonoBehaviour {
             if (energy >= pathCost) {
                 loseEnergy(pathCost);
                 currentSelectedSlime.requestExpansionAllongPath(astarPath);
-            } else { 
+            } else {
                 //message: not enough energy
             }
         }
@@ -119,7 +119,7 @@ public class SlimeController : MonoBehaviour {
 
     private void loseEnergy(int cost) {
         energy -= cost;
-        } 
+    }
 
     //implement get attack cost get defense cost methods?
     public void useAcidOffense() {

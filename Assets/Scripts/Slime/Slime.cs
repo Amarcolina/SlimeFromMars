@@ -187,8 +187,6 @@ public class Slime : MonoBehaviour {
         setSolid(true);
         wakeUpSlime();
 
-        
-
         _currentExpandPath = path;
         _timeUntilExpand = residualTimeLeft;
         if (_timeUntilExpand <= 0.0f) {

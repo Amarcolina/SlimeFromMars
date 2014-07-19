@@ -1,6 +1,8 @@
 fileFormatVersion: 2
-guid: 35aa477ca1b4bc347b24a1e00d0478c3
+guid: 2674af0fd88d611418ac4babe6b12906
 TextureImporter:
+  fileIDToRecycleName:
+    21300000: Slime-0x7
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0
@@ -23,7 +25,7 @@ TextureImporter:
   textureFormat: -1
   maxTextureSize: 1024
   textureSettings:
-    filterMode: 0
+    filterMode: -1
     aniso: 1
     mipBias: -1
     wrapMode: 1

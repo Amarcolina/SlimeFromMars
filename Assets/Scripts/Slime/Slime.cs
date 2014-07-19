@@ -6,20 +6,17 @@ public class Slime : MonoBehaviour {
     public const float OPACITY_CHANGE_SPEED = 1.0f;
     public const float HEALTH_REGEN_RATE = 0.1f;
     public const float TIME_PER_EXPAND = 0.05f;
-
     public bool startSolid = false;
 
     private static Sprite[] _slimeSpriteLookup = null;
     private static int[] _slimeSpriteAngleLookup = { 0, 0, 90, 0, 180, 0, 90, 0, 270, 270, 180, 270, 180,  180, 90, 0 };
 
     private bool _isSolid = false;
-    private Tile _myTile;
     private Tilemap _tilemap;
     private SpriteRenderer _slimeRenderer;
     
     private float _percentHealth = 1.0f;
     private int _solidSlimeNeighborCount = 0;
-    private float _currentOpacity = 0.0f;
 
     private Path _currentExpandPath = null;
     private float _timeUntilExpand = 0.0f;
@@ -64,7 +61,6 @@ public class Slime : MonoBehaviour {
         }
 
         _tilemap = Tilemap.getInstance();
-        _myTile = GetComponent<Tile>();
 
         GameObject slimeRendererObject = new GameObject("Slime");
         slimeRendererObject.transform.parent = transform;
@@ -179,8 +175,24 @@ public class Slime : MonoBehaviour {
         if (path.getNodeCount() <= 1) {
             return;
         }
-        path.removeNodeFromStart();
+        path.getNext();
         requestExpansionInternal(path, 0.0f);
+    }
+
+    /* This returns the amount of enery it would cost to grow
+     * the slime along the given path.  
+     */
+    public static int getPathCost(Path path) {
+        int cost = 0;
+        Tilemap tilemap = Tilemap.getInstance();
+        for (int i = 0; i < path.Count - 1; i++) {
+            Vector2Int node = path[i];
+            Slime slime = tilemap.getTile(node).GetComponent<Slime>();
+            if (slime == null || !slime.isSolid()) {
+                cost++;
+            }
+        }
+        return cost;
     }
 
     private void requestExpansionInternal(Path path, float residualTimeLeft) {

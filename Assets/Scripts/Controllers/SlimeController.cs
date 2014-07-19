@@ -43,11 +43,24 @@ public class SlimeController : MonoBehaviour {
         }
 
         if (Input.GetMouseButtonDown(1) && currentSelectedSlime != null) {
+            //calculates astar path with start and goal locations, then calculates the cost of the path
             Vector2Int startLocation = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
             Vector2Int goalLocation = Tilemap.getTilemapLocation(getTilePositionUnderCursor().transform.position);
             Path astarPath = Astar.findPath(startLocation, goalLocation);
-            currentSelectedSlime.requestExpansionAllongPath(astarPath);
+            int pathCost = Slime.getPathCost(astarPath);
+
+            //if the slime has the energy to move, take the astar path
+            if (energy >= pathCost) {
+                loseEnergy(pathCost);
+                currentSelectedSlime.requestExpansionAllongPath(astarPath);
+            } else {
+                //message: not enough energy
+            }
         }
+    }
+
+    public float getEnergy() {
+        return energy;
     }
 
     public void consume(GenericConsumeable eatenItem) {
@@ -107,6 +120,12 @@ public class SlimeController : MonoBehaviour {
             }
         }
     }
+
+    private void loseEnergy(int cost) {
+        energy -= cost;
+    }
+
+    //implement get attack cost get defense cost methods?
     public void useAcidOffense() {
         //multiply acidLevel to attack power (radius?) to get offense output
         //do same for defense
@@ -124,3 +143,4 @@ public class SlimeController : MonoBehaviour {
     public void useBioDefense() {
     }
 }
+

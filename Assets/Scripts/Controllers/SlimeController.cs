@@ -118,13 +118,11 @@ public class SlimeController : MonoBehaviour {
     }
 
     private void loseEnergy(int cost) {
-            for (int i = 0; i < cost; i++) {
-                energy--;
-            }
+        energy -= cost;
         } 
 
     public bool hasEnergy(int slimeEnergy, int cost) { 
-        if (energy != 0 && energy - cost > 0) {
+        if (energy - cost >= 0) {
             return true;
         }
         else{

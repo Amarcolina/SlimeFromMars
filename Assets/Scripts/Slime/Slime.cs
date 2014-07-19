@@ -5,7 +5,9 @@ using System.Collections.Generic;
 public class Slime : MonoBehaviour {
     public const float OPACITY_CHANGE_SPEED = 1.0f;
     public const float HEALTH_REGEN_RATE = 0.1f;
-    public const float TIME_PER_EXPAND = 1.0f;
+    public const float TIME_PER_EXPAND = 0.05f;
+
+    public bool startSolid = false;
 
     private static Sprite[] _slimeSpriteLookup = null;
     private static int[] _slimeSpriteAngleLookup = { 0, 0, 90, 0, 180, 0, 90, 0, 270, 270, 180, 270, 180,  180, 90, 0 };
@@ -16,7 +18,7 @@ public class Slime : MonoBehaviour {
     private SpriteRenderer _slimeRenderer;
     
     private float _percentHealth = 1.0f;
-    private int _slimeNeighbors = 0;
+    private int _solidSlimeNeighborCount = 0;
     private float _currentOpacity = 0.0f;
 
     private Path _currentExpandPath = null;
@@ -70,15 +72,14 @@ public class Slime : MonoBehaviour {
         _slimeRenderer = slimeRendererObject.AddComponent<SpriteRenderer>();
         _slimeRenderer.sortingLayerName = "Slime";
 
+        if (startSolid) {
+            setSolid(true);
+        }
+
         updateNeighborCount(true);
     }
 
-    /* Handles destruction of this tile.  It lets all neighboring 
-     * slime tiles know this one has been destroyed.  It also destroys
-     * the game object used for the slime sprite display
-     */
     public void OnDestroy() {
-        updateNeighborCount(true);
         Destroy(_slimeRenderer.gameObject);
     }
 
@@ -116,6 +117,10 @@ public class Slime : MonoBehaviour {
         }
     }
 
+    public bool isSolid() {
+        return _isSolid;
+    }
+
     /* The update loop is only proccessed if this slime is awake.
      * Every loop, the slime will try to go to sleep if it is able.
      * Every loop, it does the following:
@@ -140,16 +145,7 @@ public class Slime : MonoBehaviour {
             canGoToSleep = false;
         }
 
-        float goalOpacity = getGoalOpacity();
-        if (_currentOpacity != goalOpacity) {
-            _currentOpacity = Mathf.MoveTowards(_currentOpacity, goalOpacity, OPACITY_CHANGE_SPEED * Time.deltaTime);
-            if (_currentOpacity <= 0.0f) {
-                Destroy(this);
-            }
-            canGoToSleep = false;
-        }
-
-        if (_percentHealth != 1.0f) {
+        if (_percentHealth != 1.0f && _percentHealth > 0.0f) {
             _percentHealth = Mathf.MoveTowards(_percentHealth, 1.0f, HEALTH_REGEN_RATE * Time.deltaTime);
             canGoToSleep = false;
         }
@@ -164,6 +160,9 @@ public class Slime : MonoBehaviour {
      */
     public void damageSlime(float percentDamage) {
         _percentHealth -= percentDamage;
+        if (_percentHealth <= 0.0f) {
+            setSolid(false);
+        }
         wakeUpSlime();
     }
 
@@ -171,15 +170,25 @@ public class Slime : MonoBehaviour {
      * to the current node in the path.  This triggers a chain reaction where
      * the expanded slime follows the next node and so on
      * 
-     * The user can specify a delay until the expansion occurs.  This is also
-     * used internally in the chain reaction to control expand speed
-     * 
      * This wakes up the slime
      */
-    public void requestExpansionAllongPath(Path path, float timeUntilExpand = 0.0f) {
+    public void requestExpansionAllongPath(Path path) {
+        if (path.getNodeCount() <= 1) {
+            return;
+        }
+        path.removeNodeFromStart();
+        requestExpansionInternal(path, 0.0f);
+    }
+
+    private void requestExpansionInternal(Path path, float residualTimeLeft) {
+        if (_isSolid) {
+            residualTimeLeft = 0.0f;
+        }
+        setSolid(true);
         wakeUpSlime();
+
         _currentExpandPath = path;
-        _timeUntilExpand = timeUntilExpand;
+        _timeUntilExpand = residualTimeLeft;
         if (_timeUntilExpand <= 0.0f) {
             expandSlime();
         }
@@ -201,26 +210,15 @@ public class Slime : MonoBehaviour {
             if(newSlime == null){
                 newSlime = newSlimeTile.gameObject.AddComponent<Slime>();
             }
-            newSlime.setSolid(true);
-            if (_currentExpandPath.hasNext()) {
-                newSlime.requestExpansionAllongPath(_currentExpandPath, _timeUntilExpand + TIME_PER_EXPAND);
+
+            SlimeController.getInstance().setSelectedSlime(newSlime);
+
+            if (_currentExpandPath.getNodesLeft() > 0) {
+                newSlime.requestExpansionInternal(_currentExpandPath, _timeUntilExpand + TIME_PER_EXPAND);
             }
         }
 
         _currentExpandPath = null;
-    }
-
-    /* Internal method that gets the goal opacity of the slime.  This is an
-     * indirect measure of health.  An opacity of 0 represents zero health always.
-     * A slime may be less than 100% opacity if it is damaged, or if it is not
-     * solid
-     */
-    private float getGoalOpacity() {
-        float opacity = _percentHealth;
-        if (!_isSolid) {
-            opacity *= _slimeNeighbors / 8.0f;
-        }
-        return opacity;
     }
 
     /* Updates the solid neghbor count of this slime.  This also updates the sprite
@@ -231,7 +229,7 @@ public class Slime : MonoBehaviour {
      */
     private void updateNeighborCount(bool shouldWakeUpNeighbors = false) {
         List<Tile> neighbors = _tilemap.getNeighboringTiles(transform.position);
-        _slimeNeighbors = 0;
+        _solidSlimeNeighborCount = 0;
 
         int spriteMask = 0;
 
@@ -247,7 +245,7 @@ public class Slime : MonoBehaviour {
                     if (delta.x == -1) neighborMask &= 0x9; //1001
                     spriteMask |= neighborMask;
 
-                    _slimeNeighbors++;
+                    _solidSlimeNeighborCount++;
                 }
                 if (shouldWakeUpNeighbors) {
                     slime.wakeUpSlime();
@@ -257,6 +255,10 @@ public class Slime : MonoBehaviour {
 
         if (_isSolid) {
             spriteMask = 0xF;
+        } else {
+            if (_solidSlimeNeighborCount == 0) {
+                Destroy(this);
+            }
         }
         _slimeRenderer.sprite = _slimeSpriteLookup[spriteMask];
         _slimeRenderer.gameObject.transform.eulerAngles = new Vector3(0, 0, -_slimeSpriteAngleLookup[spriteMask]);

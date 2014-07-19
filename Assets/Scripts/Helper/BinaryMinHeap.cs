@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-public class BinaryMinHeap<GenericItem> : MonoBehaviour where GenericItem : IComparable {
+public class BinaryMinHeap<GenericItem>  where GenericItem : IComparable {
     private List<GenericItem> heap = new List<GenericItem>();//list of "nodes" that will make up heap structure
     private GenericItem root;
 

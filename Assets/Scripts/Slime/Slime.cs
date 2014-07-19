@@ -5,7 +5,7 @@ using System.Collections.Generic;
 public class Slime : MonoBehaviour {
     public const float OPACITY_CHANGE_SPEED = 1.0f;
     public const float HEALTH_REGEN_RATE = 0.1f;
-    public const float TIME_PER_EXPAND = 1.0f;
+    public const float TIME_PER_EXPAND = 0.1f;
 
     public bool startSolid = false;
 

@@ -53,6 +53,17 @@ public class Vector2Int {
      * to itself
      */
     public static bool operator ==(Vector2Int a, Vector2Int b) {
+        //If they are litteraly the same reference, always return true
+        if (System.Object.ReferenceEquals(a, b)) {
+            return true;
+        }
+
+        //If one object is null but not the other, return false
+        if (((object)a == null) != ((object)b == null)) {
+            return false;
+        }
+
+        //Return true if they are the same value
         return a.x == b.x && a.y == b.y;
     }
 
@@ -60,7 +71,7 @@ public class Vector2Int {
      * against itself
      */
     public static bool operator !=(Vector2Int a, Vector2Int b) {
-        return a.x != b.x || a.y != b.y;
+        return !(a == b);
     }
 
     public override bool Equals(object obj) {

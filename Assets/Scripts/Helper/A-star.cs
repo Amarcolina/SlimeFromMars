@@ -62,7 +62,7 @@ public class Astar : MonoBehaviour {
 
         BinaryMinHeap<Node> openList = new BinaryMinHeap<Node>();//nodes to be examined
         HashSet<Node> closedList = new HashSet<Node>();
-        Tilemap tileMap = null;
+        Tilemap tileMap = Tilemap.getInstance();
         Dictionary<Vector2Int, Node> nodePostionMap = new Dictionary<Vector2Int, Node>();
         Node startNode = new Node(start, null, goal);
         Node goalNode = null;
@@ -72,6 +72,7 @@ public class Astar : MonoBehaviour {
         while (openList.peekAtElement(0).getPosition() != goal) { //while lowest rank in openList is not the goal node
             Node current = openList.extractElement(0);//remove lowest rank node from openList
             closedList.Add(current);//add current to closedList
+
             foreach (Vector2Int neighborPosition in tileMap.getNeighboringPositions(current.getPosition())) {//for neighbors of current:
 
                 //checks for element in dictionary, then adds if non-existent
@@ -107,7 +108,7 @@ public class Astar : MonoBehaviour {
         goalNode = openList.peekAtElement(0);
         //reconstruct reverse path from goal to start by following parent pointers
         finalPath.addNodeToStart(goalNode.getPosition());
-        while (goalNode.getParent().getPosition() != null) {
+        while (goalNode.getParent() != null) {
             goalNode = goalNode.getParent();
             finalPath.addNodeToStart(goalNode.getPosition());
         }

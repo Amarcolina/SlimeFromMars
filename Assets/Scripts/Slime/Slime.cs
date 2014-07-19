@@ -6,20 +6,17 @@ public class Slime : MonoBehaviour {
     public const float OPACITY_CHANGE_SPEED = 1.0f;
     public const float HEALTH_REGEN_RATE = 0.1f;
     public const float TIME_PER_EXPAND = 0.05f;
-
     public bool startSolid = false;
 
     private static Sprite[] _slimeSpriteLookup = null;
     private static int[] _slimeSpriteAngleLookup = { 0, 0, 90, 0, 180, 0, 90, 0, 270, 270, 180, 270, 180,  180, 90, 0 };
 
     private bool _isSolid = false;
-    private Tile _myTile;
     private Tilemap _tilemap;
     private SpriteRenderer _slimeRenderer;
     
     private float _percentHealth = 1.0f;
     private int _solidSlimeNeighborCount = 0;
-    private float _currentOpacity = 0.0f;
 
     private Path _currentExpandPath = null;
     private float _timeUntilExpand = 0.0f;
@@ -64,7 +61,6 @@ public class Slime : MonoBehaviour {
         }
 
         _tilemap = Tilemap.getInstance();
-        _myTile = GetComponent<Tile>();
 
         GameObject slimeRendererObject = new GameObject("Slime");
         slimeRendererObject.transform.parent = transform;

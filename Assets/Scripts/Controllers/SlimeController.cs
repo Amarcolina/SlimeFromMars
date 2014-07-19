@@ -39,8 +39,9 @@ public class SlimeController : MonoBehaviour {
 
             Debug.Log(startLocation.x + " , " + startLocation.y);
             Debug.Log(goalLocation.x + " , " + goalLocation.y);
-
-            currentSelectedSlime.requestExpansionAllongPath(Astar.findPath(startLocation, goalLocation));
+            Path astarPath = Astar.findPath(startLocation, goalLocation);
+            astarPath.getNext();
+            currentSelectedSlime.requestExpansionAllongPath(astarPath);
             highlightSlimeTile();
         }
     }

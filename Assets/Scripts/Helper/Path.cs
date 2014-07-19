@@ -53,6 +53,18 @@ public class Path {
         return _nodes[_currentNode];
     }
 
+    public Vector2Int this[int i]{
+        get {
+            return _nodes[i];
+        }
+    }
+
+    public int Count {
+        get {
+            return _nodes.Count;
+        }
+    }
+
     public bool hasNext() {
         return _currentNode < _nodes.Count;
     }

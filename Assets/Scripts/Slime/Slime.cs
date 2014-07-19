@@ -5,7 +5,7 @@ using System.Collections.Generic;
 public class Slime : MonoBehaviour {
     public const float OPACITY_CHANGE_SPEED = 1.0f;
     public const float HEALTH_REGEN_RATE = 0.1f;
-    public const float TIME_PER_EXPAND = 1.0f;
+    public const float TIME_PER_EXPAND = 0.05f;
 
     public bool startSolid = false;
 
@@ -170,15 +170,25 @@ public class Slime : MonoBehaviour {
      * to the current node in the path.  This triggers a chain reaction where
      * the expanded slime follows the next node and so on
      * 
-     * The user can specify a delay until the expansion occurs.  This is also
-     * used internally in the chain reaction to control expand speed
-     * 
      * This wakes up the slime
      */
-    public void requestExpansionAllongPath(Path path, float timeUntilExpand = 0.0f) {
+    public void requestExpansionAllongPath(Path path) {
+        if (path.getNodeCount() <= 1) {
+            return;
+        }
+        path.removeNodeFromStart();
+        requestExpansionInternal(path, 0.0f);
+    }
+
+    private void requestExpansionInternal(Path path, float residualTimeLeft) {
+        if (_isSolid) {
+            residualTimeLeft = 0.0f;
+        }
+        setSolid(true);
         wakeUpSlime();
+
         _currentExpandPath = path;
-        _timeUntilExpand = timeUntilExpand;
+        _timeUntilExpand = residualTimeLeft;
         if (_timeUntilExpand <= 0.0f) {
             expandSlime();
         }
@@ -200,9 +210,11 @@ public class Slime : MonoBehaviour {
             if(newSlime == null){
                 newSlime = newSlimeTile.gameObject.AddComponent<Slime>();
             }
-            newSlime.setSolid(true);
-            if (_currentExpandPath.hasNext()) {
-                newSlime.requestExpansionAllongPath(_currentExpandPath, _timeUntilExpand + TIME_PER_EXPAND);
+
+            SlimeController.getInstance().setSelectedSlime(newSlime);
+
+            if (_currentExpandPath.getNodesLeft() > 0) {
+                newSlime.requestExpansionInternal(_currentExpandPath, _timeUntilExpand + TIME_PER_EXPAND);
             }
         }
 

@@ -13,6 +13,15 @@ public class SlimeController : MonoBehaviour {
     private int electricityLevel;
     private int bioLevel;
     private Slime currentSelectedSlime;
+
+    private static SlimeController _instance = null;
+    public static SlimeController getInstance() {
+        if (_instance == null) {
+            _instance = FindObjectOfType<SlimeController>();
+        }
+        return _instance;
+    }
+
     // Use this for initialization
     void Start() {
         acidLevel = 0;
@@ -32,6 +41,13 @@ public class SlimeController : MonoBehaviour {
         } else {
             attemptToEat();
         }
+
+        if (Input.GetMouseButtonDown(1) && currentSelectedSlime != null) {
+            Vector2Int startLocation = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
+            Vector2Int goalLocation = Tilemap.getTilemapLocation(getTilePositionUnderCursor().transform.position);
+            Path astarPath = Astar.findPath(startLocation, goalLocation);
+            currentSelectedSlime.requestExpansionAllongPath(astarPath);
+        }
     }
 
     public void consume(GenericConsumeable eatenItem) {
@@ -49,6 +65,7 @@ public class SlimeController : MonoBehaviour {
         if (eatenItem.isBioMutation) {
             bioLevel++;
         }
+
         Destroy(eatenItem.gameObject);
     }
 
@@ -58,12 +75,16 @@ public class SlimeController : MonoBehaviour {
         //gets the slime component under the highlighted tile, if it exists
         Slime slimeTile = tileUnderCursor.GetComponent<Slime>();
         if (slimeTile != null) {
-            //makes sprite visible
-            renderer.enabled = true;
-            currentSelectedSlime = slimeTile;
-            //moves highlighter to tile position
-            transform.position = tileUnderCursor.transform.position;
+            setSelectedSlime(slimeTile);
         }
+    }
+
+    public void setSelectedSlime(Slime slime) {
+        currentSelectedSlime = slime;
+        //moves highlighter to tile position
+        transform.position = currentSelectedSlime.transform.position;
+        //makes sprite visible
+        renderer.enabled = true;
     }
 
     public Tile getTilePositionUnderCursor() {

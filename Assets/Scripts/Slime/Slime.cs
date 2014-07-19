@@ -176,8 +176,24 @@ public class Slime : MonoBehaviour {
         if (path.getNodeCount() <= 1) {
             return;
         }
-        path.removeNodeFromStart();
+        path.getNext();
         requestExpansionInternal(path, 0.0f);
+    }
+
+    /* This returns the amount of enery it would cost to grow
+     * the slime along the given path.  
+     */
+    public static int getPathCost(Path path) {
+        int cost = 0;
+        Tilemap tilemap = Tilemap.getInstance();
+        for (int i = 0; i < path.Count - 1; i++) {
+            Vector2Int node = path[i];
+            Slime slime = tilemap.getTile(node).GetComponent<Slime>();
+            if (slime == null || !slime.isSolid()) {
+                cost++;
+            }
+        }
+        return cost;
     }
 
     private void requestExpansionInternal(Path path, float residualTimeLeft) {

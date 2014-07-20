@@ -65,21 +65,21 @@ public class SlimeController : MonoBehaviour {
             } else {
                 //message: not enough energy
             }
+        }
 
-            if (Input.GetKeyDown(KeyCode.E) && currentSelectedSlime != null && electricityLevel > 0 && energy >= ELECTRICITY_DEFENSE_COST) {
-                elementalMode = true;
+        if (Input.GetKeyDown(KeyCode.E) && currentSelectedSlime != null && electricityLevel > 0 && energy >= ELECTRICITY_DEFENSE_COST) {
+            elementalMode = true;
+        }
+        if (elementalMode) {
+            if (Input.GetKeyDown(KeyCode.D)) {
+                elementalMode = false;
+                Vector2Int circleCenter = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
+                useElectricityDefense(circleCenter);
             }
-            if (elementalMode) {
-                if (Input.GetKeyDown(KeyCode.D)) {
-                    elementalMode = false;
-                    Vector2Int circleCenter = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
-                    useElectricityDefense(circleCenter);
-                }
 
-                if (Input.GetKeyDown(KeyCode.O)) {
-                    elementalMode = false;
-                    useElectricityOffense();
-                }
+            if (Input.GetKeyDown(KeyCode.O)) {
+                elementalMode = false;
+                useElectricityOffense();
             }
         }
     }
@@ -163,7 +163,7 @@ public class SlimeController : MonoBehaviour {
         for (int dx = -circleRadius; dx <= circleRadius; dx++) {
             for (int dy = -circleRadius; dy <= circleRadius; dy++) {
                 Vector2 tileOffset = new Vector2(dx, dy);
-                if (tileOffset.sqrMagnitude <= circleRadius*circleRadius) {
+                if (tileOffset.sqrMagnitude <= circleRadius * circleRadius) {
                     Tile tile = Tilemap.getInstance().getTile(center + new Vector2Int(dx, dy));
                     if (tile.GetComponent<Slime>() != null) {
                         tile.gameObject.AddComponent<Electrified>();

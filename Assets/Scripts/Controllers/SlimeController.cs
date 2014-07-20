@@ -21,8 +21,18 @@ public class SlimeController : MonoBehaviour {
     private const int BIO_OFFENSE_COST = 5;
     private const int RADIATION_DEFENSE_COST = 10;
     private const int RADIATION_OFFENSE_COST = 10;
-    
+
+    //base damage for skills
+    private const int ELECTRICITY_BASE_DAMAGE = 5;
+    private const int BIO_BASE_DAMAGE = 2;
+    private const int RADIATION_BASE_DAMAGE = 1;
+
+    //base range for skills
+    private const int ELECTRICITY_BASE_RANGE = 5;
+    private const int BIO_BASE_RANGE = 2;
+    private const int RADIATION_BASE_RANGE = 10;
     private bool elementalMode = false;
+
     //selected tile of slime
     private Slime currentSelectedSlime;
     private static SlimeController _instance = null;
@@ -82,7 +92,6 @@ public class SlimeController : MonoBehaviour {
             if (Input.GetKeyDown(KeyCode.O) && energy >= ELECTRICITY_OFFENSE_COST) {
                 elementalMode = false;
                 if (Input.GetMouseButtonDown(1)) {
-
                     useElectricityOffense();
                 }
             }
@@ -176,7 +185,22 @@ public class SlimeController : MonoBehaviour {
     }
 
     public void useElectricityOffense() {
-        loseEnergy(ELECTRICITY_OFFENSE_COST);
+        float damageDone = ELECTRICITY_BASE_DAMAGE * electricityLevel;
+        float rangeOfAttack = ELECTRICITY_BASE_RANGE * electricityLevel;
+
+        //gets distance between slime and enemy
+        Vector2Int startLocation = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
+        Vector2Int goalLocation = Tilemap.getTilemapLocation(getTilePositionUnderCursor().transform.position);
+        float distance = (goalLocation.x - startLocation.x) * (goalLocation.x - startLocation.x) +
+                            (goalLocation.y - startLocation.y) * (goalLocation.y - startLocation.y);
+        distance *= distance;
+
+        if (distance <= rangeOfAttack) {
+            bool wasDamaged = getTilePositionUnderCursor().damageTileEntities(damageDone);
+            if (wasDamaged) {
+                loseEnergy(ELECTRICITY_OFFENSE_COST);
+            }
+        }
     }
 
     public void useBioDefense() {

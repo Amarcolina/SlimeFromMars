@@ -7,6 +7,7 @@ using System.Collections.Generic;
 public class SlimeController : MonoBehaviour {
     //energy is a pool of resources used to move, attack and defend
     private int energy;
+    private GameUI _gameUi;
 
     //levels dictate how much more powerful your attacks/defenses are
     //levels also give bonuses in energy from items of that attribute
@@ -45,10 +46,11 @@ public class SlimeController : MonoBehaviour {
 
     // Use this for initialization
     void Start() {
+        _gameUi = GameUI.getInstance();
         radiationLevel = 0;
         electricityLevel = 0;
         bioLevel = 0;
-        energy = 20;
+        gainEnergy(20);
     }
 
     // Update is called once per frame
@@ -101,7 +103,7 @@ public class SlimeController : MonoBehaviour {
     public void consume(GenericConsumeable eatenItem) {
         //calculates resource bonus from item element affinity multiplied by level of slime attribute
         //calculates default item resource value based on size and adds any bonuses
-        energy += (int)eatenItem.size + radiationLevel * eatenItem.radiation + bioLevel * eatenItem.bio + electricityLevel * eatenItem.electricity;
+         gainEnergy((int)eatenItem.size + radiationLevel * eatenItem.radiation + bioLevel * eatenItem.bio + electricityLevel * eatenItem.electricity);
         
         
         //if the eatenItem is a mutation, level up affinity
@@ -110,6 +112,7 @@ public class SlimeController : MonoBehaviour {
         }
         if (eatenItem.isElectricityMutation) {
             electricityLevel++;
+            _gameUi.LightningUpdate(electricityLevel);
         }
         if (eatenItem.isBioMutation) {
             bioLevel++;
@@ -158,6 +161,13 @@ public class SlimeController : MonoBehaviour {
 
     private void loseEnergy(int cost) {
         energy -= cost;
+        _gameUi.ResourceUpdate(energy);
+    }
+
+    private void gainEnergy(int plus) {
+        energy += plus;
+        _gameUi.ResourceUpdate(energy);
+
     }
 
     public void useRadiationDefense() {

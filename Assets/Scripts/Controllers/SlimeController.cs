@@ -66,20 +66,24 @@ public class SlimeController : MonoBehaviour {
                 //message: not enough energy
             }
         }
-
-        if (Input.GetKeyDown(KeyCode.E) && currentSelectedSlime != null && electricityLevel > 0 && energy >= ELECTRICITY_DEFENSE_COST) {
+        //if in elemental mode, slime tile is selected and you have correct mutation
+        if (Input.GetKeyDown(KeyCode.E) && currentSelectedSlime != null && electricityLevel > 0) {
             elementalMode = true;
         }
         if (elementalMode) {
-            if (Input.GetKeyDown(KeyCode.D)) {
+            if (Input.GetKeyDown(KeyCode.D) && energy >= ELECTRICITY_DEFENSE_COST) {
                 elementalMode = false;
                 Vector2Int circleCenter = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
                 useElectricityDefense(circleCenter);
             }
 
-            if (Input.GetKeyDown(KeyCode.O)) {
+            if (Input.GetKeyDown(KeyCode.O) && energy >= ELECTRICITY_OFFENSE_COST) {
                 elementalMode = false;
-                useElectricityOffense();
+                if (Input.GetMouseButtonDown(1)) {
+
+                    useElectricityOffense();
+                }
+                
             }
         }
     }
@@ -150,12 +154,13 @@ public class SlimeController : MonoBehaviour {
         energy -= cost;
     }
 
-    //implement get attack cost get defense cost methods?
-
     public void useRadiationDefense() {
+        loseEnergy(RADIATION_DEFENSE_COST);
     }
     public void useRadiationOffense() {
+        loseEnergy(RADIATION_OFFENSE_COST);
     }
+
     //outputs circle of enemy-damaging electricity from central point of selected slime tile
     //radius increases with electricityLevel
     public void useElectricityDefense(Vector2Int center) {
@@ -165,19 +170,24 @@ public class SlimeController : MonoBehaviour {
                 Vector2 tileOffset = new Vector2(dx, dy);
                 if (tileOffset.sqrMagnitude <= circleRadius * circleRadius) {
                     Tile tile = Tilemap.getInstance().getTile(center + new Vector2Int(dx, dy));
-                    if (tile.GetComponent<Slime>() != null) {
+                    if (tile != null && tile.GetComponent<Slime>() != null) {
                         tile.gameObject.AddComponent<Electrified>();
                     }
                 }
             }
         }
+        loseEnergy(ELECTRICITY_DEFENSE_COST);
     }
+
     public void useElectricityOffense() {
+        loseEnergy(ELECTRICITY_OFFENSE_COST);
     }
 
     public void useBioDefense() {
+        loseEnergy(BIO_DEFENSE_COST);
     }
     public void useBioOffense() {
+        loseEnergy(BIO_OFFENSE_COST);
     }
 }
 

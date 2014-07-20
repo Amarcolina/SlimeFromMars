@@ -29,9 +29,15 @@ public class Tile : MonoBehaviour {
     }
 
     public void OnDestroy() {
-        Destroy(_groundEffectSpriteRenderer.gameObject);
-        Destroy(_objectSpriteRenderer.gameObject);
-        Destroy(_overlaySpriteRenderer.gameObject);
+        if (_groundEffectSpriteRenderer) {
+            Destroy(_groundEffectSpriteRenderer.gameObject);
+        }
+        if (_objectSpriteRenderer) {
+            Destroy(_objectSpriteRenderer.gameObject);
+        }
+        if (_overlaySpriteRenderer) {
+            Destroy(_overlaySpriteRenderer.gameObject);
+        }
     }
 
     public void addTileEntity(TileEntity tileEntity) {

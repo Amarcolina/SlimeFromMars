@@ -7,26 +7,32 @@ using System.Collections;
 public class EnemyAnimation : MonoBehaviour {
 
 	public Animator enemy;
+	public const string WALK_KEY = "walk";
+	public const string SHOOT_KEY = "bulletfire";
+	public const string FLAMETHROWER_KEY = "flamethrower";
+	public const string HIT_KEY = "hit";
+
+
 
 	//Called when enemy is ready to shoot flamethrower, requires direction input.
 	public void EnemyFlameThrower(float direction){
 		Flip (direction);
-		enemy.SetBool("walk", false);
-		enemy.SetTrigger("flamethrower");
+		enemy.SetBool(WALK_KEY, false);
+		enemy.SetTrigger(FLAMETHROWER_KEY);
 	}
 
 	//Called when the enemy is ready to fire, requires a direction input.
 	public void EnemyShoot(float direction){
 		Flip (direction);
-		enemy.SetBool("walk", false);
-		enemy.SetTrigger("bulletfire");
+		enemy.SetBool(WALK_KEY, false);
+		enemy.SetTrigger(SHOOT_KEY);
 	}
 
 	//Used for when an enemy is hit by the slime, or is absorbed by the slime
 	public void EnemyHit(float direction){
 		Flip(direction);
-		enemy.SetBool("walk", false);
-		enemy.SetTrigger("hit");
+		enemy.SetBool(WALK_KEY, false);
+		enemy.SetTrigger(HIT_KEY);
 	}
 
 	//Takes a directional float in order to flip the sprite in the correct direction. -1 for left facing, 1 for right facing.
@@ -38,19 +44,19 @@ public class EnemyAnimation : MonoBehaviour {
 	//Called when the enemy needs to move, will play the enemy walking animation. Requires a directional float.
 	public void EnemyMoving(float direction){
 		Flip (direction);
-		enemy.SetBool("walk", true);
+		enemy.SetBool(WALK_KEY, true);
 	}
 
 	// An update loop designed simply to test features of this script. Remove this when functionality is ready to be combined.
 	void Update () {
 	
 		if(Input.GetKeyDown(KeyCode.W)){
-			//EnemyMoving(1);
+			EnemyMoving(1);
 		}
 
 		if(Input.GetKeyDown(KeyCode.E)){
 			//EnemyHit(-1);
-			//EnemyFlameThrower(-1);
+			EnemyFlameThrower(-1);
 		}
 
 	}

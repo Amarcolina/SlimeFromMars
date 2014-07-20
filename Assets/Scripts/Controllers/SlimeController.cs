@@ -12,8 +12,17 @@ public class SlimeController : MonoBehaviour {
     private int radiationLevel;
     private int electricityLevel;
     private int bioLevel;
-    private Slime currentSelectedSlime;
+    //cost for using skills
+    private const int ELECTRICITY_DEFENSE_COST = 5;
+    private const int ELECTRICITY_OFFENSE_COST = 10;
+    private const int BIO_DEFENSE_COST = 8;
+    private const int BIO_OFFENSE_COST = 5;
+    private const int RADIATION_DEFENSE_COST = 10;
+    private const int RADIATION_OFFENSE_COST = 10;
 
+    private bool elementalMode = false;
+    //selected tile of slime
+    private Slime currentSelectedSlime;
     private static SlimeController _instance = null;
     public static SlimeController getInstance() {
         if (_instance == null) {
@@ -55,6 +64,22 @@ public class SlimeController : MonoBehaviour {
                 currentSelectedSlime.requestExpansionAllongPath(astarPath);
             } else {
                 //message: not enough energy
+            }
+
+            if (Input.GetKeyDown(KeyCode.E) && currentSelectedSlime != null && electricityLevel > 0 && energy >= ELECTRICITY_DEFENSE_COST) {
+                elementalMode = true;
+            }
+            if(elementalMode){
+                if (Input.GetKeyDown(KeyCode.D)) {
+                    elementalMode = false;
+                    int circleCenter = 0;
+                    useElectricityDefense(circleCenter);
+                }
+
+                if (Input.GetKeyDown(KeyCode.O)) {
+                    elementalMode = false;
+                    useElectricityOffense();
+                }
             }
         }
     }
@@ -126,21 +151,23 @@ public class SlimeController : MonoBehaviour {
     }
 
     //implement get attack cost get defense cost methods?
-    public void useRadiationOffense() {
-        //multiply radiationLevel to attack power (radius?) to get offense output
-        //do same for defense
-    }
-    public void useElectricityOffense() {
-    }
-    public void useBioOffense() {
-    }
-
 
     public void useRadiationDefense() {
     }
-    public void useElectricityDefense() {
+    public void useRadiationOffense() {
     }
+    //outputs circle of enemy-damaging electricity from central point of selected slime tile
+    //radius increases with electricityLevel
+    public void useElectricityDefense(int center) {
+        float electricityRadius = electricityLevel;
+        float area = Mathf.PI * (electricityRadius * electricityRadius);
+    }
+    public void useElectricityOffense() {
+    }
+
     public void useBioDefense() {
+    }
+    public void useBioOffense() {
     }
 }
 

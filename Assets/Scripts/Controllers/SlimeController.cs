@@ -9,11 +9,20 @@ public class SlimeController : MonoBehaviour {
     private int energy;
     //levels dictate how much more powerful your attacks/defenses are
     //levels also give bonuses in energy from items of that attribute
-    private int acidLevel;
+    private int radiationLevel;
     private int electricityLevel;
     private int bioLevel;
-    private Slime currentSelectedSlime;
+    //cost for using skills
+    private const int ELECTRICITY_DEFENSE_COST = 5;
+    private const int ELECTRICITY_OFFENSE_COST = 10;
+    private const int BIO_DEFENSE_COST = 8;
+    private const int BIO_OFFENSE_COST = 5;
+    private const int RADIATION_DEFENSE_COST = 10;
+    private const int RADIATION_OFFENSE_COST = 10;
 
+    private bool elementalMode = false;
+    //selected tile of slime
+    private Slime currentSelectedSlime;
     private static SlimeController _instance = null;
     public static SlimeController getInstance() {
         if (_instance == null) {
@@ -24,7 +33,7 @@ public class SlimeController : MonoBehaviour {
 
     // Use this for initialization
     void Start() {
-        acidLevel = 0;
+        radiationLevel = 0;
         electricityLevel = 0;
         bioLevel = 0;
         energy = 20;
@@ -43,21 +52,50 @@ public class SlimeController : MonoBehaviour {
         }
 
         if (Input.GetMouseButtonDown(1) && currentSelectedSlime != null) {
+            //calculates astar path with start and goal locations, then calculates the cost of the path
             Vector2Int startLocation = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
             Vector2Int goalLocation = Tilemap.getTilemapLocation(getTilePositionUnderCursor().transform.position);
             Path astarPath = Astar.findPath(startLocation, goalLocation);
-            currentSelectedSlime.requestExpansionAllongPath(astarPath);
+            int pathCost = Slime.getPathCost(astarPath);
+
+            //if the slime has the energy to move, take the astar path
+            if (energy >= pathCost) {
+                loseEnergy(pathCost);
+                currentSelectedSlime.requestExpansionAllongPath(astarPath);
+            } else {
+                //message: not enough energy
+            }
         }
+
+        if (Input.GetKeyDown(KeyCode.E) && currentSelectedSlime != null && electricityLevel > 0 && energy >= ELECTRICITY_DEFENSE_COST) {
+            elementalMode = true;
+        }
+        if (elementalMode) {
+            if (Input.GetKeyDown(KeyCode.D)) {
+                elementalMode = false;
+                Vector2Int circleCenter = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
+                useElectricityDefense(circleCenter);
+            }
+
+            if (Input.GetKeyDown(KeyCode.O)) {
+                elementalMode = false;
+                useElectricityOffense();
+            }
+        }
+    }
+
+    public float getEnergy() {
+        return energy;
     }
 
     public void consume(GenericConsumeable eatenItem) {
         //calculates resource bonus from item element affinity multiplied by level of slime attribute
         //calculates default item resource value based on size and adds any bonuses
-        energy = (int)eatenItem.size + acidLevel * eatenItem.acid + bioLevel * eatenItem.bio + electricityLevel * eatenItem.electricity;
+        energy = (int)eatenItem.size + radiationLevel * eatenItem.radiation + bioLevel * eatenItem.bio + electricityLevel * eatenItem.electricity;
 
         //if the eatenItem is a mutation, level up affinity
-        if (eatenItem.isAcidMutation) {
-            acidLevel++;
+        if (eatenItem.isRadiationMutation) {
+            radiationLevel++;
         }
         if (eatenItem.isElectricityMutation) {
             electricityLevel++;
@@ -107,20 +145,39 @@ public class SlimeController : MonoBehaviour {
             }
         }
     }
-    public void useAcidOffense() {
-        //multiply acidLevel to attack power (radius?) to get offense output
-        //do same for defense
+
+    private void loseEnergy(int cost) {
+        energy -= cost;
+    }
+
+    //implement get attack cost get defense cost methods?
+
+    public void useRadiationDefense() {
+    }
+    public void useRadiationOffense() {
+    }
+    //outputs circle of enemy-damaging electricity from central point of selected slime tile
+    //radius increases with electricityLevel
+    public void useElectricityDefense(Vector2Int center) {
+        int circleRadius = electricityLevel;
+        for (int dx = -circleRadius; dx <= circleRadius; dx++) {
+            for (int dy = -circleRadius; dy <= circleRadius; dy++) {
+                Vector2 tileOffset = new Vector2(dx, dy);
+                if (tileOffset.sqrMagnitude <= circleRadius * circleRadius) {
+                    Tile tile = Tilemap.getInstance().getTile(center + new Vector2Int(dx, dy));
+                    if (tile.GetComponent<Slime>() != null) {
+                        tile.gameObject.AddComponent<Electrified>();
+                    }
+                }
+            }
+        }
     }
     public void useElectricityOffense() {
     }
-    public void useBioOffense() {
-    }
 
-
-    public void useAcidDefense() {
-    }
-    public void useElectricityDefense() {
-    }
     public void useBioDefense() {
     }
+    public void useBioOffense() {
+    }
 }
+

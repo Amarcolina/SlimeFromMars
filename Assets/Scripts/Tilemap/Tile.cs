@@ -28,6 +28,18 @@ public class Tile : MonoBehaviour {
         return new Vector2Int(groundSprite.texture.width, groundSprite.texture.height) / TILE_PIXEL_SIZE;
     }
 
+    public void OnDestroy() {
+        if (_groundEffectSpriteRenderer) {
+            Destroy(_groundEffectSpriteRenderer.gameObject);
+        }
+        if (_objectSpriteRenderer) {
+            Destroy(_objectSpriteRenderer.gameObject);
+        }
+        if (_overlaySpriteRenderer) {
+            Destroy(_overlaySpriteRenderer.gameObject);
+        }
+    }
+
     public void addTileEntity(TileEntity tileEntity) {
         if (_containedTileEntities == null) {
             if (_tileEntitySetPool.Count != 0) {

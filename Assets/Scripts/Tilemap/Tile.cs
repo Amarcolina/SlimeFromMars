@@ -65,15 +65,22 @@ public class Tile : MonoBehaviour {
         return _containedTileEntities;
     }
 
-    public void damageTileEntities(float damage) {
+    /* Calling this method damages any TileEntities which are currently
+     * standing on the Tile.  This method returns true only if 
+     * at least one TileEntity was damaged.
+     */
+    public bool damageTileEntities(float damage) {
+        bool didDamage = false;
         if (_containedTileEntities != null) {
             foreach (TileEntity entity in _containedTileEntities) {
                 IDamageable damageable = entity.GetComponent(typeof(IDamageable)) as IDamageable;
                 if (damageable != null) {
+                    didDamage = true;
                     damageable.damage(damage);
                 }
             }
         }
+        return didDamage;
     }
 
     /* This method causes the Tile object to update the sprite

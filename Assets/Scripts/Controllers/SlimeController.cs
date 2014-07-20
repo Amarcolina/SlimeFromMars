@@ -192,10 +192,8 @@ public class SlimeController : MonoBehaviour {
         //gets distance between slime and enemy
         Vector2Int startLocation = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
         Vector2Int goalLocation = Tilemap.getTilemapLocation(getTilePositionUnderCursor().transform.position);
-        float distance = (goalLocation.x - startLocation.x) * (goalLocation.x - startLocation.x) +
-                            (goalLocation.y - startLocation.y) * (goalLocation.y - startLocation.y);
-        distance *= distance;
-
+        float distance = Mathf.Sqrt((goalLocation.x - startLocation.x) * (goalLocation.x - startLocation.x) +
+                            (goalLocation.y - startLocation.y) * (goalLocation.y - startLocation.y));
         if (distance <= rangeOfAttack) {
             bool wasDamaged = getTilePositionUnderCursor().damageTileEntities(damageDone);
             if (wasDamaged) {

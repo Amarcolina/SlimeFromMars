@@ -232,15 +232,13 @@ public class Tilemap : MonoBehaviour {
         }
 
         GameObject currentTile = tileChunk.getTile(tileInChunkLocation);
-        
+        //If the tile already exists, we need to destroy it first
+        if (currentTile != null) {
+            DestroyImmediate(currentTile);
+        }
 
         Undo.RecordObject(tileChunk, "Added new tile to a Tile Chunk");
         tileChunk.setTile(tileInChunkLocation, tileObject);
-
-        //If the tile already exists, we need to destroy it first  
-        if (currentTile != null) {
-            Undo.DestroyObjectImmediate(currentTile);
-        }
 
         if (updateTilePosition) {
             tileObject.name += "(" + tilePosition.x + "," + tilePosition.y + ")";

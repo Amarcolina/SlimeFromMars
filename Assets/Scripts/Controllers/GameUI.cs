@@ -16,13 +16,13 @@ public class GameUI : MonoBehaviour {
 	}
 	
 	//Updates the resource counter. Takes in the current amount of resources. Pass the new final amount, not the amount being added.
-	public static void ResourceUpdate(float ResourceUpdate){
+	public void ResourceUpdate(float ResourceUpdate){
 		ResourceCounter_Label.text = "Resources: " + ResourceUpdate;
 	}
 	
 	//Updates the lightning level by taking the current level as a float. Will show it when first called.
 	//Takes in the current amount of resources. Pass the new final amount, not the amount being added.
-	public static void LightningUpdate(float CurrentLevel){
+	public void LightningUpdate(float CurrentLevel){
 		LightningContainer_GameObject.SetActive(true);
 		LightningLevel_Label.text = "Lightning Level: " + CurrentLevel;
 	}

@@ -101,8 +101,9 @@ public class SlimeController : MonoBehaviour {
     public void consume(GenericConsumeable eatenItem) {
         //calculates resource bonus from item element affinity multiplied by level of slime attribute
         //calculates default item resource value based on size and adds any bonuses
-        energy = (int)eatenItem.size + radiationLevel * eatenItem.radiation + bioLevel * eatenItem.bio + electricityLevel * eatenItem.electricity;
-
+        energy += (int)eatenItem.size + radiationLevel * eatenItem.radiation + bioLevel * eatenItem.bio + electricityLevel * eatenItem.electricity;
+        
+        
         //if the eatenItem is a mutation, level up affinity
         if (eatenItem.isRadiationMutation) {
             radiationLevel++;

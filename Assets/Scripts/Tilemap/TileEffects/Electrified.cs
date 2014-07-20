@@ -48,16 +48,7 @@ public class Electrified : MonoBehaviour {
         _electricityRenderer.sprite = randomSprite;
         _electricityRenderer.transform.eulerAngles = new Vector3(0, 0, Random.Range(0, 3) * 90.0f);
 
-        HashSet<TileEntity> entities = _tile.getTileEntities();
-        if (entities != null) {
-            foreach (TileEntity entity in entities) {
-                IDamageable damageable = entity.GetComponent(typeof(IDamageable)) as IDamageable;
-                if (damageable != null) {
-                    damageable.damage(TOTAL_DAMAGE * Time.deltaTime / DURATION);
-                }
-            }
-        }
-        
+        _tile.damageTileEntities(TOTAL_DAMAGE * Time.deltaTime / DURATION);
 
         _totalTime += Time.deltaTime;
         if (_totalTime >= DURATION) {

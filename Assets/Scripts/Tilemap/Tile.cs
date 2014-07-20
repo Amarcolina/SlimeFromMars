@@ -65,6 +65,17 @@ public class Tile : MonoBehaviour {
         return _containedTileEntities;
     }
 
+    public void damageTileEntities(float damage) {
+        if (_containedTileEntities != null) {
+            foreach (TileEntity entity in _containedTileEntities) {
+                IDamageable damageable = entity.GetComponent(typeof(IDamageable)) as IDamageable;
+                if (damageable != null) {
+                    damageable.damage(damage);
+                }
+            }
+        }
+    }
+
     /* This method causes the Tile object to update the sprite
      * renderers with the correct sprites, as well as (re)construct
      * the child game objects for the additional sprite overlays

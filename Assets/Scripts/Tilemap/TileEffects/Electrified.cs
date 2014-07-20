@@ -11,6 +11,11 @@ public class Electrified : MonoBehaviour {
     private float _totalTime = 0.0f;
     private Tile _tile;
 
+    /* Sprites are static so they can be shared between all 
+     * Electried components.  This method is called by the 
+     * first Electrified component to initialize the needed
+     * resources
+     */
     private void initElectricSprites() {
         _electricitySprites = new Sprite[1];
         _electricitySprites[0] = Resources.Load<Sprite>("Sprites/Elements/Electricity/Electricity00");
@@ -28,6 +33,11 @@ public class Electrified : MonoBehaviour {
         _electricityRenderer = rendererGameObject.AddComponent<SpriteRenderer>();
 	}
 
+    /* This update will run for DURATION amount of time.  It will damage any 
+     * tile enties that exist on the tile that have an IDamageable component
+     * connected to their game object.  It will damage the objects a little bit
+     * each frame
+     */
     public void Update() {
         Sprite randomSprite = _electricitySprites[Random.Range(0, _electricitySprites.Length)];
         _electricityRenderer.sprite = randomSprite;

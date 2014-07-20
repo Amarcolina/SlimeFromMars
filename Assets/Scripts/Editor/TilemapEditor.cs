@@ -17,7 +17,8 @@ public class TilemapEditor : Editor {
     static GameObject currentTilePrefab;
     static Vector2 prefabScroll = Vector2.zero;
 
-    public List<GameObject> _tilePrefabs = new List<GameObject>();
+    private List<GameObject> _tilePrefabs = new List<GameObject>();
+    private float _spriteAngle = 0.0f;
 
     public void OnEnable() {
         refreshTilePrefabList();
@@ -36,6 +37,8 @@ public class TilemapEditor : Editor {
             GUILayout.Space(EditorGUIUtility.singleLineHeight);
             displayTilePreview();
             displayCopyButton();
+            displayTransformControls();
+            
             GUILayout.Space(EditorGUIUtility.singleLineHeight);
         }
 
@@ -52,8 +55,9 @@ public class TilemapEditor : Editor {
         GUI.Box(lastRect, "");
 
         GameObject newTile = (GameObject)EditorGUILayout.ObjectField("Current Tile", currentTilePrefab, typeof(GameObject), false);
-        if (newTile && newTile.GetComponent<Tile>()) {
+        if (newTile && newTile.GetComponent<Tile>() && newTile != currentTilePrefab) {
             currentTilePrefab = newTile;
+            _spriteAngle = 0.0f;
         }
     }
 
@@ -80,6 +84,7 @@ public class TilemapEditor : Editor {
                     }
                     if (GUI.Button(buttonRect, "")) {
                         currentTilePrefab = prefab;
+                        _spriteAngle = 0.0f;
                     }
                     GUI.backgroundColor = Color.white;
 
@@ -139,10 +144,23 @@ public class TilemapEditor : Editor {
 
         GUI.Box(borderRect, new GUIContent());
         Tile currentTile = currentTilePrefab.GetComponent<Tile>();
-        drawSprite(previewRect, currentTile.groundSprite);
-        drawSprite(previewRect, currentTile.groundEffectSprite);
-        drawSprite(previewRect, currentTile.objectSprite);
-        drawSprite(previewRect, currentTile.overlaySprite);
+        drawSprite(previewRect, currentTile.groundSprite, _spriteAngle);
+        drawSprite(previewRect, currentTile.groundEffectSprite, _spriteAngle);
+        drawSprite(previewRect, currentTile.objectSprite, _spriteAngle);
+        drawSprite(previewRect, currentTile.overlaySprite, _spriteAngle);
+    }
+
+    private void displayTransformControls() {
+        GUILayout.BeginHorizontal();
+        GUILayout.FlexibleSpace();
+        if (GUILayout.Button("Rotate Left")) {
+            _spriteAngle -= 90.0f;
+        }
+        if (GUILayout.Button("Rotate right")) {
+            _spriteAngle += 90.0f;
+        }
+        GUILayout.FlexibleSpace();
+        GUILayout.EndHorizontal();
     }
 
     /* Displays the Copy button, and handles the logic when a tile is copied.
@@ -199,9 +217,12 @@ public class TilemapEditor : Editor {
         }
     }
 
-    private void drawSprite(Rect rect, Sprite sprite) {
+    private void drawSprite(Rect rect, Sprite sprite, float angle = 0.0f) {
         if (sprite) {
+            Matrix4x4 matrixBackup = GUI.matrix;
+            GUIUtility.RotateAroundPivot(angle, rect.position + rect.size / 2.0f);
             GUI.DrawTexture(rect, sprite.texture, ScaleMode.ScaleToFit);
+            GUI.matrix = matrixBackup;
         }
     }
 
@@ -298,6 +319,7 @@ public class TilemapEditor : Editor {
 
     private GameObject newTileObject() {
         GameObject newTileObject = (GameObject)PrefabUtility.InstantiatePrefab(currentTilePrefab);
+        newTileObject.transform.eulerAngles = new Vector3(0, 0, -_spriteAngle);
         Undo.RegisterCreatedObjectUndo(newTileObject, "Added new tiles");
         return newTileObject;
     }

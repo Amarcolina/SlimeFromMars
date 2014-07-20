@@ -7,11 +7,13 @@ using System.Collections.Generic;
 public class SlimeController : MonoBehaviour {
     //energy is a pool of resources used to move, attack and defend
     private int energy;
+
     //levels dictate how much more powerful your attacks/defenses are
     //levels also give bonuses in energy from items of that attribute
     private int radiationLevel;
     private int electricityLevel;
     private int bioLevel;
+
     //cost for using skills
     private const int ELECTRICITY_DEFENSE_COST = 5;
     private const int ELECTRICITY_OFFENSE_COST = 10;
@@ -19,7 +21,7 @@ public class SlimeController : MonoBehaviour {
     private const int BIO_OFFENSE_COST = 5;
     private const int RADIATION_DEFENSE_COST = 10;
     private const int RADIATION_OFFENSE_COST = 10;
-
+    
     private bool elementalMode = false;
     //selected tile of slime
     private Slime currentSelectedSlime;
@@ -83,13 +85,8 @@ public class SlimeController : MonoBehaviour {
 
                     useElectricityOffense();
                 }
-                
             }
         }
-    }
-
-    public float getEnergy() {
-        return energy;
     }
 
     public void consume(GenericConsumeable eatenItem) {
@@ -113,7 +110,6 @@ public class SlimeController : MonoBehaviour {
 
     public void highlightSlimeTile() {
         Tile tileUnderCursor = getTilePositionUnderCursor();
-
         //gets the slime component under the highlighted tile, if it exists
         Slime slimeTile = tileUnderCursor.GetComponent<Slime>();
         if (slimeTile != null) {

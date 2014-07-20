@@ -67,9 +67,6 @@ public class Slime : MonoBehaviour {
         slimeRendererObject.transform.position = transform.position;
         _slimeRenderer = slimeRendererObject.AddComponent<SpriteRenderer>();
         _slimeRenderer.sortingLayerName = "Slime";
-		_slimeRenderer.gameObject.tag = "Slime";
-		_slimeRenderer.gameObject.AddComponent<BoxCollider> ();
-		_slimeRenderer.gameObject.GetComponent<BoxCollider> ().size = new Vector3 (1, 1, 1);
 
         if (startSolid) {
             setSolid(true);

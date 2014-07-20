@@ -4,24 +4,24 @@ using System.Collections.Generic;
 
 public class BaseEnemy : MonoBehaviour
 {
-	
-	//private Tile _myTile;
-	//private Tilemap _tilemap;
+
 	//private Vector3 currwaypoint;
 	//private Vector3 nextwaypoint;
 	//private Path chase;
 
-	private float speed = 2.5f;
+	private const float  SPEED = 2.5f;
 	private float curTime;
 
 	//How long the enemy stays idle once it reaches the waypoint
 	public float pauseDuration;
 
-	public GameObject enemy;
-
 	public bool hasLoop;
 	public Transform[] waypoints;
 	private int waypointcount;
+
+	
+	private Tile _myTile;
+	private Tilemap _tilemap;
 
 
 	/*Simple enemy movement based on waypoints and run through a loop if wanted.
@@ -32,10 +32,18 @@ public class BaseEnemy : MonoBehaviour
 	 *for the enemies and position them in such a way that it looks
 	 *fine
 	 */
+	// Load up tile map info on start for enemy movement
+	//
+	public void Awake ()
+	{
+		_tilemap = Tilemap.getInstance ();
+		_myTile = GetComponent<Tile> ();
+	}
 
 	//Update behavior
 	void Update ()
 	{
+		checkForSlimeTiles();
 		//Check to see if we go through the list of waypoints
 		if (waypointcount < waypoints.Length) {
 						followWayPoints ();		
@@ -46,6 +54,14 @@ public class BaseEnemy : MonoBehaviour
 			}
 		}
 	}
+
+	//Checks to see if the enemytileobject has a slime component on its tile
+	public void checkForSlimeTiles(){
+	GameObject enemyTileObj = _tilemap.getTileGameObject(transform.position);
+	if(enemyTileObj.GetComponent<Slime>() != null){
+			Destroy(this.gameObject);
+		}
+	}
 	
 	public void followWayPoints(){
 
@@ -53,10 +69,10 @@ public class BaseEnemy : MonoBehaviour
 				Vector3 targetwaypoint = waypoints [waypointcount].position;
 
 				//Get the angle of movement
-				Vector3 movementAngle = targetwaypoint - transform.position;
+				Vector3 distanceToWayPoint = targetwaypoint - transform.position;
 
 				//If we land very close onto a waypoint
-				if (movementAngle.magnitude < 0.01) {
+				if (distanceToWayPoint.magnitude < 0.01) {
 						//count up to the next waypoint
 						if (curTime == 0)
 								curTime = Time.time; // Pause over the Waypoint
@@ -66,27 +82,12 @@ public class BaseEnemy : MonoBehaviour
 						}
 				}else {
 								//move the enemy to the next waypoint
-								enemy.transform.position = Vector3.MoveTowards (enemy.transform.position, targetwaypoint, speed * Time.deltaTime);
+								this.gameObject.transform.position = Vector3.MoveTowards (this.gameObject.transform.position, targetwaypoint, SPEED * Time.deltaTime);
 						}
 				}
-	
-	/* I'm checking collisions with the slime in kind of a hacky way*/
-	void OnCollisionEnter  (Collision other)
-	{
-		Destroy(this.gameObject);
-		
-	}
 
 	/*These methods got commented out because I will still need to implement them in the upcoming days
 	 * Mostly junk because I still dont have a good understanding of the tile system.
-
-	// Load up tile map info on start for enemy movement
-	//
-	public void Awake ()
-	{
-		_tilemap = Tilemap.getInstance ();
-		_myTile = GetComponent<Tile> ();
-	}
 	
 	//Wander movement - follows the specified path
 	public void Wander (Path path)

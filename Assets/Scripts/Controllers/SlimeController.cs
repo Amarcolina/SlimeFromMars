@@ -9,7 +9,7 @@ public class SlimeController : MonoBehaviour {
     private int energy;
     //levels dictate how much more powerful your attacks/defenses are
     //levels also give bonuses in energy from items of that attribute
-    private int acidLevel;
+    private int radiationLevel;
     private int electricityLevel;
     private int bioLevel;
     private Slime currentSelectedSlime;
@@ -24,7 +24,7 @@ public class SlimeController : MonoBehaviour {
 
     // Use this for initialization
     void Start() {
-        acidLevel = 0;
+        radiationLevel = 0;
         electricityLevel = 0;
         bioLevel = 0;
         energy = 20;
@@ -66,11 +66,11 @@ public class SlimeController : MonoBehaviour {
     public void consume(GenericConsumeable eatenItem) {
         //calculates resource bonus from item element affinity multiplied by level of slime attribute
         //calculates default item resource value based on size and adds any bonuses
-        energy = (int)eatenItem.size + acidLevel * eatenItem.acid + bioLevel * eatenItem.bio + electricityLevel * eatenItem.electricity;
+        energy = (int)eatenItem.size + radiationLevel * eatenItem.radiation + bioLevel * eatenItem.bio + electricityLevel * eatenItem.electricity;
 
         //if the eatenItem is a mutation, level up affinity
-        if (eatenItem.isAcidMutation) {
-            acidLevel++;
+        if (eatenItem.isRadiationMutation) {
+            radiationLevel++;
         }
         if (eatenItem.isElectricityMutation) {
             electricityLevel++;
@@ -126,8 +126,8 @@ public class SlimeController : MonoBehaviour {
     }
 
     //implement get attack cost get defense cost methods?
-    public void useAcidOffense() {
-        //multiply acidLevel to attack power (radius?) to get offense output
+    public void useRadiationOffense() {
+        //multiply radiationLevel to attack power (radius?) to get offense output
         //do same for defense
     }
     public void useElectricityOffense() {
@@ -136,7 +136,7 @@ public class SlimeController : MonoBehaviour {
     }
 
 
-    public void useAcidDefense() {
+    public void useRadiationDefense() {
     }
     public void useElectricityDefense() {
     }

@@ -318,9 +318,10 @@ public class TilemapEditor : Editor {
     }
 
     private GameObject newTileObject() {
-        GameObject newTileObject = (GameObject)PrefabUtility.InstantiatePrefab(currentTilePrefab);
-        newTileObject.transform.eulerAngles = new Vector3(0, 0, -_spriteAngle);
+        GameObject newTileObject = (GameObject)PrefabUtility.InstantiatePrefab(currentTilePrefab); 
         Undo.RegisterCreatedObjectUndo(newTileObject, "Added new tiles");
+        Undo.RecordObject(newTileObject, "asdads");
+        newTileObject.transform.eulerAngles = new Vector3(0, 0, -_spriteAngle);
         return newTileObject;
     }
 

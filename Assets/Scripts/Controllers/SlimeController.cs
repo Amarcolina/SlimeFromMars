@@ -69,10 +69,10 @@ public class SlimeController : MonoBehaviour {
             if (Input.GetKeyDown(KeyCode.E) && currentSelectedSlime != null && electricityLevel > 0 && energy >= ELECTRICITY_DEFENSE_COST) {
                 elementalMode = true;
             }
-            if(elementalMode){
+            if (elementalMode) {
                 if (Input.GetKeyDown(KeyCode.D)) {
                     elementalMode = false;
-                    int circleCenter = 0;
+                    Vector2Int circleCenter = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
                     useElectricityDefense(circleCenter);
                 }
 
@@ -158,9 +158,19 @@ public class SlimeController : MonoBehaviour {
     }
     //outputs circle of enemy-damaging electricity from central point of selected slime tile
     //radius increases with electricityLevel
-    public void useElectricityDefense(int center) {
-        float electricityRadius = electricityLevel;
-        float area = Mathf.PI * (electricityRadius * electricityRadius);
+    public void useElectricityDefense(Vector2Int center) {
+        int circleRadius = electricityLevel;
+        for (int dx = -circleRadius; dx <= circleRadius; dx++) {
+            for (int dy = -circleRadius; dy <= circleRadius; dy++) {
+                Vector2 tileOffset = new Vector2(dx, dy);
+                if (tileOffset.sqrMagnitude <= circleRadius*circleRadius) {
+                    Tile tile = Tilemap.getInstance().getTile(center + new Vector2Int(dx, dy));
+                    if (tile.GetComponent<Slime>() != null) {
+                        tile.gameObject.AddComponent<Electrified>();
+                    }
+                }
+            }
+        }
     }
     public void useElectricityOffense() {
     }

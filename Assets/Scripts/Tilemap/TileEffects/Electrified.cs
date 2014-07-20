@@ -30,8 +30,13 @@ public class Electrified : MonoBehaviour {
 
         GameObject rendererGameObject = new GameObject("Electricity");
         rendererGameObject.transform.parent = transform;
+        rendererGameObject.transform.position = transform.position;
         _electricityRenderer = rendererGameObject.AddComponent<SpriteRenderer>();
 	}
+
+    public void OnDestroy() {
+        Destroy(_electricityRenderer.gameObject);
+    }
 
     /* This update will run for DURATION amount of time.  It will damage any 
      * tile enties that exist on the tile that have an IDamageable component
@@ -44,12 +49,15 @@ public class Electrified : MonoBehaviour {
         _electricityRenderer.transform.eulerAngles = new Vector3(0, 0, Random.Range(0, 3) * 90.0f);
 
         HashSet<TileEntity> entities = _tile.getTileEntities();
-        foreach (TileEntity entity in entities) {
-            IDamageable damageable = entity.GetComponent(typeof (IDamageable)) as IDamageable;
-            if (damageable != null) {
-                damageable.damage(TOTAL_DAMAGE * Time.deltaTime / DURATION);
+        if (entities != null) {
+            foreach (TileEntity entity in entities) {
+                IDamageable damageable = entity.GetComponent(typeof(IDamageable)) as IDamageable;
+                if (damageable != null) {
+                    damageable.damage(TOTAL_DAMAGE * Time.deltaTime / DURATION);
+                }
             }
         }
+        
 
         _totalTime += Time.deltaTime;
         if (_totalTime >= DURATION) {

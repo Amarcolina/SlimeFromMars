@@ -159,6 +159,7 @@ public class SlimeController : MonoBehaviour {
     //outputs circle of enemy-damaging electricity from central point of selected slime tile
     //radius increases with electricityLevel
     public void useElectricityDefense(Vector2Int center) {
+        Vector2Int circleRadius = center;
         float electricityRadius = electricityLevel;
         float area = Mathf.PI * (electricityRadius * electricityRadius);
     }

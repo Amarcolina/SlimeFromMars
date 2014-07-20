@@ -66,18 +66,18 @@ public class SlimeController : MonoBehaviour {
                 //message: not enough energy
             }
         }
-
-        if (Input.GetKeyDown(KeyCode.E) && currentSelectedSlime != null && electricityLevel > 0 && energy >= ELECTRICITY_DEFENSE_COST) {
+        //if in elemental mode, slime tile is selected and you have correct mutation
+        if (Input.GetKeyDown(KeyCode.E) && currentSelectedSlime != null && electricityLevel > 0) {
             elementalMode = true;
         }
         if (elementalMode) {
-            if (Input.GetKeyDown(KeyCode.D)) {
+            if (Input.GetKeyDown(KeyCode.D) && energy >= ELECTRICITY_DEFENSE_COST) {
                 elementalMode = false;
                 Vector2Int circleCenter = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
                 useElectricityDefense(circleCenter);
             }
 
-            if (Input.GetKeyDown(KeyCode.O)) {
+            if (Input.GetKeyDown(KeyCode.O) && energy >= ELECTRICITY_OFFENSE_COST) {
                 elementalMode = false;
                 useElectricityOffense();
             }

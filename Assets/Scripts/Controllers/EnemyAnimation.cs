@@ -36,7 +36,7 @@ public class EnemyAnimation : MonoBehaviour {
 	}
 
 	//Takes a directional float in order to flip the sprite in the correct direction. -1 for left facing, 1 for right facing.
-	private void Flip(float direction){
+	public void Flip(float direction){
 		Vector3 absolutescale = new Vector3(Mathf.Abs(gameObject.transform.localScale.x), transform.localScale.y, transform.localScale.z);
 		gameObject.transform.localScale = new Vector3(absolutescale.x * direction, gameObject.transform.localScale.y, gameObject.transform.localScale.z);
 	}

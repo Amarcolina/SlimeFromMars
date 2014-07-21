@@ -22,6 +22,7 @@ public class BioMutated : MonoBehaviour {
         rendererGameObject.transform.parent = transform;
         rendererGameObject.transform.position = transform.position;
         _bioRenderer = rendererGameObject.AddComponent<SpriteRenderer>();
+        _bioRenderer.sprite = _bioSprites[0];
     }
 
     public void OnDestroy() {

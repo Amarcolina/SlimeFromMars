@@ -81,31 +81,30 @@ public class SlimeController : MonoBehaviour {
             }
         }
         //if in elemental mode, slime tile is selected and you have correct mutation
-        if (Input.GetKeyDown(KeyCode.E) && currentSelectedSlime != null && electricityLevel > 0) {
+        if (Input.GetKeyDown(KeyCode.E) && currentSelectedSlime != null) {
             elementalMode = true;
         }
         if (elementalMode) {
-            if (Input.GetKeyDown(KeyCode.D) && energy >= ELECTRICITY_DEFENSE_COST) {
+            if (Input.GetKeyDown(KeyCode.D) && electricityLevel > 0 && energy >= ELECTRICITY_DEFENSE_COST) {
                 elementalMode = false;
                 Vector2Int circleCenter = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
                 useElectricityDefense(circleCenter);
             }
 
-            if (Input.GetKeyDown(KeyCode.O) && energy >= BIO_DEFENSE_COST) {
+            if (Input.GetKeyDown(KeyCode.O) && bioLevel > 0 && energy >= BIO_DEFENSE_COST) {
                 elementalMode = false;
                 Vector2Int circleCenter = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
                 useBioDefense(circleCenter);
             }
-                /*###################### DISABLED FOR TESTING########################
-                if (Input.GetKeyDown(KeyCode.O) && energy >= ELECTRICITY_OFFENSE_COST) {
-                    elementalMode = false;
-                    if (Input.GetMouseButtonDown(1)) {
-                        useElectricityOffense();
-                    }
-                }
-                */
-        }
 
+            /*###################### DISABLED FOR TESTING########################
+            if (Input.GetKeyDown(KeyCode.O) && energy >= ELECTRICITY_OFFENSE_COST) {
+                elementalMode = false;
+                if (Input.GetMouseButtonDown(1)) {
+                    useElectricityOffense();
+                }
+            } */
+        }
     }
 
     public void consume(GenericConsumeable eatenItem) {
@@ -113,10 +112,10 @@ public class SlimeController : MonoBehaviour {
         //calculates default item resource value based on size and adds any bonuses
         gainEnergy((int)eatenItem.size + radiationLevel * eatenItem.radiation + bioLevel * eatenItem.bio + electricityLevel * eatenItem.electricity);
 
-
         //if the eatenItem is a mutation, level up affinity
         if (eatenItem.isRadiationMutation) {
             radiationLevel++;
+         //   _gameUi.RadiationUpdate(radiationLevel);
         }
         if (eatenItem.isElectricityMutation) {
             electricityLevel++;
@@ -124,6 +123,7 @@ public class SlimeController : MonoBehaviour {
         }
         if (eatenItem.isBioMutation) {
             bioLevel++;
+          //  _gameUi.BioUpdate(bioLevel);
         }
 
         Destroy(eatenItem.gameObject);

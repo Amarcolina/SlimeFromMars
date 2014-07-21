@@ -195,6 +195,7 @@ public class SlimeController : MonoBehaviour {
         loseEnergy(ELECTRICITY_DEFENSE_COST);
     }
 
+    //sends a bolt of electricity at an enemy, up to a max distance away
     public void useElectricityOffense() {
         float damageDone = ELECTRICITY_BASE_DAMAGE * electricityLevel;
         float rangeOfAttack = ELECTRICITY_BASE_RANGE * electricityLevel;
@@ -212,7 +213,22 @@ public class SlimeController : MonoBehaviour {
         }
     }
 
-    public void useBioDefense() {
+    //outputs circle of thick, high health slime from central point of selected slime tile
+    //radius increases with bioLevel
+    public void useBioDefense(Vector2Int center) {
+        int circleRadius = bioLevel;
+        //loops over 
+        for (int dx = -circleRadius; dx <= circleRadius; dx++) {
+            for (int dy = -circleRadius; dy <= circleRadius; dy++) {
+                Vector2 tileOffset = new Vector2(dx, dy);
+                if (tileOffset.sqrMagnitude <= circleRadius * circleRadius) {
+                    Tile tile = Tilemap.getInstance().getTile(center + new Vector2Int(dx, dy));
+                    if (tile != null && tile.GetComponent<Slime>() != null) {
+                        tile.gameObject.AddComponent<BioMutated>();
+                    }
+                }
+            }
+        }
         loseEnergy(BIO_DEFENSE_COST);
     }
     public void useBioOffense() {

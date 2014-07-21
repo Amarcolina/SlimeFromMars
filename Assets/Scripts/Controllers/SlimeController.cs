@@ -91,21 +91,29 @@ public class SlimeController : MonoBehaviour {
                 useElectricityDefense(circleCenter);
             }
 
-            if (Input.GetKeyDown(KeyCode.O) && energy >= ELECTRICITY_OFFENSE_COST) {
+            if (Input.GetKeyDown(KeyCode.O) && energy >= BIO_DEFENSE_COST) {
                 elementalMode = false;
-                if (Input.GetMouseButtonDown(1)) {
-                    useElectricityOffense();
-                }
+                Vector2Int circleCenter = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
+                useBioDefense(circleCenter);
             }
+                /*###################### DISABLED FOR TESTING########################
+                if (Input.GetKeyDown(KeyCode.O) && energy >= ELECTRICITY_OFFENSE_COST) {
+                    elementalMode = false;
+                    if (Input.GetMouseButtonDown(1)) {
+                        useElectricityOffense();
+                    }
+                }
+                */
         }
+
     }
 
     public void consume(GenericConsumeable eatenItem) {
         //calculates resource bonus from item element affinity multiplied by level of slime attribute
         //calculates default item resource value based on size and adds any bonuses
-         gainEnergy((int)eatenItem.size + radiationLevel * eatenItem.radiation + bioLevel * eatenItem.bio + electricityLevel * eatenItem.electricity);
-        
-        
+        gainEnergy((int)eatenItem.size + radiationLevel * eatenItem.radiation + bioLevel * eatenItem.bio + electricityLevel * eatenItem.electricity);
+
+
         //if the eatenItem is a mutation, level up affinity
         if (eatenItem.isRadiationMutation) {
             radiationLevel++;
@@ -217,13 +225,13 @@ public class SlimeController : MonoBehaviour {
     //radius increases with bioLevel
     public void useBioDefense(Vector2Int center) {
         int circleRadius = bioLevel;
-        //loops over 
         for (int dx = -circleRadius; dx <= circleRadius; dx++) {
             for (int dy = -circleRadius; dy <= circleRadius; dy++) {
                 Vector2 tileOffset = new Vector2(dx, dy);
                 if (tileOffset.sqrMagnitude <= circleRadius * circleRadius) {
                     Tile tile = Tilemap.getInstance().getTile(center + new Vector2Int(dx, dy));
                     if (tile != null && tile.GetComponent<Slime>() != null) {
+                        tile.isWalkable = false;
                         tile.gameObject.AddComponent<BioMutated>();
                     }
                 }
@@ -231,6 +239,7 @@ public class SlimeController : MonoBehaviour {
         }
         loseEnergy(BIO_DEFENSE_COST);
     }
+
     public void useBioOffense() {
         loseEnergy(BIO_OFFENSE_COST);
     }

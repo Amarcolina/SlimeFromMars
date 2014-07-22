@@ -48,7 +48,7 @@ public class ScientistEnemy : BaseEnemy {
     }
 
     private bool enterWanderState(Transform waypoint) {
-        _currentPath = Astar.findPath(Tilemap.getTilemapLocation(transform.position), Tilemap.getTilemapLocation(waypoint.position), isSpaceWalkable);
+        _currentPath = Astar.findPath(Tilemap.getTilemapLocation(transform.position), Tilemap.getTilemapLocation(waypoint.position));
         if (_currentPath == null) {
             return false;
         }
@@ -96,7 +96,15 @@ public class ScientistEnemy : BaseEnemy {
 
     }
 
-    private bool isSpaceWalkable(Vector2Int position) {
-        return _tilemap.isWalkable(position) && _tilemap.isWalkable(position + Vector2Int.up);
+    public void OnDrawGizmosSelected() {
+        Gizmos.color = new Color(0.5f, 0.5f, 1.0f, 0.4f);
+        foreach (Transform waypoint in waypoints) {
+            Gizmos.DrawSphere(waypoint.position, 0.5f);
+        }
+
+        Gizmos.color = Color.blue;
+        for (int i = 0; i < _currentPath.Count - 1; i++) {
+            Gizmos.DrawLine(Tilemap.getWorldLocation(_currentPath[i]), Tilemap.getWorldLocation(_currentPath[i + 1]));
+        }
     }
 }

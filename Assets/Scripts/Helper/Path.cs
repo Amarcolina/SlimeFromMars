@@ -66,7 +66,7 @@ public class Path {
     }
 
     public bool hasNext() {
-        return _currentNode < _nodes.Count;
+        return _currentNode < _nodes.Count - 1;
     }
 
     public Vector2Int getNext() {

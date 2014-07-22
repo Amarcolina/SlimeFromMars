@@ -57,6 +57,10 @@ public class Tilemap : MonoBehaviour {
                                  (int)System.Math.Round(position.y / TILE_SIZE, System.MidpointRounding.ToEven));
     }
 
+    public static Vector2 getWorldLocation(Vector2Int position) {
+        return new Vector2(position.x * TILE_SIZE, position.y * TILE_SIZE);
+    }
+
     //####################################################################################################
     /* Given a 2D world position, return the tile that is located
      * at that position.  This returns the Tile component, not

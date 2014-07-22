@@ -92,7 +92,7 @@ public class Astar : MonoBehaviour {
             Node current = openList.extractElement(0);//remove lowest rank node from openList
             closedList.Add(current);//add current to closedList
 
-            foreach (Vector2Int neighborPosition in tileMap.getNeighboringPositions(current.getPosition(), true, false)) {//for neighbors of current:
+            foreach (Vector2Int neighborPosition in tileMap.getNeighboringPositions(current.getPosition(), true, true)) {//for neighbors of current:
                 if (!isWalkableFunction(neighborPosition)) {
                     continue;
                 }

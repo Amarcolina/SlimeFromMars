@@ -31,7 +31,7 @@ public class SlimeController : MonoBehaviour {
     //base range for skills
     private const int ELECTRICITY_BASE_RANGE = 5;
     private const int BIO_BASE_RANGE = 2;
-    private const int RADIATION_BASE_RANGE = 10;
+    private const int RADIATION_BASE_RANGE = 4;
     private bool elementalMode = false;
 
     //selected tile of slime
@@ -97,6 +97,12 @@ public class SlimeController : MonoBehaviour {
                 useBioDefense(circleCenter);
             }
 
+            if (Input.GetKeyDown(KeyCode.R) && radiationLevel > 0 && energy >= RADIATION_DEFENSE_COST) {
+                elementalMode = false;
+                Vector2Int circleCenter = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
+                useRadiationDefense(circleCenter);
+            }
+
             /*###################### DISABLED FOR TESTING########################
             if (Input.GetKeyDown(KeyCode.O) && energy >= ELECTRICITY_OFFENSE_COST) {
                 elementalMode = false;
@@ -115,7 +121,7 @@ public class SlimeController : MonoBehaviour {
         //if the eatenItem is a mutation, level up affinity
         if (eatenItem.isRadiationMutation) {
             radiationLevel++;
-         //   _gameUi.RadiationUpdate(radiationLevel);
+            //   _gameUi.RadiationUpdate(radiationLevel);
         }
         if (eatenItem.isElectricityMutation) {
             electricityLevel++;
@@ -123,7 +129,7 @@ public class SlimeController : MonoBehaviour {
         }
         if (eatenItem.isBioMutation) {
             bioLevel++;
-          //  _gameUi.BioUpdate(bioLevel);
+            //  _gameUi.BioUpdate(bioLevel);
         }
 
         Destroy(eatenItem.gameObject);
@@ -177,11 +183,34 @@ public class SlimeController : MonoBehaviour {
         _gameUi.ResourceUpdate(energy);
 
     }
-
-    public void useRadiationDefense() {
+    /*###################################### ELEMENTAL SKILLS #######################################*/
+    public void useRadiationDefense(Vector2Int center) {
         loseEnergy(RADIATION_DEFENSE_COST);
     }
-    public void useRadiationOffense() {
+
+    public void useRadiationOffense(Vector2Int center) {
+        float rangeOfAttack = RADIATION_BASE_RANGE * radiationLevel;
+
+        //gets distance between slime and enemy
+        Vector2Int startLocation = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
+        Vector2Int goalLocation = Tilemap.getTilemapLocation(getTilePositionUnderCursor().transform.position);
+        float distance = Mathf.Sqrt((goalLocation.x - startLocation.x) * (goalLocation.x - startLocation.x) +
+                            (goalLocation.y - startLocation.y) * (goalLocation.y - startLocation.y));
+        //if distance is within range of attack, create the radius of radiation
+        if (distance <= rangeOfAttack) {
+            int circleRadius = 3 * radiationLevel;
+            for (int dx = -circleRadius; dx <= circleRadius; dx++) {
+                for (int dy = -circleRadius; dy <= circleRadius; dy++) {
+                    Vector2 tileOffset = new Vector2(dx, dy);
+                    if (tileOffset.sqrMagnitude <= circleRadius * circleRadius) {
+                        Tile tile = Tilemap.getInstance().getTile(center + new Vector2Int(dx, dy));
+                        if (tile != null) {
+                            tile.gameObject.AddComponent<Irradiated>();
+                        }
+                    }
+                }
+            }
+        }
         loseEnergy(RADIATION_OFFENSE_COST);
     }
 

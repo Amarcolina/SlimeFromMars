@@ -49,6 +49,18 @@ public class Vector2Int {
         return new Vector2Int(a.x / d, a.y / d);
     }
 
+    /* Returns the distance between 2 Vector2Ints
+     */
+    public static float distance(Vector2Int a, Vector2Int b) {
+        return (a - b).getLength();
+    }
+
+    /* Returns the length of this Vector2Int
+     */
+    public float getLength() {
+        return Mathf.Sqrt(x * x + y * y);
+    }
+
     /* Overrides the == operator so that this class can be compared
      * to itself
      */

@@ -4,21 +4,21 @@ using System.Collections.Generic;
 using System;
 
 public class Astar : MonoBehaviour {
+    public delegate float AStarMovementCost(Vector2Int position, Vector2Int neighbor);
+    public delegate float AStarNodeHeuristic(Vector2Int position, Vector2Int goal);
+    public delegate bool AStarIsPathWalkable(Vector2Int position);
+
     public class Node : IComparable {
         Vector2Int position; //tilemap position of node
-        private const float ORTHOGANAL_COST = 1;
-        private const float DIAGANOL_COST = 1.5f;
         private Node parent;
         private float totalCostFromStart, heuristic;
 
-        public Node(Vector2Int position, Node parent, Vector2Int goal) {
+        public Node(Vector2Int position, Vector2Int goal, Node parent, float heuristic) {
             this.position = position;
             this.parent = parent;
-
-            float dx = Mathf.Abs(position.x - goal.x);
-            float dy = Mathf.Abs(position.y - goal.y);
-            heuristic = ORTHOGANAL_COST * (dx + dy) + (DIAGANOL_COST - 2 * ORTHOGANAL_COST) * Mathf.Min(dx, dy);
+            this.heuristic = heuristic;
         }
+
         public float calculateFCost() {
             return (totalCostFromStart + heuristic);
         }
@@ -55,7 +55,26 @@ public class Astar : MonoBehaviour {
         }
     }
 
-    public static Path findPath(Vector2Int start, Vector2Int goal) {  
+    public static Path findPath(Vector2Int start, Vector2Int goal) {
+        return findPath(start, goal, defaultHeuristic, defaultIsWalkable, defaultMovementCost);
+    }
+
+    public static Path findPath(Vector2Int start, Vector2Int goal, AStarNodeHeuristic heuristicFunction) {
+        return findPath(start, goal, heuristicFunction, defaultIsWalkable, defaultMovementCost);
+    }
+
+    public static Path findPath(Vector2Int start, Vector2Int goal, AStarIsPathWalkable isWalkableFunction) {
+        return findPath(start, goal, defaultHeuristic, isWalkableFunction, defaultMovementCost);
+    }
+
+    public static Path findPath(Vector2Int start, Vector2Int goal, AStarMovementCost movementCostFunction) {
+        return findPath(start, goal, defaultHeuristic, defaultIsWalkable, movementCostFunction);
+    }
+
+    public static Path findPath(Vector2Int start, Vector2Int goal, 
+                                AStarNodeHeuristic heuristicFunction, 
+                                AStarIsPathWalkable isWalkableFunction, 
+                                AStarMovementCost movementCostFunction) {  
         if (start == null || goal == null) {
             return null;
         }
@@ -64,7 +83,7 @@ public class Astar : MonoBehaviour {
         HashSet<Node> closedList = new HashSet<Node>();
         Tilemap tileMap = Tilemap.getInstance();
         Dictionary<Vector2Int, Node> nodePostionMap = new Dictionary<Vector2Int, Node>();
-        Node startNode = new Node(start, null, goal);
+        Node startNode = new Node(start, goal, null, heuristicFunction(start, goal));
         Node goalNode = null;
         nodePostionMap.Add(startNode.getPosition(), startNode);
 
@@ -73,16 +92,19 @@ public class Astar : MonoBehaviour {
             Node current = openList.extractElement(0);//remove lowest rank node from openList
             closedList.Add(current);//add current to closedList
 
-            foreach (Vector2Int neighborPosition in tileMap.getNeighboringPositions(current.getPosition())) {//for neighbors of current:
+            foreach (Vector2Int neighborPosition in tileMap.getNeighboringPositions(current.getPosition(), true, false)) {//for neighbors of current:
+                if (!isWalkableFunction(neighborPosition)) {
+                    continue;
+                }
 
                 //checks for element in dictionary, then adds if non-existent
                 Node neighborNode = null;
                 if (!nodePostionMap.TryGetValue(neighborPosition, out neighborNode)) {
-                    neighborNode = new Node(neighborPosition, current, goal);
+                    neighborNode = new Node(neighborPosition, goal, current, heuristicFunction(neighborPosition, goal));
                     nodePostionMap.Add(neighborNode.getPosition(), neighborNode);
                 }
 
-                float costFromStartToNeighbor = (current.getTotalCostFromStart() + movementCost(current, neighborNode));
+                float costFromStartToNeighbor = (current.getTotalCostFromStart() + movementCostFunction(current.getPosition(), neighborNode.getPosition()));
                 if (openList.contains(neighborNode) && costFromStartToNeighbor < neighborNode.getTotalCostFromStart()) {//if neighbor in OPEN and cost less than g(neighbor):
                     openList.extractElement(neighborNode);
                 }
@@ -116,10 +138,22 @@ public class Astar : MonoBehaviour {
         return finalPath;
     }
 
+    public static bool defaultIsWalkable(Vector2Int position) {
+        return Tilemap.getInstance().isWalkable(position);
+    }
+
     //the cost of moving directly from one node to another
-    private static float movementCost(Node current, Node neighbor) {
-        float dx = current.getPosition().x - neighbor.getPosition().x;
-        float dy = current.getPosition().y - neighbor.getPosition().y;
+    public static float defaultMovementCost(Vector2Int current, Vector2Int neighbor) {
+        float dx = current.x - neighbor.x;
+        float dy = current.y - neighbor.y;
         return (Mathf.Sqrt(dx * dx + dy * dy));
+    }
+
+    private const float ORTHOGANAL_COST = 1;
+    private const float DIAGANOL_COST = 1.5f;
+    public static float defaultHeuristic(Vector2Int node, Vector2Int goal) {
+        float dx = Mathf.Abs(node.x - goal.x);
+        float dy = Mathf.Abs(node.y - goal.y);
+        return ORTHOGANAL_COST * (dx + dy) + (DIAGANOL_COST - 2 * ORTHOGANAL_COST) * Mathf.Min(dx, dy);
     }
 }

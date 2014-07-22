@@ -10,7 +10,7 @@ public class Tilemap : MonoBehaviour {
     public const float TILE_SIZE = 1.0f;
     [SerializeField]
     [HideInInspector]
-    private Array2DTC _tilemapChunks = null;
+    private Array2D _tilemapChunks = null;
     [SerializeField]
     [HideInInspector]
     public Vector2Int _chunkOriginOffset = new Vector2Int(0, 0);
@@ -38,13 +38,13 @@ public class Tilemap : MonoBehaviour {
         if (_tilemapChunks) {
             for (int i = 0; i < _tilemapChunks.width; i++) {
                 for (int j = 0; j < _tilemapChunks.height; j++) {
-                    DestroyImmediate(_tilemapChunks[i, j]);
+                    DestroyImmediate(_tilemapChunks[i, j] as TileChunk);
                 }
             }
             DestroyImmediate(_tilemapChunks);
         }
 
-        _tilemapChunks = ScriptableObject.CreateInstance<Array2DTC>();
+        _tilemapChunks = ScriptableObject.CreateInstance<Array2D>();
         _tilemapChunks.init(1, 1);
         _chunkOriginOffset = new Vector2Int(0, 0);
     }
@@ -106,7 +106,7 @@ public class Tilemap : MonoBehaviour {
 
         TileChunk tileChunk = null;
         if (_tilemapChunks.isInRange(chunkLocation)) {
-            tileChunk = _tilemapChunks[chunkLocation.x, chunkLocation.y];
+            tileChunk = _tilemapChunks[chunkLocation.x, chunkLocation.y] as TileChunk;
         }
 
         if (tileChunk == null) {
@@ -220,7 +220,7 @@ public class Tilemap : MonoBehaviour {
         //Get the location of the chunk where the tile is located
         Vector2Int chunkLocation = (tilePosition - tileInChunkLocation - _chunkOriginOffset * TileChunk.CHUNK_SIZE) / TileChunk.CHUNK_SIZE;
         //Get the specific chunk that contains the tile
-        TileChunk tileChunk = _tilemapChunks[chunkLocation.x, chunkLocation.y];
+        TileChunk tileChunk = _tilemapChunks[chunkLocation.x, chunkLocation.y] as TileChunk;
 
         //If the chunk doesn't exist, we need to create it
         if (tileChunk == null) {
@@ -282,7 +282,7 @@ public class Tilemap : MonoBehaviour {
         }
 
         //Create a new array which is the propper increased size
-        Array2DTC newChunkArray = ScriptableObject.CreateInstance<Array2DTC>();
+        Array2D newChunkArray = ScriptableObject.CreateInstance<Array2D>();
         newChunkArray.init(_tilemapChunks.width + increaseX, _tilemapChunks.height + increaseY);
 
         //Copy the old array into the new one
@@ -311,7 +311,7 @@ public class Tilemap : MonoBehaviour {
                 Vector2 cUp = Vector2.up * TileChunk.CHUNK_SIZE * TILE_SIZE;
                 Vector2 v = new Vector2(x + _chunkOriginOffset.x, y + _chunkOriginOffset.y) * TileChunk.CHUNK_SIZE * TILE_SIZE - Vector2.one * TILE_SIZE / 2.0f;
 
-                TileChunk chunk = _tilemapChunks[x, y];
+                TileChunk chunk = _tilemapChunks[x, y] as TileChunk;
                 if (chunk != null) {
                     for (int dx = 0; dx < TileChunk.CHUNK_SIZE; dx++) {
                         for (int dy = 0; dy < TileChunk.CHUNK_SIZE; dy++) {

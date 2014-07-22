@@ -6,7 +6,7 @@ public class TileChunk : ScriptableObject {
     public const int CHUNK_SIZE = 8;
     [SerializeField]
     [HideInInspector]
-    private Array2DGO _tiles = null;
+    private Array2D _tiles = null;
     [SerializeField]
     [HideInInspector]
     private GameObject _chunkGameObject = null;
@@ -25,7 +25,7 @@ public class TileChunk : ScriptableObject {
      * the given game object
      */
     public void init(GameObject chunkGameObject) {
-        _tiles = ScriptableObject.CreateInstance<Array2DGO>();
+        _tiles = ScriptableObject.CreateInstance<Array2D>();
         _tiles.init(CHUNK_SIZE, CHUNK_SIZE);
         _chunkGameObject = chunkGameObject;
     }
@@ -39,7 +39,7 @@ public class TileChunk : ScriptableObject {
      * range from 0 to CHUNK_SIZE - 1.  
      */
     public GameObject getTile(Vector2Int location) {
-        return _tiles[location.x, location.y];
+        return _tiles[location.x, location.y] as GameObject;
     }
 
     /* Used to set a tile for this chunk.  The input is the 

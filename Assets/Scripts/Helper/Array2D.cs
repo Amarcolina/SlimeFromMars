@@ -2,9 +2,9 @@
 using System.Collections;
 
 [System.Serializable]
-public class Array2D<T> : ScriptableObject where T : class{
+public class Array2D : ScriptableObject{
     [SerializeField]
-    private T[] _array;
+    private Object[] _array;
     [SerializeField]
     private int _width;
     [SerializeField]
@@ -18,7 +18,7 @@ public class Array2D<T> : ScriptableObject where T : class{
      * @param height    The height of the array to create
      */ 
     public void init(int width, int height) {
-        _array = new T[height * width];
+        _array = new Object[height * width];
         _width = width;
         _height = height;
     }
@@ -47,7 +47,7 @@ public class Array2D<T> : ScriptableObject where T : class{
      * like a normal 2D array.  This operator allows you to get
      * or set the element at the location x,y
      */
-    public T this[int x, int y] {
+    public Object this[int x, int y] {
         get {
             return _array[y * _width + x];
         }

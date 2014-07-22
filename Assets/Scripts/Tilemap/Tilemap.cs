@@ -44,8 +44,7 @@ public class Tilemap : MonoBehaviour {
             DestroyImmediate(_tilemapChunks);
         }
 
-        _tilemapChunks = ScriptableObject.CreateInstance<Array2D>();
-        _tilemapChunks.init(1, 1);
+        _tilemapChunks = Array2D.createArray(1, 1);
         _chunkOriginOffset = new Vector2Int(0, 0);
     }
 
@@ -282,8 +281,7 @@ public class Tilemap : MonoBehaviour {
         }
 
         //Create a new array which is the propper increased size
-        Array2D newChunkArray = ScriptableObject.CreateInstance<Array2D>();
-        newChunkArray.init(_tilemapChunks.width + increaseX, _tilemapChunks.height + increaseY);
+        Array2D newChunkArray = Array2D.createArray(_tilemapChunks.width + increaseX, _tilemapChunks.height + increaseY);
 
         //Copy the old array into the new one
         for (int x = 0; x < _tilemapChunks.width; x++) {

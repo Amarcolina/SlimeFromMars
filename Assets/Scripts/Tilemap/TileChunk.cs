@@ -25,8 +25,7 @@ public class TileChunk : ScriptableObject {
      * the given game object
      */
     public void init(GameObject chunkGameObject) {
-        _tiles = ScriptableObject.CreateInstance<Array2D>();
-        _tiles.init(CHUNK_SIZE, CHUNK_SIZE);
+        _tiles = Array2D.createArray(CHUNK_SIZE, CHUNK_SIZE);
         _chunkGameObject = chunkGameObject;
     }
 

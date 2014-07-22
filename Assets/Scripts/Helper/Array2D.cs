@@ -16,13 +16,18 @@ public class Array2D : ScriptableObject{
      * 
      * @param width     The width of the array to create
      * @param height    The height of the array to create
-     */ 
-    public void init(int width, int height) {
-        _array = new Object[height * width];
-        _width = width;
-        _height = height;
+     */
+    public static Array2D createArray(int width, int height) {
+        Array2D instance = ScriptableObject.CreateInstance<Array2D>();
+        instance._array = new Object[height * width];
+        instance._width = width;
+        instance._height = height;
+        return instance;
     }
 
+    /* Returns whether or not the given 2D index falls inside
+     * of this 2D array.  
+     */
     public bool isInRange(Vector2Int index) {
         return index.x >= 0 && index.y >= 0 && index.x < width && index.y < height;
     }
@@ -54,5 +59,9 @@ public class Array2D : ScriptableObject{
         set {
             _array[y * _width + x] = value;
         }
+    }
+
+    public override string ToString(){
+        return "Array2D: (" + width + " , " + height + ")";
     }
 }

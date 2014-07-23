@@ -1,8 +1,7 @@
 fileFormatVersion: 2
-guid: 4b03b638ad3c0d04794da83eeb196c8d
+guid: 763957b85752e814b9caf4aa757ea77b
 TextureImporter:
-  fileIDToRecycleName:
-    21300000: Slime-0x3
+  fileIDToRecycleName: {}
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0
@@ -25,21 +24,21 @@ TextureImporter:
   textureFormat: -1
   maxTextureSize: 1024
   textureSettings:
-    filterMode: -1
+    filterMode: 1
     aniso: 1
     mipBias: -1
     wrapMode: 1
-  nPOTScale: 0
+  nPOTScale: 1
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 0
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: .5, y: .5}
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
-  spritePixelsToUnits: 64
-  alphaIsTransparency: 0
+  spritePixelsToUnits: 100
+  alphaIsTransparency: 1
   textureType: 5
   buildTargetSettings: []
   spriteSheet:

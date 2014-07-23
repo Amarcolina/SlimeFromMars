@@ -312,6 +312,8 @@ public class SlimeController : MonoBehaviour {
         Vector2Int goalLocation = Tilemap.getTilemapLocation(getTilePositionUnderCursor().transform.position);
         float distance = Vector2Int.distance(startLocation, goalLocation);
         if (distance <= rangeOfAttack) {
+            bool wasDamaged = getTilePositionUnderCursor().damageTileEntities(damageDone);
+            if(wasDamaged)
             loseEnergy(BIO_OFFENSE_COST); 
         }
     }

@@ -97,11 +97,15 @@ public class SlimeController : MonoBehaviour {
                 useBioDefense(circleCenter);
             }
 
+            if (Input.GetKeyDown(KeyCode.B) && bioLevel > 0 && energy >= BIO_OFFENSE_COST) { 
+
+            }
             if (Input.GetKeyDown(KeyCode.R) && radiationLevel > 0 && energy >= RADIATION_DEFENSE_COST) {
                 elementalMode = false;
                 Vector2Int circleCenter = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
                 useRadiationDefense(circleCenter);
             }
+
 
             /*###################### DISABLED FOR TESTING########################
             if (Input.GetKeyDown(KeyCode.O) && energy >= ELECTRICITY_OFFENSE_COST) {
@@ -270,7 +274,16 @@ public class SlimeController : MonoBehaviour {
     }
 
     public void useBioOffense() {
-        loseEnergy(BIO_OFFENSE_COST);
+        float damageDone = BIO_BASE_DAMAGE * bioLevel;
+        float rangeOfAttack = BIO_BASE_RANGE * bioLevel;
+
+        //gets distance between slime and enemy
+        Vector2Int startLocation = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
+        Vector2Int goalLocation = Tilemap.getTilemapLocation(getTilePositionUnderCursor().transform.position);
+        float distance = Vector2Int.distance(startLocation, goalLocation);
+        if (distance <= rangeOfAttack) {
+            loseEnergy(BIO_OFFENSE_COST); 
+        }
     }
 }
 

@@ -24,7 +24,6 @@ public class MovementPattern : MonoBehaviour {
         if (_waypointsContained == int.MaxValue) {
             int index = int.MaxValue;
             getWaypointInternal(ref index);
-            Debug.Log(_waypointsContained);
         }
     }
 
@@ -48,13 +47,13 @@ public class MovementPattern : MonoBehaviour {
                     }
                     index--;
                 } else if (pattern != null){
-                    if (i < pattern._waypointsContained || pattern._waypointsContained == int.MaxValue) {
+                    if (index < pattern._waypointsContained || pattern._waypointsContained == int.MaxValue) {
                         Waypoint potentialWaypoint = pattern.getWaypointInternal(ref index);
                         if (potentialWaypoint != null) {
                             return potentialWaypoint;
                         }
                     } else {
-                        i -= pattern._waypointsContained;
+                        index -= pattern._waypointsContained;
                     }
                 }
             }

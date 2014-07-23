@@ -5,7 +5,11 @@ using System.Collections.Generic;
 public class Slime : MonoBehaviour {
     public const float OPACITY_CHANGE_SPEED = 1.0f;
     public const float HEALTH_REGEN_RATE = 0.1f;
-    public const float TIME_PER_EXPAND = 0.05f;
+    public const float TIME_PER_EXPAND = 0.02f;
+
+    public const float SLIME_RENDERER_TIME = 0.2f;
+
+    public Texture2D textureRamp = null;
 
     private Tilemap _tilemap;
     
@@ -20,12 +24,22 @@ public class Slime : MonoBehaviour {
      *      Updates the neighbor count of this slime
      *      Lets all neighboring slimes know that this slime has been added
      */
-    public void Awake() {
+    public void Start() {
         _tilemap = Tilemap.getInstance();
 
         GameObject slimeRendererObject = new GameObject("Slime");
         slimeRendererObject.transform.parent = transform;
         slimeRendererObject.transform.position = transform.position;
+
+        SlimeRenderer slimeRenderer = GetComponent<SlimeRenderer>();
+        if (slimeRenderer == null) {
+            slimeRenderer = gameObject.AddComponent<SlimeRenderer>();
+            slimeRenderer.distanceRamp = textureRamp;
+            slimeRenderer.morphTime = SLIME_RENDERER_TIME;
+            slimeRenderer.wakeUpRenderer();
+        }
+
+        wakeUpSlime();
     }
 
     /* Forces this slime to wake up.  This causes it to recount it's
@@ -34,6 +48,10 @@ public class Slime : MonoBehaviour {
      */
     public void wakeUpSlime() {
         enabled = true;
+        SlimeRenderer slimeRenderer = GetComponent<SlimeRenderer>();
+        if (slimeRenderer != null) {
+            slimeRenderer.wakeUpRenderer();
+        }
     }
 
     /* The update loop is only proccessed if this slime is awake.
@@ -89,7 +107,7 @@ public class Slime : MonoBehaviour {
             return;
         }
         path.getNext();
-        requestExpansionInternal(path, 0.0f);
+        requestExpansionInternal(path, TIME_PER_EXPAND);
     }
 
     /* This returns the amount of enery it would cost to grow
@@ -135,14 +153,15 @@ public class Slime : MonoBehaviour {
             
             if(newSlime == null){
                 newSlime = newSlimeTile.gameObject.AddComponent<Slime>();
+                newSlime.textureRamp = textureRamp;
             } else {
                 residualTimeLeft = 0.0f;
             }
 
-            SlimeController.getInstance().setSelectedSlime(newSlime);
-
             if (_currentExpandPath.getNodesLeft() > 0) {
                 newSlime.requestExpansionInternal(_currentExpandPath, residualTimeLeft);
+            } else {
+                SlimeController.getInstance().setSelectedSlime(newSlime);
             }
         }
 

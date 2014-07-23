@@ -11,9 +11,6 @@ public class SlimeEditor : Editor {
         if (Application.isPlaying) {
             Slime slime = target as Slime;
             GUILayout.BeginHorizontal();
-            if (GUILayout.Button(slime.isSolid() ? "Make soft" : "Make solid")) {
-                slime.setSolid(!slime.isSolid());
-            }
             if (GUILayout.Button("Damage")) {
                 slime.damageSlime(0.2f);
             }

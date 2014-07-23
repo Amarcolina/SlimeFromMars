@@ -88,6 +88,11 @@ public class SlimeController : MonoBehaviour {
             if (Input.GetKeyDown(KeyCode.D) && electricityLevel > 0 && energy >= ELECTRICITY_DEFENSE_COST) {
                 elementalMode = false;
                 Vector2Int circleCenter = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
+
+
+                AudioSource electricDefenseSource = currentSelectedSlime.gameObject.AddComponent<AudioSource>();
+                electricDefenseSource.clip = Resources.Load<AudioClip>("Sounds/SFX/electricity_defense");
+                electricDefenseSource.Play();
                 useElectricityDefense(circleCenter);
             }
 

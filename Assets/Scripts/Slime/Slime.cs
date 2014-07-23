@@ -14,12 +14,14 @@ public class Slime : MonoBehaviour {
     private bool _isSolid = false;
     private Tilemap _tilemap;
     private SpriteRenderer _slimeRenderer;
-    
+
     private float _percentHealth = 1.0f;
     private int _solidSlimeNeighborCount = 0;
 
     private Path _currentExpandPath = null;
     private float _timeUntilExpand = 0.0f;
+
+    private static AudioClip slimeExpandSFX;
 
     /* This initializes the _slimeSpriteLookup table.  This is a static table and so this
      * method only needs to be called once.  The table is static so tat all slime objects
@@ -68,6 +70,12 @@ public class Slime : MonoBehaviour {
         _slimeRenderer = slimeRendererObject.AddComponent<SpriteRenderer>();
         _slimeRenderer.sortingLayerName = "Slime";
 
+        if (slimeExpandSFX == null)
+        {
+            slimeExpandSFX = Resources.Load<AudioClip>("Sounds/SFX/slime_expanding");
+        }
+        
+        
         if (startSolid) {
             setSolid(true);
         }
@@ -174,6 +182,9 @@ public class Slime : MonoBehaviour {
         }
         path.getNext();
         requestExpansionInternal(path, 0.0f);
+
+        //Plays a sound at the start of the path
+        AudioSource.PlayClipAtPoint(slimeExpandSFX, transform.position);
     }
 
     /* This returns the amount of enery it would cost to grow
@@ -203,6 +214,7 @@ public class Slime : MonoBehaviour {
         _timeUntilExpand = residualTimeLeft;
         if (_timeUntilExpand <= 0.0f) {
             expandSlime();
+
         }
     }
 
@@ -227,10 +239,12 @@ public class Slime : MonoBehaviour {
 
             if (_currentExpandPath.getNodesLeft() > 0) {
                 newSlime.requestExpansionInternal(_currentExpandPath, _timeUntilExpand + TIME_PER_EXPAND);
+
             }
         }
 
         _currentExpandPath = null;
+
     }
 
     /* Updates the solid neghbor count of this slime.  This also updates the sprite

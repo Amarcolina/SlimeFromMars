@@ -27,6 +27,16 @@ public class MovementPattern : MonoBehaviour {
         }
     }
 
+    public Waypoint this[int i] {
+        get {
+            if (_waypointsContained == int.MaxValue) {
+                throw new System.Exception("Cannot use MovementPattern[] until it's Awake has finished");
+            }
+            i = i % _waypointsContained;
+            return getWaypointInternal(ref i);
+        }
+    }
+
     private Waypoint getWaypointInternal(ref int index) {
         int patternIndex = 0;
         int patternDirection = 1;
@@ -39,6 +49,18 @@ public class MovementPattern : MonoBehaviour {
 
             Waypoint waypoint = info.waypoint.GetComponent<Waypoint>();
             MovementPattern pattern = info.waypoint.GetComponent<MovementPattern>();
+
+            if (waypoint == null && pattern == null) {
+                Debug.LogError("The gameObject " + info.waypoint + " has neither a Waypoint nor a MovementPattern component\n" +
+                               "It must have one or the other to be part of a MovementPattern");
+                return null;
+            }
+
+            if (waypoint != null && pattern != null) {
+                Debug.LogError("The gameObject " + info.waypoint + " has both a Waypoint and a MovementPattern component\n" +
+                               "Only one or the other can be on a given game object");
+                return null;
+            }
 
             for (int i = 0; i <= info.repeatCount; i++) {
                 if (waypoint != null) {
@@ -69,16 +91,6 @@ public class MovementPattern : MonoBehaviour {
         }
 
         return null;
-    }
-
-    public Waypoint this[int i] {
-        get {
-            if (_waypointsContained == int.MaxValue) {
-                throw new System.Exception("Cannot use MovementPattern[] until it's Awake has finished");
-            }
-            i = i % _waypointsContained;
-            return getWaypointInternal(ref i);
-        }
     }
 
     public void OnDrawGizmosSelected() {

@@ -110,7 +110,8 @@ public class BaseEnemy : MonoBehaviour{
     /* This method returns all of the slime tiles visible to this enemy
      * within a given tile radius.  This only searches along the 4 main
      * axes and the 4 diagonals, so it will not return correctly in every 
-     * case
+     * case, and will only ever return up to a maximum of 8 tiles as a
+     * consequense
      */
     protected List<Slime> getVisibleSlimeTiles(int maxTileDistance = 20) {
         List<Slime> slimeTiles = new List<Slime>();

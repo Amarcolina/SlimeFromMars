@@ -25,6 +25,8 @@ public class Slime : MonoBehaviour {
     private Path _currentExpandPath = null;
     private float _timeUntilExpand = 0.0f;
 
+    private static AudioClip slimeExpandSFX;
+
     /* This initializes the _slimeSpriteLookup table.  This is a static table and so this
      * method only needs to be called once.  The table is static so tat all slime objects
      * can use the same sprites.
@@ -72,7 +74,10 @@ public class Slime : MonoBehaviour {
         _slimeRenderer = slimeRendererObject.AddComponent<SpriteRenderer>();
         _slimeRenderer.sortingLayerName = "Slime";
 
-
+        if (slimeExpandSFX == null)
+        {
+            slimeExpandSFX = Resources.Load<AudioClip>("Sounds/SFX/slime_expanding");
+        }
         
         
         if (startSolid) {
@@ -189,12 +194,8 @@ public class Slime : MonoBehaviour {
         path.getNext();
         requestExpansionInternal(path, 0.0f);
 
-        //Plays sounds along the center of the slime path
-        _slimeExpand = _slimeRenderer.gameObject.AddComponent<AudioSource>();
-        _slimeExpand.clip = Resources.Load<AudioClip>("Sounds/SFX/slime_expanding");
-        _audioLength = _slimeExpand.clip.length;
-        _isAudioPlayed = true;
-        _slimeExpand.Play();
+        //Plays a sound at the start of the path
+        AudioSource.PlayClipAtPoint(slimeExpandSFX, transform.position);
     }
 
     /* This returns the amount of enery it would cost to grow

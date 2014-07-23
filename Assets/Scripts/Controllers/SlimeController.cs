@@ -85,35 +85,39 @@ public class SlimeController : MonoBehaviour {
             elementalMode = true;
         }
         if (elementalMode) {
-            if (Input.GetKeyDown(KeyCode.D) && electricityLevel > 0 && energy >= ELECTRICITY_DEFENSE_COST) {
+            if (Input.GetKeyDown(KeyCode.F1) && electricityLevel > 0 && energy >= ELECTRICITY_DEFENSE_COST) {
                 elementalMode = false;
                 Vector2Int circleCenter = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
                 useElectricityDefense(circleCenter);
             }
 
-            if (Input.GetKeyDown(KeyCode.O) && bioLevel > 0 && energy >= BIO_DEFENSE_COST) {
+            if (Input.GetKeyDown(KeyCode.F2) && energy >= ELECTRICITY_OFFENSE_COST) {
+                elementalMode = false;
+                useElectricityOffense();
+
+            }
+
+            if (Input.GetKeyDown(KeyCode.F3) && bioLevel > 0 && energy >= BIO_DEFENSE_COST) {
                 elementalMode = false;
                 Vector2Int circleCenter = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
                 useBioDefense(circleCenter);
             }
 
-            if (Input.GetKeyDown(KeyCode.B) && bioLevel > 0 && energy >= BIO_OFFENSE_COST) {
+            if (Input.GetKeyDown(KeyCode.F4) && bioLevel > 0 && energy >= BIO_OFFENSE_COST) {
 
             }
-            if (Input.GetKeyDown(KeyCode.R) && radiationLevel > 0 && energy >= RADIATION_DEFENSE_COST) {
+
+            if (Input.GetKeyDown(KeyCode.F5) && radiationLevel > 0 && energy >= RADIATION_DEFENSE_COST) {
                 elementalMode = false;
                 Vector2Int circleCenter = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
                 useRadiationDefense(circleCenter);
             }
 
-
-            /*###################### DISABLED FOR TESTING########################
-            if (Input.GetKeyDown(KeyCode.O) && energy >= ELECTRICITY_OFFENSE_COST) {
+            if (Input.GetKeyDown(KeyCode.F6) && radiationLevel > 0 && energy >= RADIATION_OFFENSE_COST) {
                 elementalMode = false;
-                if (Input.GetMouseButtonDown(1)) {
-                    useElectricityOffense();
-                }
-            } */
+                Vector2Int circleCenter = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
+                useRadiationOffense(circleCenter);
+            }
         }
     }
 

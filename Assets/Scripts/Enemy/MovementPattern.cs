@@ -27,6 +27,12 @@ public class MovementPattern : MonoBehaviour {
         }
     }
 
+    /* This array accessor is used to grab a given Waypoint.  For example, passing in
+     * 0 will access the first waypoint, 1 will access the second and so on.  This 
+     * method handles all of the recursion and nesting needed, as well as the loop
+     * actions.  It also loops, so there is no need to ever reset your index back to
+     * 0, you can simply keep incrementing it to get the next waypoint.
+     */
     public Waypoint this[int i] {
         get {
             if (_waypointsContained == int.MaxValue) {

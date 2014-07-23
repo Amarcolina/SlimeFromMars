@@ -14,11 +14,11 @@ public class SlimeRenderer : MonoBehaviour {
                                                new Vector2Int(-1,  0),
                                                new Vector2Int( 0,  0)};
 
-    public Texture2D distanceRamp = null;
-    public float morphTime = 1.0f;
+    private IsCellSolidFunction _solidityFunction = null;
+    private Texture2D _textureRamp = null;
+    private float _morphTime = 1.0f;
 
     private float[] _cellSolidity = new float[9];
-    private IsCellSolidFunction _solidityFunction = null;
     private Texture2D _texture = null;
     
     private Vector2Int _rendererPosition;
@@ -46,6 +46,14 @@ public class SlimeRenderer : MonoBehaviour {
 
     public void OnDestroy() {
         Destroy(_spriteRenderer.gameObject);
+    }
+
+    public void setTextureRamp(Texture2D textureRamp) {
+        _textureRamp = textureRamp;
+    }
+
+    public void setMorphTime(float morphTime) {
+        _morphTime = morphTime;
     }
 
     public void setSolidityFunction(IsCellSolidFunction solidityFunction) {
@@ -83,7 +91,7 @@ public class SlimeRenderer : MonoBehaviour {
         for (int i = 0; i < _cellSolidity.Length; i++) {
             Vector2Int cellPosition = _cellOffset[i] + _rendererPosition;
             float isSolid = _solidityFunction(cellPosition) ? 1.0f : 0.0f;
-            float newSolidity = Mathf.MoveTowards(_cellSolidity[i], isSolid, Time.deltaTime / morphTime);
+            float newSolidity = Mathf.MoveTowards(_cellSolidity[i], isSolid, Time.deltaTime / _morphTime);
             soliditySum += newSolidity;
             if (newSolidity != _cellSolidity[i]) {
                 _cellSolidity[i] = newSolidity;
@@ -121,8 +129,8 @@ public class SlimeRenderer : MonoBehaviour {
 
                 if (!hasSameRenderer) {
                     SlimeRenderer newRenderer = tileObject.AddComponent<SlimeRenderer>();
-                    newRenderer.distanceRamp = distanceRamp;
-                    newRenderer.morphTime = morphTime;
+                    newRenderer._textureRamp = _textureRamp;
+                    newRenderer._morphTime = _morphTime;
                     newRenderer.setSolidityFunction(_solidityFunction);
                 }
             }
@@ -131,7 +139,7 @@ public class SlimeRenderer : MonoBehaviour {
 
     private bool isOfSameType(SlimeRenderer slimeRenderer) {
         return slimeRenderer._solidityFunction == _solidityFunction &&
-               slimeRenderer.distanceRamp == distanceRamp;
+               slimeRenderer._textureRamp == _textureRamp;
     }
 
     private void updateTexture() {
@@ -151,8 +159,8 @@ public class SlimeRenderer : MonoBehaviour {
     private Color getPointColor(Vector2 point) {
         float pointValue = 1.0f - calculatePointValue(point) * 2.0f;
         pointValue = Mathf.Pow(pointValue * 0.85f, 4.0f);
-        float rampValue = pointValue * distanceRamp.height;
-        return distanceRamp.GetPixelBilinear(0.0f, rampValue / 16.0f);
+        float rampValue = pointValue * _textureRamp.height;
+        return _textureRamp.GetPixelBilinear(0.0f, rampValue / 16.0f);
     }
 
     private float smoothMin(float a, float b) {

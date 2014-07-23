@@ -6,15 +6,12 @@ public class Slime : MonoBehaviour {
     public const float OPACITY_CHANGE_SPEED = 1.0f;
     public const float HEALTH_REGEN_RATE = 0.1f;
     public const float TIME_PER_EXPAND = 0.02f;
-
-    public const float SLIME_RENDERER_TIME = 0.2f;
+    public const float SLIME_RENDERER_MORPH_TIME = 0.2f;
 
     public Texture2D textureRamp = null;
 
     private Tilemap _tilemap;
-    
     private float _percentHealth = 1.0f;
-
     private Path _currentExpandPath = null;
     private float _timeUntilExpand = 0.0f;
 
@@ -34,8 +31,8 @@ public class Slime : MonoBehaviour {
         SlimeRenderer slimeRenderer = GetComponent<SlimeRenderer>();
         if (slimeRenderer == null) {
             slimeRenderer = gameObject.AddComponent<SlimeRenderer>();
-            slimeRenderer.distanceRamp = textureRamp;
-            slimeRenderer.morphTime = SLIME_RENDERER_TIME;
+            slimeRenderer.setTextureRamp(textureRamp);
+            slimeRenderer.setMorphTime(SLIME_RENDERER_MORPH_TIME);
             slimeRenderer.wakeUpRenderer();
         }
 

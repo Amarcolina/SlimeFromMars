@@ -88,18 +88,23 @@ public class SlimeController : MonoBehaviour {
             if (Input.GetKeyDown(KeyCode.D) && electricityLevel > 0 && energy >= ELECTRICITY_DEFENSE_COST) {
                 elementalMode = false;
                 Vector2Int circleCenter = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
-
+                
+                useElectricityDefense(circleCenter);
 
                 AudioSource electricDefenseSource = currentSelectedSlime.gameObject.AddComponent<AudioSource>();
                 electricDefenseSource.clip = Resources.Load<AudioClip>("Sounds/SFX/electricity_defense");
                 electricDefenseSource.Play();
-                useElectricityDefense(circleCenter);
             }
 
             if (Input.GetKeyDown(KeyCode.O) && bioLevel > 0 && energy >= BIO_DEFENSE_COST) {
                 elementalMode = false;
                 Vector2Int circleCenter = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
                 useBioDefense(circleCenter);
+                useElectricityDefense(circleCenter);
+
+                AudioSource bioDefenseSource = currentSelectedSlime.gameObject.AddComponent<AudioSource>();
+                bioDefenseSource.clip = Resources.Load<AudioClip>("Sounds/SFX/bio_defense");
+                bioDefenseSource.Play();
             }
 
             if (Input.GetKeyDown(KeyCode.R) && radiationLevel > 0 && energy >= RADIATION_DEFENSE_COST) {

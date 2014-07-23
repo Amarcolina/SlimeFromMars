@@ -158,8 +158,8 @@ public class SlimeRenderer : MonoBehaviour {
 
     private Color getPointColor(Vector2 point) {
         float minDistance = 1.0f - calculateMinDistance(point) * 2.0f;
-        float rampValue = Mathf.Pow(minDistance * 0.85f, 4.0f);
-        return _textureRamp.GetPixelBilinear(0.0f, rampValue;
+        float rampValue = Mathf.Pow(minDistance * 0.85f, 4.0f) * 8.0f;
+        return _textureRamp.GetPixelBilinear(0.0f, rampValue);
     }
 
     private float calculateMinDistance(Vector2 point) {

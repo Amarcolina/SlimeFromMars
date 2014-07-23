@@ -91,6 +91,9 @@ public class Slime : MonoBehaviour {
     public void damageSlime(float percentDamage) {
         _percentHealth -= percentDamage;
         wakeUpSlime();
+        if (_percentHealth <= 0.0f) {
+            Destroy(this);
+        }
     }
 
     /* Requests that this slime expand allong the given path.  It will expand 

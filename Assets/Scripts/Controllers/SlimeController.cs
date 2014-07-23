@@ -117,10 +117,8 @@ public class SlimeController : MonoBehaviour {
                 elementalMode = false;
                 Vector2Int circleCenter = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
                 useBioDefense(circleCenter);
-                useElectricityDefense(circleCenter);
 
                 AudioSource.PlayClipAtPoint(bioDefenseSFX, currentSelectedSlime.transform.position);
-                AudioSource.PlayClipAtPoint(electricDefenseSFX, currentSelectedSlime.transform.position);
             }
 
             if (Input.GetKeyDown(KeyCode.F4) && bioLevel > 0 && energy >= BIO_OFFENSE_COST) {

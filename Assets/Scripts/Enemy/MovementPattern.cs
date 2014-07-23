@@ -21,9 +21,10 @@ public class MovementPattern : MonoBehaviour {
     private int _waypointsContained = int.MaxValue;
 
     public void Awake() {
-        if (_waypointsContained != int.MaxValue) {
+        if (_waypointsContained == int.MaxValue) {
             int index = int.MaxValue;
             getWaypointInternal(ref index);
+            Debug.Log(_waypointsContained);
         }
     }
 
@@ -59,7 +60,7 @@ public class MovementPattern : MonoBehaviour {
             }
 
             patternIndex += patternDirection;
-            if (patternIndex == movementPatterns.Count - 1) {
+            if (patternIndex == movementPatterns.Count - 1 && loopAction == PatternType.PING_PONG) {
                 patternDirection = -1;
             }
         }
@@ -78,6 +79,17 @@ public class MovementPattern : MonoBehaviour {
             }
             i = i % _waypointsContained;
             return getWaypointInternal(ref i);
+        }
+    }
+
+    public void OnDrawGizmosSelected() {
+        if (_waypointsContained != int.MaxValue) {
+            Gizmos.color = Color.blue;
+            for (int i = 0; i < _waypointsContained; i++) {
+                Waypoint waypoint0 = this[i];
+                Waypoint waypoint1 = this[i + 1];
+                Gizmos.DrawLine(waypoint0.transform.position, waypoint1.transform.position);
+            }
         }
     }
 }

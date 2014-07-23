@@ -97,7 +97,7 @@ public class SlimeController : MonoBehaviour {
                 useBioDefense(circleCenter);
             }
 
-            if (Input.GetKeyDown(KeyCode.B) && bioLevel > 0 && energy >= BIO_OFFENSE_COST) { 
+            if (Input.GetKeyDown(KeyCode.B) && bioLevel > 0 && energy >= BIO_OFFENSE_COST) {
 
             }
             if (Input.GetKeyDown(KeyCode.R) && radiationLevel > 0 && energy >= RADIATION_DEFENSE_COST) {
@@ -307,14 +307,19 @@ public class SlimeController : MonoBehaviour {
         float damageDone = BIO_BASE_DAMAGE * bioLevel;
         float rangeOfAttack = BIO_BASE_RANGE * bioLevel;
 
-        //gets distance between slime and enemy
         Vector2Int startLocation = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
         Vector2Int goalLocation = Tilemap.getTilemapLocation(getTilePositionUnderCursor().transform.position);
-        float distance = Vector2Int.distance(startLocation, goalLocation);
-        if (distance <= rangeOfAttack) {
+        Path astarPath = Astar.findPath(startLocation, goalLocation);
+        int pathCost = Slime.getPathCost(astarPath);
+
+        currentSelectedSlime.requestExpansionAllongPath(astarPath);
+        if (pathCost <= rangeOfAttack) {
             bool wasDamaged = getTilePositionUnderCursor().damageTileEntities(damageDone);
-            if(wasDamaged)
-            loseEnergy(BIO_OFFENSE_COST); 
+            // TENTACLE NOT FINISHED
+            if (wasDamaged) {
+                loseEnergy(BIO_OFFENSE_COST);
+            }
+
         }
     }
 }

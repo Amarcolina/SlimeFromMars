@@ -306,7 +306,7 @@ public class SlimeController : MonoBehaviour {
         }
         loseEnergy(BIO_DEFENSE_COST);
     }
-
+    
     public void useBioOffense() {
         float damageDone = BIO_BASE_DAMAGE * bioLevel;
         float rangeOfAttack = BIO_BASE_RANGE * bioLevel;
@@ -314,12 +314,12 @@ public class SlimeController : MonoBehaviour {
         Vector2Int startLocation = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
         Vector2Int goalLocation = Tilemap.getTilemapLocation(getTilePositionUnderCursor().transform.position);
         Path astarPath = Astar.findPath(startLocation, goalLocation);
-        int pathCost = Slime.getPathCost(astarPath);
-
-        currentSelectedSlime.requestExpansionAllongPath(astarPath);
+        float pathCost = astarPath.getLength();
+        //NEED ABILITY TO EXPAND ALONG PATH
         if (pathCost <= rangeOfAttack) {
             bool wasDamaged = getTilePositionUnderCursor().damageTileEntities(damageDone);
             // TENTACLE NOT FINISHED
+            // MISSING Tile.canDamageTileEntities()
             if (wasDamaged) {
                 loseEnergy(BIO_OFFENSE_COST);
             }

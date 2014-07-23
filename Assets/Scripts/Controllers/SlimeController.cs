@@ -16,7 +16,9 @@ public class SlimeController : MonoBehaviour {
     private int bioLevel;
 
     //list of sound effects for abilities
-    private AudioClip[] clip;
+    private AudioClip electricDefenseSFX;
+    private AudioClip bioDefenseSFX;
+    private AudioClip radioactiveDefenseSFX;
 
     //cost for using skills
     private const int ELECTRICITY_DEFENSE_COST = 5;
@@ -49,8 +51,10 @@ public class SlimeController : MonoBehaviour {
 
     void Awake()
     {
-        //Load all sounds in SFX folder and store them in the order of the files in folder
-        clip = Resources.LoadAll<AudioClip>("Sounds/SFX");
+        //Load all sounds from File
+        electricDefenseSFX = Resources.Load<AudioClip>("Sounds/SFX/electric_defense");
+        bioDefenseSFX = Resources.Load<AudioClip>("Sounds/SFX/bio_defense");
+        radioactiveDefenseSFX = Resources.Load<AudioClip>("Sounds/SFX/radiation_defense");
     }
 
     // Use this for initialization
@@ -99,16 +103,14 @@ public class SlimeController : MonoBehaviour {
                 Vector2Int circleCenter = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
                 
                 useElectricityDefense(circleCenter);
-
-                AudioSource.PlayClipAtPoint(clip[1], currentSelectedSlime.transform.position);
+                AudioSource.PlayClipAtPoint(electricDefenseSFX, currentSelectedSlime.transform.position);
             }
 
             if (Input.GetKeyDown(KeyCode.F2) && energy >= ELECTRICITY_OFFENSE_COST) {
                 elementalMode = false;
                 useElectricityOffense();
 
-
-                AudioSource.PlayClipAtPoint(clip[1], currentSelectedSlime.transform.position);
+                AudioSource.PlayClipAtPoint(electricDefenseSFX, currentSelectedSlime.transform.position);
             }
 
             if (Input.GetKeyDown(KeyCode.F3) && bioLevel > 0 && energy >= BIO_DEFENSE_COST) {
@@ -117,9 +119,8 @@ public class SlimeController : MonoBehaviour {
                 useBioDefense(circleCenter);
                 useElectricityDefense(circleCenter);
 
-
-                AudioSource.PlayClipAtPoint(clip[1], currentSelectedSlime.transform.position);
-                AudioSource.PlayClipAtPoint(clip[0], currentSelectedSlime.transform.position);
+                AudioSource.PlayClipAtPoint(bioDefenseSFX, currentSelectedSlime.transform.position);
+                AudioSource.PlayClipAtPoint(electricDefenseSFX, currentSelectedSlime.transform.position);
             }
 
             if (Input.GetKeyDown(KeyCode.F4) && bioLevel > 0 && energy >= BIO_OFFENSE_COST) {
@@ -131,8 +132,7 @@ public class SlimeController : MonoBehaviour {
                 Vector2Int circleCenter = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
                 useRadiationDefense(circleCenter);
 
-
-                AudioSource.PlayClipAtPoint(clip[3], currentSelectedSlime.transform.position);
+                AudioSource.PlayClipAtPoint(radioactiveDefenseSFX, currentSelectedSlime.transform.position);
             }
 
             if (Input.GetKeyDown(KeyCode.F6) && radiationLevel > 0 && energy >= RADIATION_OFFENSE_COST) {

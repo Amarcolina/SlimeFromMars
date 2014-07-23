@@ -189,6 +189,12 @@ public class Slime : MonoBehaviour {
         path.getNext();
         requestExpansionInternal(path, 0.0f);
 
+        //Plays sounds along the center of the slime path
+        _slimeExpand = _slimeRenderer.gameObject.AddComponent<AudioSource>();
+        _slimeExpand.clip = Resources.Load<AudioClip>("Sounds/SFX/slime_expanding");
+        _audioLength = _slimeExpand.clip.length;
+        _isAudioPlayed = true;
+        _slimeExpand.Play();
     }
 
     /* This returns the amount of enery it would cost to grow
@@ -249,12 +255,6 @@ public class Slime : MonoBehaviour {
 
         _currentExpandPath = null;
 
-        //Plays sounds along the center of the slime path
-        _slimeExpand = _slimeRenderer.gameObject.AddComponent<AudioSource>();
-        _slimeExpand.clip = Resources.Load<AudioClip>("Sounds/SFX/slime_expanding");
-        _audioLength = _slimeExpand.clip.length;
-        _isAudioPlayed = true;
-        _slimeExpand.Play();
     }
 
     /* Updates the solid neghbor count of this slime.  This also updates the sprite

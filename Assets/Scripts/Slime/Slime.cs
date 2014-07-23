@@ -9,8 +9,8 @@ public class Slime : MonoBehaviour {
     public const float SLIME_RENDERER_MORPH_TIME = 0.2f;
 
     public Texture2D textureRamp = null;
+    public static bool inited = false;
 
-    private Tilemap _tilemap;
     private float _percentHealth = 1.0f;
     private Path _currentExpandPath = null;
     private float _timeUntilExpand = 0.0f;
@@ -21,9 +21,14 @@ public class Slime : MonoBehaviour {
      *      Updates the neighbor count of this slime
      *      Lets all neighboring slimes know that this slime has been added
      */
-    public void Start() {
-        _tilemap = Tilemap.getInstance();
+    public void Awake() {
+        if(!inited){
+            inited = true;
+            init();
+        }
+    }
 
+    public void init(){
         GameObject slimeRendererObject = new GameObject("Slime");
         slimeRendererObject.transform.parent = transform;
         slimeRendererObject.transform.position = transform.position;
@@ -147,13 +152,14 @@ public class Slime : MonoBehaviour {
         Vector2Int nextNode = _currentExpandPath.getNext();
         float residualTimeLeft = _timeUntilExpand + TIME_PER_EXPAND;
 
-        Tile newSlimeTile = _tilemap.getTile(nextNode);
-        if (newSlimeTile && newSlimeTile.isWalkable) {
+        Tile newSlimeTile = Tilemap.getInstance().getTile(nextNode);
+        if (newSlimeTile && newSlimeTile.isWalkable){
             Slime newSlime = newSlimeTile.GetComponent<Slime>();
-            
+
             if(newSlime == null){
                 newSlime = newSlimeTile.gameObject.AddComponent<Slime>();
                 newSlime.textureRamp = textureRamp;
+                newSlime.init();
             } else {
                 residualTimeLeft = 0.0f;
             }

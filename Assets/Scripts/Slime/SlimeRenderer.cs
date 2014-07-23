@@ -163,19 +163,13 @@ public class SlimeRenderer : MonoBehaviour {
         return _textureRamp.GetPixelBilinear(0.0f, rampValue / 16.0f);
     }
 
-    private float smoothMin(float a, float b) {
-        float k = 13.0f;
-        float res = Mathf.Exp(-k * a) + Mathf.Exp(-k * b);
-        return -Mathf.Log(res) / k;
-    }
-
     private float calculatePointValue(Vector2 point) {
         float pointValue = 0.5f;
 
         for (int i = 0; i < _cellOffset.Length; i++) {
             Vector2Int cellPosInt = _cellOffset[i];
             Vector2 cellPos = new Vector2(cellPosInt.x, cellPosInt.y);
-            pointValue = distanceField(pointValue, Vector2.zero, _cellSolidity[8], cellPos, _cellSolidity[i], point);
+            pointValue = distanceToSegment(pointValue, Vector2.zero, _cellSolidity[8], cellPos, _cellSolidity[i], point);
         }
 
         for (int i = 1; i < 8; i += 2) {
@@ -189,14 +183,20 @@ public class SlimeRenderer : MonoBehaviour {
                 Vector2Int cellPosInt1 = _cellOffset[index1];
                 Vector2 cellPos1 = new Vector2(cellPosInt1.x, cellPosInt1.y);
 
-                pointValue = distanceField(pointValue, cellPos0, _cellSolidity[index0], cellPos1, _cellSolidity[index1], point);
+                pointValue = distanceToSegment(pointValue, cellPos0, _cellSolidity[index0], cellPos1, _cellSolidity[index1], point);
             }
         }
 
         return pointValue;
     }
 
-    private float distanceField(float curr, Vector2 seg0, float scale0, Vector2 seg1, float scale1, Vector2 point) {
+    private float smoothMin(float a, float b) {
+        float k = 13.0f;
+        float res = Mathf.Exp(-k * a) + Mathf.Exp(-k * b);
+        return -Mathf.Log(res) / k;
+    }
+
+    private float distanceToSegment(float curr, Vector2 seg0, float scale0, Vector2 seg1, float scale1, Vector2 point) {
         if (scale0 == 0.0f || scale1 == 0.0f) {
             return curr;
         }

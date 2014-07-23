@@ -157,19 +157,18 @@ public class SlimeRenderer : MonoBehaviour {
     }
 
     private Color getPointColor(Vector2 point) {
-        float pointValue = 1.0f - calculatePointValue(point) * 2.0f;
-        pointValue = Mathf.Pow(pointValue * 0.85f, 4.0f);
-        float rampValue = pointValue * _textureRamp.height;
-        return _textureRamp.GetPixelBilinear(0.0f, rampValue / 16.0f);
+        float minDistance = 1.0f - calculateMinDistance(point) * 2.0f;
+        float rampValue = Mathf.Pow(minDistance * 0.85f, 4.0f);
+        return _textureRamp.GetPixelBilinear(0.0f, rampValue;
     }
 
-    private float calculatePointValue(Vector2 point) {
-        float pointValue = 0.5f;
+    private float calculateMinDistance(Vector2 point) {
+        float minDistance = 0.5f;
 
         for (int i = 0; i < _cellOffset.Length; i++) {
             Vector2Int cellPosInt = _cellOffset[i];
             Vector2 cellPos = new Vector2(cellPosInt.x, cellPosInt.y);
-            pointValue = distanceToSegment(pointValue, Vector2.zero, _cellSolidity[8], cellPos, _cellSolidity[i], point);
+            minDistance = distanceToSegment(minDistance, Vector2.zero, _cellSolidity[8], cellPos, _cellSolidity[i], point);
         }
 
         for (int i = 1; i < 8; i += 2) {
@@ -183,11 +182,11 @@ public class SlimeRenderer : MonoBehaviour {
                 Vector2Int cellPosInt1 = _cellOffset[index1];
                 Vector2 cellPos1 = new Vector2(cellPosInt1.x, cellPosInt1.y);
 
-                pointValue = distanceToSegment(pointValue, cellPos0, _cellSolidity[index0], cellPos1, _cellSolidity[index1], point);
+                minDistance = distanceToSegment(minDistance, cellPos0, _cellSolidity[index0], cellPos1, _cellSolidity[index1], point);
             }
         }
 
-        return pointValue;
+        return minDistance;
     }
 
     private float smoothMin(float a, float b) {

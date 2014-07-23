@@ -111,6 +111,10 @@ public class SlimeController : MonoBehaviour {
                 elementalMode = false;
                 Vector2Int circleCenter = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
                 useRadiationDefense(circleCenter);
+
+                AudioSource radiationDefenseSource = currentSelectedSlime.gameObject.AddComponent<AudioSource>();
+                radiationDefenseSource.clip = Resources.Load<AudioClip>("Sounds/SFX/radiation_defense");
+                radiationDefenseSource.Play();
             }
 
             /*###################### DISABLED FOR TESTING########################

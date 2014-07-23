@@ -15,10 +15,6 @@ public class Slime : MonoBehaviour {
     private Tilemap _tilemap;
     private SpriteRenderer _slimeRenderer;
 
-    private AudioSource _slimeExpand;
-    private bool _isAudioPlayed;
-    private float _audioLength;
-    
     private float _percentHealth = 1.0f;
     private int _solidSlimeNeighborCount = 0;
 
@@ -160,13 +156,6 @@ public class Slime : MonoBehaviour {
 
         if (canGoToSleep) {
             enabled = false;
-        }
-        //Check for an audio source to be played
-        if (_isAudioPlayed)
-        {
-            //Destroy the audio source if finished playing
-            Destroy(_slimeExpand, _audioLength);
-            _isAudioPlayed = false;
         }
     }
 

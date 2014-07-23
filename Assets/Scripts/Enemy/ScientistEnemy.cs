@@ -15,7 +15,7 @@ public class ScientistEnemy : BaseEnemy {
     public float waitTime = 1.0f;
 
     public Transform[] waypoints = null;
-    public WaypointEndAction patrolEndAction = WaypointEndAction.REVERSE;
+    //public WaypointEndAction patrolEndAction = WaypointEndAction.REVERSE;
 
     private ScientistState _currentState;
     private int _currentWaypoint = 0;
@@ -75,6 +75,7 @@ public class ScientistEnemy : BaseEnemy {
         _timeLeftToWait -= Time.deltaTime;
         if (_timeLeftToWait <= 0.0) {
 
+            /*
             if (patrolEndAction == WaypointEndAction.REVERSE) {
                 if (_currentWaypoint == waypoints.Length - 1 || _currentWaypoint == 0) {
                     _forwardToNextWaypoint = !_forwardToNextWaypoint;
@@ -83,6 +84,7 @@ public class ScientistEnemy : BaseEnemy {
             }else if(patrolEndAction == WaypointEndAction.LOOP){
                 _currentWaypoint = (_currentWaypoint + 1) % waypoints.Length;
             }
+             * */
 
             enterWanderState(waypoints[_currentWaypoint]);
         }

@@ -85,31 +85,39 @@ public class SlimeController : MonoBehaviour {
             elementalMode = true;
         }
         if (elementalMode) {
-            if (Input.GetKeyDown(KeyCode.D) && electricityLevel > 0 && energy >= ELECTRICITY_DEFENSE_COST) {
+            if (Input.GetKeyDown(KeyCode.F1) && electricityLevel > 0 && energy >= ELECTRICITY_DEFENSE_COST) {
                 elementalMode = false;
                 Vector2Int circleCenter = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
                 useElectricityDefense(circleCenter);
             }
 
-            if (Input.GetKeyDown(KeyCode.O) && bioLevel > 0 && energy >= BIO_DEFENSE_COST) {
+            if (Input.GetKeyDown(KeyCode.F2) && energy >= ELECTRICITY_OFFENSE_COST) {
+                elementalMode = false;
+                useElectricityOffense();
+
+            }
+
+            if (Input.GetKeyDown(KeyCode.F3) && bioLevel > 0 && energy >= BIO_DEFENSE_COST) {
                 elementalMode = false;
                 Vector2Int circleCenter = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
                 useBioDefense(circleCenter);
             }
 
-            if (Input.GetKeyDown(KeyCode.R) && radiationLevel > 0 && energy >= RADIATION_DEFENSE_COST) {
+            if (Input.GetKeyDown(KeyCode.F4) && bioLevel > 0 && energy >= BIO_OFFENSE_COST) {
+
+            }
+
+            if (Input.GetKeyDown(KeyCode.F5) && radiationLevel > 0 && energy >= RADIATION_DEFENSE_COST) {
                 elementalMode = false;
                 Vector2Int circleCenter = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
                 useRadiationDefense(circleCenter);
             }
 
-            /*###################### DISABLED FOR TESTING########################
-            if (Input.GetKeyDown(KeyCode.O) && energy >= ELECTRICITY_OFFENSE_COST) {
+            if (Input.GetKeyDown(KeyCode.F6) && radiationLevel > 0 && energy >= RADIATION_OFFENSE_COST) {
                 elementalMode = false;
-                if (Input.GetMouseButtonDown(1)) {
-                    useElectricityOffense();
-                }
-            } */
+                Vector2Int circleCenter = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
+                useRadiationOffense(circleCenter);
+            }
         }
     }
 
@@ -185,6 +193,32 @@ public class SlimeController : MonoBehaviour {
     }
     /*###################################### ELEMENTAL SKILLS #######################################*/
     public void useRadiationDefense(Vector2Int center) {
+        float rangeOfAttack = RADIATION_BASE_RANGE * radiationLevel;
+        int circleRadius = 3 * radiationLevel;
+
+        //gets distance between slime and enemy
+        Vector2Int startLocation = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
+        Vector2Int goalLocation = Tilemap.getTilemapLocation(getTilePositionUnderCursor().transform.position);
+        float distance = Vector2Int.distance(startLocation, goalLocation);
+
+        //if distance is within range of attack, create the radius of radiation
+        if (distance <= rangeOfAttack) {
+            for (int dx = -circleRadius; dx <= circleRadius; dx++) {
+                for (int dy = -circleRadius; dy <= circleRadius; dy++) {
+                    Vector2 tileOffset = new Vector2(dx, dy);
+                    if (tileOffset.sqrMagnitude <= circleRadius * circleRadius) {
+                        Tile tile = Tilemap.getInstance().getTile(center + new Vector2Int(dx, dy));
+                        if (tile != null) {
+                            Irradiated radComponent = tile.GetComponent<Irradiated>();
+                            if (radComponent == null) {
+                                radComponent = tile.gameObject.AddComponent<Irradiated>();
+                            }
+                            radComponent.setStunned(true);
+                        }
+                    }
+                }
+            }
+        }
         loseEnergy(RADIATION_DEFENSE_COST);
     }
 
@@ -194,8 +228,8 @@ public class SlimeController : MonoBehaviour {
         //gets distance between slime and enemy
         Vector2Int startLocation = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
         Vector2Int goalLocation = Tilemap.getTilemapLocation(getTilePositionUnderCursor().transform.position);
-        float distance = Mathf.Sqrt((goalLocation.x - startLocation.x) * (goalLocation.x - startLocation.x) +
-                            (goalLocation.y - startLocation.y) * (goalLocation.y - startLocation.y));
+        float distance = Vector2Int.distance(startLocation, goalLocation);
+
         //if distance is within range of attack, create the radius of radiation
         if (distance <= rangeOfAttack) {
             int circleRadius = 3 * radiationLevel;
@@ -205,7 +239,11 @@ public class SlimeController : MonoBehaviour {
                     if (tileOffset.sqrMagnitude <= circleRadius * circleRadius) {
                         Tile tile = Tilemap.getInstance().getTile(center + new Vector2Int(dx, dy));
                         if (tile != null) {
-                            tile.gameObject.AddComponent<Irradiated>();
+                            Irradiated radComponent = tile.GetComponent<Irradiated>();
+                            if (radComponent == null) {
+                                radComponent = tile.gameObject.AddComponent<Irradiated>();
+                            }
+                            radComponent.setDamaged(true);
                         }
                     }
                 }
@@ -268,9 +306,25 @@ public class SlimeController : MonoBehaviour {
         }
         loseEnergy(BIO_DEFENSE_COST);
     }
-
+    
     public void useBioOffense() {
-        loseEnergy(BIO_OFFENSE_COST);
+        float damageDone = BIO_BASE_DAMAGE * bioLevel;
+        float rangeOfAttack = BIO_BASE_RANGE * bioLevel;
+
+        Vector2Int startLocation = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
+        Vector2Int goalLocation = Tilemap.getTilemapLocation(getTilePositionUnderCursor().transform.position);
+        Path astarPath = Astar.findPath(startLocation, goalLocation);
+        float pathCost = astarPath.getLength();
+        //NEED ABILITY TO EXPAND ALONG PATH
+        if (pathCost <= rangeOfAttack) {
+            bool wasDamaged = getTilePositionUnderCursor().damageTileEntities(damageDone);
+            // TENTACLE NOT FINISHED
+            // MISSING Tile.canDamageTileEntities()
+            if (wasDamaged) {
+                loseEnergy(BIO_OFFENSE_COST);
+            }
+
+        }
     }
 }
 

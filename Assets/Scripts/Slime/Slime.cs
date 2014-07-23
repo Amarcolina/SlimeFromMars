@@ -14,6 +14,10 @@ public class Slime : MonoBehaviour {
     private bool _isSolid = false;
     private Tilemap _tilemap;
     private SpriteRenderer _slimeRenderer;
+
+    private AudioSource _slimeExpand;
+    private bool _isAudioPlayed;
+    private float _audioLength;
     
     private float _percentHealth = 1.0f;
     private int _solidSlimeNeighborCount = 0;
@@ -68,6 +72,9 @@ public class Slime : MonoBehaviour {
         _slimeRenderer = slimeRendererObject.AddComponent<SpriteRenderer>();
         _slimeRenderer.sortingLayerName = "Slime";
 
+
+        
+        
         if (startSolid) {
             setSolid(true);
         }
@@ -149,6 +156,13 @@ public class Slime : MonoBehaviour {
         if (canGoToSleep) {
             enabled = false;
         }
+        //Check for an audio source to be played
+        if (_isAudioPlayed)
+        {
+            //Destroy the audio source if finished playing
+            Destroy(_slimeExpand, _audioLength);
+            _isAudioPlayed = false;
+        }
     }
 
     /* This damages the slime and lowers its total health
@@ -174,6 +188,7 @@ public class Slime : MonoBehaviour {
         }
         path.getNext();
         requestExpansionInternal(path, 0.0f);
+
     }
 
     /* This returns the amount of enery it would cost to grow
@@ -203,6 +218,7 @@ public class Slime : MonoBehaviour {
         _timeUntilExpand = residualTimeLeft;
         if (_timeUntilExpand <= 0.0f) {
             expandSlime();
+
         }
     }
 
@@ -227,10 +243,18 @@ public class Slime : MonoBehaviour {
 
             if (_currentExpandPath.getNodesLeft() > 0) {
                 newSlime.requestExpansionInternal(_currentExpandPath, _timeUntilExpand + TIME_PER_EXPAND);
+
             }
         }
 
         _currentExpandPath = null;
+
+        //Plays sounds along the center of the slime path
+        _slimeExpand = _slimeRenderer.gameObject.AddComponent<AudioSource>();
+        _slimeExpand.clip = Resources.Load<AudioClip>("Sounds/SFX/slime_expanding");
+        _audioLength = _slimeExpand.clip.length;
+        _isAudioPlayed = true;
+        _slimeExpand.Play();
     }
 
     /* Updates the solid neghbor count of this slime.  This also updates the sprite

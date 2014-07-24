@@ -16,7 +16,7 @@ public class SlimeRenderer : MonoBehaviour {
 
     private IsCellSolidFunction _solidityFunction = null;
     private Texture2D _textureRamp = null;
-    private float _morphTime = 1.0f;
+    private float _morphTime = 0.2f;
 
     private float[] _cellSolidity = new float[9];
     private Texture2D _texture = null;
@@ -49,6 +49,9 @@ public class SlimeRenderer : MonoBehaviour {
     }
 
     public void setTextureRamp(Texture2D textureRamp) {
+        if (textureRamp == null) {
+            Debug.Log("super baaaaaaad");
+        }
         _textureRamp = textureRamp;
     }
 
@@ -91,7 +94,7 @@ public class SlimeRenderer : MonoBehaviour {
         for (int i = 0; i < _cellSolidity.Length; i++) {
             Vector2Int cellPosition = _cellOffset[i] + _rendererPosition;
             float isSolid = _solidityFunction(cellPosition) ? 1.0f : 0.0f;
-            float newSolidity = Mathf.MoveTowards(_cellSolidity[i], isSolid, Time.deltaTime / _morphTime);
+            float newSolidity = Mathf.MoveTowards(_cellSolidity[i], isSolid, 0.1f);//Time.deltaTime / _morphTime);
             soliditySum += newSolidity;
             if (newSolidity != _cellSolidity[i]) {
                 _cellSolidity[i] = newSolidity;
@@ -129,7 +132,7 @@ public class SlimeRenderer : MonoBehaviour {
 
                 if (!hasSameRenderer) {
                     SlimeRenderer newRenderer = tileObject.AddComponent<SlimeRenderer>();
-                    newRenderer._textureRamp = _textureRamp;
+                    newRenderer.setTextureRamp(_textureRamp);
                     newRenderer._morphTime = _morphTime;
                     newRenderer.setSolidityFunction(_solidityFunction);
                 }
@@ -138,8 +141,7 @@ public class SlimeRenderer : MonoBehaviour {
     }
 
     private bool isOfSameType(SlimeRenderer slimeRenderer) {
-        return slimeRenderer._solidityFunction == _solidityFunction &&
-               slimeRenderer._textureRamp == _textureRamp;
+        return slimeRenderer._textureRamp == _textureRamp;
     }
 
     private void updateTexture() {
@@ -165,17 +167,19 @@ public class SlimeRenderer : MonoBehaviour {
     private float calculateMinDistance(Vector2 point) {
         float minDistance = 0.5f;
 
-        for (int i = 0; i < _cellOffset.Length; i++) {
-            Vector2Int cellPosInt = _cellOffset[i];
-            Vector2 cellPos = new Vector2(cellPosInt.x, cellPosInt.y);
-            minDistance = distanceToSegment(minDistance, Vector2.zero, _cellSolidity[8], cellPos, _cellSolidity[i], point);
+        if (_cellSolidity[8] > 0) {
+            for (int i = 0; i < _cellOffset.Length; i++) {
+                Vector2Int cellPosInt = _cellOffset[i];
+                Vector2 cellPos = new Vector2(cellPosInt.x, cellPosInt.y);
+                minDistance = distanceToSegment(minDistance, Vector2.zero, _cellSolidity[8], cellPos, _cellSolidity[i], point);
+            }
         }
 
         for (int i = 1; i < 8; i += 2) {
             int index0 = i;
             int index1 = (i + 2) % 8;
 
-            if (_cellSolidity[index0] > 0.5f && _cellSolidity[index1] > 0.5f) {
+            if (_cellSolidity[index0] > 0.0f && _cellSolidity[index1] > 0.0f) {
                 Vector2Int cellPosInt0 = _cellOffset[index0];
                 Vector2 cellPos0 = new Vector2(cellPosInt0.x, cellPosInt0.y);
 
@@ -190,9 +194,9 @@ public class SlimeRenderer : MonoBehaviour {
     }
 
     private float smoothMin(float a, float b) {
-        float k = 13.0f;
-        float res = Mathf.Exp(-k * a) + Mathf.Exp(-k * b);
-        return -Mathf.Log(res) / k;
+        float k = 0.22f;
+        float h = Mathf.Clamp01(0.5f + 0.5f * (b - a) / k);
+        return Mathf.Lerp(b, a, h) - k * h * (1.0f - h);
     }
 
     private float distanceToSegment(float curr, Vector2 seg0, float scale0, Vector2 seg1, float scale1, Vector2 point) {

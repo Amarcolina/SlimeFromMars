@@ -6,14 +6,15 @@ public class Slime : MonoBehaviour {
     public const float OPACITY_CHANGE_SPEED = 1.0f;
     public const float HEALTH_REGEN_RATE = 0.1f;
     public const float TIME_PER_EXPAND = 0.02f;
-    public const float SLIME_RENDERER_MORPH_TIME = 0.2f;
+    public const float SLIME_RENDERER_MORPH_TIME = 0.01f;
 
     public Texture2D textureRamp = null;
-    public static bool inited = false;
 
     private float _percentHealth = 1.0f;
     private Path _currentExpandPath = null;
     private float _timeUntilExpand = 0.0f;
+
+    private SlimeRenderer _slimeRenderer = null;
 
     /* This method does the following:
      *      Initializes the slime sprite lookup table if it is not already initialized
@@ -21,27 +22,14 @@ public class Slime : MonoBehaviour {
      *      Updates the neighbor count of this slime
      *      Lets all neighboring slimes know that this slime has been added
      */
-    public void Awake() {
-        if(!inited){
-            inited = true;
-            init();
+    public void Start() {
+        _slimeRenderer = GetComponent<SlimeRenderer>();
+        if (_slimeRenderer == null) {
+            _slimeRenderer = gameObject.AddComponent<SlimeRenderer>();
         }
-    }
-
-    public void init(){
-        GameObject slimeRendererObject = new GameObject("Slime");
-        slimeRendererObject.transform.parent = transform;
-        slimeRendererObject.transform.position = transform.position;
-
-        SlimeRenderer slimeRenderer = GetComponent<SlimeRenderer>();
-        if (slimeRenderer == null) {
-            slimeRenderer = gameObject.AddComponent<SlimeRenderer>();
-            slimeRenderer.setTextureRamp(textureRamp);
-            slimeRenderer.setMorphTime(SLIME_RENDERER_MORPH_TIME);
-            slimeRenderer.wakeUpRenderer();
-        }
-
-        wakeUpSlime();
+        _slimeRenderer.setTextureRamp(textureRamp);
+        _slimeRenderer.setMorphTime(SLIME_RENDERER_MORPH_TIME);
+        _slimeRenderer.wakeUpRenderer();
     }
 
     /* Forces this slime to wake up.  This causes it to recount it's
@@ -50,9 +38,8 @@ public class Slime : MonoBehaviour {
      */
     public void wakeUpSlime() {
         enabled = true;
-        SlimeRenderer slimeRenderer = GetComponent<SlimeRenderer>();
-        if (slimeRenderer != null) {
-            slimeRenderer.wakeUpRenderer();
+        if (_slimeRenderer) {
+            _slimeRenderer.wakeUpRenderer();
         }
     }
 
@@ -160,7 +147,6 @@ public class Slime : MonoBehaviour {
             if(newSlime == null){
                 newSlime = newSlimeTile.gameObject.AddComponent<Slime>();
                 newSlime.textureRamp = textureRamp;
-                newSlime.init();
             } else {
                 residualTimeLeft = 0.0f;
             }
@@ -173,6 +159,5 @@ public class Slime : MonoBehaviour {
         }
 
         _currentExpandPath = null;
-
     }
 }

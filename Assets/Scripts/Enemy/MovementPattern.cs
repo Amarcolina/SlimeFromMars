@@ -94,7 +94,6 @@ public class MovementPattern : MonoBehaviour {
 
         if (_waypointsContained == int.MaxValue) {
             _waypointsContained = startIndex - index;
-            Debug.Log(_waypointsContained);
         }
 
         return null;

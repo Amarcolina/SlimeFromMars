@@ -109,7 +109,7 @@ public class Slime : MonoBehaviour {
             wakeUpSlime();
 
             if (_isSolid) {
-                List<Tile> neighbors = _tilemap.getNeighboringTiles(transform.position);
+                List<Tile> neighbors = TilemapUtilities.getNeighboringTiles(transform.position);
                 foreach (Tile tile in neighbors) {
                     if (tile.GetComponent<Slime>() == null) {
                         tile.gameObject.AddComponent<Slime>();
@@ -254,7 +254,7 @@ public class Slime : MonoBehaviour {
      * An optional bool allows this method to wake up neighboring slimes
      */
     private void updateNeighborCount(bool shouldWakeUpNeighbors = false) {
-        List<Tile> neighbors = _tilemap.getNeighboringTiles(transform.position);
+        List<Tile> neighbors = TilemapUtilities.getNeighboringTiles(transform.position);
         _solidSlimeNeighborCount = 0;
 
         int spriteMask = 0;

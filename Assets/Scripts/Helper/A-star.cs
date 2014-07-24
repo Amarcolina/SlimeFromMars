@@ -81,7 +81,6 @@ public class Astar : MonoBehaviour {
 
         BinaryMinHeap<Node> openList = new BinaryMinHeap<Node>();//nodes to be examined
         HashSet<Node> closedList = new HashSet<Node>();
-        Tilemap tileMap = Tilemap.getInstance();
         Dictionary<Vector2Int, Node> nodePostionMap = new Dictionary<Vector2Int, Node>();
         Node startNode = new Node(start, goal, null, heuristicFunction(start, goal));
         Node goalNode = null;
@@ -92,7 +91,7 @@ public class Astar : MonoBehaviour {
             Node current = openList.extractElement(0);//remove lowest rank node from openList
             closedList.Add(current);//add current to closedList
 
-            foreach (Vector2Int neighborPosition in tileMap.getNeighboringPositions(current.getPosition(), true, true)) {//for neighbors of current:
+            foreach (Vector2Int neighborPosition in TilemapUtilities.getNeighboringPositions(current.getPosition(), true, true)) {//for neighbors of current:
                 if (!isWalkableFunction(neighborPosition)) {
                     continue;
                 }

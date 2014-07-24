@@ -22,43 +22,39 @@ public class TilemapUtilities {
      * The user can specify if they want to include the diagonal tiles in the 
      * neighbor list, as well as if they want to include non-walkable tiles in the list
      */
-    public static List<Vector2Int> getNeighboringPositions(Vector2Int position, bool includeNonWalkable = false, bool includeDiagonal = true) {
+
+    
+    public static List<Vector2Int> getNeighboringPositions(Vector2Int position, 
+                                                           bool includeDiagonal = true,  
+                                                           AStarIsPathWalkable walkableFunction = null) {
         List<Vector2Int> neighborList = new List<Vector2Int>();
         FoundNeighborFunc func = delegate(Vector2Int tilePosition) {
             neighborList.Add(tilePosition);
         };
-        findNeighboringLocationsInternal(position, func, includeNonWalkable, includeDiagonal);
+        findNeighboringLocationsInternal(position, func, includeDiagonal, walkableFunction);
         return neighborList;
     }
 
-    public static List<Vector2Int> getNeighboringPositions(Vector2 position, bool includeNonWalkable = false, bool includeDiagonal = true) {
-        return getNeighboringPositions(Tilemap.getTilemapLocation(position), includeNonWalkable, includeDiagonal);
-    }
-
-    public static List<Tile> getNeighboringTiles(Vector2Int position, bool includeNonWalkable = false, bool includeDiagonal = true) {
+    public static List<Tile> getNeighboringTiles(Vector2Int position, 
+                                                 bool includeDiagonal = true, 
+                                                 AStarIsPathWalkable walkableFunction = null) {
         List<Tile> neighborList = new List<Tile>();
         FoundNeighborFunc func = delegate(Vector2Int tilePosition) {
             neighborList.Add(Tilemap.getInstance().getTile(tilePosition));
         };
-        findNeighboringLocationsInternal(position, func, includeNonWalkable, includeDiagonal);
+        findNeighboringLocationsInternal(position, func, includeDiagonal, walkableFunction);
         return neighborList;
-    }
-
-    public static List<Tile> getNeighboringTiles(Vector2 position, bool includeNonWalkable = false, bool includeDiagonal = true) {
-        return getNeighboringTiles(Tilemap.getTilemapLocation(position), includeNonWalkable, includeDiagonal);
     }
 
     private delegate void NeighborBuilderDelegate(Vector2Int delta);
     private delegate void FoundNeighborFunc(Vector2Int tilePosition);
-    private static void findNeighboringLocationsInternal(Vector2Int position, FoundNeighborFunc func, bool includeNonWalkable = false, bool includeDiagonal = true) {
+    private static void findNeighboringLocationsInternal(Vector2Int position, FoundNeighborFunc func, bool includeDiagonal = true, AStarIsPathWalkable walkableFunction = null) {
         Tilemap tilemap = Tilemap.getInstance();
         
         NeighborBuilderDelegate buildNeighborList = delegate(Vector2Int delta) {
             Tile tile = tilemap.getTile(position + delta);
             if (tile != null) {
-                if (tile.isWalkable || includeNonWalkable) {
-                    func(position + delta);
-                }
+                func(position + delta);
             }
         };
 

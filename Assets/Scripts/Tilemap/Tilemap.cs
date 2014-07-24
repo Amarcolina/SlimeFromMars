@@ -75,10 +75,6 @@ public class Tilemap : MonoBehaviour {
         return tileObj.GetComponent<Tile>();
     }
 
-    public Tile getTile(Vector2 position) {
-        return getTile(getTilemapLocation(position));
-    }
-
     //####################################################################################################
     /* Returns whether or not a given position represents a space that can
      * be walked on.  If there is no tile at the given location, this method
@@ -92,10 +88,6 @@ public class Tilemap : MonoBehaviour {
             return false;
         }
         return tile.isWalkable;
-    }
-
-    public bool isWalkable(Vector2 position) {
-        return isWalkable(getTilemapLocation(position));
     }
 
     //####################################################################################################
@@ -118,10 +110,6 @@ public class Tilemap : MonoBehaviour {
         }
 
         return tileChunk.getTile(tileInChunkLocation);
-    }
-
-    public GameObject getTileGameObject(Vector2 position) {
-        return getTileGameObject(getTilemapLocation(position));
     }
 
     //####################################################################################################

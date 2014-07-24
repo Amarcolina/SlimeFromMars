@@ -3,11 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 
-public class Astar : MonoBehaviour {
-    public delegate float AStarMovementCost(Vector2Int position, Vector2Int neighbor);
-    public delegate float AStarNodeHeuristic(Vector2Int position, Vector2Int goal);
-    public delegate bool AStarIsPathWalkable(Vector2Int position);
+public delegate float AStarMovementCost(Vector2Int position, Vector2Int neighbor);
+public delegate float AStarNodeHeuristic(Vector2Int position, Vector2Int goal);
+public delegate bool AStarIsPathWalkable(Vector2Int position);
 
+public class Astar : MonoBehaviour {
     public class Node : IComparable {
         Vector2Int position; //tilemap position of node
         private Node parent;
@@ -91,7 +91,7 @@ public class Astar : MonoBehaviour {
             Node current = openList.extractElement(0);//remove lowest rank node from openList
             closedList.Add(current);//add current to closedList
 
-            foreach (Vector2Int neighborPosition in TilemapUtilities.getNeighboringPositions(current.getPosition(), true, true)) {//for neighbors of current:
+            foreach (Vector2Int neighborPosition in TilemapUtilities.getNeighboringPositions(current.getPosition(), true, isWalkableFunction)) {//for neighbors of current:
                 if (!isWalkableFunction(neighborPosition)) {
                     continue;
                 }

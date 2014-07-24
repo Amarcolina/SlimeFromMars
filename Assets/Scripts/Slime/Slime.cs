@@ -262,7 +262,7 @@ public class Slime : MonoBehaviour {
             Slime slime = tile.GetComponent<Slime>();
             if (slime != null) {
                 if (slime._isSolid) {
-                    Vector2Int delta = Tilemap.getTilemapLocation(tile.transform.position) - Tilemap.getTilemapLocation(transform.position);
+                    Vector2Int delta = tile.transform.position - transform.position;
                     int neighborMask = 0xF;
                     if (delta.y == 1) neighborMask &= 0x3; //0011
                     if (delta.y == -1) neighborMask &= 0xC; //1100

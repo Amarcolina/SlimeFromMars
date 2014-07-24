@@ -1,6 +1,9 @@
 fileFormatVersion: 2
 guid: a54c151baacc26547a0b357484367afc
 TextureImporter:
+  fileIDToRecycleName:
+    21300000: flamethrower_0
+    21300002: flamethrower_1
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0

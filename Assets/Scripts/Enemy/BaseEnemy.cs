@@ -143,7 +143,7 @@ public class BaseEnemy : MonoBehaviour{
         return nearestSlime;
     }
 
-    protected bool runAwayFromSlime() {
+    protected bool runAwayFromSlime(float speed = 2.5f) {
         Slime nearestSlime = getNearestVisibleSlime();
 
         if (_currentSlimeToFleeFrom != null) {
@@ -181,8 +181,7 @@ public class BaseEnemy : MonoBehaviour{
             return false;
         }
 
-        followPath(_fleePath);
-        return true;
+        return followPath(_fleePath, speed);
     }
 
     /* This method can be used to "cast" a ray along a direction until it hits a Slime

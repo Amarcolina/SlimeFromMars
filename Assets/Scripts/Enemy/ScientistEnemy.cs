@@ -20,11 +20,6 @@ public class ScientistEnemy : BaseEnemy {
     }
 
     void Update() {
-        if (isOnSlimeTile()) {
-            Destroy(this.gameObject);
-            return;
-        }
-
         switch (_currentState) {
             case ScientistState.WANDERING:
                 wanderState();
@@ -42,13 +37,18 @@ public class ScientistEnemy : BaseEnemy {
 
     private void wanderState() {
         followMovementPattern(wanderSpeed);
+        tryEnterFleeState();
     }
 
-    private bool enterFleeState() {
+    private bool tryEnterFleeState() {
+        if (getNearestVisibleSlime() != null) {
+            _currentState = ScientistState.FLEEING;
+            return true;
+        }
         return false;
     }
 
     private void fleeState() {
-
+        runAwayFromSlime(fleeSpeed);
     }
 }

@@ -27,6 +27,9 @@ public class ScientistEnemy : BaseEnemy {
             case ScientistState.FLEEING:
                 fleeState();
                 break;
+            default:
+                Debug.LogWarning("Cannot handle state " + _currentState);
+                break;
         }
     }
 

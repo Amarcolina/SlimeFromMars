@@ -206,7 +206,7 @@ public class BaseEnemy : MonoBehaviour{
             }
 
             Slime slime = tile.GetComponent<Slime>();
-            if (slime != null) {
+            if (slime != null  &&  slime.isSolid()) {
                 return slime;
             }
 

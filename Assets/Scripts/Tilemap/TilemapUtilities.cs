@@ -50,28 +50,31 @@ public class TilemapUtilities {
     private delegate void FoundNeighborFunc(Vector2Int tilePosition);
     private static void findNeighboringLocationsInternal(Vector2Int position, FoundNeighborFunc func, bool includeDiagonal = true, AStarIsPathWalkable walkableFunction = null) {
         Tilemap tilemap = Tilemap.getInstance();
-        
+
+        if (walkableFunction == null) {
+            walkableFunction = Astar.defaultIsWalkable;
+        }
+
         NeighborBuilderDelegate buildNeighborList = delegate(Vector2Int delta) {
-            Tile tile = tilemap.getTile(position + delta);
-            if (tile != null) {
+            if (walkableFunction(position + delta)){
                 func(position + delta);
             }
         };
 
         if (includeDiagonal) {
-            if (tilemap.isWalkable(position + Vector2Int.right)) {
-                if (tilemap.isWalkable(position + Vector2Int.up)) {
+            if (walkableFunction(position + Vector2Int.right)) {
+                if (walkableFunction(position + Vector2Int.up)) {
                     buildNeighborList(Vector2Int.right + Vector2Int.up);
                 }
-                if (tilemap.isWalkable(position + Vector2Int.down)) {
+                if (walkableFunction(position + Vector2Int.down)) {
                     buildNeighborList(Vector2Int.right + Vector2Int.down);
                 }
             }
-            if (tilemap.isWalkable(position + Vector2Int.left)) {
-                if (tilemap.isWalkable(position + Vector2Int.up)) {
+            if (walkableFunction(position + Vector2Int.left)) {
+                if (walkableFunction(position + Vector2Int.up)) {
                     buildNeighborList(Vector2Int.left + Vector2Int.up);
                 }
-                if (tilemap.isWalkable(position + Vector2Int.down)) {
+                if (walkableFunction(position + Vector2Int.down)) {
                     buildNeighborList(Vector2Int.left + Vector2Int.down);
                 }
             }

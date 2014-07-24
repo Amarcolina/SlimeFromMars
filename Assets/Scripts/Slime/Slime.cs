@@ -138,6 +138,7 @@ public class Slime : MonoBehaviour {
         _timeUntilExpand = residualTimeLeft;
         if (_timeUntilExpand <= 0.0f) {
             expandSlime();
+
         }
     }
 
@@ -172,5 +173,6 @@ public class Slime : MonoBehaviour {
         }
 
         _currentExpandPath = null;
+
     }
 }

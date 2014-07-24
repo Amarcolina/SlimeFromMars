@@ -1,6 +1,8 @@
 fileFormatVersion: 2
 guid: 7c955d1d3fedc4d439fbd8e107953007
 TextureImporter:
+  fileIDToRecycleName:
+    21300000: DoorPiece
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0

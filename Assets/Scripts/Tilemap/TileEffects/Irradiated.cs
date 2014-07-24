@@ -4,7 +4,8 @@ using System.Collections;
 public class Irradiated : MonoBehaviour {
     public const float DURATION = 1.0f;
     public const float TOTAL_DAMAGE = 0.1f;
-
+    private bool shouldStun;
+    private bool shouldDamage;
     private static Sprite[] _radiationSprites = null;
     private SpriteRenderer _radiationRenderer = null;
     private float _totalTime = 0.0f;
@@ -33,6 +34,13 @@ public class Irradiated : MonoBehaviour {
         _radiationRenderer = rendererGameObject.AddComponent<SpriteRenderer>();
     }
 
+    public void setStunned(bool stun) {
+        shouldStun = stun;
+    }
+
+    public void setDamaged(bool damage) {
+        shouldDamage = damage;
+    }
     public void OnDestroy() {
         Destroy(_radiationRenderer.gameObject);
     }

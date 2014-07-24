@@ -109,10 +109,15 @@ public class Slime : MonoBehaviour {
             wakeUpSlime();
 
             if (_isSolid) {
-                List<Tile> neighbors = TilemapUtilities.getNeighboringTiles(transform.position);
-                foreach (Tile tile in neighbors) {
-                    if (tile.GetComponent<Slime>() == null) {
-                        tile.gameObject.AddComponent<Slime>();
+                for (int i = 0; i < TilemapUtilities.neighborFullArray.Length; i++) {
+                    Vector2Int neighborPos = (Vector2Int)transform.position + TilemapUtilities.neighborFullArray[i];
+                    if (TilemapUtilities.areTilesNeighbors(transform.position, neighborPos)) {
+                        Tile tile = Tilemap.getInstance().getTile(neighborPos);
+                        if (tile != null) {
+                            if (tile.GetComponent<Slime>() == null) {
+                                tile.gameObject.AddComponent<Slime>();
+                            }
+                        }
                     }
                 }
             }
@@ -253,27 +258,30 @@ public class Slime : MonoBehaviour {
      * An optional bool allows this method to wake up neighboring slimes
      */
     private void updateNeighborCount(bool shouldWakeUpNeighbors = false) {
-        List<Tile> neighbors = TilemapUtilities.getNeighboringTiles(transform.position);
         _solidSlimeNeighborCount = 0;
 
         int spriteMask = 0;
 
-        foreach (Tile tile in neighbors) {
-            Slime slime = tile.GetComponent<Slime>();
-            if (slime != null) {
-                if (slime._isSolid) {
-                    Vector2Int delta = tile.transform.position - transform.position;
-                    int neighborMask = 0xF;
-                    if (delta.y == 1) neighborMask &= 0x3; //0011
-                    if (delta.y == -1) neighborMask &= 0xC; //1100
-                    if (delta.x == 1) neighborMask &= 0x6; //0110
-                    if (delta.x == -1) neighborMask &= 0x9; //1001
-                    spriteMask |= neighborMask;
+        for(int i=0; i<TilemapUtilities.neighborFullArray.Length; i++){
+            Vector2Int neighborPos = (Vector2Int)transform.position + TilemapUtilities.neighborFullArray[i];
+            Tile tile = _tilemap.getTile(neighborPos);
+            if (tile != null) {
+                Slime slime = tile.GetComponent<Slime>();
+                if (slime != null) {
+                    if (slime._isSolid) {
+                        Vector2Int delta = tile.transform.position - transform.position;
+                        int neighborMask = 0xF;
+                        if (delta.y == 1) neighborMask &= 0x3; //0011
+                        if (delta.y == -1) neighborMask &= 0xC; //1100
+                        if (delta.x == 1) neighborMask &= 0x6; //0110
+                        if (delta.x == -1) neighborMask &= 0x9; //1001
+                        spriteMask |= neighborMask;
 
-                    _solidSlimeNeighborCount++;
-                }
-                if (shouldWakeUpNeighbors) {
-                    slime.wakeUpSlime();
+                        _solidSlimeNeighborCount++;
+                    }
+                    if (shouldWakeUpNeighbors) {
+                        slime.wakeUpSlime();
+                    }
                 }
             }
         }

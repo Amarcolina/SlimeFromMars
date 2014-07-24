@@ -50,7 +50,7 @@ public class MovementPattern : MonoBehaviour {
         int startIndex = index;
 
         while ((loopAction == PatternType.NORMAL && patternIndex < movementPatterns.Count) ||
-               (loopAction == PatternType.PING_PONG && patternIndex != 0 && patternDirection != -1)) {
+               (loopAction == PatternType.PING_PONG && (patternIndex != 0 || patternDirection != -1))) {
             MovementPatternInfo info = movementPatterns[patternIndex];
 
             Waypoint waypoint = info.waypoint.GetComponent<Waypoint>();
@@ -94,6 +94,7 @@ public class MovementPattern : MonoBehaviour {
 
         if (_waypointsContained == int.MaxValue) {
             _waypointsContained = startIndex - index;
+            Debug.Log(_waypointsContained);
         }
 
         return null;

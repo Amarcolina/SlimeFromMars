@@ -10,6 +10,9 @@ public class BaseEnemy : MonoBehaviour{
     protected float _timeUntilNextWaypoint = 0.0f;
     protected Tilemap _tilemap = null;
 
+    protected Slime _currentSlimeToFleeFrom = null;
+    protected Path _fleePath = null;
+
     public virtual void Awake(){
         _tilemap = Tilemap.getInstance();
     }
@@ -78,10 +81,6 @@ public class BaseEnemy : MonoBehaviour{
         return new Vector2(transform.position.x, transform.position.y) == destination;
     }
 
-    protected bool moveTowardsPoint(Vector2Int target, float speed = 2.5f) {
-        return moveTowardsPoint(target, speed);
-    }
-
     /* Calling this method every frame will move the enemy allong a given path
      * at a specific speed.  This method will return true once the enemy has
      * reached the end of the path.
@@ -144,6 +143,48 @@ public class BaseEnemy : MonoBehaviour{
         return nearestSlime;
     }
 
+    protected bool runAwayFromSlime() {
+        Slime nearestSlime = getNearestVisibleSlime();
+
+        if (_currentSlimeToFleeFrom != null) {
+            if (nearestSlime == null || Vector3.Distance(transform.position, nearestSlime.transform.position) > Vector3.Distance(transform.position, _currentSlimeToFleeFrom.transform.position)) {
+                nearestSlime = _currentSlimeToFleeFrom;
+            }
+        }
+
+        if (nearestSlime == null) {
+            return false;
+        }
+
+        _currentSlimeToFleeFrom = nearestSlime;
+
+        float minCost = _fleePath == null ? float.MaxValue : -Vector3.Distance(nearestSlime.transform.position, _fleePath.getEnd()) - 4.0f;
+
+        for (float checkDistance = 2; checkDistance < 20; checkDistance += 5.0f) {
+            for (float angle = 0; angle < 360.0f; angle += 45.0f) {
+                Vector3 checkPos = transform.position + Quaternion.AngleAxis(angle, Vector3.forward) * Vector2.right * checkDistance;
+                Path path = Astar.findPath(transform.position, checkPos);
+                if (path != null) {
+                    float cost = -Vector3.Distance(nearestSlime.transform.position, checkPos);
+                    if (cost < minCost) {
+                        minCost = cost - 2.0f;
+                        if (path.hasNext()) {
+                            path.getNext();
+                        }
+                        _fleePath = path;
+                    }
+                }
+            }
+        }
+
+        if (minCost == float.MaxValue) {
+            return false;
+        }
+
+        followPath(_fleePath);
+        return true;
+    }
+
     /* This method can be used to "cast" a ray along a direction until it hits a Slime
      * block, or until a maximum distance is reached.  This method works off of simple
      * integer incrementing, and so passing in directions that have components larger than
@@ -173,5 +214,14 @@ public class BaseEnemy : MonoBehaviour{
             ray += direction;
         }
         return null;
+    }
+
+    public void OnDrawGizmos() {
+        if (_fleePath != null) {
+            Gizmos.color = Color.blue;
+            for (int i = 0; i < _fleePath.Count - 1; i++) {
+                Gizmos.DrawLine(_fleePath[i], _fleePath[i + 1]);
+            }
+        }
     }
 }

@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class BaseEnemy : MonoBehaviour{
+public class BaseEnemy : MonoBehaviour, IDamageable{
     public MovementPattern movementPattern;
 
     protected int _waypointIndex = 0;
@@ -15,6 +15,10 @@ public class BaseEnemy : MonoBehaviour{
 
     public virtual void Awake(){
         _tilemap = Tilemap.getInstance();
+    }
+
+    public void damage(float damage) {
+        Destroy(gameObject);
     }
 
     //Checks to see if the enemytileobject has a slime component on its tile

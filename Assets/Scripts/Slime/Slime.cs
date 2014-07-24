@@ -244,7 +244,6 @@ public class Slime : MonoBehaviour {
         }
 
         _currentExpandPath = null;
-
     }
 
     /* Updates the solid neghbor count of this slime.  This also updates the sprite

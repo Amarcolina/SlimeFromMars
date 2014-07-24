@@ -105,23 +105,6 @@ public class BaseEnemy : MonoBehaviour{
                                            new Vector2Int( 1, -1),
                                            new Vector2Int( 1,  0)};
 
-    /* This method returns all of the slime tiles visible to this enemy
-     * within a given tile radius.  This only searches along the 4 main
-     * axes and the 4 diagonals, so it will not return correctly in every 
-     * case, and will only ever return up to a maximum of 8 tiles as a
-     * consequense
-     */
-    protected List<Slime> getVisibleSlimeTiles(int maxTileDistance = 20) {
-        List<Slime> slimeTiles = new List<Slime>();
-        foreach(Vector2Int direction in _directionList){
-            Slime slime = getNearestSlimeInDirection(direction, maxTileDistance);
-            if (slime != null) {
-                slimeTiles.Add(slime);
-            }
-        }
-        return slimeTiles;
-    }
-
     /* This method returns the nearest slime to the enemy, or null is none
      * were found inside of the given search radius.  This only searches
      * allon the 4 main axes and the 4 diagonals, so it will not return
@@ -130,17 +113,35 @@ public class BaseEnemy : MonoBehaviour{
     protected Slime getNearestVisibleSlime(int maxTileDistance = 20) {
         Slime nearestSlime = null;
         float closestDistance = float.MaxValue;
-        foreach (Vector2Int direction in _directionList) {
-            Slime slime = getNearestSlimeInDirection(direction, maxTileDistance);
-            if (slime != null) {
-                float dist = (slime.transform.position - transform.position).sqrMagnitude;
-                if(dist < closestDistance){
-                    nearestSlime = slime;
-                    closestDistance = dist;
+        for (float angle = 0.0f; angle < 360.0f; angle += 45.0f) {
+            TileRayHit hit = TilemapUtilities.castTileRay(transform.position, Quaternion.AngleAxis(angle, Vector3.forward) * Vector2.right, 15.0f, tileRayHitSlime);
+            if (hit.didHit) {
+                Debug.DrawLine(transform.position, hit.hitPosition, Color.red);
+                GameObject hitObj = _tilemap.getTileGameObject(hit.hitPosition);
+                if (hitObj != null) {
+                    Slime slime = hitObj.GetComponent<Slime>();
+                    if (slime != null) {
+                        float dist = (slime.transform.position - transform.position).sqrMagnitude;
+                        if (dist < closestDistance) {
+                            nearestSlime = slime;
+                            closestDistance = dist;
+                        }
+                    }
                 }
             }
         }
         return nearestSlime;
+    }
+
+    public static bool tileRayHitSlime(GameObject tileObj) {
+        if (tileObj == null || !tileObj.GetComponent<Tile>().isWalkable) {
+            return true;
+        }
+        Slime s;
+        if ((s = tileObj.GetComponent<Slime>()) != null) {
+            return s.isSolid();
+        }
+        return false;
     }
 
     protected bool runAwayFromSlime(float speed = 2.5f) {
@@ -182,37 +183,6 @@ public class BaseEnemy : MonoBehaviour{
         }
 
         return followPath(_fleePath, speed);
-    }
-
-    /* This method can be used to "cast" a ray along a direction until it hits a Slime
-     * block, or until a maximum distance is reached.  This method works off of simple
-     * integer incrementing, and so passing in directions that have components larger than
-     * 1 in magnitude is not recomended, as it could cause walls or objects to be skipped
-     * over
-     */
-    protected Slime getNearestSlimeInDirection(Vector2Int direction, int maxTileDistance = 20) {
-        if (Mathf.Abs(direction.x) > 1 || Mathf.Abs(direction.y) > 1) {
-            Debug.LogWarning("The direction " + direction + " might have unexpected results");
-        }
-        Vector2Int ray = Tilemap.getTilemapLocation(transform.position);
-        for (int i = 0; i < maxTileDistance; i++) {
-            Tile tile = _tilemap.getTile(ray);
-            if(tile == null){
-                return null;
-            }
-
-            if(!tile.isWalkable){
-                return null;
-            }
-
-            Slime slime = tile.GetComponent<Slime>();
-            if (slime != null  &&  slime.isSolid()) {
-                return slime;
-            }
-
-            ray += direction;
-        }
-        return null;
     }
 
     public void OnDrawGizmos() {

@@ -189,7 +189,7 @@ public class Slime : MonoBehaviour {
         requestExpansionInternal(path, 0.0f);
 
         //Plays a sound at the start of the path
-        AudioSource.PlayClipAtPoint(slimeExpandSFX, transform.position);
+        //AudioSource.PlayClipAtPoint(slimeExpandSFX, transform.position);
     }
 
     /* This returns the amount of enery it would cost to grow

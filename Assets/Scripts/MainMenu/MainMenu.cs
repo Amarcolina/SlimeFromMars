@@ -6,7 +6,7 @@ public class MainMenu : MonoBehaviour
 	//
         void onclickStart ()
         {
-                Application.LoadLevel ("defaultScene");
+                Application.LoadLevel ("MainLevel");
                 AudioListener.pause = false;
         }
 

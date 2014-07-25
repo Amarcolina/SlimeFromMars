@@ -30,6 +30,9 @@ public class SoldierEnemy : BaseEnemy {
     }
 
     void Update() {
+        if (isStunned()) {
+            return;
+        }
         _nearestSlime = getNearestVisibleSlime();
 
         switch (_currentState) {

@@ -20,6 +20,10 @@ public class ScientistEnemy : BaseEnemy {
     }
 
     void Update() {
+        if (isStunned()) {
+            return;
+        }
+
         switch (_currentState) {
             case ScientistState.WANDERING:
                 wanderState();

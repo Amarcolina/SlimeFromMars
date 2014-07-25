@@ -1,8 +1,8 @@
 fileFormatVersion: 2
-guid: 441df52a91f0ed84f80f82ffe365d21b
+guid: 4c0fccec8167f3943a2fed8a71f6c3f8
 TextureImporter:
   fileIDToRecycleName:
-    21300000: redpanel
+    21300000: topMiddleTile
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0
@@ -38,7 +38,7 @@ TextureImporter:
   alignment: 0
   spritePivot: {x: .5, y: .5}
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 64
   alphaIsTransparency: 1
   textureType: 8
   buildTargetSettings: []

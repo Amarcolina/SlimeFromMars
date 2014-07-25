@@ -1,6 +1,8 @@
 fileFormatVersion: 2
 guid: 2a32910c0062a974e918c28f9c22ab17
 TextureImporter:
+  fileIDToRecycleName:
+    21300000: redhouse
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0

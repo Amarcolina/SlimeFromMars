@@ -1,6 +1,8 @@
 fileFormatVersion: 2
 guid: 98f3ea81bb7b2a74ea0655605a255494
 TextureImporter:
+  fileIDToRecycleName:
+    21300000: greywall
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0

@@ -1,6 +1,8 @@
 fileFormatVersion: 2
 guid: 0325df6d571be2b4094765e2df7c1b6b
 TextureImporter:
+  fileIDToRecycleName:
+    21300000: redbiglab
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0

@@ -1,6 +1,8 @@
 fileFormatVersion: 2
 guid: 67ce05a11f7185b43b37566af5e84538
 TextureImporter:
+  fileIDToRecycleName:
+    21300000: greytile
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0

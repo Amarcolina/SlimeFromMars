@@ -1,6 +1,8 @@
 fileFormatVersion: 2
 guid: c3b31e3923b47c242a1483183534c630
 TextureImporter:
+  fileIDToRecycleName:
+    21300000: redbumps
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0

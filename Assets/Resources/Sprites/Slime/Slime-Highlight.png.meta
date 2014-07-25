@@ -1,6 +1,8 @@
 fileFormatVersion: 2
 guid: 611aa2c9a7ae70245a81b07f990f8652
 TextureImporter:
+  fileIDToRecycleName:
+    21300000: Slime-Highlight
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0

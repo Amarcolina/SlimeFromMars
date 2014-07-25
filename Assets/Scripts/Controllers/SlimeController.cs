@@ -170,15 +170,17 @@ public class SlimeController : MonoBehaviour {
     }
     /*###################################### ELEMENTAL SKILLS #######################################*/
     public void useRadiationDefense() {
+        //stores range, radius and  center of attack
         float rangeOfAttack = RADIATION_BASE_RANGE * radiationLevel;
         int circleRadius = 3 * radiationLevel;
         Vector2Int center = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
+
         //gets distance between slime and enemy
         Vector2Int startLocation = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
         Vector2Int goalLocation = Tilemap.getTilemapLocation(getTilePositionUnderCursor().transform.position);
         float distance = Vector2Int.distance(startLocation, goalLocation);
 
-        //if distance is within range of attack, create the radius of radiation
+        //if distance is within range of attack, check each tile in the radius and then irradiate each tile that can be irradiated
         if (distance <= rangeOfAttack) {
             for (int dx = -circleRadius; dx <= circleRadius; dx++) {
                 for (int dy = -circleRadius; dy <= circleRadius; dy++) {

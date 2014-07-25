@@ -12,8 +12,8 @@ public class Irradiated : MonoBehaviour {
     private Tile _tile;
 
     /* Sprites are static so they can be shared between all 
-     * Electried components.  This method is called by the 
-     * first Electrified component to initialize the needed
+     * Irradiated components.  This method is called by the 
+     * first Irradiated component to initialize the needed
      * resources
      */
     private void initRadiationSprites() {
@@ -54,12 +54,16 @@ public class Irradiated : MonoBehaviour {
         Sprite randomSprite = _radiationSprites[Random.Range(0, _radiationSprites.Length)];
         _radiationRenderer.sprite = randomSprite;
         _radiationRenderer.transform.eulerAngles = new Vector3(0, 0, Random.Range(0, 3) * 90.0f);
+        if (shouldDamage) {
+            _tile.damageTileEntities(TOTAL_DAMAGE * Time.deltaTime / DURATION);
 
-        _tile.damageTileEntities(TOTAL_DAMAGE * Time.deltaTime / DURATION);
-
-        _totalTime += Time.deltaTime;
-        if (_totalTime >= DURATION) {
-            Destroy(this);
+            _totalTime += Time.deltaTime;
+            if (_totalTime >= DURATION) {
+                Destroy(this);
+            }
+        }
+        if (shouldStun) {
+            _tile.stunTileEntities(DURATION);
         }
     }
 }

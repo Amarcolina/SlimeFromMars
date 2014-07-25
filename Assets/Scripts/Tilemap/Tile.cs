@@ -83,6 +83,24 @@ public class Tile : MonoBehaviour {
         return didDamage;
     }
 
+    /* Calling this method stuns any TileEntities which are currently
+     * standing on the Tile.  This method returns true only if 
+     * at least one TileEntity was stunned.
+     */
+    public bool stunTileEntities(float duration) {
+        bool wasStunned = false;
+        if (_containedTileEntities != null) {
+            foreach (TileEntity entity in _containedTileEntities) {
+                IStunnable stunnableEntity = entity.GetComponent(typeof(IStunnable)) as IStunnable;
+                if (stunnableEntity != null) {
+                    wasStunned = true;
+                    stunnableEntity.stun(duration);
+                }
+            }
+        }
+        return wasStunned;
+    }
+
     /* This method causes the Tile object to update the sprite
      * renderers with the correct sprites, as well as (re)construct
      * the child game objects for the additional sprite overlays

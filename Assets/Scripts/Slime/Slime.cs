@@ -6,9 +6,9 @@ public class Slime : MonoBehaviour {
     public const float OPACITY_CHANGE_SPEED = 1.0f;
     public const float HEALTH_REGEN_RATE = 0.1f;
     public const float TIME_PER_EXPAND = 0.02f;
-    public const float SLIME_RENDERER_MORPH_TIME = 0.01f;
+    public const float SLIME_RENDERER_MORPH_TIME = 0.1f;
 
-    public Texture2D textureRamp = null;
+    public Sprite textureRamp = null;
 
     private float _percentHealth = 1.0f;
     private Path _currentExpandPath = null;
@@ -108,7 +108,7 @@ public class Slime : MonoBehaviour {
     public static int getPathCost(Path path) {
         int cost = 0;
         Tilemap tilemap = Tilemap.getInstance();
-        for (int i = 0; i < path.Count - 1; i++) {
+        for (int i = 0; i < path.Count; i++) {
             Vector2Int node = path[i];
             Slime slime = tilemap.getTile(node).GetComponent<Slime>();
             if (slime == null) {

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 [RequireComponent (typeof (SpriteRenderer))]
 public class Tile : MonoBehaviour {
-    private const int TILE_PIXEL_SIZE = 64;
+    public const int TILE_PIXEL_SIZE = 64;
     private const string GROUND_LAYER_NAME = "TileGround";
     private const string OVERLAY_LAYER_NAME = "TileOverlay";
 

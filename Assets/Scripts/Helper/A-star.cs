@@ -96,8 +96,9 @@ public class Astar : MonoBehaviour {
         openList.insert(startNode);
         int nodesChecked = 0;
 
+        Node current = null;
         while(true){
-            Node current = openList.extractElement(0);//remove lowest rank node from openList
+            current = openList.extractElement(0);//remove lowest rank node from openList
 
             //We break the while loop if we have found the goal node
             if (current.getPosition() == goal) {
@@ -119,7 +120,7 @@ public class Astar : MonoBehaviour {
             //for neighbors of current:
             for(int neighborOffsetIndex = 0; neighborOffsetIndex < TilemapUtilities.neighborFullArray.Length; neighborOffsetIndex++) {
                 Vector2Int neighborPosition = current.getPosition() + TilemapUtilities.neighborFullArray[neighborOffsetIndex];
-                if (!TilemapUtilities.areTilesNeighbors(current.getPosition(), neighborPosition, true, isWalkableFunction)) {
+                if (!TilemapUtilities.areTilesNeighbors(current.getPosition(), neighborPosition, true, defaultIsWalkable)) {
                     continue;
                 }
 
@@ -164,7 +165,7 @@ public class Astar : MonoBehaviour {
         }
 
         Path finalPath = new Path();//path from start to goal
-        goalNode = openList.peekAtElement(0);
+        goalNode = current;
         //reconstruct reverse path from goal to start by following parent pointers
         finalPath.addNodeToStart(goalNode.getPosition());
         while (goalNode.getParent() != null) {

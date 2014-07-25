@@ -16,6 +16,12 @@ public class Slime : MonoBehaviour {
 
     private SlimeRenderer _slimeRenderer = null;
 
+    private bool _isDead = false;
+    private int _aliveIndex = 0;
+    private static int _currSearchingAliveIndex = 0;
+    private static Vector2Int _anchorSlimeLocation = null;
+
+
     /* This method does the following:
      *      Initializes the slime sprite lookup table if it is not already initialized
      *      Creates the gameobject to display the slime sprite
@@ -23,6 +29,10 @@ public class Slime : MonoBehaviour {
      *      Lets all neighboring slimes know that this slime has been added
      */
     public void Start() {
+        if (_anchorSlimeLocation == null) {
+            _anchorSlimeLocation = transform.position;
+        }
+
         _slimeRenderer = GetComponent<SlimeRenderer>();
         if (_slimeRenderer == null) {
             _slimeRenderer = gameObject.AddComponent<SlimeRenderer>();
@@ -84,8 +94,103 @@ public class Slime : MonoBehaviour {
         _percentHealth -= percentDamage;
         wakeUpSlime();
         if (_percentHealth <= 0.0f) {
-            Destroy(this);
+            Vector2Int deathOrigin = transform.position;
+            DestroyImmediate(this);
+            handleSlimeDeath(deathOrigin);
         }
+    }
+
+    private void handleSlimeDeath(Vector2Int origin) {
+        Astar.isWalkableFunction = isSlimeTile;
+        Astar.earlySuccessFunction = isLocationAlive;
+        Astar.earlyFailureFunction = isLocationDead;
+
+        _currSearchingAliveIndex++;
+
+        for (int i = 0; i < TilemapUtilities.neighborFullArray.Length; i++) {
+            Vector2Int neighborPos = origin + TilemapUtilities.neighborFullArray[i];
+
+            GameObject neighborObj = Tilemap.getInstance().getTileGameObject(neighborPos);
+            if (neighborObj == null) {
+                continue;
+            }
+
+            Slime neighborSlime = neighborObj.GetComponent<Slime>();
+            if (neighborSlime == null) {
+                continue;
+            }
+
+            Path pathHome = Astar.findPath(neighborPos, _anchorSlimeLocation, false);
+
+            if (pathHome == null) {
+                neighborSlime.setDeadRecursive();
+            } else {
+                for (int j = 0; j < pathHome.Count; j++) {
+                    Vector2Int pathNode = pathHome[i];
+                    Slime s = Tilemap.getInstance().getTileGameObject(pathNode).GetComponent<Slime>();
+                    s._aliveIndex = _currSearchingAliveIndex;
+                }
+            }
+        }
+    }
+
+    private void setDeadRecursive() {
+        _isDead = true;
+        transform.position += Vector3.up * 0.1f;
+
+        for (int i = 0; i < TilemapUtilities.neighborFullArray.Length; i++) {
+            Vector2Int neighborPos = Tilemap.getTilemapLocation(transform.position) + TilemapUtilities.neighborFullArray[i];
+
+            GameObject neighborObj = Tilemap.getInstance().getTileGameObject(neighborPos);
+            if (neighborObj == null) {
+                continue;
+            }
+
+            Slime neighborSlime = neighborObj.GetComponent<Slime>();
+            if (neighborSlime == null) {
+                continue;
+            }
+
+            if (!neighborSlime._isDead) {
+                neighborSlime.setDeadRecursive();
+            }
+        }
+    }
+
+    private static bool isSlimeTile(Vector2Int location) {
+        GameObject tileObj = Tilemap.getInstance().getTileGameObject(location);
+        if (tileObj == null) {
+            return false;
+        }
+
+        return tileObj.GetComponent<Slime>() != null;
+    }
+
+    private static bool isLocationDead(Vector2Int location) {
+        GameObject tileObj = Tilemap.getInstance().getTileGameObject(location);
+        if (tileObj == null) {
+            return false;
+        }
+        Slime s = tileObj.GetComponent<Slime>();
+        if (s == null) {
+            return false;
+        }
+
+        return s._isDead;
+    }
+
+    private static bool isLocationAlive(Vector2Int location) {
+        GameObject tileObj = Tilemap.getInstance().getTileGameObject(location);
+        if (tileObj == null) {
+            return false;
+        }
+
+        Slime s = tileObj.GetComponent<Slime>();
+        if (s == null) {
+            return false;
+        }
+
+        return s._aliveIndex == _currSearchingAliveIndex;
     }
 
     /* Requests that this slime expand allong the given path.  It will expand 

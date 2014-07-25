@@ -1,6 +1,8 @@
 fileFormatVersion: 2
 guid: 91eb35860b8a6a643981704fe6095fd1
 TextureImporter:
+  fileIDToRecycleName:
+    21300000: redlab
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0

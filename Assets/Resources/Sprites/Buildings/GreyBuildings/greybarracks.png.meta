@@ -1,6 +1,8 @@
 fileFormatVersion: 2
 guid: 3958de276e3f1644faf00f11007e9e2b
 TextureImporter:
+  fileIDToRecycleName:
+    21300000: greybarracks
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0

@@ -1,8 +1,8 @@
 fileFormatVersion: 2
-guid: 04d597d89c13e1f43a62b7d9e6da45de
+guid: 5e0e99ffa4d06ea4ab017f40a75a2e65
 TextureImporter:
   fileIDToRecycleName:
-    21300000: Slime-0x1
+    21300000: wallTileColumn
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0

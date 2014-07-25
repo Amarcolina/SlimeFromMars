@@ -1,6 +1,8 @@
 fileFormatVersion: 2
 guid: ea2b73f9b371eba44abc4376608faed8
 TextureImporter:
+  fileIDToRecycleName:
+    21300000: DoorEnd
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0

@@ -1,8 +1,8 @@
 fileFormatVersion: 2
-guid: 4b03b638ad3c0d04794da83eeb196c8d
+guid: b55a9bb39e8cbc24c80e71538849c619
 TextureImporter:
   fileIDToRecycleName:
-    21300000: Slime-0x3
+    21300000: topEndTile
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0

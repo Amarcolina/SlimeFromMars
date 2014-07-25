@@ -1,6 +1,8 @@
 fileFormatVersion: 2
 guid: 3806337c181655c42ab64c3c2876da82
 TextureImporter:
+  fileIDToRecycleName:
+    21300000: greycannon
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0

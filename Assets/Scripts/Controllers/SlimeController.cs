@@ -78,10 +78,7 @@ public class SlimeController : MonoBehaviour {
         }
 
         if (Input.GetMouseButtonDown(1) && currentSelectedSlime != null) {
-            //calculates astar path with start and goal locations, then calculates the cost of the path
-            Vector2Int startLocation = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
-            Vector2Int goalLocation = Tilemap.getTilemapLocation(getTilePositionUnderCursor().transform.position);
-            Path astarPath = Astar.findPath(startLocation, goalLocation);
+            Path astarPath = Astar.findPath(getStartLocation(), getGoalLocation());
             int pathCost = Slime.getPathCost(astarPath);
 
             //if the slime has the energy to move, take the astar path
@@ -168,7 +165,7 @@ public class SlimeController : MonoBehaviour {
         _gameUi.ResourceUpdate(energy);
 
     }
-    public Vector2Int getStartLocation() { 
+    public Vector2Int getStartLocation() {
         return Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
     }
 
@@ -177,13 +174,14 @@ public class SlimeController : MonoBehaviour {
     }
 
     /*###################################### ELEMENTAL SKILLS #######################################*/
-    public void useRadiationDefense() {
-        //stores range and radius
-        float rangeOfAttack = RADIATION_BASE_RANGE * radiationLevel;
-        int circleRadius = 3 * radiationLevel;
 
+    //Allows slime to irradiate tiles permanently so that enemies that walk into the area are stunned for short periods of time
+    public void useRadiationDefense() {
+        float rangeOfAttack = RADIATION_BASE_RANGE * radiationLevel;
         //if distance is within range of attack, check each tile in the radius and then irradiate each tile that can be irradiated
-        if ( Vector2Int.distance(getStartLocation(), getGoalLocation()) <= rangeOfAttack) {
+        if (Vector2Int.distance(getStartLocation(), getGoalLocation()) <= rangeOfAttack) {
+            int circleRadius = 3 * radiationLevel;
+
             for (int dx = -circleRadius; dx <= circleRadius; dx++) {
                 for (int dy = -circleRadius; dy <= circleRadius; dy++) {
                     Vector2 tileOffset = new Vector2(dx, dy);
@@ -203,6 +201,8 @@ public class SlimeController : MonoBehaviour {
         loseEnergy(RADIATION_DEFENSE_COST);
     }
 
+    //Allows slime to irradiate an area for a period of time such that enemies are damaged per second
+    //Damage and range will increase based on level
     public void useRadiationOffense() {
         float rangeOfAttack = RADIATION_BASE_RANGE * radiationLevel;
         //if distance is within range of attack, create the radius of radiation
@@ -228,9 +228,8 @@ public class SlimeController : MonoBehaviour {
     }
 
     //outputs circle of enemy-damaging electricity from central point of selected slime tile
-    //radius increases with electricityLevel
+    //radius increases with electricityLevel, as does damage
     public void useElectricityDefense() {
-     
         int circleRadius = electricityLevel;
         for (int dx = -circleRadius; dx <= circleRadius; dx++) {
             for (int dy = -circleRadius; dy <= circleRadius; dy++) {
@@ -246,10 +245,12 @@ public class SlimeController : MonoBehaviour {
         loseEnergy(ELECTRICITY_DEFENSE_COST);
     }
 
-    //sends a bolt of electricity at an enemy, up to a max distance away
+    //sends a bolt of electricity at an enemy, up to a max distance away, and ars to nearby enemies for chain damage
+    //damage and range increase with electricityLevel
     public void useElectricityOffense() {
         float damageDone = ELECTRICITY_BASE_DAMAGE * electricityLevel;
         float rangeOfAttack = ELECTRICITY_BASE_RANGE * electricityLevel;
+
         if (Vector2Int.distance(getStartLocation(), getGoalLocation()) <= rangeOfAttack) {
             bool wasDamaged = getTilePositionUnderCursor().damageTileEntities(damageDone);
             if (wasDamaged) {
@@ -258,8 +259,9 @@ public class SlimeController : MonoBehaviour {
         }
     }
 
-    //outputs circle of thick, high health slime from central point of selected slime tile
-    //radius increases with bioLevel
+    //outputs a circle of thick, high health slime from central point of selected slime tile
+    //radius and health increases with bioLevel
+    //defense will remain until destroyed by enemies
     public void useBioDefense() {
         int circleRadius = bioLevel;
         for (int dx = -circleRadius; dx <= circleRadius; dx++) {
@@ -277,20 +279,19 @@ public class SlimeController : MonoBehaviour {
         loseEnergy(BIO_DEFENSE_COST);
     }
 
+    //Creates a tentacle that can stab and impale enemies, as well as drag them towards the slime at higher levels
+    //Damage and range are based on level
     public void useBioOffense() {
         float damageDone = BIO_BASE_DAMAGE * bioLevel;
         float rangeOfAttack = BIO_BASE_RANGE * bioLevel;
         Path astarPath = Astar.findPath(getStartLocation(), getGoalLocation());
         float pathCost = astarPath.getLength();
-        //NEED ABILITY TO EXPAND ALONG PATH
         if (pathCost <= rangeOfAttack) {
             bool wasDamaged = getTilePositionUnderCursor().damageTileEntities(damageDone);
-            // TENTACLE NOT FINISHED
             // MISSING Tile.canDamageTileEntities()
             if (wasDamaged) {
                 loseEnergy(BIO_OFFENSE_COST);
             }
-
         }
     }
 }

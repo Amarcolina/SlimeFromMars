@@ -3,10 +3,13 @@ using System.Collections;
 
 public enum ScientistState {
     WANDERING,
-    FLEEING
+    FLEEING,
+    STUNNED
 }
 
 public class ScientistEnemy : BaseEnemy {
+    public const float STUN_COOLDOWN = 1.0f;
+
     public ScientistState startState = ScientistState.WANDERING;
 
     public float wanderSpeed = 2.5f;

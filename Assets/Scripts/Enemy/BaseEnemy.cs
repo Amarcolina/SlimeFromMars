@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class BaseEnemy : MonoBehaviour, IDamageable{
+public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable{
     public MovementPattern movementPattern;
 
     protected int _waypointIndex = 0;
@@ -13,12 +13,28 @@ public class BaseEnemy : MonoBehaviour, IDamageable{
     protected Slime _currentSlimeToFleeFrom = null;
     protected Path _fleePath = null;
 
+    protected float _lastStunTime = 0.0f;
+
     public virtual void Awake(){
         _tilemap = Tilemap.getInstance();
     }
 
     public void damage(float damage) {
         Destroy(gameObject);
+    }
+
+    public void stun(float duration) {
+        if (_lastStunTime - Time.time > getStunCooldown()) {
+            _lastStunTime = Time.time;
+            onEnemyWasStunned();
+        }
+    }
+
+    public virtual void onEnemyWasStunned() {
+    }
+
+    protected virtual float getStunCooldown() {
+        return 1.0f;
     }
 
     //Checks to see if the enemytileobject has a slime component on its tile

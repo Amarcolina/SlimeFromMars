@@ -97,6 +97,22 @@ public class Vector2Int {
         return x*(1 << 8) + y;
     }
 
+    public static implicit operator Vector2(Vector2Int i) {
+        return Tilemap.getWorldLocation(i);
+    }
+
+    public static implicit operator Vector3(Vector2Int i) {
+        return Tilemap.getWorldLocation(i);
+    }
+
+    public static implicit operator Vector2Int(Vector2 i) {
+        return Tilemap.getTilemapLocation(i);
+    }
+
+    public static implicit operator Vector2Int(Vector3 i) {
+        return Tilemap.getTilemapLocation(i);
+    }
+
     public static Vector2Int right {
         get {
             return new Vector2Int(1, 0);
@@ -126,4 +142,6 @@ public class Vector2Int {
             return new Vector2Int(0, 0);
         }
     }
+
+
 }

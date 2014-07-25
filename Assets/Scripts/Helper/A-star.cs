@@ -3,11 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 
-public class Astar : MonoBehaviour {
-    public delegate float AStarMovementCost(Vector2Int position, Vector2Int neighbor);
-    public delegate float AStarNodeHeuristic(Vector2Int position, Vector2Int goal);
-    public delegate bool AStarIsPathWalkable(Vector2Int position);
+public delegate float AStarMovementCost(Vector2Int position, Vector2Int neighbor);
+public delegate float AStarNodeHeuristic(Vector2Int position, Vector2Int goal);
+public delegate bool AStarIsPathWalkable(Vector2Int position);
 
+public class Astar : MonoBehaviour {
     public class Node : IComparable {
         Vector2Int position; //tilemap position of node
         private Node parent;
@@ -79,9 +79,12 @@ public class Astar : MonoBehaviour {
             return null;
         }
 
+        if (!isWalkableFunction(goal)) {
+            return null;
+        }
+
         BinaryMinHeap<Node> openList = new BinaryMinHeap<Node>();//nodes to be examined
         HashSet<Node> closedList = new HashSet<Node>();
-        Tilemap tileMap = Tilemap.getInstance();
         Dictionary<Vector2Int, Node> nodePostionMap = new Dictionary<Vector2Int, Node>();
         Node startNode = new Node(start, goal, null, heuristicFunction(start, goal));
         Node goalNode = null;
@@ -92,7 +95,13 @@ public class Astar : MonoBehaviour {
             Node current = openList.extractElement(0);//remove lowest rank node from openList
             closedList.Add(current);//add current to closedList
 
-            foreach (Vector2Int neighborPosition in tileMap.getNeighboringPositions(current.getPosition(), true, true)) {//for neighbors of current:
+            //for neighbors of current:
+            for(int neighborOffsetIndex = 0; neighborOffsetIndex < TilemapUtilities.neighborFullArray.Length; neighborOffsetIndex++) {
+                Vector2Int neighborPosition = current.getPosition() + TilemapUtilities.neighborFullArray[neighborOffsetIndex];
+                if (!TilemapUtilities.areTilesNeighbors(current.getPosition(), neighborPosition, true, isWalkableFunction)) {
+                    continue;
+                }
+
                 if (!isWalkableFunction(neighborPosition)) {
                     continue;
                 }
@@ -138,8 +147,15 @@ public class Astar : MonoBehaviour {
         return finalPath;
     }
 
+    public static Dictionary<Vector2Int, bool> _isWalkableCache = new Dictionary<Vector2Int, bool>();
     public static bool defaultIsWalkable(Vector2Int position) {
-        return Tilemap.getInstance().isWalkable(position);
+        bool walkableBool;
+        if (_isWalkableCache.TryGetValue(position, out walkableBool)) {
+            return walkableBool;
+        }
+        walkableBool = Tilemap.getInstance().isWalkable(position);
+        _isWalkableCache[position] = walkableBool;
+        return walkableBool;
     }
 
     //the cost of moving directly from one node to another

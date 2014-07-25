@@ -17,6 +17,7 @@ public class Slime : MonoBehaviour {
     private SlimeRenderer _slimeRenderer = null;
 
     private bool _isDead = false;
+    private float _destructionTime = 0.0f;
     private int _aliveIndex = 0;
     private static int _currSearchingAliveIndex = 0;
     private static Vector2Int _anchorSlimeLocation = null;
@@ -69,17 +70,24 @@ public class Slime : MonoBehaviour {
     public void Update() {
         bool canGoToSleep = true;
 
-        if (_currentExpandPath != null) {
-            _timeUntilExpand -= Time.deltaTime;
-            if (_timeUntilExpand <= 0.0f) {
-                expandSlime();
+        if (_isDead) {
+            canGoToSleep = false;
+            if (Time.time >= _destructionTime) {
+                damageSlime(1.0f);
             }
-            canGoToSleep = false;
-        }
+        } else {
+            if (_currentExpandPath != null) {
+                _timeUntilExpand -= Time.deltaTime;
+                if (_timeUntilExpand <= 0.0f) {
+                    expandSlime();
+                }
+                canGoToSleep = false;
+            }
 
-        if (_percentHealth != 1.0f && _percentHealth > 0.0f) {
-            _percentHealth = Mathf.MoveTowards(_percentHealth, 1.0f, HEALTH_REGEN_RATE * Time.deltaTime);
-            canGoToSleep = false;
+            if (_percentHealth != 1.0f && _percentHealth > 0.0f) {
+                _percentHealth = Mathf.MoveTowards(_percentHealth, 1.0f, HEALTH_REGEN_RATE * Time.deltaTime);
+                canGoToSleep = false;
+            }
         }
 
         if (canGoToSleep) {
@@ -96,7 +104,9 @@ public class Slime : MonoBehaviour {
         if (_percentHealth <= 0.0f) {
             Vector2Int deathOrigin = transform.position;
             DestroyImmediate(this);
-            handleSlimeDeath(deathOrigin);
+            if (!_isDead) {
+                handleSlimeDeath(deathOrigin);
+            }
         }
     }
 
@@ -123,7 +133,7 @@ public class Slime : MonoBehaviour {
             Path pathHome = Astar.findPath(neighborPos, _anchorSlimeLocation, false);
 
             if (pathHome == null) {
-                neighborSlime.setDeadRecursive();
+                neighborSlime.setDeadRecursive(Time.time);
             } else {
                 for (int j = 0; j < pathHome.Count; j++) {
                     Vector2Int pathNode = pathHome[i];
@@ -134,9 +144,10 @@ public class Slime : MonoBehaviour {
         }
     }
 
-    private void setDeadRecursive() {
+    private void setDeadRecursive(float destructionTime) {
         _isDead = true;
-        transform.position += Vector3.up * 0.1f;
+        wakeUpSlime();
+        _destructionTime = destructionTime;
 
         for (int i = 0; i < TilemapUtilities.neighborFullArray.Length; i++) {
             Vector2Int neighborPos = Tilemap.getTilemapLocation(transform.position) + TilemapUtilities.neighborFullArray[i];
@@ -152,7 +163,7 @@ public class Slime : MonoBehaviour {
             }
 
             if (!neighborSlime._isDead) {
-                neighborSlime.setDeadRecursive();
+                neighborSlime.setDeadRecursive(_destructionTime + 1.0f);
             }
         }
     }

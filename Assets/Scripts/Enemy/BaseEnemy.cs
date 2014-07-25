@@ -14,6 +14,7 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable{
     protected Path _fleePath = null;
 
     protected float _lastStunTime = 0.0f;
+    protected float _stunEndTime = 0.0f;
 
     public virtual void Awake(){
         _tilemap = Tilemap.getInstance();
@@ -26,15 +27,16 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable{
     public void stun(float duration) {
         if (_lastStunTime - Time.time > getStunCooldown()) {
             _lastStunTime = Time.time;
-            onEnemyWasStunned();
+            _stunEndTime = Time.time + duration;
         }
-    }
-
-    public virtual void onEnemyWasStunned() {
     }
 
     protected virtual float getStunCooldown() {
         return 1.0f;
+    }
+
+    protected bool isStunned() {
+        return Time.time >= _stunEndTime;
     }
 
     //Checks to see if the enemytileobject has a slime component on its tile

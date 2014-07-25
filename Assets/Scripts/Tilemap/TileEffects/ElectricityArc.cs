@@ -5,11 +5,11 @@ public class ElectricityArc : MonoBehaviour {
     int arcRadius, arcDamage, arcNumber;
     private float timeUntilArc = 0.2f;
 
-     void Start(){
+    void Start() {
         Tilemap.getInstance().getTile(transform.position).damageTileEntities(arcDamage);
     }
-	// Update is called once per frame
-	void Update () {
+    // Update is called once per frame
+    void Update() {
         if (timeUntilArc > 0) {
             timeUntilArc -= Time.deltaTime;
         } else {
@@ -18,7 +18,7 @@ public class ElectricityArc : MonoBehaviour {
             }
             Destroy(this.gameObject);
         }
-	}
+    }
 
     public void setArcRadius(int radius) {
         arcRadius = radius;
@@ -39,7 +39,7 @@ public class ElectricityArc : MonoBehaviour {
                 Vector2 tileOffset = new Vector2(dx, dy);
                 if (tileOffset.sqrMagnitude <= arcRadius * arcRadius) {
                     Tile tile = Tilemap.getInstance().getTile(Tilemap.getTilemapLocation(transform.position) + new Vector2Int(dx, dy));
-                    if (tile != null && tile.canDamageEntities() && arcNumber > 0) {       
+                    if (tile != null && tile.canDamageEntities() && arcNumber > 0) {
                         GameObject electricityArc = new GameObject("ElectricityArc");
                         electricityArc.transform.position = tile.transform.position;
                         ElectricityArc arcComponent = electricityArc.AddComponent<ElectricityArc>();

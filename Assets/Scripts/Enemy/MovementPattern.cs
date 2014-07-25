@@ -84,6 +84,7 @@ public class MovementPattern : MonoBehaviour {
                         index -= pattern._waypointsContained;
                     }
                 }
+                //
             }
 
             patternIndex += patternDirection;

@@ -100,15 +100,6 @@ public class BaseEnemy : MonoBehaviour, IDamageable{
         return false;
     }
 
-    private Vector2Int[] _directionList = {new Vector2Int( 1,  1),
-                                           new Vector2Int( 0,  1),
-                                           new Vector2Int(-1,  1),
-                                           new Vector2Int(-1,  0),
-                                           new Vector2Int(-1, -1),
-                                           new Vector2Int( 0, -1),
-                                           new Vector2Int( 1, -1),
-                                           new Vector2Int( 1,  0)};
-
     /* This method returns the nearest slime to the enemy, or null is none
      * were found inside of the given search radius.  This only searches
      * allon the 4 main axes and the 4 diagonals, so it will not return
@@ -141,8 +132,7 @@ public class BaseEnemy : MonoBehaviour, IDamageable{
         if (tileObj == null || !tileObj.GetComponent<Tile>().isWalkable) {
             return true;
         }
-        Slime s;
-        if ((s = tileObj.GetComponent<Slime>()) != null) {
+        if (tileObj.GetComponent<Slime>() != null) {
             return true;
         }
         return false;

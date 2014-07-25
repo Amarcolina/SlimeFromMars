@@ -3,8 +3,7 @@ using System.Collections;
 
 public enum ScientistState {
     WANDERING,
-    FLEEING,
-    STUNNED
+    FLEEING
 }
 
 public class ScientistEnemy : BaseEnemy {

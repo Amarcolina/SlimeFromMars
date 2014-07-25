@@ -6,13 +6,15 @@ using System;
 public delegate float AStarMovementCost(Vector2Int position, Vector2Int neighbor);
 public delegate float AStarNodeHeuristic(Vector2Int position, Vector2Int goal);
 public delegate bool AStarIsPathWalkable(Vector2Int position);
-public delegate bool AStarIsGoalNode(Vector2Int position);
+public delegate bool AStarEarlySuccessFunction(Vector2Int position);
+public delegate bool AStarEarlyFailureFunction(Vector2Int position);
 
 public class Astar : MonoBehaviour {
     public static AStarMovementCost movementCostFunction = defaultMovementCost;
     public static AStarNodeHeuristic heuristicFunction = defaultHeuristic;
     public static AStarIsPathWalkable isWalkableFunction = defaultIsWalkable;
-    public static AStarIsGoalNode isGoalNodeFunction = null;
+    public static AStarEarlySuccessFunction earlySuccessFunction = null;
+    public static AStarEarlyFailureFunction earlyFailureFunction = null;
     public static int maxNodesToCheck = -1;
 
     public class Node : IComparable {
@@ -68,7 +70,8 @@ public class Astar : MonoBehaviour {
             movementCostFunction = defaultMovementCost;
             heuristicFunction = defaultHeuristic;
             isWalkableFunction = defaultIsWalkable;
-            isGoalNodeFunction = null;
+            earlySuccessFunction = null;
+            earlyFailureFunction = null;
             maxNodesToCheck = -1;
         }
         return path;
@@ -93,13 +96,24 @@ public class Astar : MonoBehaviour {
         openList.insert(startNode);
         int nodesChecked = 0;
 
-        //We terminate only under 2 conditions after testing the top element of the heap
-        //It is the same as the goal node
-        //It satisfies the isGoalNodeFunction() (if there is any)
-        while (openList.peekAtElement(0).getPosition() != goal && 
-                     (isGoalNodeFunction == null || 
-                      !isGoalNodeFunction(openList.peekAtElement(0).getPosition()))) { 
+        while(true){
             Node current = openList.extractElement(0);//remove lowest rank node from openList
+
+            //We break the while loop if we have found the goal node
+            if (current.getPosition() == goal) {
+                break;
+            }
+
+            //We break the while loop if the earlySuccessFunction is met
+            if (earlySuccessFunction != null && earlySuccessFunction(current.getPosition())) {
+                break;
+            }
+
+            //We terminate the function and return no path found if the earlyFailureFunction is met
+            if (earlyFailureFunction != null && earlyFailureFunction(current.getPosition())) {
+                return null;
+            }
+
             closedList.Add(current);//add current to closedList
 
             //for neighbors of current:

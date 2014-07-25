@@ -8,7 +8,7 @@ public class TileEntity : MonoBehaviour {
 
     public void Awake() {
         _tilemap = Tilemap.getInstance();
-        _currentTilePosition = Tilemap.getTilemapLocation(transform.position);
+        _currentTilePosition = transform.position;
         _currentTile = _tilemap.getTile(_currentTilePosition);
         _currentTile.addTileEntity(this);
 
@@ -22,7 +22,7 @@ public class TileEntity : MonoBehaviour {
     }
 
     public void Update() {
-        Vector2Int newPosition = Tilemap.getTilemapLocation(transform.position);
+        Vector2Int newPosition = transform.position;
         if (newPosition != _currentTilePosition) {
             _currentTile.removeTileEntity(this);
             _currentTilePosition = newPosition;

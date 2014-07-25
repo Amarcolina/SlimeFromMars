@@ -62,13 +62,15 @@ public class Astar : MonoBehaviour {
         }
     }
 
-    public static Path findPath(Vector2Int start, Vector2Int goal){
+    public static Path findPath(Vector2Int start, Vector2Int goal, bool resetDefaults = true){
         Path path = findPathInternal(start, goal);
-        movementCostFunction = defaultMovementCost;
-        heuristicFunction = defaultHeuristic;
-        isWalkableFunction = defaultIsWalkable;
-        isGoalNodeFunction = null;
-        maxNodesToCheck = -1;
+        if (resetDefaults) {
+            movementCostFunction = defaultMovementCost;
+            heuristicFunction = defaultHeuristic;
+            isWalkableFunction = defaultIsWalkable;
+            isGoalNodeFunction = null;
+            maxNodesToCheck = -1;
+        }
         return path;
     }
 
@@ -89,7 +91,14 @@ public class Astar : MonoBehaviour {
         nodePostionMap.Add(startNode.getPosition(), startNode);
 
         openList.insert(startNode);
-        while (openList.peekAtElement(0).getPosition() != goal) { //while lowest rank in openList is not the goal node
+        int nodesChecked = 0;
+
+        //We terminate only under 2 conditions after testing the top element of the heap
+        //It is the same as the goal node
+        //It satisfies the isGoalNodeFunction() (if there is any)
+        while (openList.peekAtElement(0).getPosition() != goal && 
+                     (isGoalNodeFunction == null || 
+                      !isGoalNodeFunction(openList.peekAtElement(0).getPosition()))) { 
             Node current = openList.extractElement(0);//remove lowest rank node from openList
             closedList.Add(current);//add current to closedList
 
@@ -129,6 +138,13 @@ public class Astar : MonoBehaviour {
             //of places to check.  In this case we have failed to find a path and we must
             //return null
             if (openList.getHeapSize() == 0) {
+                return null;
+            }
+
+            //if maxNodesToCheck is 0 or less, that is interpreted as unlimited number of nodes
+            //if maxNodesToCheck is nonzero, we terminate with no path found 
+            nodesChecked++;
+            if (maxNodesToCheck > 0 && nodesChecked >= maxNodesToCheck) {
                 return null;
             }
         }

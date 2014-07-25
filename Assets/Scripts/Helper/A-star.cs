@@ -6,8 +6,15 @@ using System;
 public delegate float AStarMovementCost(Vector2Int position, Vector2Int neighbor);
 public delegate float AStarNodeHeuristic(Vector2Int position, Vector2Int goal);
 public delegate bool AStarIsPathWalkable(Vector2Int position);
+public delegate bool AStarIsGoalNode(Vector2Int position);
 
 public class Astar : MonoBehaviour {
+    public static AStarMovementCost movementCostFunction = defaultMovementCost;
+    public static AStarNodeHeuristic heuristicFunction = defaultHeuristic;
+    public static AStarIsPathWalkable isWalkableFunction = defaultIsWalkable;
+    public static AStarIsGoalNode isGoalNodeFunction = null;
+    public static int maxNodesToCheck = -1;
+
     public class Node : IComparable {
         Vector2Int position; //tilemap position of node
         private Node parent;
@@ -55,26 +62,17 @@ public class Astar : MonoBehaviour {
         }
     }
 
-    public static Path findPath(Vector2Int start, Vector2Int goal) {
-        return findPath(start, goal, defaultHeuristic, defaultIsWalkable, defaultMovementCost);
+    public static Path findPath(Vector2Int start, Vector2Int goal){
+        Path path = findPathInternal(start, goal);
+        movementCostFunction = defaultMovementCost;
+        heuristicFunction = defaultHeuristic;
+        isWalkableFunction = defaultIsWalkable;
+        isGoalNodeFunction = null;
+        maxNodesToCheck = -1;
+        return path;
     }
 
-    public static Path findPath(Vector2Int start, Vector2Int goal, AStarNodeHeuristic heuristicFunction) {
-        return findPath(start, goal, heuristicFunction, defaultIsWalkable, defaultMovementCost);
-    }
-
-    public static Path findPath(Vector2Int start, Vector2Int goal, AStarIsPathWalkable isWalkableFunction) {
-        return findPath(start, goal, defaultHeuristic, isWalkableFunction, defaultMovementCost);
-    }
-
-    public static Path findPath(Vector2Int start, Vector2Int goal, AStarMovementCost movementCostFunction) {
-        return findPath(start, goal, defaultHeuristic, defaultIsWalkable, movementCostFunction);
-    }
-
-    public static Path findPath(Vector2Int start, Vector2Int goal, 
-                                AStarNodeHeuristic heuristicFunction, 
-                                AStarIsPathWalkable isWalkableFunction, 
-                                AStarMovementCost movementCostFunction) {  
+    private static Path findPathInternal(Vector2Int start, Vector2Int goal) {  
         if (start == null || goal == null) {
             return null;
         }

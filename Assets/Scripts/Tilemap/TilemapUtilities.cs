@@ -23,66 +23,40 @@ public class TilemapUtilities {
      * neighbor list, as well as if they want to include non-walkable tiles in the list
      */
 
-    
-    public static List<Vector2Int> getNeighboringPositions(Vector2Int position, 
-                                                           bool includeDiagonal = true,  
-                                                           AStarIsPathWalkable walkableFunction = null) {
-        List<Vector2Int> neighborList = new List<Vector2Int>();
-        FoundNeighborFunc func = delegate(Vector2Int tilePosition) {
-            neighborList.Add(tilePosition);
-        };
-        findNeighboringLocationsInternal(position, func, includeDiagonal, walkableFunction);
-        return neighborList;
-    }
+    public static Vector2Int[] neighborOrthoArray = {new Vector2Int(0, 1),
+                                                     new Vector2Int(1, 0),
+                                                     new Vector2Int(0, -1),
+                                                     new Vector2Int(-1, 0)};
 
-    public static List<Tile> getNeighboringTiles(Vector2Int position, 
-                                                 bool includeDiagonal = true, 
-                                                 AStarIsPathWalkable walkableFunction = null) {
-        List<Tile> neighborList = new List<Tile>();
-        FoundNeighborFunc func = delegate(Vector2Int tilePosition) {
-            neighborList.Add(Tilemap.getInstance().getTile(tilePosition));
-        };
-        findNeighboringLocationsInternal(position, func, includeDiagonal, walkableFunction);
-        return neighborList;
-    }
+    public static Vector2Int[] neighborFullArray = {new Vector2Int(-1, -1),
+                                                    new Vector2Int( 0, -1),
+                                                    new Vector2Int( 1, -1),
+                                                    new Vector2Int( 1,  0),
+                                                    new Vector2Int( 1,  1),
+                                                    new Vector2Int( 0,  1),
+                                                    new Vector2Int(-1,  1),
+                                                    new Vector2Int(-1,  0)};
 
-    private delegate void NeighborBuilderDelegate(Vector2Int delta);
-    private delegate void FoundNeighborFunc(Vector2Int tilePosition);
-    private static void findNeighboringLocationsInternal(Vector2Int position, FoundNeighborFunc func, bool includeDiagonal = true, AStarIsPathWalkable walkableFunction = null) {
-        Tilemap tilemap = Tilemap.getInstance();
-
+    public static bool areTilesNeighbors(Vector2Int tile0, Vector2Int tile1, bool checkDiagonal = true, AStarIsPathWalkable walkableFunction = null) {
         if (walkableFunction == null) {
             walkableFunction = Astar.defaultIsWalkable;
         }
 
-        NeighborBuilderDelegate buildNeighborList = delegate(Vector2Int delta) {
-            if (walkableFunction(position + delta)){
-                func(position + delta);
-            }
-        };
-
-        if (includeDiagonal) {
-            if (walkableFunction(position + Vector2Int.right)) {
-                if (walkableFunction(position + Vector2Int.up)) {
-                    buildNeighborList(Vector2Int.right + Vector2Int.up);
-                }
-                if (walkableFunction(position + Vector2Int.down)) {
-                    buildNeighborList(Vector2Int.right + Vector2Int.down);
-                }
-            }
-            if (walkableFunction(position + Vector2Int.left)) {
-                if (walkableFunction(position + Vector2Int.up)) {
-                    buildNeighborList(Vector2Int.left + Vector2Int.up);
-                }
-                if (walkableFunction(position + Vector2Int.down)) {
-                    buildNeighborList(Vector2Int.left + Vector2Int.down);
-                }
-            }
+        if (!walkableFunction(tile1)) {
+            return false;
         }
-        buildNeighborList(Vector2Int.right);
-        buildNeighborList(Vector2Int.left);
-        buildNeighborList(Vector2Int.up);
-        buildNeighborList(Vector2Int.down);
+
+        if (tile0.x - tile1.x == 0 || tile0.y - tile1.y == 0) {
+            return true;
+        }
+
+        if (!checkDiagonal) {
+            return false;
+        }
+
+        bool cornerA = walkableFunction(new Vector2Int(tile0.x, tile1.y));
+        bool cornerB = walkableFunction(new Vector2Int(tile1.x, tile0.y));
+        return cornerA && cornerB;
     }
 
     //####################################################################################################

@@ -36,7 +36,7 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable{
     }
 
     protected bool isStunned() {
-        return Time.time >= _stunEndTime;
+        return Time.time <= _stunEndTime;
     }
 
     //Checks to see if the enemytileobject has a slime component on its tile

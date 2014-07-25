@@ -24,8 +24,8 @@ public class SlimeController : MonoBehaviour {
     private const int ELECTRICITY_DEFENSE_COST = 5;
     private const int ELECTRICITY_OFFENSE_COST = 10;
     private const int BIO_DEFENSE_COST = 8;
-    private const int BIO_OFFENSE_COST = 5;
-    private const int RADIATION_DEFENSE_COST = 10;
+    private const int BIO_OFFENSE_COST = 8;
+    private const int RADIATION_DEFENSE_COST = 12;
     private const int RADIATION_OFFENSE_COST = 10;
 
     //base damage for skills
@@ -69,6 +69,19 @@ public class SlimeController : MonoBehaviour {
     void Update() {
         if (Input.GetMouseButtonDown(0)) {
             highlightSlimeTile();
+        }
+
+        if (Input.GetKeyDown(KeyCode.E)) {
+            gainEnergy(1000000);
+        }
+        if (Input.GetKeyDown(KeyCode.R)) {
+            radiationLevel++;
+        }
+        if (Input.GetKeyDown(KeyCode.L)) {
+            electricityLevel++;
+        }
+        if (Input.GetKeyDown(KeyCode.B)) {
+            bioLevel++;
         }
 
         if (currentSelectedSlime == null) {
@@ -250,11 +263,19 @@ public class SlimeController : MonoBehaviour {
     public void useElectricityOffense() {
         float damageDone = ELECTRICITY_BASE_DAMAGE * electricityLevel;
         float rangeOfAttack = ELECTRICITY_BASE_RANGE * electricityLevel;
-
+        //if enemy is within range of attack, use electricity
         if (Vector2Int.distance(getStartLocation(), getGoalLocation()) <= rangeOfAttack) {
-            bool wasDamaged = getTilePositionUnderCursor().damageTileEntities(damageDone);
-            if (wasDamaged) {
+            bool canDamage = getTilePositionUnderCursor().canDamageEntities();
+
+            //if an enemy was damaged, check to see if there are enemies close by to arc to
+            if (canDamage) {
                 loseEnergy(ELECTRICITY_OFFENSE_COST);
+                GameObject electricityArc = new GameObject("ElectricityArc");
+                electricityArc.transform.position = getTilePositionUnderCursor().transform.position;
+                ElectricityArc arc = electricityArc.AddComponent<ElectricityArc>();
+                arc.setArcRadius(electricityLevel + 1);
+                arc.setArcDamage((int)damageDone);
+                arc.setArcNumber(electricityLevel + 1);
             }
         }
     }

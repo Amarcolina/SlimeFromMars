@@ -66,7 +66,8 @@ public class BaseEnemy : MonoBehaviour{
             waypoint = movementPattern[_waypointIndex];
         }
 
-        _currentWaypointPath = Astar.findPath(transform.position, waypoint.transform.position);
+        _currentWaypointPath = Astar.findPath(Tilemap.getTilemapLocation(transform.position), 
+                                              Tilemap.getTilemapLocation(waypoint.transform.position));
     }
 
     /* Calling this method every frame will move the enemy towards a given destination
@@ -79,7 +80,7 @@ public class BaseEnemy : MonoBehaviour{
     }
 
     protected bool moveTowardsPoint(Vector2Int target, float speed = 2.5f) {
-        return moveTowardsPoint(target, speed);
+        return moveTowardsPoint(Tilemap.getWorldLocation(target), speed);
     }
 
     /* Calling this method every frame will move the enemy allong a given path

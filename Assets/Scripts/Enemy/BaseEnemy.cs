@@ -143,7 +143,7 @@ public class BaseEnemy : MonoBehaviour, IDamageable{
         }
         Slime s;
         if ((s = tileObj.GetComponent<Slime>()) != null) {
-            return s.isSolid();
+            return true;
         }
         return false;
     }

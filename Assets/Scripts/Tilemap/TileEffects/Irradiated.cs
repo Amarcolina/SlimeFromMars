@@ -58,8 +58,11 @@ public class Irradiated : MonoBehaviour {
             _tile.damageTileEntities(TOTAL_DAMAGE * Time.deltaTime / DURATION);
 
             _totalTime += Time.deltaTime;
-            if (_totalTime >= DURATION) {
-                Destroy(this);
+            if (_totalTime >= DURATION ) {
+                shouldDamage = false;
+                if (!shouldStun) {
+                    Destroy(this);
+                }
             }
         }
         if (shouldStun) {

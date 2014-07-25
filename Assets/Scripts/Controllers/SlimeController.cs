@@ -71,6 +71,19 @@ public class SlimeController : MonoBehaviour {
             highlightSlimeTile();
         }
 
+        if (Input.GetKeyDown(KeyCode.E)) {
+            gainEnergy(1000000);
+        }
+        if (Input.GetKeyDown(KeyCode.R)) {
+            radiationLevel++;
+        }
+        if (Input.GetKeyDown(KeyCode.L)) {
+            electricityLevel++;
+        }
+        if (Input.GetKeyDown(KeyCode.B)) {
+            bioLevel++;
+        }
+
         if (currentSelectedSlime == null) {
             renderer.enabled = false;
         } else {

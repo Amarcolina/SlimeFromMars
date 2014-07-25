@@ -65,6 +65,19 @@ public class Tile : MonoBehaviour {
         return _containedTileEntities;
     }
 
+    public bool canDamageEntities() {
+        bool canDamage = false;
+        if (_containedTileEntities != null) {
+            foreach (TileEntity entity in _containedTileEntities) {
+                IDamageable damageable = entity.GetComponent(typeof(IDamageable)) as IDamageable;
+                if (damageable != null) {
+                    canDamage = true;
+                    break;
+                }
+            }
+        }
+        return canDamage;
+    }
     /* Calling this method damages any TileEntities which are currently
      * standing on the Tile.  This method returns true only if 
      * at least one TileEntity was damaged.

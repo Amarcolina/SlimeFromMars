@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class BaseEnemy : MonoBehaviour{
+public class BaseEnemy : MonoBehaviour, IDamageable{
     public MovementPattern movementPattern;
 
     protected int _waypointIndex = 0;
@@ -10,8 +10,15 @@ public class BaseEnemy : MonoBehaviour{
     protected float _timeUntilNextWaypoint = 0.0f;
     protected Tilemap _tilemap = null;
 
+    protected Slime _currentSlimeToFleeFrom = null;
+    protected Path _fleePath = null;
+
     public virtual void Awake(){
         _tilemap = Tilemap.getInstance();
+    }
+
+    public void damage(float damage) {
+        Destroy(gameObject);
     }
 
     //Checks to see if the enemytileobject has a slime component on its tile
@@ -66,8 +73,7 @@ public class BaseEnemy : MonoBehaviour{
             waypoint = movementPattern[_waypointIndex];
         }
 
-        _currentWaypointPath = Astar.findPath(Tilemap.getTilemapLocation(transform.position), 
-                                              Tilemap.getTilemapLocation(waypoint.transform.position));
+        _currentWaypointPath = Astar.findPath(transform.position, waypoint.transform.position);
     }
 
     /* Calling this method every frame will move the enemy towards a given destination
@@ -77,10 +83,6 @@ public class BaseEnemy : MonoBehaviour{
     protected bool moveTowardsPoint(Vector2 destination, float speed = 2.5f) {
         transform.position = Vector2.MoveTowards(transform.position, destination, speed * Time.deltaTime);
         return new Vector2(transform.position.x, transform.position.y) == destination;
-    }
-
-    protected bool moveTowardsPoint(Vector2Int target, float speed = 2.5f) {
-        return moveTowardsPoint(Tilemap.getWorldLocation(target), speed);
     }
 
     /* Calling this method every frame will move the enemy allong a given path
@@ -96,5 +98,93 @@ public class BaseEnemy : MonoBehaviour{
             path.getNext();
         }
         return false;
+    }
+
+    /* This method returns the nearest slime to the enemy, or null is none
+     * were found inside of the given search radius.  This only searches
+     * allon the 4 main axes and the 4 diagonals, so it will not return
+     * correctly in every case
+     */
+    protected Slime getNearestVisibleSlime(int maxTileDistance = 20) {
+        Slime nearestSlime = null;
+        float closestDistance = float.MaxValue;
+        for (float angle = 0.0f; angle < 360.0f; angle += 45.0f) {
+            TileRayHit hit = TilemapUtilities.castTileRay(transform.position, Quaternion.AngleAxis(angle, Vector3.forward) * Vector2.right, 15.0f, tileRayHitSlime);
+            if (hit.didHit) {
+                Debug.DrawLine(transform.position, hit.hitPosition, Color.red);
+                GameObject hitObj = _tilemap.getTileGameObject(hit.hitPosition);
+                if (hitObj != null) {
+                    Slime slime = hitObj.GetComponent<Slime>();
+                    if (slime != null) {
+                        float dist = (slime.transform.position - transform.position).sqrMagnitude;
+                        if (dist < closestDistance) {
+                            nearestSlime = slime;
+                            closestDistance = dist;
+                        }
+                    }
+                }
+            }
+        }
+        return nearestSlime;
+    }
+
+    public static bool tileRayHitSlime(GameObject tileObj) {
+        if (tileObj == null || !tileObj.GetComponent<Tile>().isWalkable) {
+            return true;
+        }
+        if (tileObj.GetComponent<Slime>() != null) {
+            return true;
+        }
+        return false;
+    }
+
+    protected bool runAwayFromSlime(float speed = 2.5f) {
+        Slime nearestSlime = getNearestVisibleSlime();
+
+        if (_currentSlimeToFleeFrom != null) {
+            if (nearestSlime == null || Vector3.Distance(transform.position, nearestSlime.transform.position) > Vector3.Distance(transform.position, _currentSlimeToFleeFrom.transform.position)) {
+                nearestSlime = _currentSlimeToFleeFrom;
+            }
+        }
+
+        if (nearestSlime == null) {
+            return false;
+        }
+
+        _currentSlimeToFleeFrom = nearestSlime;
+
+        float minCost = _fleePath == null ? float.MaxValue : -Vector3.Distance(nearestSlime.transform.position, _fleePath.getEnd()) - 4.0f;
+
+        for (float checkDistance = 2; checkDistance < 20; checkDistance += 5.0f) {
+            for (float angle = 0; angle < 360.0f; angle += 45.0f) {
+                Vector3 checkPos = transform.position + Quaternion.AngleAxis(angle, Vector3.forward) * Vector2.right * checkDistance;
+                Path path = Astar.findPath(transform.position, checkPos);
+                if (path != null) {
+                    float cost = -Vector3.Distance(nearestSlime.transform.position, checkPos);
+                    if (cost < minCost) {
+                        minCost = cost - 2.0f;
+                        if (path.hasNext()) {
+                            path.getNext();
+                        }
+                        _fleePath = path;
+                    }
+                }
+            }
+        }
+
+        if (minCost == float.MaxValue) {
+            return false;
+        }
+
+        return followPath(_fleePath, speed);
+    }
+
+    public void OnDrawGizmos() {
+        if (_fleePath != null) {
+            Gizmos.color = Color.blue;
+            for (int i = 0; i < _fleePath.Count - 1; i++) {
+                Gizmos.DrawLine(_fleePath[i], _fleePath[i + 1]);
+            }
+        }
     }
 }

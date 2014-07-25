@@ -13,7 +13,7 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable{
     protected Slime _currentSlimeToFleeFrom = null;
     protected Path _fleePath = null;
 
-    protected float _lastStunTime = 0.0f;
+    protected float _canBeStunnedAgainTime = 0.0f;
     protected float _stunEndTime = 0.0f;
 
     public virtual void Awake(){
@@ -25,8 +25,8 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable{
     }
 
     public void stun(float duration) {
-        if (_lastStunTime - Time.time > getStunCooldown()) {
-            _lastStunTime = Time.time;
+        if (Time.time > _canBeStunnedAgainTime) {
+            _canBeStunnedAgainTime = Time.time + duration + getStunCooldown();
             _stunEndTime = Time.time + duration;
         }
     }

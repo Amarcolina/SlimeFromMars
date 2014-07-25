@@ -1,6 +1,8 @@
 fileFormatVersion: 2
 guid: fa9d7db3dfbd315409403a27c425e2ff
 TextureImporter:
+  fileIDToRecycleName:
+    21300000: greytechlab
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0

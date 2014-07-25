@@ -1,6 +1,8 @@
 fileFormatVersion: 2
 guid: d2751ff773f7dd844ada28eb9e3a7080
 TextureImporter:
+  fileIDToRecycleName:
+    21300000: bluecannon
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0

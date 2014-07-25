@@ -1,8 +1,8 @@
 fileFormatVersion: 2
-guid: b585efd7c8f25f647ba83bad4b4dee65
+guid: 93f0e781db29aca4687e866f89ad6c00
 TextureImporter:
   fileIDToRecycleName:
-    21300000: Areca-Palm-Tree-houseplant
+    21300000: smallVent
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0
@@ -38,7 +38,7 @@ TextureImporter:
   alignment: 0
   spritePivot: {x: .5, y: .5}
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
-  spritePixelsToUnits: 36
+  spritePixelsToUnits: 100
   alphaIsTransparency: 1
   textureType: 8
   buildTargetSettings: []

@@ -1,6 +1,8 @@
 fileFormatVersion: 2
 guid: 954b55044f082bb469d0268a7dd79be4
 TextureImporter:
+  fileIDToRecycleName:
+    21300000: redclearground
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0

@@ -1,6 +1,8 @@
 fileFormatVersion: 2
 guid: 8a872a9a202af404aadf4ae64cbe2ade
 TextureImporter:
+  fileIDToRecycleName:
+    21300000: Electricity00
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0

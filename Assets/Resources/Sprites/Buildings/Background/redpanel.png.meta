@@ -1,6 +1,8 @@
 fileFormatVersion: 2
 guid: 441df52a91f0ed84f80f82ffe365d21b
 TextureImporter:
+  fileIDToRecycleName:
+    21300000: redpanel
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0

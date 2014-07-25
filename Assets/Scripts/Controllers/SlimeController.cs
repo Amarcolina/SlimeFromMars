@@ -168,25 +168,27 @@ public class SlimeController : MonoBehaviour {
         _gameUi.ResourceUpdate(energy);
 
     }
+    public Vector2Int getStartLocation() { 
+        return Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
+    }
+
+    public Vector2Int getGoalLocation() {
+        return Tilemap.getTilemapLocation(getTilePositionUnderCursor().transform.position);
+    }
+
     /*###################################### ELEMENTAL SKILLS #######################################*/
     public void useRadiationDefense() {
-        //stores range, radius and  center of attack
+        //stores range and radius
         float rangeOfAttack = RADIATION_BASE_RANGE * radiationLevel;
         int circleRadius = 3 * radiationLevel;
-        Vector2Int center = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
-
-        //gets distance between slime and enemy
-        Vector2Int startLocation = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
-        Vector2Int goalLocation = Tilemap.getTilemapLocation(getTilePositionUnderCursor().transform.position);
-        float distance = Vector2Int.distance(startLocation, goalLocation);
 
         //if distance is within range of attack, check each tile in the radius and then irradiate each tile that can be irradiated
-        if (distance <= rangeOfAttack) {
+        if ( Vector2Int.distance(getStartLocation(), getGoalLocation()) <= rangeOfAttack) {
             for (int dx = -circleRadius; dx <= circleRadius; dx++) {
                 for (int dy = -circleRadius; dy <= circleRadius; dy++) {
                     Vector2 tileOffset = new Vector2(dx, dy);
                     if (tileOffset.sqrMagnitude <= circleRadius * circleRadius) {
-                        Tile tile = Tilemap.getInstance().getTile(center + new Vector2Int(dx, dy));
+                        Tile tile = Tilemap.getInstance().getTile(getStartLocation() + new Vector2Int(dx, dy));
                         if (tile != null) {
                             Irradiated radComponent = tile.GetComponent<Irradiated>();
                             if (radComponent == null) {
@@ -203,20 +205,14 @@ public class SlimeController : MonoBehaviour {
 
     public void useRadiationOffense() {
         float rangeOfAttack = RADIATION_BASE_RANGE * radiationLevel;
-        Vector2Int center = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
-        //gets distance between slime and enemy
-        Vector2Int startLocation = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
-        Vector2Int goalLocation = Tilemap.getTilemapLocation(getTilePositionUnderCursor().transform.position);
-        float distance = Vector2Int.distance(startLocation, goalLocation);
-
         //if distance is within range of attack, create the radius of radiation
-        if (distance <= rangeOfAttack) {
+        if (Vector2Int.distance(getStartLocation(), getGoalLocation()) <= rangeOfAttack) {
             int circleRadius = 3 * radiationLevel;
             for (int dx = -circleRadius; dx <= circleRadius; dx++) {
                 for (int dy = -circleRadius; dy <= circleRadius; dy++) {
                     Vector2 tileOffset = new Vector2(dx, dy);
                     if (tileOffset.sqrMagnitude <= circleRadius * circleRadius) {
-                        Tile tile = Tilemap.getInstance().getTile(center + new Vector2Int(dx, dy));
+                        Tile tile = Tilemap.getInstance().getTile(getStartLocation() + new Vector2Int(dx, dy));
                         if (tile != null) {
                             Irradiated radComponent = tile.GetComponent<Irradiated>();
                             if (radComponent == null) {
@@ -234,13 +230,13 @@ public class SlimeController : MonoBehaviour {
     //outputs circle of enemy-damaging electricity from central point of selected slime tile
     //radius increases with electricityLevel
     public void useElectricityDefense() {
-        Vector2Int center = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
+     
         int circleRadius = electricityLevel;
         for (int dx = -circleRadius; dx <= circleRadius; dx++) {
             for (int dy = -circleRadius; dy <= circleRadius; dy++) {
                 Vector2 tileOffset = new Vector2(dx, dy);
                 if (tileOffset.sqrMagnitude <= circleRadius * circleRadius) {
-                    Tile tile = Tilemap.getInstance().getTile(center + new Vector2Int(dx, dy));
+                    Tile tile = Tilemap.getInstance().getTile(getStartLocation() + new Vector2Int(dx, dy));
                     if (tile != null && tile.GetComponent<Slime>() != null) {
                         tile.gameObject.AddComponent<Electrified>();
                     }
@@ -254,13 +250,7 @@ public class SlimeController : MonoBehaviour {
     public void useElectricityOffense() {
         float damageDone = ELECTRICITY_BASE_DAMAGE * electricityLevel;
         float rangeOfAttack = ELECTRICITY_BASE_RANGE * electricityLevel;
-
-        //gets distance between slime and enemy
-        Vector2Int startLocation = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
-        Vector2Int goalLocation = Tilemap.getTilemapLocation(getTilePositionUnderCursor().transform.position);
-        float distance = Mathf.Sqrt((goalLocation.x - startLocation.x) * (goalLocation.x - startLocation.x) +
-                            (goalLocation.y - startLocation.y) * (goalLocation.y - startLocation.y));
-        if (distance <= rangeOfAttack) {
+        if (Vector2Int.distance(getStartLocation(), getGoalLocation()) <= rangeOfAttack) {
             bool wasDamaged = getTilePositionUnderCursor().damageTileEntities(damageDone);
             if (wasDamaged) {
                 loseEnergy(ELECTRICITY_OFFENSE_COST);
@@ -271,13 +261,12 @@ public class SlimeController : MonoBehaviour {
     //outputs circle of thick, high health slime from central point of selected slime tile
     //radius increases with bioLevel
     public void useBioDefense() {
-        Vector2Int center = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
         int circleRadius = bioLevel;
         for (int dx = -circleRadius; dx <= circleRadius; dx++) {
             for (int dy = -circleRadius; dy <= circleRadius; dy++) {
                 Vector2 tileOffset = new Vector2(dx, dy);
                 if (tileOffset.sqrMagnitude <= circleRadius * circleRadius) {
-                    Tile tile = Tilemap.getInstance().getTile(center + new Vector2Int(dx, dy));
+                    Tile tile = Tilemap.getInstance().getTile(getStartLocation() + new Vector2Int(dx, dy));
                     if (tile != null && tile.GetComponent<Slime>() != null) {
                         tile.isWalkable = false;
                         tile.gameObject.AddComponent<BioMutated>();
@@ -291,10 +280,7 @@ public class SlimeController : MonoBehaviour {
     public void useBioOffense() {
         float damageDone = BIO_BASE_DAMAGE * bioLevel;
         float rangeOfAttack = BIO_BASE_RANGE * bioLevel;
-
-        Vector2Int startLocation = Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
-        Vector2Int goalLocation = Tilemap.getTilemapLocation(getTilePositionUnderCursor().transform.position);
-        Path astarPath = Astar.findPath(startLocation, goalLocation);
+        Path astarPath = Astar.findPath(getStartLocation(), getGoalLocation());
         float pathCost = astarPath.getLength();
         //NEED ABILITY TO EXPAND ALONG PATH
         if (pathCost <= rangeOfAttack) {

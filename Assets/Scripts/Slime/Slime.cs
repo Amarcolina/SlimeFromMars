@@ -10,8 +10,7 @@ public class Slime : MonoBehaviour {
     public const float TIME_PER_SLIME_DEATH = 1.0f;
 
     public static int numberOfAwakeSlimes = 0;
-
-    public Sprite textureRamp = null;
+    public static Sprite textureRamp = null;
 
     private float _percentHealth = 1.0f;
     private Path _currentExpandPath = null;
@@ -39,6 +38,10 @@ public class Slime : MonoBehaviour {
     public void Start() {
         if (_anchorSlimeLocation == null) {
             _anchorSlimeLocation = transform.position;
+        }
+
+        if (textureRamp == null) {
+            textureRamp = Resources.Load<Sprite>("Sprites/Slime/SlimeRamp");
         }
 
         connectNeighbors();
@@ -156,12 +159,17 @@ public class Slime : MonoBehaviour {
      * 
      * This wakes up the slime
      */
-    public void requestExpansionAllongPath(Path path) {
+    public bool requestExpansionAllongPath(Path path) {
+        if (!_isConnected) {
+            return false;
+        }
+
         if (path.getNodeCount() <= 1) {
-            return;
+            return false;
         }
         path.getNext();
         requestExpansionInternal(path, TIME_PER_EXPAND);
+        return true;
     }
 
     private void requestExpansionInternal(Path path, float residualTimeLeft) {
@@ -191,7 +199,6 @@ public class Slime : MonoBehaviour {
 
             if (newSlime == null) {
                 newSlime = newSlimeTile.gameObject.AddComponent<Slime>();
-                newSlime.textureRamp = textureRamp;
             } else {
                 residualTimeLeft = 0.0f;
             }
@@ -267,6 +274,8 @@ public class Slime : MonoBehaviour {
         _slimesToDestroyList.Add(this);
         _isConnected = false;
         _shouldDisconnectNeighbors = true;
+        _currentExpandPath = null;
+        _timeUntilExpand = 0.0f;
         wakeUpSlime();
     }
 

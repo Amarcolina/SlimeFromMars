@@ -133,7 +133,7 @@ public class SlimeController : MonoBehaviour {
         Tile tileUnderCursor = getTilePositionUnderCursor();
         //gets the slime component under the highlighted tile, if it exists
         Slime slimeTile = tileUnderCursor.GetComponent<Slime>();
-        if (slimeTile != null) {
+        if (slimeTile != null && slimeTile.isConnected()) {
             setSelectedSlime(slimeTile);
         }
     }

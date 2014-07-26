@@ -66,7 +66,7 @@ public class GameUI : MonoBehaviour {
 
     //if (Input.GetKeyDown(KeyCode.F5) && radiationLevel > 0 && energy >= RADIATION_DEFENSE_COST) {
 	public void RadiationDefense(){
-        SlimeController.getInstance().useRadiationOffense();
+        SlimeController.getInstance().useRadiationDefense();
 	}
 
     //if (Input.GetKeyDown(KeyCode.F2) && energy >= ELECTRICITY_OFFENSE_COST) { 

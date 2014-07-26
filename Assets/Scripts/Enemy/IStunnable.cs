@@ -5,5 +5,5 @@ using System.Collections;
  * able to be stunned should implement this interface.
  */
 public interface IStunnable {
-    public void stun(float duration);
+    void stun(float duration);
 }

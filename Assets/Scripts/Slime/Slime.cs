@@ -8,6 +8,8 @@ public class Slime : MonoBehaviour {
     public const float TIME_PER_EXPAND = 0.02f;
     public const float SLIME_RENDERER_MORPH_TIME = 0.1f;
 
+    public static int numberOfAwakeSlimes = 0;
+
     public Sprite textureRamp = null;
 
     private float _percentHealth = 1.0f;
@@ -16,8 +18,9 @@ public class Slime : MonoBehaviour {
 
     private SlimeRenderer _slimeRenderer = null;
 
-    public bool _isDead = false;
+    private bool _isDead = false;
     private bool _killNeighbors = false;
+    private bool _reviveNeighbors = false;
 
     private static float _nextSlimeDestructionTime = 0.0f;
     private static List<Slime> _slimesToDestroyList = new List<Slime>();
@@ -25,7 +28,6 @@ public class Slime : MonoBehaviour {
     private int _aliveIndex = 0;
     private static int _currSearchingAliveIndex = 0;
     private static Vector2Int _anchorSlimeLocation = null;
-
 
     /* This method does the following:
      *      Initializes the slime sprite lookup table if it is not already initialized
@@ -37,6 +39,8 @@ public class Slime : MonoBehaviour {
         if (_anchorSlimeLocation == null) {
             _anchorSlimeLocation = transform.position;
         }
+
+        reviveNeighbors();
 
         _slimeRenderer = GetComponent<SlimeRenderer>();
         if (_slimeRenderer == null) {
@@ -73,17 +77,7 @@ public class Slime : MonoBehaviour {
      */
     public void Update() {
         bool canGoToSleep = true;
-
-        int c = 0;
-        foreach (Slime ss in _slimesToDestroyList) {
-            if (ss == this) {
-                c++;
-            }
-        }
-        if (c > 1) {
-            Debug.Log("nooooo");
-        }
-
+        numberOfAwakeSlimes++;
 
         if (_isDead) {
             if (_killNeighbors) {
@@ -92,15 +86,8 @@ public class Slime : MonoBehaviour {
                 _killNeighbors = false;
             }
 
-
-            
-
-
-
-
             if (_slimesToDestroyList.Count != 0 && _slimesToDestroyList[0] == this) {
                 if (_nextSlimeDestructionTime <= Time.time) {
-                    //Debug.Log(_nextSlimeDestructionTime + " : " + Time.time);
                     damageSlime(1.0f);
                     _nextSlimeDestructionTime = _nextSlimeDestructionTime + 1.0f;
 
@@ -116,6 +103,11 @@ public class Slime : MonoBehaviour {
                 canGoToSleep = false;
             }
         } else {
+            if (_reviveNeighbors) {
+                reviveNeighbors();
+                canGoToSleep = false;
+            }
+
             if (_currentExpandPath != null) {
                 _timeUntilExpand -= Time.deltaTime;
                 if (_timeUntilExpand <= 0.0f) {
@@ -150,12 +142,75 @@ public class Slime : MonoBehaviour {
         }
     }
 
-    private void handleSlimeDetatch(Vector2Int origin) {
-        Astar.isWalkableFunction = isSlimeTile;
-        Astar.earlySuccessFunction = isLocationAlive;
-        Astar.earlyFailureFunction = isLocationDead;
+    /* Returns whether or not this slime is dead.  Dead slimes still exist
+     * but die slowly.
+     */
+    public bool isDead() {
+        return _isDead;
+    }
 
-        _currSearchingAliveIndex++;
+    /* Requests that this slime expand allong the given path.  It will expand 
+     * to the current node in the path.  This triggers a chain reaction where
+     * the expanded slime follows the next node and so on
+     * 
+     * This wakes up the slime
+     */
+    public void requestExpansionAllongPath(Path path) {
+        if (path.getNodeCount() <= 1) {
+            return;
+        }
+        path.getNext();
+        requestExpansionInternal(path, TIME_PER_EXPAND);
+    }
+
+    private void requestExpansionInternal(Path path, float residualTimeLeft) {
+        wakeUpSlime();
+
+        _currentExpandPath = path;
+        _timeUntilExpand = residualTimeLeft;
+        if (_timeUntilExpand <= 0.0f) {
+            expandSlime();
+
+        }
+    }
+
+    /* This is an internal method that handles the expansion of the slime
+     * This calculates the node that we are expanding into, and handles
+     * the creation of a new slime object if needed
+     * 
+     * This also handles the linking to the new slime node so that
+     * the chain reaction can be sustained.  
+     */
+    private void expandSlime() {
+        Vector2Int nextNode = _currentExpandPath.getNext();
+        float residualTimeLeft = _timeUntilExpand + TIME_PER_EXPAND;
+
+        Tile newSlimeTile = Tilemap.getInstance().getTile(nextNode);
+        if (newSlimeTile && newSlimeTile.isWalkable) {
+            Slime newSlime = newSlimeTile.GetComponent<Slime>();
+
+            if (newSlime == null) {
+                newSlime = newSlimeTile.gameObject.AddComponent<Slime>();
+                newSlime.textureRamp = textureRamp;
+            } else {
+                residualTimeLeft = 0.0f;
+            }
+
+            if (_currentExpandPath.getNodesLeft() > 0) {
+                newSlime.requestExpansionInternal(_currentExpandPath, residualTimeLeft);
+            } else {
+                SlimeController.getInstance().setSelectedSlime(newSlime);
+            }
+        }
+
+        _currentExpandPath = null;
+    }
+
+    private delegate void NeighborSlimeFunction(Slime neighborSlime, Vector2Int neighborPosition);
+    private void forEachNeighborSlime(NeighborSlimeFunction function, Vector2Int origin = null){
+        if(origin == null){
+            origin = transform.position;
+        }
 
         for (int i = 0; i < TilemapUtilities.neighborFullArray.Length; i++) {
             Vector2Int neighborPos = origin + TilemapUtilities.neighborFullArray[i];
@@ -170,7 +225,19 @@ public class Slime : MonoBehaviour {
                 continue;
             }
 
-            Path pathHome = Astar.findPath(neighborPos, _anchorSlimeLocation, false);
+            function(neighborSlime, neighborPos);
+        }
+    }
+
+    private void handleSlimeDetatch(Vector2Int origin) {
+        Astar.isWalkableFunction = isSlimeTile;
+        Astar.earlySuccessFunction = isLocationAlive;
+        Astar.earlyFailureFunction = isLocationDead;
+
+        _currSearchingAliveIndex++;
+
+        NeighborSlimeFunction function = delegate(Slime neighborSlime, Vector2Int neighborPosition){
+            Path pathHome = Astar.findPath(neighborPosition, _anchorSlimeLocation, false);
 
             if (pathHome == null) {
                 _slimesToDestroyList.Add(neighborSlime);
@@ -184,35 +251,35 @@ public class Slime : MonoBehaviour {
                     s._aliveIndex = _currSearchingAliveIndex;
                 }
             }
-        }
+        };
+        forEachNeighborSlime(function, origin);
+
 
         _nextSlimeDestructionTime = Time.time + 1.0f;
     }
 
     private void killNeighbors() {
-        for (int i = 0; i < TilemapUtilities.neighborFullArray.Length; i++) {
-            Vector2Int neighborPos = Tilemap.getTilemapLocation(transform.position) + TilemapUtilities.neighborFullArray[i];
-            if(!TilemapUtilities.areTilesNeighbors(Tilemap.getTilemapLocation(transform.position), neighborPos, true, Astar.defaultIsWalkable)){
-                continue;
-            }
-
-            GameObject neighborObj = Tilemap.getInstance().getTileGameObject(neighborPos);
-            if (neighborObj == null) {
-                continue;
-            }
-
-            Slime neighborSlime = neighborObj.GetComponent<Slime>();
-            if (neighborSlime == null) {
-                continue;
-            }
-
+        NeighborSlimeFunction function = delegate(Slime neighborSlime, Vector2Int neighborPos){
             if (!neighborSlime._isDead) {
                 _slimesToDestroyList.Add(neighborSlime);
                 neighborSlime._isDead = true;
                 neighborSlime._killNeighbors = true;
                 neighborSlime.wakeUpSlime();
             }
-        }
+        };
+        forEachNeighborSlime(function);
+    }
+
+    private void reviveNeighbors() {
+        NeighborSlimeFunction reviveFunc = delegate(Slime slime, Vector2Int pos) {
+            if (slime._isDead) {
+                slime._isDead = false;
+                slime._reviveNeighbors = true;
+                slime.wakeUpSlime();
+            }
+        };
+        forEachNeighborSlime(reviveFunc);
+        _reviveNeighbors = false;
     }
 
     private static bool isSlimeTile(Vector2Int location) {
@@ -251,20 +318,6 @@ public class Slime : MonoBehaviour {
         return s._aliveIndex == _currSearchingAliveIndex;
     }
 
-    /* Requests that this slime expand allong the given path.  It will expand 
-     * to the current node in the path.  This triggers a chain reaction where
-     * the expanded slime follows the next node and so on
-     * 
-     * This wakes up the slime
-     */
-    public void requestExpansionAllongPath(Path path) {
-        if (path.getNodeCount() <= 1) {
-            return;
-        }
-        path.getNext();
-        requestExpansionInternal(path, TIME_PER_EXPAND);
-    }
-
     /* This returns the amount of enery it would cost to grow
      * the slime along the given path.  
      */
@@ -279,48 +332,5 @@ public class Slime : MonoBehaviour {
             }
         }
         return cost;
-    }
-
-    private void requestExpansionInternal(Path path, float residualTimeLeft) {
-        wakeUpSlime();
-
-        _currentExpandPath = path;
-        _timeUntilExpand = residualTimeLeft;
-        if (_timeUntilExpand <= 0.0f) {
-            expandSlime();
-
-        }
-    }
-
-    /* This is an internal method that handles the expansion of the slime
-     * This calculates the node that we are expanding into, and handles
-     * the creation of a new slime object if needed
-     * 
-     * This also handles the linking to the new slime node so that
-     * the chain reaction can be sustained.  
-     */
-    private void expandSlime() {
-        Vector2Int nextNode = _currentExpandPath.getNext();
-        float residualTimeLeft = _timeUntilExpand + TIME_PER_EXPAND;
-
-        Tile newSlimeTile = Tilemap.getInstance().getTile(nextNode);
-        if (newSlimeTile && newSlimeTile.isWalkable){
-            Slime newSlime = newSlimeTile.GetComponent<Slime>();
-
-            if(newSlime == null){
-                newSlime = newSlimeTile.gameObject.AddComponent<Slime>();
-                newSlime.textureRamp = textureRamp;
-            } else {
-                residualTimeLeft = 0.0f;
-            }
-
-            if (_currentExpandPath.getNodesLeft() > 0) {
-                newSlime.requestExpansionInternal(_currentExpandPath, residualTimeLeft);
-            } else {
-                SlimeController.getInstance().setSelectedSlime(newSlime);
-            }
-        }
-
-        _currentExpandPath = null;
     }
 }

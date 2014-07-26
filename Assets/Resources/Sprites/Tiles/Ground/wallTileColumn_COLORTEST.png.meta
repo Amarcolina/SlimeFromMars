@@ -1,8 +1,8 @@
 fileFormatVersion: 2
-guid: 0d3598aaaedbba6418b73547cd748664
+guid: b64f7b4e20611434fa0b579235faf99a
 TextureImporter:
   fileIDToRecycleName:
-    21300000: bigFlaskMagenta
+    21300000: wallTileColumn_COLORTEST
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0

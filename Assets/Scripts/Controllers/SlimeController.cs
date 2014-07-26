@@ -50,7 +50,7 @@ public class SlimeController : MonoBehaviour {
 
     void Awake() {
         //Load all sounds from File
-        electricDefenseSFX = Resources.Load<AudioClip>("Sounds/SFX/electric_defense");
+        electricDefenseSFX = Resources.Load<AudioClip>("Sounds/SFX/electricity_defense");
         bioDefenseSFX = Resources.Load<AudioClip>("Sounds/SFX/bio_defense");
         radioactiveDefenseSFX = Resources.Load<AudioClip>("Sounds/SFX/radiation_defense");
     }
@@ -203,7 +203,6 @@ public class SlimeController : MonoBehaviour {
             int circleRadius = 3 * radiationLevel;
 
             AudioSource.PlayClipAtPoint(radioactiveDefenseSFX, getGoalLocation());
-
             for (int dx = -circleRadius; dx <= circleRadius; dx++) {
                 for (int dy = -circleRadius; dy <= circleRadius; dy++) {
                     Vector2 tileOffset = new Vector2(dx, dy);
@@ -252,7 +251,7 @@ public class SlimeController : MonoBehaviour {
     //outputs circle of enemy-damaging electricity from central point of selected slime tile
     //radius increases with electricityLevel, as does damage
     public void useElectricityDefense() {
-        AudioSource.PlayClipAtPoint(electricDefenseSFX, getStartLocation());
+        AudioSource.PlayClipAtPoint(electricDefenseSFX, getStartLocation(), 0.2f);
 
         int circleRadius = electricityLevel;
         for (int dx = -circleRadius; dx <= circleRadius; dx++) {
@@ -295,7 +294,7 @@ public class SlimeController : MonoBehaviour {
     //radius and health increases with bioLevel
     //defense will remain until destroyed by enemies
     public void useBioDefense() {
-        AudioSource.PlayClipAtPoint(bioDefenseSFX, getStartLocation());
+        AudioSource.PlayClipAtPoint(bioDefenseSFX, getStartLocation(), 0.3f);
 
         int circleRadius = bioLevel;
         for (int dx = -circleRadius; dx <= circleRadius; dx++) {

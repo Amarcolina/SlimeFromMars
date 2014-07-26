@@ -45,13 +45,6 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable{
         return tileGameObject.GetComponent<Slime>() != null;
     }
 
-    //Checks to see if the enemytileobject is within range of a slime tile
-    public bool isSlimeinRage()
-    {
-        GameObject tileGameObject = _tilemap.getTileGameObject(transform.position);
-        return false;
-    }
-
     /* Calling this function every frame will result in the enemy following
      * their set movement path.  This handles everything from pathing using
      * Astar to automatically re-pathing if a path gets blocked.
@@ -152,6 +145,7 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable{
         }
         return nearestSlime;
     }
+
 
     public static bool tileRayHitSlime(GameObject tileObj) {
         if (tileObj == null || !tileObj.GetComponent<Tile>().isWalkable) {

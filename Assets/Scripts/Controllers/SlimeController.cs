@@ -19,6 +19,7 @@ public class SlimeController : MonoBehaviour {
     private AudioClip electricDefenseSFX;
     private AudioClip bioDefenseSFX;
     private AudioClip radioactiveDefenseSFX;
+    private AudioClip slimeExpansionSFX;
 
     //cost for using skills
     private const int ELECTRICITY_DEFENSE_COST = 5;
@@ -53,6 +54,7 @@ public class SlimeController : MonoBehaviour {
         electricDefenseSFX = Resources.Load<AudioClip>("Sounds/SFX/electricity_defense");
         bioDefenseSFX = Resources.Load<AudioClip>("Sounds/SFX/bio_defense");
         radioactiveDefenseSFX = Resources.Load<AudioClip>("Sounds/SFX/radiation_defense");
+        slimeExpansionSFX = Resources.Load<AudioClip>("Sounds/SFX/slime_expanding");
     }
 
     // Use this for initialization
@@ -97,6 +99,11 @@ public class SlimeController : MonoBehaviour {
             if (energy >= pathCost) {
                 loseEnergy(pathCost);
                 currentSelectedSlime.requestExpansionAllongPath(astarPath);
+                if (!audio.isPlaying)
+                {
+                    audio.clip = slimeExpansionSFX;
+                    audio.Play();
+                }
             } else {
                 //message: not enough energy
             }

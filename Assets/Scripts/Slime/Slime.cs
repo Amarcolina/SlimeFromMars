@@ -236,6 +236,9 @@ public class Slime : MonoBehaviour {
                 }
             }
         };
+
+        Astar.resetDefaults();
+
         forEachNeighborSlime(function, origin);
     }
 

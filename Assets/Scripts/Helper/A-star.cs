@@ -64,17 +64,21 @@ public class Astar : MonoBehaviour {
         }
     }
 
-    public static Path findPath(Vector2Int start, Vector2Int goal, bool resetDefaults = true){
+    public static Path findPath(Vector2Int start, Vector2Int goal, bool shouldResetDefaults = true){
         Path path = findPathInternal(start, goal);
-        if (resetDefaults) {
-            movementCostFunction = defaultMovementCost;
-            heuristicFunction = defaultHeuristic;
-            isWalkableFunction = defaultIsWalkable;
-            earlySuccessFunction = null;
-            earlyFailureFunction = null;
-            maxNodesToCheck = -1;
+        if (shouldResetDefaults) {
+            resetDefaults();
         }
         return path;
+    }
+
+    public static void resetDefaults() {
+        movementCostFunction = defaultMovementCost;
+        heuristicFunction = defaultHeuristic;
+        isWalkableFunction = defaultIsWalkable;
+        earlySuccessFunction = null;
+        earlyFailureFunction = null;
+        maxNodesToCheck = -1;
     }
 
     private static Path findPathInternal(Vector2Int start, Vector2Int goal) {  

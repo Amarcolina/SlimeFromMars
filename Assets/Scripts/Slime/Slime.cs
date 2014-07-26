@@ -7,6 +7,7 @@ public class Slime : MonoBehaviour {
     public const float HEALTH_REGEN_RATE = 0.1f;
     public const float TIME_PER_EXPAND = 0.02f;
     public const float SLIME_RENDERER_MORPH_TIME = 0.1f;
+    public const float TIME_PER_SLIME_DEATH = 1.0f;
 
     public static int numberOfAwakeSlimes = 0;
 
@@ -89,7 +90,7 @@ public class Slime : MonoBehaviour {
             if (_slimesToDestroyList.Count != 0 && _slimesToDestroyList[0] == this) {
                 if (_nextSlimeDestructionTime <= Time.time) {
                     damageSlime(1.0f);
-                    _nextSlimeDestructionTime = _nextSlimeDestructionTime + 1.0f;
+                    _nextSlimeDestructionTime = _nextSlimeDestructionTime + TIME_PER_SLIME_DEATH;
 
                     if (_slimesToDestroyList.Count > 1) {
                         int randomIndex = Random.Range(1, _slimesToDestroyList.Count - 1);
@@ -170,7 +171,6 @@ public class Slime : MonoBehaviour {
         _timeUntilExpand = residualTimeLeft;
         if (_timeUntilExpand <= 0.0f) {
             expandSlime();
-
         }
     }
 
@@ -254,8 +254,7 @@ public class Slime : MonoBehaviour {
         };
         forEachNeighborSlime(function, origin);
 
-
-        _nextSlimeDestructionTime = Time.time + 1.0f;
+        _nextSlimeDestructionTime = Time.time + TIME_PER_SLIME_DEATH;
     }
 
     private void killNeighbors() {

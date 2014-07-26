@@ -19,13 +19,13 @@ public class Slime : MonoBehaviour {
     private SlimeRenderer _slimeRenderer = null;
 
     private bool _isDead = false;
-    private bool _killNeighbors = false;
-    private bool _reviveNeighbors = false;
+    private bool _shouldKillNeighbors = false;
+    private bool _shouldReviveNeighbors = false;
 
     private static float _nextSlimeDestructionTime = 0.0f;
     private static List<Slime> _slimesToDestroyList = new List<Slime>();
 
-    private int _aliveIndex = 0;
+    private int _alivePathingIndex = 0;
     private static int _currSearchingAliveIndex = 0;
     private static Vector2Int _anchorSlimeLocation = null;
 
@@ -80,10 +80,10 @@ public class Slime : MonoBehaviour {
         numberOfAwakeSlimes++;
 
         if (_isDead) {
-            if (_killNeighbors) {
+            if (_shouldKillNeighbors) {
                 killNeighbors();
                 canGoToSleep = false;
-                _killNeighbors = false;
+                _shouldKillNeighbors = false;
             }
 
             if (_slimesToDestroyList.Count != 0 && _slimesToDestroyList[0] == this) {
@@ -103,7 +103,7 @@ public class Slime : MonoBehaviour {
                 canGoToSleep = false;
             }
         } else {
-            if (_reviveNeighbors) {
+            if (_shouldReviveNeighbors) {
                 reviveNeighbors();
                 canGoToSleep = false;
             }
@@ -242,13 +242,13 @@ public class Slime : MonoBehaviour {
             if (pathHome == null) {
                 _slimesToDestroyList.Add(neighborSlime);
                 neighborSlime._isDead = true;
-                neighborSlime._killNeighbors = true;
+                neighborSlime._shouldKillNeighbors = true;
                 neighborSlime.wakeUpSlime();
             } else {
                 for (int j = 0; j < pathHome.Count; j++) {
                     Vector2Int pathNode = pathHome[j];
                     Slime s = Tilemap.getInstance().getTileGameObject(pathNode).GetComponent<Slime>();
-                    s._aliveIndex = _currSearchingAliveIndex;
+                    s._alivePathingIndex = _currSearchingAliveIndex;
                 }
             }
         };
@@ -263,7 +263,7 @@ public class Slime : MonoBehaviour {
             if (!neighborSlime._isDead) {
                 _slimesToDestroyList.Add(neighborSlime);
                 neighborSlime._isDead = true;
-                neighborSlime._killNeighbors = true;
+                neighborSlime._shouldKillNeighbors = true;
                 neighborSlime.wakeUpSlime();
             }
         };
@@ -274,12 +274,12 @@ public class Slime : MonoBehaviour {
         NeighborSlimeFunction reviveFunc = delegate(Slime slime, Vector2Int pos) {
             if (slime._isDead) {
                 slime._isDead = false;
-                slime._reviveNeighbors = true;
+                slime._shouldReviveNeighbors = true;
                 slime.wakeUpSlime();
             }
         };
         forEachNeighborSlime(reviveFunc);
-        _reviveNeighbors = false;
+        _shouldReviveNeighbors = false;
     }
 
     private static bool isSlimeTile(Vector2Int location) {
@@ -315,7 +315,7 @@ public class Slime : MonoBehaviour {
             return false;
         }
 
-        return s._aliveIndex == _currSearchingAliveIndex;
+        return s._alivePathingIndex == _currSearchingAliveIndex;
     }
 
     /* This returns the amount of enery it would cost to grow

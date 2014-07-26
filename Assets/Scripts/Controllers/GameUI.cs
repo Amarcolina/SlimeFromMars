@@ -124,7 +124,7 @@ public class GameUI : MonoBehaviour {
 	//************************************************************
 	public void LightningOffenseHover(){
 		AbilityText_GameObject.SetActive (true);
-		AbilityText_Label.text = "Chain Lightning: Deals damage to a target, then bounces to targets in a short radius.";
+		AbilityText_Label.text = "Chain Lightning: Deals damage to a target, then arcs to targets in a short radius.";
 	}
 
 	public void LightningOffenseHoverOut(){
@@ -133,7 +133,7 @@ public class GameUI : MonoBehaviour {
 
 	public void LightningDefenseHover(){
 		AbilityText_GameObject.SetActive (true);
-		AbilityText_Label.text = "Electricity Shield: Provides the slime with a deadly electric barrier around its body.";
+		AbilityText_Label.text = "Electricity Shield: Electrifies a tile of slime, causing an electric burst that damages enemies";
 	}
 	
 	public void LightningDefenseHoverOut(){
@@ -151,7 +151,7 @@ public class GameUI : MonoBehaviour {
 
 	public void BioDefenseHover(){
 		AbilityText_GameObject.SetActive (true);
-		AbilityText_Label.text = "Natural Defenses: Increases the slimes natural armor, giving it more durability";
+		AbilityText_Label.text = "Natural Defenses: Fortifies one area of the slime, increasing defenses in that area";
 	}
 	
 	public void BioDefenseHoverOut(){
@@ -169,7 +169,7 @@ public class GameUI : MonoBehaviour {
 
 	public void RadiationDefenseHover(){
 		AbilityText_GameObject.SetActive (true);
-		AbilityText_Label.text = "Toxicity: Gives the slime a deadly irradiated body that deals damage to nearby enemy units";
+		AbilityText_Label.text = "Toxic Barrier: Irradiates a tile, stunning enemies who come into contact with it briefly";
 	}
 	
 	public void RadiationDefenseHoverOut(){

@@ -1,8 +1,8 @@
 fileFormatVersion: 2
-guid: 0d3598aaaedbba6418b73547cd748664
+guid: 1268f4f6ccf02e243a1d01a13f89bbcd
 TextureImporter:
   fileIDToRecycleName:
-    21300000: bigFlaskMagenta
+    21300000: radiationBarrel
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0
@@ -25,7 +25,7 @@ TextureImporter:
   textureFormat: -1
   maxTextureSize: 1024
   textureSettings:
-    filterMode: 1
+    filterMode: -1
     aniso: 1
     mipBias: -1
     wrapMode: 1

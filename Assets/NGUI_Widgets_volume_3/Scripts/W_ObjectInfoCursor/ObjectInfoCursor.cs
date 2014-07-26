@@ -37,8 +37,6 @@ public class ObjectInfoCursor : MonoBehaviour
 		Vector3 viewpos = Camera.main.WorldToViewportPoint(target.transform.position);
 		Vector3 screenpos = UICamera.currentCamera.ViewportToScreenPoint(viewpos);
 		
-		float multiplier = 1f;
-		
 		//spos.z = this.transform.position.z;	
 		this.transform.localPosition = new Vector3 (screenpos.x - Screen.width/2, screenpos.y - Screen.height/2, 0);
 		

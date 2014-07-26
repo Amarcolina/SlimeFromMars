@@ -20,8 +20,7 @@ public class ScientistEnemy : BaseEnemy {
     }
 
     void Update() {
-        if (isOnSlimeTile()) {
-            Destroy(this.gameObject);
+        if (isStunned()) {
             return;
         }
 
@@ -31,6 +30,9 @@ public class ScientistEnemy : BaseEnemy {
                 break;
             case ScientistState.FLEEING:
                 fleeState();
+                break;
+            default:
+                Debug.LogWarning("Cannot handle state " + _currentState);
                 break;
         }
     }
@@ -42,13 +44,18 @@ public class ScientistEnemy : BaseEnemy {
 
     private void wanderState() {
         followMovementPattern(wanderSpeed);
+        tryEnterFleeState();
     }
 
-    private bool enterFleeState() {
+    private bool tryEnterFleeState() {
+        if (getNearestVisibleSlime() != null) {
+            _currentState = ScientistState.FLEEING;
+            return true;
+        }
         return false;
     }
 
     private void fleeState() {
-
+        runAwayFromSlime(fleeSpeed);
     }
 }

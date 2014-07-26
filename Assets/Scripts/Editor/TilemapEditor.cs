@@ -255,7 +255,7 @@ public class TilemapEditor : Editor {
             Tile currentTile = currentTilePrefab.GetComponent<Tile>();
             Vector2 intersection;
             if(getTilemapIntersection(Event.current.mousePosition, out intersection)){
-                Vector2Int tilePos = Tilemap.getTilemapLocation(intersection);
+                Vector2Int tilePos = intersection;
                 intersection = new Vector2(tilePos.x * Tilemap.TILE_SIZE, tilePos.y * Tilemap.TILE_SIZE);
 
                 intersection -= (Vector2.up + Vector2.right) / 2.0f;
@@ -288,8 +288,8 @@ public class TilemapEditor : Editor {
         if (getTilemapIntersection(start, out intersectionStart)) {
             Vector2 intersectionEnd;
             if (getTilemapIntersection(end, out intersectionEnd)) {
-                Vector2Int startPosition = Tilemap.getTilemapLocation(intersectionStart);
-                Vector2Int endPosition = Tilemap.getTilemapLocation(intersectionEnd);
+                Vector2Int startPosition = intersectionStart;
+                Vector2Int endPosition = intersectionEnd;
                 Vector2 startPositionV = new Vector2(startPosition.x, startPosition.y);
                 Vector2 endPositionV = new Vector2(endPosition.x, endPosition.y);
                 float distance = Vector2.Distance(startPositionV, endPositionV);

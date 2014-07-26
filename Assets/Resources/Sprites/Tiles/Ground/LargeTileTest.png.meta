@@ -1,6 +1,8 @@
 fileFormatVersion: 2
 guid: ddbf66ed84c3d5641b07657e9c03c954
 TextureImporter:
+  fileIDToRecycleName:
+    21300000: LargeTileTest
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0

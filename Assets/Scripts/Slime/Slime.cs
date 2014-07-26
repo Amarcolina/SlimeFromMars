@@ -7,14 +7,24 @@ public class Slime : MonoBehaviour {
     public const float HEALTH_REGEN_RATE = 0.1f;
     public const float TIME_PER_EXPAND = 0.02f;
     public const float SLIME_RENDERER_MORPH_TIME = 0.1f;
+    public const float TIME_PER_SLIME_DEATH = 1.0f;
 
-    public Sprite textureRamp = null;
+    public static int numberOfAwakeSlimes = 0;
+    public static Sprite textureRamp = null;
 
     private float _percentHealth = 1.0f;
     private Path _currentExpandPath = null;
     private float _timeUntilExpand = 0.0f;
 
     private SlimeRenderer _slimeRenderer = null;
+
+    private bool _isConnected = true;
+    private bool _shouldDisconnectNeighbors = false;
+    private bool _shouldConnectNeighbors = false;
+
+    private int _connectedPathingIndex = 0;
+    private static int _currSearchingConnectedIndex = 0;
+    private static Vector2Int _anchorSlimeLocation = null;
 
     /* This method does the following:
      *      Initializes the slime sprite lookup table if it is not already initialized
@@ -23,6 +33,16 @@ public class Slime : MonoBehaviour {
      *      Lets all neighboring slimes know that this slime has been added
      */
     public void Start() {
+        if (_anchorSlimeLocation == null) {
+            _anchorSlimeLocation = transform.position;
+        }
+
+        if (textureRamp == null) {
+            textureRamp = Resources.Load<Sprite>("Sprites/Slime/SlimeRamp");
+        }
+
+        connectNeighbors();
+
         _slimeRenderer = GetComponent<SlimeRenderer>();
         if (_slimeRenderer == null) {
             _slimeRenderer = gameObject.AddComponent<SlimeRenderer>();
@@ -58,18 +78,32 @@ public class Slime : MonoBehaviour {
      */
     public void Update() {
         bool canGoToSleep = true;
+        numberOfAwakeSlimes++;
 
-        if (_currentExpandPath != null) {
-            _timeUntilExpand -= Time.deltaTime;
-            if (_timeUntilExpand <= 0.0f) {
-                expandSlime();
+        if (_isConnected) {
+            if (_shouldConnectNeighbors) {
+                connectNeighbors();
+                canGoToSleep = false;
             }
-            canGoToSleep = false;
-        }
 
-        if (_percentHealth != 1.0f && _percentHealth > 0.0f) {
-            _percentHealth = Mathf.MoveTowards(_percentHealth, 1.0f, HEALTH_REGEN_RATE * Time.deltaTime);
-            canGoToSleep = false;
+            if (_currentExpandPath != null) {
+                _timeUntilExpand -= Time.deltaTime;
+                if (_timeUntilExpand <= 0.0f) {
+                    expandSlime();
+                }
+                canGoToSleep = false;
+            }
+
+            if (_percentHealth != 1.0f && _percentHealth > 0.0f) {
+                _percentHealth = Mathf.MoveTowards(_percentHealth, 1.0f, HEALTH_REGEN_RATE * Time.deltaTime);
+                canGoToSleep = false;
+            }
+        }else{
+            if (_shouldDisconnectNeighbors) {
+                disconnectNeighbors();
+                canGoToSleep = false;
+                _shouldDisconnectNeighbors = false;
+            }
         }
 
         if (canGoToSleep) {
@@ -84,8 +118,19 @@ public class Slime : MonoBehaviour {
         _percentHealth -= percentDamage;
         wakeUpSlime();
         if (_percentHealth <= 0.0f) {
-            Destroy(this);
+            Vector2Int deathOrigin = transform.position;
+            DestroyImmediate(this);
+            if (_isConnected) {
+                handleSlimeDetatch(deathOrigin);
+            }
         }
+    }
+
+    /* Returns whether or not this slime is connected to the main slime.  Unconnected slimes 
+     * still exist but die slowly.
+     */
+    public bool isConnected() {
+        return _isConnected;
     }
 
     /* Requests that this slime expand allong the given path.  It will expand 
@@ -94,12 +139,181 @@ public class Slime : MonoBehaviour {
      * 
      * This wakes up the slime
      */
-    public void requestExpansionAllongPath(Path path) {
+    public bool requestExpansionAllongPath(Path path) {
+        if (!_isConnected) {
+            return false;
+        }
+
         if (path.getNodeCount() <= 1) {
-            return;
+            return false;
         }
         path.getNext();
         requestExpansionInternal(path, TIME_PER_EXPAND);
+        return true;
+    }
+
+    private void requestExpansionInternal(Path path, float residualTimeLeft) {
+        wakeUpSlime();
+
+        _currentExpandPath = path;
+        _timeUntilExpand = residualTimeLeft;
+        if (_timeUntilExpand <= 0.0f) {
+            expandSlime();
+        }
+    }
+
+    /* This is an internal method that handles the expansion of the slime
+     * This calculates the node that we are expanding into, and handles
+     * the creation of a new slime object if needed
+     * 
+     * This also handles the linking to the new slime node so that
+     * the chain reaction can be sustained.  
+     */
+    private void expandSlime() {
+        Vector2Int nextNode = _currentExpandPath.getNext();
+        float residualTimeLeft = _timeUntilExpand + TIME_PER_EXPAND;
+
+        Tile newSlimeTile = Tilemap.getInstance().getTile(nextNode);
+        if (newSlimeTile && newSlimeTile.isWalkable) {
+            Slime newSlime = newSlimeTile.GetComponent<Slime>();
+
+            if (newSlime == null) {
+                newSlime = newSlimeTile.gameObject.AddComponent<Slime>();
+            } else {
+                residualTimeLeft = 0.0f;
+            }
+
+            if (_currentExpandPath.getNodesLeft() > 0) {
+                newSlime.requestExpansionInternal(_currentExpandPath, residualTimeLeft);
+            } else {
+                SlimeController.getInstance().setSelectedSlime(newSlime);
+            }
+        }
+
+        _currentExpandPath = null;
+    }
+
+    private delegate void NeighborSlimeFunction(Slime neighborSlime, Vector2Int neighborPosition);
+    private void forEachNeighborSlime(NeighborSlimeFunction function, Vector2Int origin = null){
+        if(origin == null){
+            origin = transform.position;
+        }
+
+        for (int i = 0; i < TilemapUtilities.neighborFullArray.Length; i++) {
+            Vector2Int neighborPos = origin + TilemapUtilities.neighborFullArray[i];
+
+            GameObject neighborObj = Tilemap.getInstance().getTileGameObject(neighborPos);
+            if (neighborObj == null) {
+                continue;
+            }
+
+            Slime neighborSlime = neighborObj.GetComponent<Slime>();
+            if (neighborSlime == null) {
+                continue;
+            }
+
+            function(neighborSlime, neighborPos);
+        }
+    }
+
+    private void handleSlimeDetatch(Vector2Int origin) {
+        Astar.isWalkableFunction = isSlimeTile;
+        Astar.earlySuccessFunction = isLocationConnected;
+        Astar.earlyFailureFunction = isLocationDisconnected;
+
+        _currSearchingConnectedIndex++;
+
+        NeighborSlimeFunction function = delegate(Slime neighborSlime, Vector2Int neighborPosition){
+            Path pathHome = Astar.findPath(neighborPosition, _anchorSlimeLocation, false);
+
+            if (pathHome == null) {
+                neighborSlime.disconnectSlime();
+            } else {
+                for (int j = 0; j < pathHome.Count; j++) {
+                    Vector2Int pathNode = pathHome[j];
+                    Slime s = Tilemap.getInstance().getTileGameObject(pathNode).GetComponent<Slime>();
+                    s._connectedPathingIndex = _currSearchingConnectedIndex;
+                }
+            }
+        };
+
+        Astar.resetDefaults();
+
+        forEachNeighborSlime(function, origin);
+    }
+
+    private void disconnectNeighbors() {
+        NeighborSlimeFunction function = delegate(Slime neighborSlime, Vector2Int neighborPos){
+            if (neighborSlime._isConnected) {
+                neighborSlime.disconnectSlime();
+            }
+        };
+        forEachNeighborSlime(function);
+    }
+
+    private void disconnectSlime() {
+        SlimeSentinel.addSlimeToDestroyList(this);
+        _isConnected = false;
+        _shouldDisconnectNeighbors = true;
+        _currentExpandPath = null;
+        _timeUntilExpand = 0.0f;
+        if (SlimeController.getInstance().getSelectedSlime() == this) {
+            SlimeController.getInstance().setSelectedSlime(null);
+        }
+        wakeUpSlime();
+    }
+
+    private void connectSlime() {
+        SlimeSentinel.removeSlimeFromDestroyList(this);
+        _isConnected = true;
+        _shouldConnectNeighbors = true;
+        wakeUpSlime();
+    }
+
+    private void connectNeighbors() {
+        NeighborSlimeFunction reviveFunc = delegate(Slime slime, Vector2Int pos) {
+            if (!slime._isConnected) {
+                slime.connectSlime();
+            }
+        };
+        forEachNeighborSlime(reviveFunc);
+        _shouldConnectNeighbors = false;
+    }
+
+    private static bool isSlimeTile(Vector2Int location) {
+        GameObject tileObj = Tilemap.getInstance().getTileGameObject(location);
+        if (tileObj == null) {
+            return false;
+        }
+
+        return tileObj.GetComponent<Slime>() != null;
+    }
+
+    private static bool isLocationDisconnected(Vector2Int location) {
+        GameObject tileObj = Tilemap.getInstance().getTileGameObject(location);
+        if (tileObj == null) {
+            return false;
+        }
+        Slime s = tileObj.GetComponent<Slime>();
+        if (s == null) {
+            return false;
+        }
+
+        return !s._isConnected;
+    }
+
+    private static bool isLocationConnected(Vector2Int location) {
+        GameObject tileObj = Tilemap.getInstance().getTileGameObject(location);
+        if (tileObj == null) {
+            return false;
+        }
+
+        Slime s = tileObj.GetComponent<Slime>();
+        if (s == null) {
+            return false;
+        }
+
+        return s._connectedPathingIndex == _currSearchingConnectedIndex;
     }
 
     /* This returns the amount of enery it would cost to grow
@@ -116,48 +330,5 @@ public class Slime : MonoBehaviour {
             }
         }
         return cost;
-    }
-
-    private void requestExpansionInternal(Path path, float residualTimeLeft) {
-        wakeUpSlime();
-
-        _currentExpandPath = path;
-        _timeUntilExpand = residualTimeLeft;
-        if (_timeUntilExpand <= 0.0f) {
-            expandSlime();
-
-        }
-    }
-
-    /* This is an internal method that handles the expansion of the slime
-     * This calculates the node that we are expanding into, and handles
-     * the creation of a new slime object if needed
-     * 
-     * This also handles the linking to the new slime node so that
-     * the chain reaction can be sustained.  
-     */
-    private void expandSlime() {
-        Vector2Int nextNode = _currentExpandPath.getNext();
-        float residualTimeLeft = _timeUntilExpand + TIME_PER_EXPAND;
-
-        Tile newSlimeTile = Tilemap.getInstance().getTile(nextNode);
-        if (newSlimeTile && newSlimeTile.isWalkable){
-            Slime newSlime = newSlimeTile.GetComponent<Slime>();
-
-            if(newSlime == null){
-                newSlime = newSlimeTile.gameObject.AddComponent<Slime>();
-                newSlime.textureRamp = textureRamp;
-            } else {
-                residualTimeLeft = 0.0f;
-            }
-
-            if (_currentExpandPath.getNodesLeft() > 0) {
-                newSlime.requestExpansionInternal(_currentExpandPath, residualTimeLeft);
-            } else {
-                SlimeController.getInstance().setSelectedSlime(newSlime);
-            }
-        }
-
-        _currentExpandPath = null;
     }
 }

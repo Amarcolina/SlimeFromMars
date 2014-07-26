@@ -84,4 +84,35 @@ public class Path {
     public int getNodesLeft() {
         return _nodes.Count - _currentNode;
     }
+
+    public Vector2 getSmoothPoint(float distance) {
+        int currentNode = Mathf.RoundToInt(distance);
+        int previousNode = currentNode - 1;
+        int nextNode = currentNode + 1;
+
+        Vector2 p1 = _nodes[currentNode];
+        Vector2 p2 = Vector2.zero, p0 = Vector2.zero;
+        if (previousNode != -1) {
+            p0 = p1 + (Tilemap.getWorldLocation(_nodes[previousNode]) - p1) / 2.0f;
+        }
+        if (nextNode != _nodes.Count) {
+            p2 = p1 + (Tilemap.getWorldLocation(_nodes[nextNode]) - p1) / 2.0f;
+        }
+        if (previousNode == -1) {
+            p0 = p1 + (p1 - p2);
+        }
+        if (nextNode == _nodes.Count) {
+            p2 = p1 + (p1 - p0);
+        }
+
+        float t = distance - currentNode + 0.5f;
+
+        return (1 - t) * ((1 - t) * p0 + t * p1) + t * ((1 - t) * p1 + t * p2);
+    }
+
+    public Vector2 getSmoothDirection(float distance) {
+        Vector2 point = getSmoothPoint(distance);
+        Vector2 dir = distance == 0.0f ? getSmoothPoint(distance + 0.1f) - point : point - getSmoothPoint(distance - 0.1f);
+        return dir.normalized;
+    }
 }

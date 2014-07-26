@@ -18,12 +18,9 @@ public class Slime : MonoBehaviour {
 
     private SlimeRenderer _slimeRenderer = null;
 
-    private bool _isConnected = false;
+    private bool _isConnected = true;
     private bool _shouldDisconnectNeighbors = false;
     private bool _shouldConnectNeighbors = false;
-
-    private static float _nextSlimeDestructionTime = 0.0f;
-    private static List<Slime> _slimesToDestroyList = new List<Slime>();
 
     private int _connectedPathingIndex = 0;
     private static int _currSearchingConnectedIndex = 0;
@@ -106,23 +103,6 @@ public class Slime : MonoBehaviour {
                 disconnectNeighbors();
                 canGoToSleep = false;
                 _shouldDisconnectNeighbors = false;
-            }
-
-            if (_slimesToDestroyList.Count != 0 && _slimesToDestroyList[0] == this) {
-                if (_nextSlimeDestructionTime <= Time.time) {
-                    damageSlime(1.0f);
-                    _nextSlimeDestructionTime = _nextSlimeDestructionTime + TIME_PER_SLIME_DEATH;
-
-                    if (_slimesToDestroyList.Count > 1) {
-                        int randomIndex = Random.Range(1, _slimesToDestroyList.Count - 1);
-                        _slimesToDestroyList[0] = _slimesToDestroyList[randomIndex];
-                        _slimesToDestroyList[randomIndex] = _slimesToDestroyList[_slimesToDestroyList.Count - 1];
-                        _slimesToDestroyList[0].wakeUpSlime();
-                    }
-
-                    _slimesToDestroyList.RemoveAt(_slimesToDestroyList.Count - 1);
-                }
-                canGoToSleep = false;
             }
         }
 
@@ -257,8 +237,6 @@ public class Slime : MonoBehaviour {
             }
         };
         forEachNeighborSlime(function, origin);
-
-        _nextSlimeDestructionTime = Time.time + TIME_PER_SLIME_DEATH;
     }
 
     private void disconnectNeighbors() {
@@ -271,20 +249,28 @@ public class Slime : MonoBehaviour {
     }
 
     private void disconnectSlime() {
-        _slimesToDestroyList.Add(this);
+        SlimeSentinel.addSlimeToDestroyList(this);
         _isConnected = false;
         _shouldDisconnectNeighbors = true;
         _currentExpandPath = null;
         _timeUntilExpand = 0.0f;
+        if (SlimeController.getInstance().getSelectedSlime() == this) {
+            SlimeController.getInstance().setSelectedSlime(null);
+        }
+        wakeUpSlime();
+    }
+
+    private void connectSlime() {
+        SlimeSentinel.removeSlimeFromDestroyList(this);
+        _isConnected = true;
+        _shouldConnectNeighbors = true;
         wakeUpSlime();
     }
 
     private void connectNeighbors() {
         NeighborSlimeFunction reviveFunc = delegate(Slime slime, Vector2Int pos) {
             if (!slime._isConnected) {
-                slime._isConnected = true;
-                slime._shouldConnectNeighbors = true;
-                slime.wakeUpSlime();
+                slime.connectSlime();
             }
         };
         forEachNeighborSlime(reviveFunc);
@@ -310,7 +296,7 @@ public class Slime : MonoBehaviour {
             return false;
         }
 
-        return s._isConnected;
+        return !s._isConnected;
     }
 
     private static bool isLocationConnected(Vector2Int location) {

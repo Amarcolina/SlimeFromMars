@@ -140,10 +140,18 @@ public class SlimeController : MonoBehaviour {
 
     public void setSelectedSlime(Slime slime) {
         currentSelectedSlime = slime;
-        //moves highlighter to tile position
-        transform.position = currentSelectedSlime.transform.position;
-        //makes sprite visible
-        renderer.enabled = true;
+        if (currentSelectedSlime == null) {
+            renderer.enabled = false;
+        } else {
+            //moves highlighter to tile position
+            transform.position = currentSelectedSlime.transform.position;
+            //makes sprite visible
+            renderer.enabled = true;
+        }
+    }
+
+    public Slime getSelectedSlime() {
+        return currentSelectedSlime;
     }
 
     public Tile getTilePositionUnderCursor() {

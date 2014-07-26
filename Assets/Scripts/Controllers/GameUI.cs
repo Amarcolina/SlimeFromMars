@@ -8,12 +8,14 @@ public class GameUI : MonoBehaviour {
 	public UILabel LightningLevel_Label;
 	public UILabel BioLevel_Label;
 	public UILabel RadiationLevel_Label;
+	public UILabel AbilityText_Label;
 	//GameObject References, used primarily to activate or deactivate elemental UI
 	public GameObject LightningContainer_GameObject;
 	public GameObject BioContainer_GameObject;
 	public GameObject RadiationContainer_GameObject;
 	public GameObject PopoutMenu_GameObject;
 	public GameObject SkillsToggleButton_GameObject;
+	public GameObject AbilityText_GameObject;
 	//GameObject References, for toggling shadows on non-unlocked abilities
 	public GameObject ElectricityActive_GameObject;
 	public GameObject BioActive_GameObject;
@@ -111,6 +113,64 @@ public class GameUI : MonoBehaviour {
 	public void BioDefense(){
 
 	}
+
+	//Functions used for text being added by hovering over buttons
+	//************************************************************
+	public void LightningOffenseHover(){
+		AbilityText_GameObject.SetActive (true);
+		AbilityText_Label.text = "Chain Lightning: Deals damage to a target, then bounces to targets in a short radius.";
+	}
+
+	public void LightningOffenseHoverOut(){
+		AbilityText_GameObject.SetActive (false);
+	}
+
+	public void LightningDefenseHover(){
+		AbilityText_GameObject.SetActive (true);
+		AbilityText_Label.text = "Electricity Shield: Provides the slime with a deadly electric barrier around its body.";
+	}
+	
+	public void LightningDefenseHoverOut(){
+		AbilityText_GameObject.SetActive (false);
+	}
+
+	public void BioOffenseHover(){
+		AbilityText_GameObject.SetActive (true);
+		AbilityText_Label.text = "Lethal Mutation: Gives the slime the ability to use deadly tentacle attacks.";
+	}
+	
+	public void BioOffenseHoverOut(){
+		AbilityText_GameObject.SetActive (false);
+	}
+
+	public void BioDefenseHover(){
+		AbilityText_GameObject.SetActive (true);
+		AbilityText_Label.text = "Natural Defenses: Increases the slimes natural armor, giving it more durability";
+	}
+	
+	public void BioDefenseHoverOut(){
+		AbilityText_GameObject.SetActive (false);
+	}
+
+	public void RadiationOffenseHover(){
+		AbilityText_GameObject.SetActive (true);
+		AbilityText_Label.text = "Fallout: Covers an area in deadly radiation, harming enemies in the radius.";
+	}
+	
+	public void RadiationOffenseHoverOut(){
+		AbilityText_GameObject.SetActive (false);
+	}
+
+	public void RadiationDefenseHover(){
+		AbilityText_GameObject.SetActive (true);
+		AbilityText_Label.text = "Toxicity: Gives the slime a deadly irradiated body that deals damage to nearby enemy units";
+	}
+	
+	public void RadiationDefenseHoverOut(){
+		AbilityText_GameObject.SetActive (false);
+	}
+	//*********************************************
+	//*********************************************
 
 
 	// Use this for initialization

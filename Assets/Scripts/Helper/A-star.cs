@@ -6,8 +6,17 @@ using System;
 public delegate float AStarMovementCost(Vector2Int position, Vector2Int neighbor);
 public delegate float AStarNodeHeuristic(Vector2Int position, Vector2Int goal);
 public delegate bool AStarIsPathWalkable(Vector2Int position);
+public delegate bool AStarEarlySuccessFunction(Vector2Int position);
+public delegate bool AStarEarlyFailureFunction(Vector2Int position);
 
 public class Astar : MonoBehaviour {
+    public static AStarMovementCost movementCostFunction = defaultMovementCost;
+    public static AStarNodeHeuristic heuristicFunction = defaultHeuristic;
+    public static AStarIsPathWalkable isWalkableFunction = defaultIsWalkable;
+    public static AStarEarlySuccessFunction earlySuccessFunction = null;
+    public static AStarEarlyFailureFunction earlyFailureFunction = null;
+    public static int maxNodesToCheck = -1;
+
     public class Node : IComparable {
         Vector2Int position; //tilemap position of node
         private Node parent;
@@ -55,26 +64,24 @@ public class Astar : MonoBehaviour {
         }
     }
 
-    public static Path findPath(Vector2Int start, Vector2Int goal) {
-        return findPath(start, goal, defaultHeuristic, defaultIsWalkable, defaultMovementCost);
+    public static Path findPath(Vector2Int start, Vector2Int goal, bool shouldResetDefaults = true){
+        Path path = findPathInternal(start, goal);
+        if (shouldResetDefaults) {
+            resetDefaults();
+        }
+        return path;
     }
 
-    public static Path findPath(Vector2Int start, Vector2Int goal, AStarNodeHeuristic heuristicFunction) {
-        return findPath(start, goal, heuristicFunction, defaultIsWalkable, defaultMovementCost);
+    public static void resetDefaults() {
+        movementCostFunction = defaultMovementCost;
+        heuristicFunction = defaultHeuristic;
+        isWalkableFunction = defaultIsWalkable;
+        earlySuccessFunction = null;
+        earlyFailureFunction = null;
+        maxNodesToCheck = -1;
     }
 
-    public static Path findPath(Vector2Int start, Vector2Int goal, AStarIsPathWalkable isWalkableFunction) {
-        return findPath(start, goal, defaultHeuristic, isWalkableFunction, defaultMovementCost);
-    }
-
-    public static Path findPath(Vector2Int start, Vector2Int goal, AStarMovementCost movementCostFunction) {
-        return findPath(start, goal, defaultHeuristic, defaultIsWalkable, movementCostFunction);
-    }
-
-    public static Path findPath(Vector2Int start, Vector2Int goal, 
-                                AStarNodeHeuristic heuristicFunction, 
-                                AStarIsPathWalkable isWalkableFunction, 
-                                AStarMovementCost movementCostFunction) {  
+    private static Path findPathInternal(Vector2Int start, Vector2Int goal) {  
         if (start == null || goal == null) {
             return null;
         }
@@ -91,14 +98,33 @@ public class Astar : MonoBehaviour {
         nodePostionMap.Add(startNode.getPosition(), startNode);
 
         openList.insert(startNode);
-        while (openList.peekAtElement(0).getPosition() != goal) { //while lowest rank in openList is not the goal node
-            Node current = openList.extractElement(0);//remove lowest rank node from openList
+        int nodesChecked = 0;
+
+        Node current = null;
+        while(true){
+            current = openList.extractElement(0);//remove lowest rank node from openList
+
+            //We break the while loop if we have found the goal node
+            if (current.getPosition() == goal) {
+                break;
+            }
+
+            //We break the while loop if the earlySuccessFunction is met
+            if (earlySuccessFunction != null && earlySuccessFunction(current.getPosition())) {
+                break;
+            }
+
+            //We terminate the function and return no path found if the earlyFailureFunction is met
+            if (earlyFailureFunction != null && earlyFailureFunction(current.getPosition())) {
+                return null;
+            }
+
             closedList.Add(current);//add current to closedList
 
             //for neighbors of current:
             for(int neighborOffsetIndex = 0; neighborOffsetIndex < TilemapUtilities.neighborFullArray.Length; neighborOffsetIndex++) {
                 Vector2Int neighborPosition = current.getPosition() + TilemapUtilities.neighborFullArray[neighborOffsetIndex];
-                if (!TilemapUtilities.areTilesNeighbors(current.getPosition(), neighborPosition, true, isWalkableFunction)) {
+                if (!TilemapUtilities.areTilesNeighbors(current.getPosition(), neighborPosition, true, defaultIsWalkable)) {
                     continue;
                 }
 
@@ -133,10 +159,17 @@ public class Astar : MonoBehaviour {
             if (openList.getHeapSize() == 0) {
                 return null;
             }
+
+            //if maxNodesToCheck is 0 or less, that is interpreted as unlimited number of nodes
+            //if maxNodesToCheck is nonzero, we terminate with no path found 
+            nodesChecked++;
+            if (maxNodesToCheck > 0 && nodesChecked >= maxNodesToCheck) {
+                return null;
+            }
         }
 
         Path finalPath = new Path();//path from start to goal
-        goalNode = openList.peekAtElement(0);
+        goalNode = current;
         //reconstruct reverse path from goal to start by following parent pointers
         finalPath.addNodeToStart(goalNode.getPosition());
         while (goalNode.getParent() != null) {

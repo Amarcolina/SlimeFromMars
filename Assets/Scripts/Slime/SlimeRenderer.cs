@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public delegate bool IsCellSolidFunction(Vector2Int cellPosition);
+public delegate float IsCellSolidFunction(Vector2Int cellPosition);
 
 public class SlimeRenderer : MonoBehaviour {
     private static Vector2Int[] _cellOffset = {new Vector2Int(-1, -1),
@@ -55,12 +55,19 @@ public class SlimeRenderer : MonoBehaviour {
         _solidityFunction = solidityFunction;
     }
 
-    public bool defaultSolidityFunction(Vector2Int position) {
+    public float defaultSolidityFunction(Vector2Int position) {
         GameObject tileObject = _tilemap.getTileGameObject(position);
         if (tileObject == null) {
-            return false;
+            return 0.0f;
         }
-        return tileObject.GetComponent<Slime>() != null;
+
+        Slime slime = tileObject.GetComponent<Slime>();
+
+        if (slime == null) {
+            return 0.0f;
+        }
+
+        return slime.isConnected() ? 1.0f : 0.92f;
     }
 
     public void wakeUpRenderer(bool wakeUpNeighbors = true) {
@@ -85,7 +92,7 @@ public class SlimeRenderer : MonoBehaviour {
 
         for (int i = 0; i < _cellSolidity.Length; i++) {
             Vector2Int cellPosition = _cellOffset[i] + _rendererPosition;
-            float isSolid = _solidityFunction(cellPosition) ? 1.0f : 0.0f;
+            float isSolid = _solidityFunction(cellPosition);
             float newSolidity = Mathf.MoveTowards(_cellSolidity[i], isSolid, 0.01f);
             newSolidity += (isSolid - newSolidity) / 8.0f;
             soliditySum += newSolidity;
@@ -103,14 +110,14 @@ public class SlimeRenderer : MonoBehaviour {
 
         if (canFallAsleep) {
             enabled = false;
-            if (soliditySum == 0.0f  &&  !_solidityFunction(_rendererPosition)) {
+            if (soliditySum == 0.0f  &&  _solidityFunction(_rendererPosition) == 0.0f) {
                 Destroy(this);
             }
         }
     }
 
     private void updateNeighbors() {
-        if(!_solidityFunction(_rendererPosition)){
+        if(_solidityFunction(_rendererPosition) == 0.0f){
             return;
         }
         for (int i = 0; i < 8; i++) {

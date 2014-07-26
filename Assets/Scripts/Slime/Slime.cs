@@ -19,15 +19,15 @@ public class Slime : MonoBehaviour {
 
     private SlimeRenderer _slimeRenderer = null;
 
-    private bool _isDead = false;
-    private bool _shouldKillNeighbors = false;
-    private bool _shouldReviveNeighbors = false;
+    private bool _isConnected = false;
+    private bool _shouldDisconnectNeighbors = false;
+    private bool _shouldConnectNeighbors = false;
 
     private static float _nextSlimeDestructionTime = 0.0f;
     private static List<Slime> _slimesToDestroyList = new List<Slime>();
 
-    private int _alivePathingIndex = 0;
-    private static int _currSearchingAliveIndex = 0;
+    private int _connectedPathingIndex = 0;
+    private static int _currSearchingConnectedIndex = 0;
     private static Vector2Int _anchorSlimeLocation = null;
 
     /* This method does the following:
@@ -41,7 +41,7 @@ public class Slime : MonoBehaviour {
             _anchorSlimeLocation = transform.position;
         }
 
-        reviveNeighbors();
+        connectNeighbors();
 
         _slimeRenderer = GetComponent<SlimeRenderer>();
         if (_slimeRenderer == null) {
@@ -80,11 +80,29 @@ public class Slime : MonoBehaviour {
         bool canGoToSleep = true;
         numberOfAwakeSlimes++;
 
-        if (_isDead) {
-            if (_shouldKillNeighbors) {
-                killNeighbors();
+        if (_isConnected) {
+            if (_shouldConnectNeighbors) {
+                connectNeighbors();
                 canGoToSleep = false;
-                _shouldKillNeighbors = false;
+            }
+
+            if (_currentExpandPath != null) {
+                _timeUntilExpand -= Time.deltaTime;
+                if (_timeUntilExpand <= 0.0f) {
+                    expandSlime();
+                }
+                canGoToSleep = false;
+            }
+
+            if (_percentHealth != 1.0f && _percentHealth > 0.0f) {
+                _percentHealth = Mathf.MoveTowards(_percentHealth, 1.0f, HEALTH_REGEN_RATE * Time.deltaTime);
+                canGoToSleep = false;
+            }
+        }else{
+            if (_shouldDisconnectNeighbors) {
+                disconnectNeighbors();
+                canGoToSleep = false;
+                _shouldDisconnectNeighbors = false;
             }
 
             if (_slimesToDestroyList.Count != 0 && _slimesToDestroyList[0] == this) {
@@ -103,24 +121,6 @@ public class Slime : MonoBehaviour {
                 }
                 canGoToSleep = false;
             }
-        } else {
-            if (_shouldReviveNeighbors) {
-                reviveNeighbors();
-                canGoToSleep = false;
-            }
-
-            if (_currentExpandPath != null) {
-                _timeUntilExpand -= Time.deltaTime;
-                if (_timeUntilExpand <= 0.0f) {
-                    expandSlime();
-                }
-                canGoToSleep = false;
-            }
-
-            if (_percentHealth != 1.0f && _percentHealth > 0.0f) {
-                _percentHealth = Mathf.MoveTowards(_percentHealth, 1.0f, HEALTH_REGEN_RATE * Time.deltaTime);
-                canGoToSleep = false;
-            }
         }
 
         if (canGoToSleep) {
@@ -137,17 +137,17 @@ public class Slime : MonoBehaviour {
         if (_percentHealth <= 0.0f) {
             Vector2Int deathOrigin = transform.position;
             DestroyImmediate(this);
-            if (!_isDead) {
+            if (_isConnected) {
                 handleSlimeDetatch(deathOrigin);
             }
         }
     }
 
-    /* Returns whether or not this slime is dead.  Dead slimes still exist
-     * but die slowly.
+    /* Returns whether or not this slime is connected to the main slime.  Unconnected slimes 
+     * still exist but die slowly.
      */
-    public bool isDead() {
-        return _isDead;
+    public bool isConnected() {
+        return _isConnected;
     }
 
     /* Requests that this slime expand allong the given path.  It will expand 
@@ -231,24 +231,21 @@ public class Slime : MonoBehaviour {
 
     private void handleSlimeDetatch(Vector2Int origin) {
         Astar.isWalkableFunction = isSlimeTile;
-        Astar.earlySuccessFunction = isLocationAlive;
-        Astar.earlyFailureFunction = isLocationDead;
+        Astar.earlySuccessFunction = isLocationConnected;
+        Astar.earlyFailureFunction = isLocationDisconnected;
 
-        _currSearchingAliveIndex++;
+        _currSearchingConnectedIndex++;
 
         NeighborSlimeFunction function = delegate(Slime neighborSlime, Vector2Int neighborPosition){
             Path pathHome = Astar.findPath(neighborPosition, _anchorSlimeLocation, false);
 
             if (pathHome == null) {
-                _slimesToDestroyList.Add(neighborSlime);
-                neighborSlime._isDead = true;
-                neighborSlime._shouldKillNeighbors = true;
-                neighborSlime.wakeUpSlime();
+                neighborSlime.disconnectSlime();
             } else {
                 for (int j = 0; j < pathHome.Count; j++) {
                     Vector2Int pathNode = pathHome[j];
                     Slime s = Tilemap.getInstance().getTileGameObject(pathNode).GetComponent<Slime>();
-                    s._alivePathingIndex = _currSearchingAliveIndex;
+                    s._connectedPathingIndex = _currSearchingConnectedIndex;
                 }
             }
         };
@@ -257,28 +254,32 @@ public class Slime : MonoBehaviour {
         _nextSlimeDestructionTime = Time.time + TIME_PER_SLIME_DEATH;
     }
 
-    private void killNeighbors() {
+    private void disconnectNeighbors() {
         NeighborSlimeFunction function = delegate(Slime neighborSlime, Vector2Int neighborPos){
-            if (!neighborSlime._isDead) {
-                _slimesToDestroyList.Add(neighborSlime);
-                neighborSlime._isDead = true;
-                neighborSlime._shouldKillNeighbors = true;
-                neighborSlime.wakeUpSlime();
+            if (neighborSlime._isConnected) {
+                neighborSlime.disconnectSlime();
             }
         };
         forEachNeighborSlime(function);
     }
 
-    private void reviveNeighbors() {
+    private void disconnectSlime() {
+        _slimesToDestroyList.Add(this);
+        _isConnected = false;
+        _shouldDisconnectNeighbors = true;
+        wakeUpSlime();
+    }
+
+    private void connectNeighbors() {
         NeighborSlimeFunction reviveFunc = delegate(Slime slime, Vector2Int pos) {
-            if (slime._isDead) {
-                slime._isDead = false;
-                slime._shouldReviveNeighbors = true;
+            if (!slime._isConnected) {
+                slime._isConnected = true;
+                slime._shouldConnectNeighbors = true;
                 slime.wakeUpSlime();
             }
         };
         forEachNeighborSlime(reviveFunc);
-        _shouldReviveNeighbors = false;
+        _shouldConnectNeighbors = false;
     }
 
     private static bool isSlimeTile(Vector2Int location) {
@@ -290,7 +291,7 @@ public class Slime : MonoBehaviour {
         return tileObj.GetComponent<Slime>() != null;
     }
 
-    private static bool isLocationDead(Vector2Int location) {
+    private static bool isLocationDisconnected(Vector2Int location) {
         GameObject tileObj = Tilemap.getInstance().getTileGameObject(location);
         if (tileObj == null) {
             return false;
@@ -300,10 +301,10 @@ public class Slime : MonoBehaviour {
             return false;
         }
 
-        return s._isDead;
+        return s._isConnected;
     }
 
-    private static bool isLocationAlive(Vector2Int location) {
+    private static bool isLocationConnected(Vector2Int location) {
         GameObject tileObj = Tilemap.getInstance().getTileGameObject(location);
         if (tileObj == null) {
             return false;
@@ -314,7 +315,7 @@ public class Slime : MonoBehaviour {
             return false;
         }
 
-        return s._alivePathingIndex == _currSearchingAliveIndex;
+        return s._connectedPathingIndex == _currSearchingConnectedIndex;
     }
 
     /* This returns the amount of enery it would cost to grow

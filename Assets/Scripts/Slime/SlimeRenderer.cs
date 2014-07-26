@@ -67,7 +67,7 @@ public class SlimeRenderer : MonoBehaviour {
             return 0.0f;
         }
 
-        return slime.isDead() ? 0.92f : 1.0f;
+        return slime.isConnected() ? 1.0f : 0.92f;
     }
 
     public void wakeUpRenderer(bool wakeUpNeighbors = true) {

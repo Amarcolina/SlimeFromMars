@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 [RequireComponent (typeof (SpriteRenderer))]
 public class Tile : MonoBehaviour {
-    private const int TILE_PIXEL_SIZE = 64;
+    public const int TILE_PIXEL_SIZE = 64;
     private const string GROUND_LAYER_NAME = "TileGround";
     private const string OVERLAY_LAYER_NAME = "TileOverlay";
 
@@ -65,6 +65,19 @@ public class Tile : MonoBehaviour {
         return _containedTileEntities;
     }
 
+    public bool canDamageEntities() {
+        bool canDamage = false;
+        if (_containedTileEntities != null) {
+            foreach (TileEntity entity in _containedTileEntities) {
+                IDamageable damageable = entity.GetComponent(typeof(IDamageable)) as IDamageable;
+                if (damageable != null) {
+                    canDamage = true;
+                    break;
+                }
+            }
+        }
+        return canDamage;
+    }
     /* Calling this method damages any TileEntities which are currently
      * standing on the Tile.  This method returns true only if 
      * at least one TileEntity was damaged.
@@ -81,6 +94,24 @@ public class Tile : MonoBehaviour {
             }
         }
         return didDamage;
+    }
+
+    /* Calling this method stuns any TileEntities which are currently
+     * standing on the Tile.  This method returns true only if 
+     * at least one TileEntity was stunned.
+     */
+    public bool stunTileEntities(float duration) {
+        bool wasStunned = false;
+        if (_containedTileEntities != null) {
+            foreach (TileEntity entity in _containedTileEntities) {
+                IStunnable stunnableEntity = entity.GetComponent(typeof(IStunnable)) as IStunnable;
+                if (stunnableEntity != null) {
+                    wasStunned = true;
+                    stunnableEntity.stun(duration);
+                }
+            }
+        }
+        return wasStunned;
     }
 
     /* This method causes the Tile object to update the sprite

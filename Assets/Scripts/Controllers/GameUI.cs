@@ -90,28 +90,34 @@ public class GameUI : MonoBehaviour {
 	// A set of functions set out to be used upon clicking the abilities in the skills panel. Each one corresponds to the icon
 	// or ability on the panel.
 
+    // if (Input.GetKeyDown(KeyCode.F6) && radiationLevel > 0 && energy >= RADIATION_OFFENSE_COST)
 	public void RadiationOffense(){
-
+        SlimeController.getInstance().useRadiationOffense();
 	}
 
+    //if (Input.GetKeyDown(KeyCode.F5) && radiationLevel > 0 && energy >= RADIATION_DEFENSE_COST) {
 	public void RadiationDefense(){
-
+        SlimeController.getInstance().useRadiationDefense();
 	}
 
+    //if (Input.GetKeyDown(KeyCode.F2) && energy >= ELECTRICITY_OFFENSE_COST) { 
 	public void LightningOffense(){
-
+        SlimeController.getInstance().useElectricityOffense();
 	}
 
+    //if (Input.GetKeyDown(KeyCode.F1) && electricityLevel > 0 && energy >= ELECTRICITY_DEFENSE_COST)
 	public void LightningDefense(){
-
+        SlimeController.getInstance().useElectricityDefense();
 	}
 
+    //if (Input.GetKeyDown(KeyCode.F4) && bioLevel > 0 && energy >= BIO_OFFENSE_COST)
 	public void BioOffense(){
-
+        SlimeController.getInstance().useBioOffense();
 	}
 
+    //if (Input.GetKeyDown(KeyCode.F3) && bioLevel > 0 && energy >= BIO_DEFENSE_COST)
 	public void BioDefense(){
-
+        SlimeController.getInstance().useBioDefense();
 	}
 
 	//Functions used for text being added by hovering over buttons

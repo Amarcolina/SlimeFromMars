@@ -1,6 +1,8 @@
 fileFormatVersion: 2
 guid: f395cc082b882b040bc04b8d9c4f0f48
 TextureImporter:
+  fileIDToRecycleName:
+    21300000: redwall
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0

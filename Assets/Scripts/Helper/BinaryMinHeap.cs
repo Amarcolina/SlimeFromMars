@@ -6,20 +6,23 @@ using System.Linq;
 public class BinaryMinHeap<GenericItem>  where GenericItem : IComparable {
     private List<GenericItem> heap = new List<GenericItem>();//list of "nodes" that will make up heap structure
     private GenericItem root;
+    private int cachedHeapSize = -1;
 
     public void insert(GenericItem node_data) { 
         heap.Add(node_data);//adds element and updates length of list
+        cachedHeapSize = -1;
         bubbleUp(heap.Count - 1);
     }
 
     //removes the minimum element in the tree and restructures tree with minHeapify to maintain integrity
     public GenericItem extractElement(int i) {
-        if (getHeapSize() < 0) {
+        if (getHeapSize() <= 0) {
             throw new ArgumentOutOfRangeException();
         }
         GenericItem extractedElement = heap[i];
         heap[i] = heap[getHeapSize() - 1];
         heap.RemoveAt(getHeapSize() - 1);
+        cachedHeapSize = -1;
         if (i >= getHeapSize()) {
             return extractedElement;
         }
@@ -44,6 +47,7 @@ public class BinaryMinHeap<GenericItem>  where GenericItem : IComparable {
         }
         heap[index] = heap[getHeapSize() - 1];//fill empty spot left by extractedElement with last element in heap
         heap.RemoveAt(getHeapSize() - 1);//remove erroneous last element
+        cachedHeapSize = -1;
         if (index >= getHeapSize()) {
             return extractedElement;
         }
@@ -101,7 +105,10 @@ public class BinaryMinHeap<GenericItem>  where GenericItem : IComparable {
         }
     }
     public int getHeapSize() {
-        return heap.Count();
+        if (cachedHeapSize == -1) {
+            cachedHeapSize = heap.Count;
+        }
+        return cachedHeapSize;
     }
 
     public GenericItem getRoot() {

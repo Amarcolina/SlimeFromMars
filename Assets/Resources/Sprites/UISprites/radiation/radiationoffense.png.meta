@@ -1,6 +1,8 @@
 fileFormatVersion: 2
 guid: 00f57e2a93c1b7747b27596216dfff0c
 TextureImporter:
+  fileIDToRecycleName:
+    21300000: radiationoffense
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0
@@ -16,7 +18,7 @@ TextureImporter:
     externalNormalMap: 0
     heightScale: .25
     normalMapFilter: 0
-  isReadable: 1
+  isReadable: 0
   grayScaleToAlpha: 0
   generateCubemap: 0
   seamlessCubemap: 0

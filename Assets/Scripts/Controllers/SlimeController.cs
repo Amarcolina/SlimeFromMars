@@ -311,14 +311,14 @@ public class SlimeController : MonoBehaviour {
         int damageDone = BIO_BASE_DAMAGE * bioLevel;
         float rangeOfAttack = BIO_BASE_RANGE * bioLevel;
         Path astarPath = Astar.findPath(getStartLocation(), getGoalLocation());
-        
+
         float pathCost = astarPath.getLength();
         if (pathCost <= rangeOfAttack) {
             bool canDamage = getTilePositionUnderCursor().canDamageEntities();
             if (canDamage) {
                 GameObject bioLance = new GameObject("BioLance");
                 bioLance.transform.position = getTilePositionUnderCursor().transform.position;
-                BioLance bio = bioLance.AddComponent<BioLance>(); 
+                BioLance bio = bioLance.AddComponent<BioLance>();
                 bio.setLancePath(astarPath);
                 bio.setLanceDamage(damageDone);
                 loseEnergy(BIO_OFFENSE_COST);

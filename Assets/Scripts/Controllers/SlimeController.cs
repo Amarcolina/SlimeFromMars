@@ -198,13 +198,11 @@ public class SlimeController : MonoBehaviour {
     //Allows slime to irradiate tiles permanently so that enemies that walk into the area are stunned for short periods of time
     public void useRadiationDefense() {
         float rangeOfAttack = RADIATION_BASE_RANGE * radiationLevel;
-
-        AudioSource.PlayClipAtPoint(radioactiveDefenseSFX, getGoalLocation());
         //if distance is within range of attack, check each tile in the radius and then irradiate each tile that can be irradiated
         if (Vector2Int.distance(getStartLocation(), getGoalLocation()) <= rangeOfAttack) {
             int circleRadius = 3 * radiationLevel;
 
-
+            AudioSource.PlayClipAtPoint(radioactiveDefenseSFX, getGoalLocation());
             for (int dx = -circleRadius; dx <= circleRadius; dx++) {
                 for (int dy = -circleRadius; dy <= circleRadius; dy++) {
                     Vector2 tileOffset = new Vector2(dx, dy);

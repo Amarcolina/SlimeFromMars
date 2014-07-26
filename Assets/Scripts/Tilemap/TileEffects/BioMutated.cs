@@ -4,7 +4,6 @@ using System.Collections;
 public class BioMutated : MonoBehaviour {
     private static Sprite[] _bioSprites = null;
     private SpriteRenderer _bioRenderer = null;
-    private Tile _tile;
 
     private void initBioSprites() {
         _bioSprites = new Sprite[1];
@@ -15,8 +14,6 @@ public class BioMutated : MonoBehaviour {
         if (_bioSprites == null) {
             initBioSprites();
         }
-
-        _tile = GetComponent<Tile>();
 
         GameObject rendererGameObject = new GameObject("Bio");
         rendererGameObject.transform.parent = transform;

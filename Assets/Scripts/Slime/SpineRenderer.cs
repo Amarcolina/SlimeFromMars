@@ -67,8 +67,8 @@ public class SpineRenderer : MonoBehaviour {
         vertices.Add((Vector3)(tipCenter + tipExt * spineWidth / 2.0f) + offset);
 
         uv.Add(new Vector2(0, 0));
-        uv.Add(new Vector2(0.25f, 0));
-        uv.Add(new Vector2(0.25f, 1));
+        uv.Add(new Vector2(0.5f, 0));
+        uv.Add(new Vector2(0.5f, 1));
         uv.Add(new Vector2(0, 1));
 
         tris.Add(0);
@@ -95,7 +95,7 @@ public class SpineRenderer : MonoBehaviour {
 
                 float segmentUV = (startDist - currDist) / spineSegmentLength;
                 uv.Add(new Vector2(0.5f, segmentUV));
-                uv.Add(new Vector2(0.75f, segmentUV));
+                uv.Add(new Vector2(1.0f, segmentUV));
 
                 if (vertices.Count > 6) {
                     tris.Add(vertices.Count - 1);

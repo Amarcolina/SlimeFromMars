@@ -33,11 +33,11 @@ public class SlimeSentinel : MonoBehaviour {
     private IEnumerator destroySlimeCoroutine() {
         _isRunningDestroyCoroutine = true;
         while (_slimesToDestroy.Count > 1) {
+            yield return new WaitForSeconds(1.0f);
             int randomIndex = Random.Range(0, _slimesToDestroy.Count);
             Slime slimeToDestroy = _slimesToDestroy[randomIndex];
             removeSlimeFromDestroyList(slimeToDestroy);
-            DestroyImmediate(slimeToDestroy);
-            yield return new WaitForSeconds(1.0f);
+            slimeToDestroy.damageSlime(1.0f);
         }
         _isRunningDestroyCoroutine = false;
     }

@@ -50,7 +50,7 @@ public class SlimeController : MonoBehaviour {
 
     void Awake() {
         //Load all sounds from File
-        electricDefenseSFX = Resources.Load<AudioClip>("Sounds/SFX/electric_defense");
+        electricDefenseSFX = Resources.Load<AudioClip>("Sounds/SFX/electricity_defense");
         bioDefenseSFX = Resources.Load<AudioClip>("Sounds/SFX/bio_defense");
         radioactiveDefenseSFX = Resources.Load<AudioClip>("Sounds/SFX/radiation_defense");
     }
@@ -198,11 +198,12 @@ public class SlimeController : MonoBehaviour {
     //Allows slime to irradiate tiles permanently so that enemies that walk into the area are stunned for short periods of time
     public void useRadiationDefense() {
         float rangeOfAttack = RADIATION_BASE_RANGE * radiationLevel;
+
+        AudioSource.PlayClipAtPoint(radioactiveDefenseSFX, getGoalLocation());
         //if distance is within range of attack, check each tile in the radius and then irradiate each tile that can be irradiated
         if (Vector2Int.distance(getStartLocation(), getGoalLocation()) <= rangeOfAttack) {
             int circleRadius = 3 * radiationLevel;
 
-            AudioSource.PlayClipAtPoint(radioactiveDefenseSFX, getGoalLocation());
 
             for (int dx = -circleRadius; dx <= circleRadius; dx++) {
                 for (int dy = -circleRadius; dy <= circleRadius; dy++) {
@@ -252,7 +253,7 @@ public class SlimeController : MonoBehaviour {
     //outputs circle of enemy-damaging electricity from central point of selected slime tile
     //radius increases with electricityLevel, as does damage
     public void useElectricityDefense() {
-        AudioSource.PlayClipAtPoint(electricDefenseSFX, getStartLocation());
+        AudioSource.PlayClipAtPoint(electricDefenseSFX, getStartLocation(), 0.2f);
 
         int circleRadius = electricityLevel;
         for (int dx = -circleRadius; dx <= circleRadius; dx++) {
@@ -295,7 +296,7 @@ public class SlimeController : MonoBehaviour {
     //radius and health increases with bioLevel
     //defense will remain until destroyed by enemies
     public void useBioDefense() {
-        AudioSource.PlayClipAtPoint(bioDefenseSFX, getStartLocation());
+        AudioSource.PlayClipAtPoint(bioDefenseSFX, getStartLocation(), 0.3f);
 
         int circleRadius = bioLevel;
         for (int dx = -circleRadius; dx <= circleRadius; dx++) {

@@ -264,7 +264,7 @@ public class SlimeController : MonoBehaviour {
     //sends a bolt of electricity at an enemy, up to a max distance away, and ars to nearby enemies for chain damage
     //damage and range increase with electricityLevel
     public void useElectricityOffense() {
-        float damageDone = ELECTRICITY_BASE_DAMAGE * electricityLevel;
+        int damageDone = ELECTRICITY_BASE_DAMAGE * electricityLevel;
         float rangeOfAttack = ELECTRICITY_BASE_RANGE * electricityLevel;
         //if enemy is within range of attack, use electricity
         if (Vector2Int.distance(getStartLocation(), getGoalLocation()) <= rangeOfAttack) {
@@ -277,7 +277,7 @@ public class SlimeController : MonoBehaviour {
                 electricityArc.transform.position = getTilePositionUnderCursor().transform.position;
                 ElectricityArc arc = electricityArc.AddComponent<ElectricityArc>();
                 arc.setArcRadius(electricityLevel + 1);
-                arc.setArcDamage((int)damageDone);
+                arc.setArcDamage(damageDone);
                 arc.setArcNumber(electricityLevel + 1);
             }
         }
@@ -308,14 +308,19 @@ public class SlimeController : MonoBehaviour {
     //Creates a tentacle that can stab and impale enemies, as well as drag them towards the slime at higher levels
     //Damage and range are based on level
     public void useBioOffense() {
-        float damageDone = BIO_BASE_DAMAGE * bioLevel;
+        int damageDone = BIO_BASE_DAMAGE * bioLevel;
         float rangeOfAttack = BIO_BASE_RANGE * bioLevel;
         Path astarPath = Astar.findPath(getStartLocation(), getGoalLocation());
+        
         float pathCost = astarPath.getLength();
         if (pathCost <= rangeOfAttack) {
-            bool wasDamaged = getTilePositionUnderCursor().damageTileEntities(damageDone);
-            // MISSING Tile.canDamageTileEntities()
-            if (wasDamaged) {
+            bool canDamage = getTilePositionUnderCursor().canDamageEntities();
+            if (canDamage) {
+                GameObject bioLance = new GameObject("BioLance");
+                bioLance.transform.position = getTilePositionUnderCursor().transform.position;
+                BioLance bio = bioLance.AddComponent<BioLance>(); 
+                bio.setLancePath(astarPath);
+                bio.setLanceDamage(damageDone);
                 loseEnergy(BIO_OFFENSE_COST);
             }
         }

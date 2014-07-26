@@ -16,8 +16,12 @@ public class Slime : MonoBehaviour {
 
     private SlimeRenderer _slimeRenderer = null;
 
-    private bool _isDead = false;
-    private float _destructionTime = 0.0f;
+    public bool _isDead = false;
+    private bool _killNeighbors = false;
+
+    private static float _nextSlimeDestructionTime = 0.0f;
+    private static List<Slime> _slimesToDestroyList = new List<Slime>();
+
     private int _aliveIndex = 0;
     private static int _currSearchingAliveIndex = 0;
     private static Vector2Int _anchorSlimeLocation = null;
@@ -70,10 +74,46 @@ public class Slime : MonoBehaviour {
     public void Update() {
         bool canGoToSleep = true;
 
+        int c = 0;
+        foreach (Slime ss in _slimesToDestroyList) {
+            if (ss == this) {
+                c++;
+            }
+        }
+        if (c > 1) {
+            Debug.Log("nooooo");
+        }
+
+
         if (_isDead) {
-            canGoToSleep = false;
-            if (Time.time >= _destructionTime) {
-                damageSlime(1.0f);
+            if (_killNeighbors) {
+                killNeighbors();
+                canGoToSleep = false;
+                _killNeighbors = false;
+            }
+
+
+            
+
+
+
+
+            if (_slimesToDestroyList.Count != 0 && _slimesToDestroyList[0] == this) {
+                if (_nextSlimeDestructionTime <= Time.time) {
+                    //Debug.Log(_nextSlimeDestructionTime + " : " + Time.time);
+                    damageSlime(1.0f);
+                    _nextSlimeDestructionTime = _nextSlimeDestructionTime + 1.0f;
+
+                    if (_slimesToDestroyList.Count > 1) {
+                        int randomIndex = Random.Range(1, _slimesToDestroyList.Count - 1);
+                        _slimesToDestroyList[0] = _slimesToDestroyList[randomIndex];
+                        _slimesToDestroyList[randomIndex] = _slimesToDestroyList[_slimesToDestroyList.Count - 1];
+                        _slimesToDestroyList[0].wakeUpSlime();
+                    }
+
+                    _slimesToDestroyList.RemoveAt(_slimesToDestroyList.Count - 1);
+                }
+                canGoToSleep = false;
             }
         } else {
             if (_currentExpandPath != null) {
@@ -105,12 +145,12 @@ public class Slime : MonoBehaviour {
             Vector2Int deathOrigin = transform.position;
             DestroyImmediate(this);
             if (!_isDead) {
-                handleSlimeDeath(deathOrigin);
+                handleSlimeDetatch(deathOrigin);
             }
         }
     }
 
-    private void handleSlimeDeath(Vector2Int origin) {
+    private void handleSlimeDetatch(Vector2Int origin) {
         Astar.isWalkableFunction = isSlimeTile;
         Astar.earlySuccessFunction = isLocationAlive;
         Astar.earlyFailureFunction = isLocationDead;
@@ -133,24 +173,28 @@ public class Slime : MonoBehaviour {
             Path pathHome = Astar.findPath(neighborPos, _anchorSlimeLocation, false);
 
             if (pathHome == null) {
-                neighborSlime.setDeadRecursive(Time.time);
+                _slimesToDestroyList.Add(neighborSlime);
+                neighborSlime._isDead = true;
+                neighborSlime._killNeighbors = true;
+                neighborSlime.wakeUpSlime();
             } else {
                 for (int j = 0; j < pathHome.Count; j++) {
-                    Vector2Int pathNode = pathHome[i];
+                    Vector2Int pathNode = pathHome[j];
                     Slime s = Tilemap.getInstance().getTileGameObject(pathNode).GetComponent<Slime>();
                     s._aliveIndex = _currSearchingAliveIndex;
                 }
             }
         }
+
+        _nextSlimeDestructionTime = Time.time + 1.0f;
     }
 
-    private void setDeadRecursive(float destructionTime) {
-        _isDead = true;
-        wakeUpSlime();
-        _destructionTime = destructionTime;
-
+    private void killNeighbors() {
         for (int i = 0; i < TilemapUtilities.neighborFullArray.Length; i++) {
             Vector2Int neighborPos = Tilemap.getTilemapLocation(transform.position) + TilemapUtilities.neighborFullArray[i];
+            if(!TilemapUtilities.areTilesNeighbors(Tilemap.getTilemapLocation(transform.position), neighborPos, true, Astar.defaultIsWalkable)){
+                continue;
+            }
 
             GameObject neighborObj = Tilemap.getInstance().getTileGameObject(neighborPos);
             if (neighborObj == null) {
@@ -163,7 +207,10 @@ public class Slime : MonoBehaviour {
             }
 
             if (!neighborSlime._isDead) {
-                neighborSlime.setDeadRecursive(_destructionTime + 1.0f);
+                _slimesToDestroyList.Add(neighborSlime);
+                neighborSlime._isDead = true;
+                neighborSlime._killNeighbors = true;
+                neighborSlime.wakeUpSlime();
             }
         }
     }

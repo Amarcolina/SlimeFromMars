@@ -36,17 +36,17 @@ public class item_rotate_self: MonoBehaviour
 		{
 			if (this.speed_x!=0) 
 			{
-				transform.RotateAroundLocal(new Vector3(1,0,0),speed_x*Time.deltaTime);
+				transform.Rotate(new Vector3(1,0,0),speed_x*Time.deltaTime);
 			}
 		
 			if (this.speed_y!=0) 
 			{
-				transform.RotateAroundLocal(new Vector3(0,1,0),speed_y*Time.deltaTime);
+                transform.Rotate(new Vector3(0, 1, 0), speed_y * Time.deltaTime);
 			}
 			
 			if (this.speed_z!=0) 
 			{
-				transform.RotateAroundLocal(new Vector3(0,0,1),speed_z*Time.deltaTime);
+                transform.Rotate(new Vector3(0, 0, 1), speed_z * Time.deltaTime);
 			}
 		}
 

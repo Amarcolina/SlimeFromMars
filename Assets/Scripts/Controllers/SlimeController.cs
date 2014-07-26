@@ -37,7 +37,6 @@ public class SlimeController : MonoBehaviour {
     private const int ELECTRICITY_BASE_RANGE = 5;
     private const int BIO_BASE_RANGE = 2;
     private const int RADIATION_BASE_RANGE = 4;
-    private bool elementalMode = false;
 
     //selected tile of slime
     private Slime currentSelectedSlime;
@@ -195,6 +194,8 @@ public class SlimeController : MonoBehaviour {
         if (Vector2Int.distance(getStartLocation(), getGoalLocation()) <= rangeOfAttack) {
             int circleRadius = 3 * radiationLevel;
 
+            AudioSource.PlayClipAtPoint(radioactiveDefenseSFX, getGoalLocation());
+
             for (int dx = -circleRadius; dx <= circleRadius; dx++) {
                 for (int dy = -circleRadius; dy <= circleRadius; dy++) {
                     Vector2 tileOffset = new Vector2(dx, dy);
@@ -243,6 +244,8 @@ public class SlimeController : MonoBehaviour {
     //outputs circle of enemy-damaging electricity from central point of selected slime tile
     //radius increases with electricityLevel, as does damage
     public void useElectricityDefense() {
+        AudioSource.PlayClipAtPoint(electricDefenseSFX, getStartLocation());
+
         int circleRadius = electricityLevel;
         for (int dx = -circleRadius; dx <= circleRadius; dx++) {
             for (int dy = -circleRadius; dy <= circleRadius; dy++) {
@@ -284,6 +287,8 @@ public class SlimeController : MonoBehaviour {
     //radius and health increases with bioLevel
     //defense will remain until destroyed by enemies
     public void useBioDefense() {
+        AudioSource.PlayClipAtPoint(bioDefenseSFX, getStartLocation());
+
         int circleRadius = bioLevel;
         for (int dx = -circleRadius; dx <= circleRadius; dx++) {
             for (int dy = -circleRadius; dy <= circleRadius; dy++) {

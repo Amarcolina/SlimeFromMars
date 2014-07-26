@@ -133,17 +133,25 @@ public class SlimeController : MonoBehaviour {
         Tile tileUnderCursor = getTilePositionUnderCursor();
         //gets the slime component under the highlighted tile, if it exists
         Slime slimeTile = tileUnderCursor.GetComponent<Slime>();
-        if (slimeTile != null) {
+        if (slimeTile != null && slimeTile.isConnected()) {
             setSelectedSlime(slimeTile);
         }
     }
 
     public void setSelectedSlime(Slime slime) {
         currentSelectedSlime = slime;
-        //moves highlighter to tile position
-        transform.position = currentSelectedSlime.transform.position;
-        //makes sprite visible
-        renderer.enabled = true;
+        if (currentSelectedSlime == null) {
+            renderer.enabled = false;
+        } else {
+            //moves highlighter to tile position
+            transform.position = currentSelectedSlime.transform.position;
+            //makes sprite visible
+            renderer.enabled = true;
+        }
+    }
+
+    public Slime getSelectedSlime() {
+        return currentSelectedSlime;
     }
 
     public Tile getTilePositionUnderCursor() {

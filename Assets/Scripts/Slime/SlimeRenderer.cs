@@ -61,13 +61,13 @@ public class SlimeRenderer : MonoBehaviour {
             return 0.0f;
         }
 
-        Slime s = tileObject.GetComponent<Slime>();
+        Slime slime = tileObject.GetComponent<Slime>();
 
-        if (s == null) {
+        if (slime == null) {
             return 0.0f;
         }
 
-        return s._isDead ? 0.92f : 1.0f;
+        return slime.isDead() ? 0.92f : 1.0f;
     }
 
     public void wakeUpRenderer(bool wakeUpNeighbors = true) {

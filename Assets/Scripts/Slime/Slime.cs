@@ -237,9 +237,8 @@ public class Slime : MonoBehaviour {
             }
         };
 
-        Astar.resetDefaults();
-
         forEachNeighborSlime(function, origin);
+        Astar.resetDefaults();
     }
 
     private void disconnectNeighbors() {

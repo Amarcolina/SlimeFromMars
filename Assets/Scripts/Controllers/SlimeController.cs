@@ -1,6 +1,18 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+
+
+public enum ElementalCastType{
+    NONE,
+    ELECTRICITY_OFFENSIVE,
+    BIO_OFFENSIVE,
+    RADIATION_OFFENSIVE,
+    RADIATION_DEFENSIVE
+}
+
+
+
 /*This class keeps track of slime attribute values, mutation types, offense/defense abilities based on mutation type, and offense/defense values
  * 
  */
@@ -21,12 +33,12 @@ public class SlimeController : MonoBehaviour {
     private AudioClip radioactiveDefenseSFX;
 
     //cost for using skills
-    private const int ELECTRICITY_DEFENSE_COST = 5;
-    private const int ELECTRICITY_OFFENSE_COST = 10;
-    private const int BIO_DEFENSE_COST = 8;
-    private const int BIO_OFFENSE_COST = 8;
-    private const int RADIATION_DEFENSE_COST = 12;
-    private const int RADIATION_OFFENSE_COST = 10;
+    public const int ELECTRICITY_DEFENSE_COST = 5;
+    public const int ELECTRICITY_OFFENSE_COST = 10;
+    public const int BIO_DEFENSE_COST = 8;
+    public const int BIO_OFFENSE_COST = 8;
+    public const int RADIATION_DEFENSE_COST = 12;
+    public const int RADIATION_OFFENSE_COST = 10;
 
     //base damage for skills
     private const int ELECTRICITY_BASE_DAMAGE = 5;
@@ -37,6 +49,9 @@ public class SlimeController : MonoBehaviour {
     private const int ELECTRICITY_BASE_RANGE = 5;
     private const int BIO_BASE_RANGE = 2;
     private const int RADIATION_BASE_RANGE = 4;
+
+    private ElementalCastType _currentCastType = ElementalCastType.NONE;
+    private bool _shouldSkipNext = false;
 
     //selected tile of slime
     private Slime currentSelectedSlime;
@@ -65,11 +80,7 @@ public class SlimeController : MonoBehaviour {
     }
 
     // Update is called once per frame
-    void Update() {
-        if (Input.GetMouseButtonDown(0)) {
-            highlightSlimeTile();
-        }
-
+    void LateUpdate() {
         if (Input.GetKeyDown(KeyCode.E)) {
             gainEnergy(1000000);
         }
@@ -81,6 +92,22 @@ public class SlimeController : MonoBehaviour {
         }
         if (Input.GetKeyDown(KeyCode.B)) {
             gainBioLevel();
+        }
+
+        if (_shouldSkipNext) {
+            _shouldSkipNext = false;
+        } else {
+            if (_currentCastType == ElementalCastType.NONE) {
+                handleNormalInteraction();
+            } else {
+                handleCastInteraction();
+            }   
+        }
+    }
+
+    private void handleNormalInteraction() {
+        if (Input.GetMouseButtonDown(0)) {
+            highlightSlimeTile();
         }
 
         if (currentSelectedSlime == null) {
@@ -101,6 +128,49 @@ public class SlimeController : MonoBehaviour {
                 //message: not enough energy
             }
         }
+    }
+
+    private void handleCastInteraction() {
+        if (Input.GetKeyDown(KeyCode.Mouse1)) {
+            _currentCastType = ElementalCastType.NONE;
+        }
+
+        if (Input.GetKeyDown(KeyCode.Mouse0)) {
+            switch (_currentCastType) {
+                case ElementalCastType.BIO_OFFENSIVE:
+                    useBioOffense();
+                    break;
+                case ElementalCastType.ELECTRICITY_OFFENSIVE:
+                    useElectricityOffense();
+                    break;
+                case ElementalCastType.RADIATION_DEFENSIVE:
+                    useRadiationDefense();
+                    break;
+                case ElementalCastType.RADIATION_OFFENSIVE:
+                    useRadiationOffense();
+                    break;
+                default:
+                    _currentCastType = ElementalCastType.NONE;
+                    throw new System.Exception("Unexpected elemental cast type " + _currentCastType);
+            }
+            _currentCastType = ElementalCastType.NONE;
+        }
+    }
+
+    public void skipNextFrame() {
+        _shouldSkipNext = true;
+    }
+
+    public void OnGUI() {
+        if (_currentCastType != ElementalCastType.NONE) {
+            Vector2 mousePosition = Input.mousePosition;
+            mousePosition.y = Screen.height - mousePosition.y;
+            GUI.Box(new Rect(mousePosition.x - 8, mousePosition.y - 8, 16, 16), "");
+        }
+    }
+
+    public void beginCast(ElementalCastType castType) {
+        _currentCastType = castType;
     }
 
     //AudioSource.PlayClipAtPoint(electricDefenseSFX, currentSelectedSlime.transform.position);
@@ -182,6 +252,10 @@ public class SlimeController : MonoBehaviour {
         _gameUi.ResourceUpdate(energy);
     }
 
+    public int getEnergyAmount() {
+        return energy;
+    }
+
     public void gainRadiationLevel() {
         radiationLevel++;
         _gameUi.RadiationUpdate(radiationLevel);
@@ -219,7 +293,7 @@ public class SlimeController : MonoBehaviour {
                 for (int dy = -circleRadius; dy <= circleRadius; dy++) {
                     Vector2 tileOffset = new Vector2(dx, dy);
                     if (tileOffset.sqrMagnitude <= circleRadius * circleRadius) {
-                        Tile tile = Tilemap.getInstance().getTile(getStartLocation() + new Vector2Int(dx, dy));
+                        Tile tile = Tilemap.getInstance().getTile(getGoalLocation() + new Vector2Int(dx, dy));
                         if (tile != null) {
                             Irradiated radComponent = tile.GetComponent<Irradiated>();
                             if (radComponent == null) {

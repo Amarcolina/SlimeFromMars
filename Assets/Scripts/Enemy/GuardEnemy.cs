@@ -1,38 +1,39 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class GuardEnemy : BaseEnemy {
+public enum GuardState
+{
+    WANDERING,
+    ATTACKING,
+    FLEEING
+}
 
-    public enum GuardState
-    {
-        WANDERING,
-        ATTACKING
-    }
+public class GuardEnemy : BaseEnemy
+{
+    public GuardState startState = GuardState.WANDERING;
+
+    public float wanderSpeed = 2.5f;
+    public float fleeSpeed = 3.5f;
 
     [MinValue(0)]
     public int bullets = 20;
     [MinValue(0)]
-    public float timePerShot = 4f;
+    public float timePerShot = 1.5f;
     [MinValue(0)]
     public float fireRange = 8.0f;
 
+    private float _timeUntilNextShot = 0.0f;
+    private GuardState _currentState;
     private Slime _nearestSlime = null;
 
-    public GuardState startState = GuardState.WANDERING;
-
-    private float _timeUntilNextShot = 0.0f;
-    public float wanderSpeed = 2.5f;
-
-    private GuardState _currentState;
-    private int onSlimeDuration;
-    private GameObject projectile;
-
+    public GameObject shot;
+    public Transform shotSpawn;
+    
+ 
     public override void Awake()
     {
         base.Awake();
         _currentState = startState;
-        projectile.AddComponent<Rigidbody>();
-
     }
 
     void Update()
@@ -41,15 +42,7 @@ public class GuardEnemy : BaseEnemy {
         {
             return;
         }
-        if (isOnSlimeTile())
-        {
-            onSlimeDuration++;
-            return;
-        }
-        if (onSlimeDuration > 5)
-        {
-            Destroy(this.gameObject);
-        }
+        _nearestSlime = getNearestVisibleSlime();
 
         switch (_currentState)
         {
@@ -59,41 +52,13 @@ public class GuardEnemy : BaseEnemy {
             case GuardState.ATTACKING:
                 attackState();
                 break;
+            case GuardState.FLEEING:
+                fleeState();
+                break;
+            default:
+                Debug.LogWarning("Cannot handle state " + _currentState);
+                break;
         }
-    }
-
-    private void attackState()
-    {
-
-            if (_nearestSlime == null)
-            {
-                enterWanderState();
-                return;
-            }
-
-            if (Vector3.Distance(transform.position, _nearestSlime.transform.position) > fireRange)
-            {
-                moveTowardsPoint(_nearestSlime.transform.position);
-                _timeUntilNextShot = timePerShot;
-            }
-            else
-            {
-                _timeUntilNextShot -= Time.deltaTime;
-                if (_timeUntilNextShot <= 0.0f)
-                {
-                    _timeUntilNextShot += timePerShot;
-                   _nearestSlime.damageSlime(3f);
-                    bullets--;
-                }
-            }
-        
-    }
-
-    private void coneAttack()
-    {
-        GameObject gameobject = _tilemap.getTileGameObject(transform.position);
-        float angle =  Vector3.Angle(_nearestSlime.transform.position, transform.position);
-        
     }
 
     private void enterWanderState()
@@ -106,7 +71,9 @@ public class GuardEnemy : BaseEnemy {
     {
         followMovementPattern(wanderSpeed);
         tryEnterAttackState();
+        tryEnterFleeState();
     }
+
     private bool tryEnterAttackState()
     {
         if (_nearestSlime != null && bullets != 0)
@@ -115,5 +82,64 @@ public class GuardEnemy : BaseEnemy {
             return true;
         }
         return false;
+    }
+
+    private void attackState()
+    {
+        if (bullets == 0)
+        {
+            if (tryEnterFleeState())
+            {
+                enterWanderState();
+            }
+        }
+        else
+        {
+            if (_nearestSlime == null)
+            {
+                enterWanderState();
+                return;
+            }
+
+
+            if (Vector3.Distance(transform.position, _nearestSlime.transform.position) > fireRange)
+            {
+                moveTowardsPoint(_nearestSlime.transform.position);
+                _timeUntilNextShot = timePerShot;
+            }
+            else
+            {
+                _timeUntilNextShot -= Time.deltaTime;
+                if (_timeUntilNextShot <= 0.0f)
+                {
+                    useFlameThrower();
+                    _timeUntilNextShot += timePerShot;
+                    _nearestSlime.damageSlime(1.5f);
+                    bullets--;
+                }
+            }
+        }
+    }
+
+    private void useFlameThrower()
+    {
+
+        Instantiate(shot, shotSpawn.position, shotSpawn.rotation);
+
+    }
+
+    private bool tryEnterFleeState()
+    {
+        if (_nearestSlime != null && bullets == 0)
+        {
+            _currentState = GuardState.FLEEING;
+            return true;
+        }
+        return false;
+    }
+
+    private void fleeState()
+    {
+        runAwayFromSlime(fleeSpeed);
     }
 }

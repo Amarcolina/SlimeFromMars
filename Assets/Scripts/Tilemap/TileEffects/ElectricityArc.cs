@@ -5,6 +5,13 @@ public class ElectricityArc : MonoBehaviour {
     int arcRadius, arcDamage, arcNumber;
     private float timeUntilArc = 0.2f;
 
+    private AudioClip electricArcSFX;
+
+    void Awake()
+    {
+        electricArcSFX = Resources.Load<AudioClip>("Sounds/SFX/electric_arc");
+    }
+
     void Start() {
         Tilemap.getInstance().getTile(transform.position).damageTileEntities(arcDamage);
     }
@@ -34,6 +41,7 @@ public class ElectricityArc : MonoBehaviour {
 
     //creates a single arc 
     private void doArc() {
+        AudioSource.PlayClipAtPoint(electricArcSFX, transform.position, 0.3f);
         for (int dx = -arcRadius; dx <= arcRadius; dx++) {
             for (int dy = -arcRadius; dy <= arcRadius; dy++) {
                 Vector2 tileOffset = new Vector2(dx, dy);

@@ -9,6 +9,7 @@ public class GameUI : MonoBehaviour {
 	public UILabel BioLevel_Label;
 	public UILabel RadiationLevel_Label;
 	public UILabel AbilityText_Label;
+	public UILabel WarningText_Label;
 	//GameObject References, used primarily to activate or deactivate elemental UI
 	public GameObject LightningContainer_GameObject;
 	public GameObject BioContainer_GameObject;
@@ -27,6 +28,8 @@ public class GameUI : MonoBehaviour {
 	private bool ElectricityActivated = false;
 	private bool BioActivated = false;
 	private bool RadiationActivated = false;
+    private SlimeController _slimeControllerInstance;
+	private float warningtime = 0;
 
 	private static GameUI _gameuiInstance;
 	public static GameUI getInstance() {
@@ -35,7 +38,20 @@ public class GameUI : MonoBehaviour {
 		}
 		return _gameuiInstance;
 	}
-	
+
+    public void Awake() {
+        _slimeControllerInstance = SlimeController.getInstance();
+    }
+
+	public void Update(){
+		if (warningtime > 0) {
+			warningtime -= Time.deltaTime;
+			WarningText_Label.alpha -= .01f;
+		} else {
+			WarningText_Label.enabled = false;
+		}
+	}
+
 	//Updates the resource counter. Takes in the current amount of resources. Pass the new final amount, not the amount being added.
 	public void ResourceUpdate(float ResourceUpdate){
 		ResourceCounter_Label.text = "Resources: " + ResourceUpdate;
@@ -92,33 +108,70 @@ public class GameUI : MonoBehaviour {
 
     // if (Input.GetKeyDown(KeyCode.F6) && radiationLevel > 0 && energy >= RADIATION_OFFENSE_COST)
 	public void RadiationOffense(){
-        SlimeController.getInstance().useRadiationOffense();
+        _slimeControllerInstance.skipNextFrame();
+        if (checkCanCastAbility(SlimeController.RADIATION_OFFENSE_COST)) {
+            _slimeControllerInstance.beginCast(ElementalCastType.RADIATION_OFFENSIVE);    
+        }
 	}
 
     //if (Input.GetKeyDown(KeyCode.F5) && radiationLevel > 0 && energy >= RADIATION_DEFENSE_COST) {
 	public void RadiationDefense(){
-        SlimeController.getInstance().useRadiationDefense();
+        _slimeControllerInstance.skipNextFrame();
+        if (checkCanCastAbility(SlimeController.RADIATION_DEFENSE_COST)) {
+            SlimeController.getInstance().beginCast(ElementalCastType.RADIATION_DEFENSIVE);
+        }
 	}
 
     //if (Input.GetKeyDown(KeyCode.F2) && energy >= ELECTRICITY_OFFENSE_COST) { 
 	public void LightningOffense(){
-        SlimeController.getInstance().useElectricityOffense();
+        _slimeControllerInstance.skipNextFrame();
+        if (checkCanCastAbility(SlimeController.ELECTRICITY_OFFENSE_COST)) {
+            SlimeController.getInstance().beginCast(ElementalCastType.ELECTRICITY_OFFENSIVE);
+        }
 	}
 
     //if (Input.GetKeyDown(KeyCode.F1) && electricityLevel > 0 && energy >= ELECTRICITY_DEFENSE_COST)
 	public void LightningDefense(){
-        SlimeController.getInstance().useElectricityDefense();
+        _slimeControllerInstance.skipNextFrame();
+        if (checkCanCastAbility(SlimeController.ELECTRICITY_DEFENSE_COST)) {
+            SlimeController.getInstance().useElectricityDefense();
+        }
 	}
 
     //if (Input.GetKeyDown(KeyCode.F4) && bioLevel > 0 && energy >= BIO_OFFENSE_COST)
 	public void BioOffense(){
-        SlimeController.getInstance().useBioOffense();
+        _slimeControllerInstance.skipNextFrame();
+        if (checkCanCastAbility(SlimeController.BIO_OFFENSE_COST)) {
+            SlimeController.getInstance().beginCast(ElementalCastType.BIO_OFFENSIVE);
+        }
 	}
 
     //if (Input.GetKeyDown(KeyCode.F3) && bioLevel > 0 && energy >= BIO_DEFENSE_COST)
 	public void BioDefense(){
-        SlimeController.getInstance().useBioDefense();
+        _slimeControllerInstance.skipNextFrame();
+        if (checkCanCastAbility(SlimeController.BIO_DEFENSE_COST)) {
+            SlimeController.getInstance().useBioDefense();
+        }
 	}
+
+    public bool checkCanCastAbility(int resourcesRequired) {
+        if (_slimeControllerInstance.getSelectedSlime() == null) {
+            //todo: Must select a slime first alert!
+			WarningText_Label.enabled = true;
+			WarningText_Label.text = "Must Select A Slime First!";
+			WarningText_Label.alpha = 1;
+			warningtime = 2;
+            return false;
+        } else if (_slimeControllerInstance.getEnergyAmount() < resourcesRequired) {
+            //todo: Must have enough energy alert!
+			WarningText_Label.enabled = true;
+			WarningText_Label.text = "Not Enough Energy!";
+			WarningText_Label.alpha = 1;
+			warningtime = 2;
+            return false;
+        }
+        return true;
+    }
 
 	//Functions used for text being added by hovering over buttons
 	//************************************************************
@@ -177,19 +230,4 @@ public class GameUI : MonoBehaviour {
 	}
 	//*********************************************
 	//*********************************************
-
-
-	// Use this for initialization
-	void Start () {
-	
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	/*
-		if(Input.GetKeyDown(KeyCode.W)){
-		LightningUpdate(2);
-		}
-   */
-	}
 }

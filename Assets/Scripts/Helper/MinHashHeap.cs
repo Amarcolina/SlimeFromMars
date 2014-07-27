@@ -97,8 +97,8 @@ public class MinHashHeap<GenericItem> where GenericItem: IComparable{
         GenericItem store_heap_element = heap[i];
         heap[i] = heap[j];
         heap[j] = store_heap_element;
-        itemIndexMap.Add(heap[i], i);
-        itemIndexMap.Add(heap[j], j);
+        itemIndexMap[heap[i]] = i;
+        itemIndexMap[heap[j]] = j;
     }
 
     private void addToEnd(GenericItem item) {
@@ -111,7 +111,7 @@ public class MinHashHeap<GenericItem> where GenericItem: IComparable{
         }
         itemIndexMap.Remove(heap[index]);
         heap[index] = heap[heap.Count - 1];
-        itemIndexMap.Add(heap[index], index);
+        itemIndexMap[heap[index]] = index;
         heap.RemoveAt(heap.Count - 1);
 
     }

@@ -33,12 +33,12 @@ public class SlimeController : MonoBehaviour {
     private AudioClip radioactiveDefenseSFX;
 
     //cost for using skills
-    private const int ELECTRICITY_DEFENSE_COST = 5;
-    private const int ELECTRICITY_OFFENSE_COST = 10;
-    private const int BIO_DEFENSE_COST = 8;
-    private const int BIO_OFFENSE_COST = 8;
-    private const int RADIATION_DEFENSE_COST = 12;
-    private const int RADIATION_OFFENSE_COST = 10;
+    public const int ELECTRICITY_DEFENSE_COST = 5;
+    public const int ELECTRICITY_OFFENSE_COST = 10;
+    public const int BIO_DEFENSE_COST = 8;
+    public const int BIO_OFFENSE_COST = 8;
+    public const int RADIATION_DEFENSE_COST = 12;
+    public const int RADIATION_OFFENSE_COST = 10;
 
     //base damage for skills
     private const int ELECTRICITY_BASE_DAMAGE = 5;
@@ -417,30 +417,6 @@ public class SlimeController : MonoBehaviour {
                 loseEnergy(BIO_OFFENSE_COST);
             }
         }
-    }
-
-    public int getBioOffensiveCost() {
-        return 0;
-    }
-
-    public int getBioDefensiveCost() {
-        return 0;
-    }
-
-    public int getElectricityOffensiveCost() {
-        return 0;
-    }
-
-    public int getElectricityDefensiveCost() {
-        return 0;
-    }
-
-    public int getRadiationOffensiveCost() {
-        return 0;
-    }
-
-    public int getRadiationDefensiveCost() {
-        return 0;
     }
 }
 

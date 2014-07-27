@@ -98,7 +98,7 @@ public class GameUI : MonoBehaviour {
     // if (Input.GetKeyDown(KeyCode.F6) && radiationLevel > 0 && energy >= RADIATION_OFFENSE_COST)
 	public void RadiationOffense(){
         _slimeControllerInstance.skipNextFrame();
-        if(checkCanCastAbility(_slimeControllerInstance.getRadiationOffensiveCost())){
+        if (checkCanCastAbility(SlimeController.RADIATION_OFFENSE_COST)) {
             _slimeControllerInstance.beginCast(ElementalCastType.RADIATION_OFFENSIVE);    
         }
 	}
@@ -106,7 +106,7 @@ public class GameUI : MonoBehaviour {
     //if (Input.GetKeyDown(KeyCode.F5) && radiationLevel > 0 && energy >= RADIATION_DEFENSE_COST) {
 	public void RadiationDefense(){
         _slimeControllerInstance.skipNextFrame();
-        if (checkCanCastAbility(_slimeControllerInstance.getRadiationDefensiveCost())) {
+        if (checkCanCastAbility(SlimeController.RADIATION_DEFENSE_COST)) {
             SlimeController.getInstance().beginCast(ElementalCastType.RADIATION_DEFENSIVE);
         }
 	}
@@ -114,7 +114,7 @@ public class GameUI : MonoBehaviour {
     //if (Input.GetKeyDown(KeyCode.F2) && energy >= ELECTRICITY_OFFENSE_COST) { 
 	public void LightningOffense(){
         _slimeControllerInstance.skipNextFrame();
-        if (checkCanCastAbility(_slimeControllerInstance.getElectricityOffensiveCost())) {
+        if (checkCanCastAbility(SlimeController.ELECTRICITY_OFFENSE_COST)) {
             SlimeController.getInstance().beginCast(ElementalCastType.ELECTRICITY_OFFENSIVE);
         }
 	}
@@ -122,7 +122,7 @@ public class GameUI : MonoBehaviour {
     //if (Input.GetKeyDown(KeyCode.F1) && electricityLevel > 0 && energy >= ELECTRICITY_DEFENSE_COST)
 	public void LightningDefense(){
         _slimeControllerInstance.skipNextFrame();
-        if (checkCanCastAbility(_slimeControllerInstance.getElectricityDefensiveCost())) {
+        if (checkCanCastAbility(SlimeController.ELECTRICITY_DEFENSE_COST)) {
             SlimeController.getInstance().useElectricityDefense();
         }
 	}
@@ -130,7 +130,7 @@ public class GameUI : MonoBehaviour {
     //if (Input.GetKeyDown(KeyCode.F4) && bioLevel > 0 && energy >= BIO_OFFENSE_COST)
 	public void BioOffense(){
         _slimeControllerInstance.skipNextFrame();
-        if (checkCanCastAbility(_slimeControllerInstance.getBioOffensiveCost())) {
+        if (checkCanCastAbility(SlimeController.BIO_OFFENSE_COST)) {
             SlimeController.getInstance().beginCast(ElementalCastType.BIO_OFFENSIVE);
         }
 	}
@@ -138,7 +138,7 @@ public class GameUI : MonoBehaviour {
     //if (Input.GetKeyDown(KeyCode.F3) && bioLevel > 0 && energy >= BIO_DEFENSE_COST)
 	public void BioDefense(){
         _slimeControllerInstance.skipNextFrame();
-        if (checkCanCastAbility(_slimeControllerInstance.getBioDefensiveCost())) {
+        if (checkCanCastAbility(SlimeController.BIO_DEFENSE_COST)) {
             SlimeController.getInstance().useBioDefense();
         }
 	}

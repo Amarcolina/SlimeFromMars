@@ -37,7 +37,6 @@ public class MinHashHeap<GenericItem> where GenericItem: IComparable{
     }
 
     public GenericItem extractElement(GenericItem element) {
-        GenericItem extractedElement = element;
         int index = 0;
         if(!itemIndexMap.TryGetValue(element, out index)){
             throw new System.Exception("Requested item was not found in heap");
@@ -107,6 +106,8 @@ public class MinHashHeap<GenericItem> where GenericItem: IComparable{
     }
     private void replaceWithEnd(int index) {
         if (index == heap.Count - 1) {
+            itemIndexMap.Remove(heap[index]);
+            heap.RemoveAt(heap.Count - 1);
             return;
         }
         itemIndexMap.Remove(heap[index]);

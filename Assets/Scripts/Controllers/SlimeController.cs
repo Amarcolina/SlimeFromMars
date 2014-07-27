@@ -17,7 +17,6 @@ public class SlimeController : MonoBehaviour {
 
     //list of sound effects for abilities
     private AudioClip electricDefenseSFX;
-    private AudioClip electricArcSFX;
     private AudioClip bioDefenseSFX;
     private AudioClip bioOffenseSFX;
     private AudioClip radioactiveDefenseSFX;
@@ -55,7 +54,6 @@ public class SlimeController : MonoBehaviour {
     void Awake() {
         //Load all sounds from File
         electricDefenseSFX = Resources.Load<AudioClip>("Sounds/SFX/electricity_defense");
-        electricArcSFX = Resources.Load<AudioClip>("Sounds/SFX/electric_arc");
 
         bioDefenseSFX = Resources.Load<AudioClip>("Sounds/SFX/bio_defense");
         bioOffenseSFX = Resources.Load<AudioClip>("Sounds/SFX/bio_offense_impale");
@@ -254,7 +252,7 @@ public class SlimeController : MonoBehaviour {
                             Irradiated radComponent = tile.GetComponent<Irradiated>();
                             if (radComponent == null) {
                                 radComponent = tile.gameObject.AddComponent<Irradiated>();
-                                AudioSource.PlayClipAtPoint(electricDefenseSFX, getStartLocation(), 0.3f);
+                                AudioSource.PlayClipAtPoint(radioactiveOffenseSFX, getStartLocation(), 0.3f);
                             }
                             radComponent.setDamaged(true);
                         }
@@ -294,8 +292,6 @@ public class SlimeController : MonoBehaviour {
         if (Vector2Int.distance(getStartLocation(), getGoalLocation()) <= rangeOfAttack) {
             bool canDamage = getTilePositionUnderCursor().canDamageEntities();
 
-            AudioSource.PlayClipAtPoint(electricArcSFX, getStartLocation(), 0.3f);
-
             //if an enemy was damaged, check to see if there are enemies close by to arc to
             if (canDamage) {
                 loseEnergy(ELECTRICITY_OFFENSE_COST);
@@ -305,8 +301,6 @@ public class SlimeController : MonoBehaviour {
                 arc.setArcRadius(electricityLevel + 1);
                 arc.setArcDamage(damageDone);
                 arc.setArcNumber(electricityLevel + 1);
-
-                AudioSource.PlayClipAtPoint(electricArcSFX, electricityArc.transform.position, 0.3f);
             }
         }
     }

@@ -31,12 +31,13 @@ public class GuardEnemy : BaseEnemy
     //Set # of flames in the shot
     public float numFlames;
 
-    public override void Awake()
-    {
-        base.Awake();
-        _currentState = startState;
+    private EnemyProjectile proj;
 
-        _tilemap = Tilemap.getInstance();
+
+
+    void Start()
+    {
+        shot.GetComponent<EnemyProjectile>();
     }
 
     void Update()
@@ -115,12 +116,20 @@ public class GuardEnemy : BaseEnemy
                 _timeUntilNextShot -= Time.deltaTime;
                 if (_timeUntilNextShot <= 0.0f)
                 {
+                    shot.GetComponent<EnemyProjectile>().direction = getBulletDirection();
                     _timeUntilNextShot += timePerShot;
                     useFlameThrower();
                     bullets--;
                 }
             }
         }
+    }
+
+    public Vector2 getBulletDirection()
+    {
+        Vector2 direction =_nearestSlime.transform.position - transform.position;
+
+        return direction;
     }
 
     private void useFlameThrower()

@@ -74,13 +74,13 @@ public class SlimeController : MonoBehaviour {
             gainEnergy(1000000);
         }
         if (Input.GetKeyDown(KeyCode.R)) {
-            radiationLevel++;
+            gainRadiationLevel();
         }
         if (Input.GetKeyDown(KeyCode.L)) {
-            electricityLevel++;
+            gainElectricityLevel();
         }
         if (Input.GetKeyDown(KeyCode.B)) {
-            bioLevel++;
+            gainBioLevel();
         }
 
         if (currentSelectedSlime == null) {
@@ -114,16 +114,13 @@ public class SlimeController : MonoBehaviour {
 
         //if the eatenItem is a mutation, level up affinity
         if (eatenItem.isRadiationMutation) {
-            radiationLevel++;
-            //   _gameUi.RadiationUpdate(radiationLevel);
+            gainRadiationLevel();
         }
         if (eatenItem.isElectricityMutation) {
-            electricityLevel++;
-            _gameUi.LightningUpdate(electricityLevel);
+            gainElectricityLevel();
         }
         if (eatenItem.isBioMutation) {
-            bioLevel++;
-            //  _gameUi.BioUpdate(bioLevel);
+            gainBioLevel();
         }
 
         Destroy(eatenItem.gameObject);
@@ -183,8 +180,23 @@ public class SlimeController : MonoBehaviour {
     private void gainEnergy(int plus) {
         energy += plus;
         _gameUi.ResourceUpdate(energy);
-
     }
+
+    public void gainRadiationLevel() {
+        radiationLevel++;
+        _gameUi.RadiationUpdate(radiationLevel);
+    }
+
+    public void gainBioLevel() {
+        bioLevel++;
+        _gameUi.BioUpdate(bioLevel);
+    }
+
+    public void gainElectricityLevel() {
+        electricityLevel++;
+        _gameUi.LightningUpdate(electricityLevel);
+    }
+
     public Vector2Int getStartLocation() {
         return Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
     }

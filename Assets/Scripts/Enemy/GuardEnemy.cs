@@ -28,6 +28,9 @@ public class GuardEnemy : BaseEnemy
 
     public GameObject shot;
     public Transform shotSpawn;
+
+    public Vector2 speed;
+    public Vector2 direction;
     
  
     public override void Awake()
@@ -118,7 +121,6 @@ public class GuardEnemy : BaseEnemy
                     _timeUntilNextShot += timePerShot;
 
                     useFlameThrower();
-                    _nearestSlime.damageSlime(1.5f);
                     bullets--;
                 }
             }
@@ -127,15 +129,11 @@ public class GuardEnemy : BaseEnemy
 
     private void useFlameThrower()
     {
-
-        Instantiate(shot, shotSpawn.position, shotSpawn.rotation);
-        float distance = 2f;
-        float speed = 5f;
-        GameObject tileGameObject = _tilemap.getTileGameObject(shot.transform.position);
-        if (tileGameObject.GetComponent<Slime>() != null)
-        {
-            
-        }
+        Transform shotTransform = Instantiate(shot, transform.position, transform.rotation) as Transform;
+        Instantiate(shot, transform.position, transform.rotation);
+        Instantiate(shot, transform.position, transform.rotation);
+        Instantiate(shot, transform.position, transform.rotation);
+        Instantiate(shot, transform.position, transform.rotation); 
     }
 
     private bool tryEnterFleeState()

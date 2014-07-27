@@ -1,45 +1,59 @@
 ﻿using UnityEngine;
-using System.Collections;
 
+/// <summary>
+/// Simply moves the current game object
+/// </summary>
 public class EnemyProjectile : BaseEnemy
 {
-    private float lifeSpan = 2.0f;
-    public Transform pExplosion;
-    public Transform soundExplosion;
-    private float projectileSpeed = 10f;
-    public Transform player;
-    Vector3 dir;
+    // 1 - Designer variables
 
+    /// <summary>
+    /// Object speed
+    /// </summary>
+    public Vector2 speed = new Vector2(1, 1);
+
+    /// <summary>
+    /// Moving direction
+    /// </summary>
+    //public Vector2 direction = new Vector2(-1, 0);
+    private Vector2 direction;
+
+    private Vector2 movement;
 
     private Slime _nearestSlime = null;
+    private Slime damagedSlime;
 
 
+    void Start()
+    {        
+                if(transform!=null){
+        _nearestSlime = getNearestVisibleSlime();
+
+        direction = _nearestSlime.transform.position - transform.position;
+        // 2 - Movement
+        movement = new Vector2(
+         1f * Random.Range(direction.x -1f, direction.x  + 1f),
+          1f* Random.Range(direction.y -1f, direction.y  + 1f));
+    }
+    }
 
     void Update()
     {
-        _nearestSlime = getNearestVisibleSlime();
-        player = _nearestSlime.transform;
-
-        dir = player.position - transform.position;
-
-        rigidbody.velocity = dir.normalized * projectileSpeed;
-        //Destroys the projectile after it has lived its life
-        Destroy(this.gameObject, lifeSpan);
-
-    }
-
-    void OnCollisionEnter(Collision other)
-    {
-        if (other.gameObject.tag != "Enemy")
+        GameObject tileGameObject = _tilemap.getTileGameObject(transform.position);
+        if (tileGameObject != null)
         {
-            if (other.gameObject.tag != "EnemyProjectile")
+            if (tileGameObject.GetComponent<Slime>() != null)
             {
-                soundExplosion.audio.Play();
-                Instantiate(pExplosion, transform.position, transform.rotation);
-                Destroy(this.gameObject);
-
+                Slime s = Tilemap.getInstance().getTileGameObject(transform.position).GetComponent<Slime>();
+                s.damageSlime(5f);
             }
         }
+        Destroy(this, 2f);
     }
 
+    void FixedUpdate()
+    {
+        // Apply movement to the rigidbody
+        rigidbody2D.velocity = movement;
+    }
 }

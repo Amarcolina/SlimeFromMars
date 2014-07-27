@@ -11,6 +11,8 @@ public class TileChunk : ScriptableObject {
     [HideInInspector]
     private GameObject _chunkGameObject = null;
 
+    private Array2DTile _tileComponentCache = null;
+
     public GameObject gameObject {
         get {
             return _chunkGameObject;
@@ -40,6 +42,23 @@ public class TileChunk : ScriptableObject {
      */
     public GameObject getTile(Vector2Int location) {
         return _tiles[location.x, location.y];
+    }
+
+    public Tile getTileComponent(Vector2Int location) {
+        if (_tileComponentCache == null) {
+            _tileComponentCache = ScriptableObject.CreateInstance<Array2DTile>();
+            _tileComponentCache.init(CHUNK_SIZE, CHUNK_SIZE);
+            for (int i = 0; i < CHUNK_SIZE; i++) {
+                for (int j = 0; j < CHUNK_SIZE; j++) {
+                    GameObject tileObj = _tiles[i, j];
+                    if (tileObj != null) {
+                        _tileComponentCache[i, j] = tileObj.GetComponent<Tile>();
+                    }
+                }
+            }
+        }
+
+        return _tileComponentCache[location.x, location.y];
     }
 
     /* Used to set a tile for this chunk.  The input is the 

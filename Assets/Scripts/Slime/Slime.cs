@@ -41,6 +41,9 @@ public class Slime : MonoBehaviour {
             textureRamp = Resources.Load<Sprite>("Sprites/Slime/SlimeRamp");
         }
 
+
+        Tilemap.getInstance().getTile(transform.position).setSlime(this);
+
         connectNeighbors();
 
         _slimeRenderer = GetComponent<SlimeRenderer>();
@@ -50,6 +53,10 @@ public class Slime : MonoBehaviour {
         _slimeRenderer.setTextureRamp(textureRamp);
         _slimeRenderer.setMorphTime(SLIME_RENDERER_MORPH_TIME);
         _slimeRenderer.wakeUpRenderer();
+    }
+
+    public void OnDestroy() {
+        Tilemap.getInstance().getTile(transform.position).setSlime(null);
     }
 
     /* Forces this slime to wake up.  This causes it to recount it's

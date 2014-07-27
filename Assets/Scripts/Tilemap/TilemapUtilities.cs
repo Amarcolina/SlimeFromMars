@@ -101,7 +101,8 @@ public class TilemapUtilities {
         Vector2Int currPosition = start;
         Vector2Int nextPosition = start;
 
-        while (!hitFunction(tilemap.getTileGameObject(nextPosition)) && nextPosition != end) {
+        Tile nextTile = tilemap.getTile(nextPosition);
+        while (nextTile != null && !hitFunction(nextTile) && nextPosition != end) {
             currPosition = nextPosition;
 
             nextPosition += rayAxis;
@@ -113,6 +114,8 @@ public class TilemapUtilities {
             }
 
             rayHit.tilesTraveled++;
+
+            nextTile = tilemap.getTile(nextPosition);
         }
 
         
@@ -123,8 +126,8 @@ public class TilemapUtilities {
         return rayHit;
     }
 
-    public delegate bool TileRayHitFunction(GameObject tileObject);
-    public static bool defaultRayHitFunction(GameObject tileObject) {
-        return tileObject == null || !tileObject.GetComponent<Tile>().isWalkable;
+    public delegate bool TileRayHitFunction(Tile tile);
+    public static bool defaultRayHitFunction(Tile tile) {
+        return tile.isWalkable;
     }
 }

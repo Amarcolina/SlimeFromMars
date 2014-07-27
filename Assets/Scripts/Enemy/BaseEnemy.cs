@@ -146,14 +146,8 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable{
         return nearestSlime;
     }
 
-    public static bool tileRayHitSlime(GameObject tileObj) {
-        if (tileObj == null || !tileObj.GetComponent<Tile>().isWalkable) {
-            return true;
-        }
-        if (tileObj.GetComponent<Slime>() != null) {
-            return true;
-        }
-        return false;
+    public static bool tileRayHitSlime(Tile tile) {
+        return tile.isWalkable && tile.getSlime() != null;
     }
 
     protected bool runAwayFromSlime(float speed = 2.5f) {

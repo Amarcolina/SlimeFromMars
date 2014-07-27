@@ -68,11 +68,20 @@ public class Tilemap : MonoBehaviour {
      * position, null is returned.
      */
     public Tile getTile(Vector2Int location) {
-        GameObject tileObj = getTileGameObject(location);
-        if (tileObj == null) {
+        Vector2Int tileInChunkLocation = new Vector2Int(tileChunkMod(location.x), tileChunkMod(location.y));
+        Vector2Int chunkLocation = (location - tileInChunkLocation - _chunkOriginOffset * TileChunk.CHUNK_SIZE) / TileChunk.CHUNK_SIZE;
+
+        if (!_tilemapChunks.isInRange(chunkLocation)) {
             return null;
         }
-        return tileObj.GetComponent<Tile>();
+
+        TileChunk tileChunk = _tilemapChunks[chunkLocation.x, chunkLocation.y];
+
+        if (tileChunk == null) {
+            return null;
+        }
+
+        return tileChunk.getTileComponent(tileInChunkLocation);
     }
 
     //####################################################################################################

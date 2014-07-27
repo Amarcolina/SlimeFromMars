@@ -20,6 +20,14 @@ public class Tile : MonoBehaviour {
     private SpriteRenderer _objectSpriteRenderer;
     private SpriteRenderer _overlaySpriteRenderer;
 
+    private Slime _cachedSlime;
+    public void setSlime(Slime slime) {
+        _cachedSlime = slime;
+    }
+    public Slime getSlime() {
+        return _cachedSlime;
+    }
+
     private const int MAX_POOL_SIZE = 8;
     private static Stack<HashSet<TileEntity>> _tileEntitySetPool = new Stack<HashSet<TileEntity>>();
     private HashSet<TileEntity> _containedTileEntities = null;

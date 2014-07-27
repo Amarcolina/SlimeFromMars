@@ -133,6 +133,11 @@ public class SlimeController : MonoBehaviour {
             if (energy >= pathCost) {
                 loseEnergy(pathCost);
                 currentSelectedSlime.requestExpansionAllongPath(astarPath);
+
+                if (energy <= 0)
+                {
+                    GameOver();
+                }
                 if (!audio.isPlaying)
                 {
                     audio.clip = slimeExpansionSFX;
@@ -267,6 +272,12 @@ public class SlimeController : MonoBehaviour {
     private void gainEnergy(int plus) {
         energy += plus;
         _gameUi.ResourceUpdate(energy);
+    }
+
+    private void GameOver()
+    {
+        PauseMenu gameover = _gameUi.GetComponent<PauseMenu>();
+        gameover.GameOver();
     }
 
     public int getEnergyAmount() {

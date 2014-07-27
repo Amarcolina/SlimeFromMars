@@ -20,19 +20,17 @@ public class GuardEnemy : BaseEnemy
     [MinValue(0)]
     public float timePerShot = 1.5f;
     [MinValue(0)]
-    public float fireRange = 8.0f;
+    public float fireRange = 4.0f;
 
     private float _timeUntilNextShot = 0.0f;
     private GuardState _currentState;
     private Slime _nearestSlime = null;
 
+    //The flame shot prefab
     public GameObject shot;
-    public Transform shotSpawn;
+    //Set # of flames in the shot
+    public float numFlames;
 
-    public Vector2 speed;
-    public Vector2 direction;
-    
- 
     public override void Awake()
     {
         base.Awake();
@@ -47,7 +45,7 @@ public class GuardEnemy : BaseEnemy
         {
             return;
         }
-        
+
         _nearestSlime = getNearestVisibleSlime();
 
         switch (_currentState)
@@ -107,7 +105,6 @@ public class GuardEnemy : BaseEnemy
                 return;
             }
 
-
             if (Vector3.Distance(transform.position, _nearestSlime.transform.position) > fireRange)
             {
                 moveTowardsPoint(_nearestSlime.transform.position);
@@ -119,7 +116,6 @@ public class GuardEnemy : BaseEnemy
                 if (_timeUntilNextShot <= 0.0f)
                 {
                     _timeUntilNextShot += timePerShot;
-
                     useFlameThrower();
                     bullets--;
                 }
@@ -129,11 +125,10 @@ public class GuardEnemy : BaseEnemy
 
     private void useFlameThrower()
     {
-        Transform shotTransform = Instantiate(shot, transform.position, transform.rotation) as Transform;
-        Instantiate(shot, transform.position, transform.rotation);
-        Instantiate(shot, transform.position, transform.rotation);
-        Instantiate(shot, transform.position, transform.rotation);
-        Instantiate(shot, transform.position, transform.rotation); 
+        for (int i = 0; i < numFlames; i++)
+        {
+            Instantiate(shot, transform.position, transform.rotation);
+        }
     }
 
     private bool tryEnterFleeState()

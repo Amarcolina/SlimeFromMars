@@ -9,6 +9,7 @@ public class GameUI : MonoBehaviour {
 	public UILabel BioLevel_Label;
 	public UILabel RadiationLevel_Label;
 	public UILabel AbilityText_Label;
+	public UILabel WarningText_Label;
 	//GameObject References, used primarily to activate or deactivate elemental UI
 	public GameObject LightningContainer_GameObject;
 	public GameObject BioContainer_GameObject;
@@ -28,6 +29,7 @@ public class GameUI : MonoBehaviour {
 	private bool BioActivated = false;
 	private bool RadiationActivated = false;
     private SlimeController _slimeControllerInstance;
+	private float warningtime = 0;
 
 	private static GameUI _gameuiInstance;
 	public static GameUI getInstance() {
@@ -40,7 +42,16 @@ public class GameUI : MonoBehaviour {
     public void Awake() {
         _slimeControllerInstance = SlimeController.getInstance();
     }
-	
+
+	public void Update(){
+		if (warningtime > 0) {
+			warningtime -= Time.deltaTime;
+			WarningText_Label.alpha -= .01f;
+		} else {
+			WarningText_Label.enabled = false;
+		}
+	}
+
 	//Updates the resource counter. Takes in the current amount of resources. Pass the new final amount, not the amount being added.
 	public void ResourceUpdate(float ResourceUpdate){
 		ResourceCounter_Label.text = "Resources: " + ResourceUpdate;
@@ -146,9 +157,17 @@ public class GameUI : MonoBehaviour {
     public bool checkCanCastAbility(int resourcesRequired) {
         if (_slimeControllerInstance.getSelectedSlime() == null) {
             //todo: Must select a slime first alert!
+			WarningText_Label.enabled = true;
+			WarningText_Label.text = "Must Select A Slime First!";
+			WarningText_Label.alpha = 1;
+			warningtime = 2;
             return false;
         } else if (_slimeControllerInstance.getEnergyAmount() < resourcesRequired) {
             //todo: Must have enough energy alert!
+			WarningText_Label.enabled = true;
+			WarningText_Label.text = "Not Enough Energy!";
+			WarningText_Label.alpha = 1;
+			warningtime = 2;
             return false;
         }
         return true;

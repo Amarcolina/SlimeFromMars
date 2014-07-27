@@ -8,6 +8,13 @@ public class ElectricityArc : MonoBehaviour {
 
     private static GameObject _electricArcPrefab = null;
 
+    private AudioClip electricArcSFX;
+
+    void Awake()
+    {
+        electricArcSFX = Resources.Load<AudioClip>("Sounds/SFX/electric_arc");
+    }
+
     void Start() {
         if (_electricArcPrefab == null) {
             _electricArcPrefab = Resources.Load<GameObject>("Particles/ChainLightning");
@@ -51,6 +58,7 @@ public class ElectricityArc : MonoBehaviour {
 
     //creates a single arc 
     private void doArc() {
+        AudioSource.PlayClipAtPoint(electricArcSFX, transform.position, 0.3f);
         for (int dx = -arcRadius; dx <= arcRadius; dx++) {
             for (int dy = -arcRadius; dy <= arcRadius; dy++) {
                 Vector2 tileOffset = new Vector2(dx, dy);

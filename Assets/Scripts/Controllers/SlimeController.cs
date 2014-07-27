@@ -30,7 +30,10 @@ public class SlimeController : MonoBehaviour {
     //list of sound effects for abilities
     private AudioClip electricDefenseSFX;
     private AudioClip bioDefenseSFX;
+    private AudioClip bioOffenseSFX;
     private AudioClip radioactiveDefenseSFX;
+    private AudioClip radioactiveOffenseSFX;
+    private AudioClip slimeExpansionSFX;
 
     //cost for using skills
     public const int ELECTRICITY_DEFENSE_COST = 5;
@@ -66,8 +69,14 @@ public class SlimeController : MonoBehaviour {
     void Awake() {
         //Load all sounds from File
         electricDefenseSFX = Resources.Load<AudioClip>("Sounds/SFX/electricity_defense");
+
         bioDefenseSFX = Resources.Load<AudioClip>("Sounds/SFX/bio_defense");
+        bioOffenseSFX = Resources.Load<AudioClip>("Sounds/SFX/bio_offense_impale");
+
         radioactiveDefenseSFX = Resources.Load<AudioClip>("Sounds/SFX/radiation_defense");
+        radioactiveOffenseSFX = Resources.Load<AudioClip>("Sounds/SFX/radiation_offense");
+
+        slimeExpansionSFX = Resources.Load<AudioClip>("Sounds/SFX/slime_expanding");
     }
 
     // Use this for initialization
@@ -124,6 +133,11 @@ public class SlimeController : MonoBehaviour {
             if (energy >= pathCost) {
                 loseEnergy(pathCost);
                 currentSelectedSlime.requestExpansionAllongPath(astarPath);
+                if (!audio.isPlaying)
+                {
+                    audio.clip = slimeExpansionSFX;
+                    audio.Play();
+                }
             } else {
                 //message: not enough energy
             }
@@ -324,6 +338,7 @@ public class SlimeController : MonoBehaviour {
                             Irradiated radComponent = tile.GetComponent<Irradiated>();
                             if (radComponent == null) {
                                 radComponent = tile.gameObject.AddComponent<Irradiated>();
+                                AudioSource.PlayClipAtPoint(radioactiveOffenseSFX, getStartLocation(), 0.3f);
                             }
                             radComponent.setDamaged(true);
                         }
@@ -416,6 +431,9 @@ public class SlimeController : MonoBehaviour {
                 bio.setLancePath(astarPath);
                 bio.setLanceDamage(damageDone);
                 loseEnergy(BIO_OFFENSE_COST);
+
+                AudioSource.PlayClipAtPoint(bioOffenseSFX, bioLance.transform.position, 0.3f);
+
             }
         }
     }

@@ -34,6 +34,8 @@ public class GuardEnemy : BaseEnemy
     {
         base.Awake();
         _currentState = startState;
+
+        _tilemap = Tilemap.getInstance();
     }
 
     void Update()
@@ -42,6 +44,7 @@ public class GuardEnemy : BaseEnemy
         {
             return;
         }
+        
         _nearestSlime = getNearestVisibleSlime();
 
         switch (_currentState)
@@ -112,8 +115,9 @@ public class GuardEnemy : BaseEnemy
                 _timeUntilNextShot -= Time.deltaTime;
                 if (_timeUntilNextShot <= 0.0f)
                 {
-                    useFlameThrower();
                     _timeUntilNextShot += timePerShot;
+
+                    useFlameThrower();
                     _nearestSlime.damageSlime(1.5f);
                     bullets--;
                 }
@@ -125,7 +129,13 @@ public class GuardEnemy : BaseEnemy
     {
 
         Instantiate(shot, shotSpawn.position, shotSpawn.rotation);
-
+        float distance = 2f;
+        float speed = 5f;
+        GameObject tileGameObject = _tilemap.getTileGameObject(shot.transform.position);
+        if (tileGameObject.GetComponent<Slime>() != null)
+        {
+            
+        }
     }
 
     private bool tryEnterFleeState()

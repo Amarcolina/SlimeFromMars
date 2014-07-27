@@ -90,7 +90,7 @@ public class Astar : MonoBehaviour {
             return null;
         }
 
-        BinaryMinHeap<Node> openList = new BinaryMinHeap<Node>();//nodes to be examined
+        MinHashHeap<Node> openList = new MinHashHeap<Node>();//nodes to be examined
         HashSet<Node> closedList = new HashSet<Node>();
         Dictionary<Vector2Int, Node> nodePostionMap = new Dictionary<Vector2Int, Node>();
         Node startNode = new Node(start, goal, null, heuristicFunction(start, goal));

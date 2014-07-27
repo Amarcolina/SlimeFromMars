@@ -367,11 +367,12 @@ public class SlimeController : MonoBehaviour {
             if (canDamage) {
                 loseEnergy(ELECTRICITY_OFFENSE_COST);
                 GameObject electricityArc = new GameObject("ElectricityArc");
-                electricityArc.transform.position = getTilePositionUnderCursor().transform.position;
+                electricityArc.transform.position = getStartLocation();
                 ElectricityArc arc = electricityArc.AddComponent<ElectricityArc>();
                 arc.setArcRadius(electricityLevel + 1);
                 arc.setArcDamage(damageDone);
                 arc.setArcNumber(electricityLevel + 1);
+                arc.setDestination(getGoalLocation());
             }
         }
     }

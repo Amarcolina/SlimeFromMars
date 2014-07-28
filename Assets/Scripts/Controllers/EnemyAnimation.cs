@@ -47,6 +47,11 @@ public class EnemyAnimation : MonoBehaviour {
 		enemy.SetBool(WALK_KEY, true);
 	}
 
+	//Called when you want the enemy to return to idle animation
+	public void EnemyStopped(){
+		enemy.SetBool (WALK_KEY, false);
+	}
+
 	// An update loop designed simply to test features of this script. Remove this when functionality is ready to be combined.
 	void Update () {
 	

@@ -20,7 +20,7 @@ public class SlimeController : MonoBehaviour {
     //energy is a pool of resources used to move, attack and defend
     private int energy;
     private GameUI _gameUi;
-
+    public GameObject spinePrefab;
     //levels dictate how much more powerful your attacks/defenses are
     //levels also give bonuses in energy from items of that attribute
     private int radiationLevel;
@@ -133,6 +133,11 @@ public class SlimeController : MonoBehaviour {
             if (energy >= pathCost) {
                 loseEnergy(pathCost);
                 currentSelectedSlime.requestExpansionAllongPath(astarPath);
+
+                if (energy <= 0)
+                {
+                    GameOver();
+                }
                 if (!audio.isPlaying)
                 {
                     audio.clip = slimeExpansionSFX;
@@ -267,6 +272,12 @@ public class SlimeController : MonoBehaviour {
     private void gainEnergy(int plus) {
         energy += plus;
         _gameUi.ResourceUpdate(energy);
+    }
+
+    private void GameOver()
+    {
+        PauseMenu gameover = _gameUi.GetComponent<PauseMenu>();
+        gameover.GameOver();
     }
 
     public int getEnergyAmount() {
@@ -435,9 +446,9 @@ public class SlimeController : MonoBehaviour {
         if (pathCost <= rangeOfAttack) {
             bool canDamage = getTilePositionUnderCursor().canDamageEntities();
             if (canDamage) {
-                GameObject bioLance = new GameObject("BioLance");
+                GameObject bioLance = Instantiate(spinePrefab) as GameObject;
                 bioLance.transform.position = getTilePositionUnderCursor().transform.position;
-                BioLance bio = bioLance.AddComponent<BioLance>();
+                BioLance bio = bioLance.GetComponent<BioLance>();
                 bio.setLancePath(astarPath);
                 bio.setLanceDamage(damageDone);
                 loseEnergy(BIO_OFFENSE_COST);

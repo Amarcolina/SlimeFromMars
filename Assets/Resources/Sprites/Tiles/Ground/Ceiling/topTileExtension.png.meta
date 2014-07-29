@@ -1,8 +1,8 @@
 fileFormatVersion: 2
-guid: 5e0e99ffa4d06ea4ab017f40a75a2e65
+guid: cf29edb46cb2e4845bb8c062225d245e
 TextureImporter:
   fileIDToRecycleName:
-    21300000: wallTileColumn
+    21300000: topTileExtension
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0

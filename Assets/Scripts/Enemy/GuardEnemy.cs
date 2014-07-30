@@ -22,6 +22,8 @@ public class GuardEnemy : BaseEnemy
     [MinValue(0)]
     public float fireRange = 4.0f;
 
+    const float FLAME_SPEED = 1050f;
+
     private float _timeUntilNextShot = 0.0f;
     private GuardState _currentState;
     private Slime _nearestSlime = null;
@@ -134,10 +136,18 @@ public class GuardEnemy : BaseEnemy
 
     private void useFlameThrower()
     {
-        for (int i = 0; i < numFlames; i++)
-        {
+            
+
+                for (int i = 0; i < 2; i++)
+                {
+        Vector2 direction = Vector2.zero;
+        direction = _nearestSlime.transform.position - transform.position;
+        direction.Normalize();
+        direction += new Vector2(Random.Range(-0.1f, 0.1f), Random.Range(-0.1f, 0.1f));
+        direction = direction * Random.Range(FLAME_SPEED, FLAME_SPEED);
             Instantiate(shot, transform.position, transform.rotation);
-        }
+                }
+            
     }
 
     private bool tryEnterFleeState()

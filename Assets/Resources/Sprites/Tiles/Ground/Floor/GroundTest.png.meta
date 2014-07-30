@@ -1,6 +1,8 @@
 fileFormatVersion: 2
 guid: c07c5440e123b8448921cc24cad53435
 TextureImporter:
+  fileIDToRecycleName:
+    21300000: GroundTest
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0

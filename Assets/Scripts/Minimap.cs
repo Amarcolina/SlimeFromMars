@@ -31,20 +31,7 @@ public class Minimap : MonoBehaviour {
 
     public void Update() {
         if (_isFillingLevelTexture) {
-            Tilemap tilemap = Tilemap.getInstance();
-            for (int x = 0; x < TEXTURE_SIZE; x++) {
-                Tile tile = tilemap.getTile(new Vector2Int(x + TEXTURE_OFFSET_X, _initRow + TEXTURE_OFFSET_Y));
-                if (tile != null) {
-                    _levelTexture.SetPixel(x, _initRow, tile.minimapColor);
-                } else {
-                    _levelTexture.SetPixel(x, _initRow, Color.black);
-                }
-            }
-            _levelTexture.Apply();
-            _initRow++;
-            if (_initRow == TEXTURE_SIZE) {
-                _isFillingLevelTexture = false;
-            }
+            fillLevelTexture();
         }
 
         Vector2 mapMouse = Input.mousePosition;
@@ -80,6 +67,23 @@ public class Minimap : MonoBehaviour {
             minimapCamera.y = (Camera.main.transform.position.y - TEXTURE_OFFSET_Y) / TEXTURE_SIZE - minimapCamera.height / 2.0f;
 
             _guiTexture.uvRect = minimapCamera;
+        }
+    }
+
+    private void fillLevelTexture() {
+        Tilemap tilemap = Tilemap.getInstance();
+        for (int x = 0; x < TEXTURE_SIZE; x++) {
+            Tile tile = tilemap.getTile(new Vector2Int(x + TEXTURE_OFFSET_X, _initRow + TEXTURE_OFFSET_Y));
+            if (tile != null) {
+                _levelTexture.SetPixel(x, _initRow, tile.minimapColor);
+            } else {
+                _levelTexture.SetPixel(x, _initRow, Color.black);
+            }
+        }
+        _levelTexture.Apply();
+        _initRow++;
+        if (_initRow == TEXTURE_SIZE) {
+            _isFillingLevelTexture = false;
         }
     }
 }

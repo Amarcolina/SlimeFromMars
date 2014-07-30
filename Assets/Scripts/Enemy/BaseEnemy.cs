@@ -147,7 +147,7 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable{
     }
 
     public static bool tileRayHitSlime(GameObject tileObj) {
-        if (tileObj == null || !tileObj.GetComponent<Tile>().isWalkable) {
+        if (tileObj == null || !tileObj.GetComponent<Tile>().isTransparent) {
             return true;
         }
         if (tileObj.GetComponent<Slime>() != null) {

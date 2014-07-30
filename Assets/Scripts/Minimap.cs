@@ -31,7 +31,7 @@ public class Minimap : MonoBehaviour {
                 Tile tile = tilemap.getTile(new Vector2Int(x + TEXTURE_OFFSET_X, _initRow + TEXTURE_OFFSET_Y));
                 if (tile != null) {
                     if (tile.isWalkable) {
-                        _levelTexture.SetPixel(x, _initRow, new Color(1, 0, 0));
+                        _levelTexture.SetPixel(x, _initRow, tile.minimapColor);
                     } else {
                         _levelTexture.SetPixel(x, _initRow, Color.black);
                     }
@@ -56,19 +56,6 @@ public class Minimap : MonoBehaviour {
         _guiTexture.uvRect = new Rect(cameraX - width, cameraY - height, width * 2, height * 2);
     }
 
-    public void OnGUI() {
-        /*
-        float x = (transform.position.x - TEXTURE_OFFSET_X) / TEXTURE_SIZE;
-        float y = transform.position.y / TEXTURE_SIZE;
-
-        float width = camera.orthographicSize / TEXTURE_SIZE * MINIMAP_ZOOM;
-        float height = width * MINIMAP_HEIGHT / MINIMAP_WIDTH;
-
-
-        GUI.DrawTextureWithTexCoords(new Rect(Screen.width - MINIMAP_WIDTH, Screen.height - MINIMAP_HEIGHT, MINIMAP_WIDTH, MINIMAP_HEIGHT), _levelTexture, new Rect(x - width, y - height, width * 2, height * 2));
-         * */
-
-
         //float x = (transform.position.x - TEXTURE_OFFSET_X + 0.5f) / TEXTURE_SIZE;
         //float y = (transform.position.y + 0.5f) / TEXTURE_SIZE;
 
@@ -78,6 +65,4 @@ public class Minimap : MonoBehaviour {
 
 
         //GUI.DrawTextureWithTexCoords(new Rect(0, 0, Screen.width, Screen.height), _levelTexture, new Rect(x - width, y - height, width * 2, height * 2));
-    }
-
 }

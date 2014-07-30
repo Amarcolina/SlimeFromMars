@@ -14,6 +14,7 @@ public class Tile : MonoBehaviour {
     public Sprite groundEffectSprite;
     public Sprite objectSprite;
     public Sprite overlaySprite;
+    public Color minimapColor = new Color(1.0f, 0.0f, 1.0f);
 
     private SpriteRenderer _groundSpriteRenderer;
     private SpriteRenderer _groundEffectSpriteRenderer;

@@ -8,21 +8,19 @@ public class Minimap : MonoBehaviour {
     public const int MINIMAP_ZOOM = 8;
 
     private Texture2D _levelTexture;
-    private Texture2D _fogTexture;
     private UITexture _guiTexture;
 
     private bool _isFillingLevelTexture = true;
     private int _initRow = 0;
+
     private ScreenScroller _screenScroller;
-
     private Rect minimapCamera = new Rect();
-
 
     private bool _isDraggingCamera = false;
 
     public void Awake() {
         _levelTexture = new Texture2D(TEXTURE_SIZE, TEXTURE_SIZE, TextureFormat.RGB24, false, true);
-        _fogTexture = new Texture2D(TEXTURE_SIZE, TEXTURE_SIZE, TextureFormat.RGB24, false, true);
+        _levelTexture.filterMode = FilterMode.Point;
         _guiTexture = GetComponent<UITexture>();
 
         _guiTexture.mainTexture = _levelTexture;
@@ -69,8 +67,8 @@ public class Minimap : MonoBehaviour {
 
 
         if (_isDraggingCamera) {
-            Vector2 newCamera = new Vector2(minimapCamera.x * 512 + TEXTURE_OFFSET_X, minimapCamera.y * 512 + TEXTURE_OFFSET_Y) + 
-                                new Vector2(mapMouse.x * minimapCamera.width * 512, (1 - mapMouse.y) * minimapCamera.height * 512);
+            Vector2 newCamera = new Vector2(minimapCamera.x * TEXTURE_SIZE + TEXTURE_OFFSET_X, minimapCamera.y * TEXTURE_SIZE + TEXTURE_OFFSET_Y) +
+                                new Vector2(mapMouse.x * minimapCamera.width * TEXTURE_SIZE, (1 - mapMouse.y) * minimapCamera.height * TEXTURE_SIZE);
             Camera.main.transform.position = newCamera;
 
             SlimeController.getInstance().skipNextFrame();
@@ -84,14 +82,4 @@ public class Minimap : MonoBehaviour {
             _guiTexture.uvRect = minimapCamera;
         }
     }
-
-        //float x = (transform.position.x - TEXTURE_OFFSET_X + 0.5f) / TEXTURE_SIZE;
-        //float y = (transform.position.y + 0.5f) / TEXTURE_SIZE;
-
-        //float height = camera.orthographicSize / TEXTURE_SIZE;
-        //float width = height / Screen.height * Screen.width;
-        
-
-
-        //GUI.DrawTextureWithTexCoords(new Rect(0, 0, Screen.width, Screen.height), _levelTexture, new Rect(x - width, y - height, width * 2, height * 2));
 }

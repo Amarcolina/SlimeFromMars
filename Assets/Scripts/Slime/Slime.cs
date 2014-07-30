@@ -220,6 +220,7 @@ public class Slime : MonoBehaviour {
         Astar.isWalkableFunction = isSlimeTile;
         Astar.earlySuccessFunction = isLocationConnected;
         Astar.earlyFailureFunction = isLocationDisconnected;
+        Astar.isNeighborWalkableFunction = Tile.isSlimeableFunction;
 
         _currSearchingConnectedIndex++;
 

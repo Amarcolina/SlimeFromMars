@@ -138,15 +138,15 @@ public class GuardEnemy : BaseEnemy
     {
             
 
-                for (int i = 0; i < 2; i++)
-                {
-        Vector2 direction = Vector2.zero;
-        direction = _nearestSlime.transform.position - transform.position;
-        direction.Normalize();
-        direction += new Vector2(Random.Range(-0.1f, 0.1f), Random.Range(-0.1f, 0.1f));
-        direction = direction * Random.Range(FLAME_SPEED, FLAME_SPEED);
+        //        for (int i = 0; i < 2; i++)
+        //        {
+        //Vector2 direction = Vector2.zero;
+        //direction = _nearestSlime.transform.position - transform.position;
+        //direction.Normalize();
+        //direction += new Vector2(Random.Range(-0.1f, 0.1f), Random.Range(-0.1f, 0.1f));
+        //direction = direction * Random.Range(FLAME_SPEED, FLAME_SPEED);
             Instantiate(shot, transform.position, transform.rotation);
-                }
+                //}
             
     }
 

@@ -42,11 +42,12 @@ public class EnemyProjectile : MonoBehaviour
     void Update()
     {
         tileGameObject = Tilemap.getInstance().getTileGameObject(transform.position);
-
+        
+        Debug.Log(transform.forward);
         if (tileGameObject != null)
         {
-
             slime = tileGameObject.GetComponent<Slime>();
+            transform.position += new Vector3(direction.x, direction.y, 0) * Time.deltaTime * speed;
             //Check if we are on a slime tile
             if (slime != null)
             {
@@ -54,13 +55,11 @@ public class EnemyProjectile : MonoBehaviour
                 slime.damageSlime(5f);
             }
         }
-        //transform.position = transform.forward;
 
     }
 
     void FixedUpdate()
     {
-        // Apply movement to the rigidbody\
-        rigidbody2D.velocity = movement;
+        // Apply movement to the rigidbody
     }
 }

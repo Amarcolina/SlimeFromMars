@@ -39,7 +39,7 @@ public class TilemapUtilities {
 
     public static bool areTilesNeighbors(Vector2Int tile0, Vector2Int tile1, bool checkDiagonal = true, AStarIsPathWalkable walkableFunction = null) {
         if (walkableFunction == null) {
-            walkableFunction = Astar.defaultIsWalkable;
+            walkableFunction = Tile.isWalkableFunction;
         }
 
         if (!walkableFunction(tile1)) {
@@ -125,6 +125,6 @@ public class TilemapUtilities {
 
     public delegate bool TileRayHitFunction(GameObject tileObject);
     public static bool defaultRayHitFunction(GameObject tileObject) {
-        return tileObject == null || !tileObject.GetComponent<Tile>().isWalkable;
+        return tileObject == null || !tileObject.GetComponent<Tile>().isTransparent;
     }
 }

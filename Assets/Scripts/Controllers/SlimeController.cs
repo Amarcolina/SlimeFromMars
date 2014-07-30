@@ -126,6 +126,7 @@ public class SlimeController : MonoBehaviour {
         }
 
         if (Input.GetMouseButtonDown(1) && currentSelectedSlime != null) {
+            Astar.isWalkableFunction = Tile.isSlimeableFunction;
             Path astarPath = Astar.findPath(getStartLocation(), getGoalLocation());
             int pathCost = Slime.getPathCost(astarPath);
 

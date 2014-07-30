@@ -3,14 +3,10 @@ using System.Collections;
 
 public class Minimap : MonoBehaviour {
     public const int TEXTURE_SIZE = 512;
-    public const int TEXTURE_OFFSET_X = -96;
-    public const int TEXTURE_OFFSET_Y = 0;
-
-    public const int MINIMAP_WIDTH = 192;
-    public const int MINIMAP_HEIGHT = 128;
+    public const int TEXTURE_OFFSET_X = -128;
+    public const int TEXTURE_OFFSET_Y = -64;
 
     public const int MINIMAP_ZOOM = 8;
-
 
     private Texture2D _levelTexture;
     private Texture2D _fogTexture;
@@ -32,7 +28,7 @@ public class Minimap : MonoBehaviour {
         if (_isFillingLevelTexture) {
             Tilemap tilemap = Tilemap.getInstance();
             for (int x = 0; x < TEXTURE_SIZE; x++) {
-                Tile tile = tilemap.getTile(new Vector2Int(x + TEXTURE_OFFSET_X, _initRow - 0));
+                Tile tile = tilemap.getTile(new Vector2Int(x + TEXTURE_OFFSET_X, _initRow + TEXTURE_OFFSET_Y));
                 if (tile != null) {
                     if (tile.isWalkable) {
                         _levelTexture.SetPixel(x, _initRow, new Color(1, 0, 0));
@@ -52,10 +48,10 @@ public class Minimap : MonoBehaviour {
         }
 
         float cameraX = (Camera.main.transform.position.x - TEXTURE_OFFSET_X) / TEXTURE_SIZE;
-        float cameraY = Camera.main.transform.position.y / TEXTURE_SIZE;
+        float cameraY = (Camera.main.transform.position.y - TEXTURE_OFFSET_Y) / TEXTURE_SIZE;
 
         float width = Camera.main.orthographicSize / TEXTURE_SIZE * MINIMAP_ZOOM;
-        float height = width * MINIMAP_HEIGHT / MINIMAP_WIDTH;
+        float height = width * transform.localScale.y / transform.localScale.x;
 
         _guiTexture.uvRect = new Rect(cameraX - width, cameraY - height, width * 2, height * 2);
     }

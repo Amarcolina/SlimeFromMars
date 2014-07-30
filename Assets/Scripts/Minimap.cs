@@ -13,6 +13,12 @@ public class Minimap : MonoBehaviour {
 
     private bool _isFillingLevelTexture = true;
     private int _initRow = 0;
+    private ScreenScroller _screenScroller;
+
+    private Rect minimapCamera = new Rect();
+
+
+    private bool _isDraggingCamera = false;
 
     public void Awake() {
         _levelTexture = new Texture2D(TEXTURE_SIZE, TEXTURE_SIZE, TextureFormat.RGB24, false, true);
@@ -21,6 +27,8 @@ public class Minimap : MonoBehaviour {
 
         _guiTexture.mainTexture = _levelTexture;
         _guiTexture.pivot = UIWidget.Pivot.BottomRight;
+
+        _screenScroller = Camera.main.GetComponent<ScreenScroller>();
     }
 
     public void Update() {
@@ -41,13 +49,40 @@ public class Minimap : MonoBehaviour {
             }
         }
 
-        float cameraX = (Camera.main.transform.position.x - TEXTURE_OFFSET_X) / TEXTURE_SIZE;
-        float cameraY = (Camera.main.transform.position.y - TEXTURE_OFFSET_Y) / TEXTURE_SIZE;
+        Vector2 mapMouse = Input.mousePosition;
+        mapMouse.y = Screen.height - mapMouse.y;
+        mapMouse -= new Vector2(Screen.width * (1.0f - 0.2f), Screen.height * (1.0f - 0.2f));
+        mapMouse.x /= Screen.width * 0.2f;
+        mapMouse.y /= Screen.height * 0.2f;
 
-        float width = Camera.main.orthographicSize / TEXTURE_SIZE * MINIMAP_ZOOM;
-        float height = width * transform.localScale.y / transform.localScale.x;
+        if (Input.GetMouseButtonDown(0)) {
+            if(mapMouse.x > 0 && mapMouse.y > 0) {
+                _isDraggingCamera = true;
+                _screenScroller.enabled = false;
+            }
+        }
+        if (Input.GetMouseButtonUp(0) && _isDraggingCamera) {
+            _isDraggingCamera = false;
+            _screenScroller.enabled = true;
+        }
 
-        _guiTexture.uvRect = new Rect(cameraX - width, cameraY - height, width * 2, height * 2);
+
+
+        if (_isDraggingCamera) {
+            Vector2 newCamera = new Vector2(minimapCamera.x * 512 + TEXTURE_OFFSET_X, minimapCamera.y * 512 + TEXTURE_OFFSET_Y) + 
+                                new Vector2(mapMouse.x * minimapCamera.width * 512, (1 - mapMouse.y) * minimapCamera.height * 512);
+            Camera.main.transform.position = newCamera;
+
+            SlimeController.getInstance().skipNextFrame();
+        } else {
+            minimapCamera.width = Camera.main.orthographicSize / TEXTURE_SIZE * MINIMAP_ZOOM;
+            minimapCamera.height = minimapCamera.width * transform.localScale.y / transform.localScale.x;
+
+            minimapCamera.x = (Camera.main.transform.position.x - TEXTURE_OFFSET_X) / TEXTURE_SIZE - minimapCamera.width / 2.0f;
+            minimapCamera.y = (Camera.main.transform.position.y - TEXTURE_OFFSET_Y) / TEXTURE_SIZE - minimapCamera.height / 2.0f;
+
+            _guiTexture.uvRect = minimapCamera;
+        }
     }
 
         //float x = (transform.position.x - TEXTURE_OFFSET_X + 0.5f) / TEXTURE_SIZE;

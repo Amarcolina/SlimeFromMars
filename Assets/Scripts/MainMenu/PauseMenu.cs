@@ -23,8 +23,12 @@ public class PauseMenu : MonoBehaviour
     public GameObject fpsbox;
 
     public GameObject fpslabel;
-    public UILabel fpstitle;
     public GameObject mutebox;
+
+    //Game Over Menu
+    public GameObject gameOverLabel;
+    public GameObject RestartButton;
+    public GameObject ExitButton;
 
     void Start()
     {
@@ -166,5 +170,21 @@ public class PauseMenu : MonoBehaviour
         else
             AudioListener.volume = 1;
 
+    }
+
+    public void GameOver()
+    {
+        gameOverLabel.SetActive(true);
+        RestartButton.SetActive(true);
+        ExitButton.SetActive(true);
+    }
+
+    public void RestartClicked()
+    {
+        Application.LoadLevel("MainLevel");
+    }
+    public void ExitClicked()
+    {
+        ExitGame();
     }
 }

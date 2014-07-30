@@ -66,7 +66,7 @@ public class GameUI : MonoBehaviour {
 			ElectricityNonActive_GameObject.SetActive(false);
 			ElectricityActivated = true;
 		}
-		LightningLevel_Label.text = "Lightning Level: " + CurrentLevel;
+		LightningLevel_Label.text = "Electricity Level: " + CurrentLevel;
 	}
 
 	//Updates the bio level by taking the current level as a float. Will show it when first called.

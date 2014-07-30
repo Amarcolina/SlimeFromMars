@@ -1,8 +1,8 @@
 fileFormatVersion: 2
-guid: b55a9bb39e8cbc24c80e71538849c619
+guid: da380c94875774a4c91e383475b5fdbb
 TextureImporter:
   fileIDToRecycleName:
-    21300000: topEndTile
+    21300000: topCornerTileFlipped
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0

@@ -5,7 +5,6 @@ public class Minimap : MonoBehaviour {
     public const int TEXTURE_SIZE = 512;
     public const int TEXTURE_OFFSET_X = -128;
     public const int TEXTURE_OFFSET_Y = -64;
-
     public const int MINIMAP_ZOOM = 8;
 
     private Texture2D _levelTexture;
@@ -30,12 +29,7 @@ public class Minimap : MonoBehaviour {
             for (int x = 0; x < TEXTURE_SIZE; x++) {
                 Tile tile = tilemap.getTile(new Vector2Int(x + TEXTURE_OFFSET_X, _initRow + TEXTURE_OFFSET_Y));
                 if (tile != null) {
-                    if (tile.isWalkable) {
-                        _levelTexture.SetPixel(x, _initRow, tile.minimapColor);
-                    } else {
-                        _levelTexture.SetPixel(x, _initRow, Color.black);
-                    }
-                    
+                    _levelTexture.SetPixel(x, _initRow, tile.minimapColor);
                 } else {
                     _levelTexture.SetPixel(x, _initRow, Color.black);
                 }

@@ -12,7 +12,7 @@ public delegate bool AStarEarlyFailureFunction(Vector2Int position);
 public class Astar : MonoBehaviour {
     public static AStarMovementCost movementCostFunction = defaultMovementCost;
     public static AStarNodeHeuristic heuristicFunction = defaultHeuristic;
-    public static AStarIsPathWalkable isWalkableFunction = defaultIsWalkable;
+    public static AStarIsPathWalkable isWalkableFunction = Tile.isWalkableFunction;
     public static AStarEarlySuccessFunction earlySuccessFunction = null;
     public static AStarEarlyFailureFunction earlyFailureFunction = null;
     public static int maxNodesToCheck = -1;
@@ -75,7 +75,7 @@ public class Astar : MonoBehaviour {
     public static void resetDefaults() {
         movementCostFunction = defaultMovementCost;
         heuristicFunction = defaultHeuristic;
-        isWalkableFunction = defaultIsWalkable;
+        isWalkableFunction = Tile.isWalkableFunction;
         earlySuccessFunction = null;
         earlyFailureFunction = null;
         maxNodesToCheck = -1;
@@ -124,7 +124,7 @@ public class Astar : MonoBehaviour {
             //for neighbors of current:
             for(int neighborOffsetIndex = 0; neighborOffsetIndex < TilemapUtilities.neighborFullArray.Length; neighborOffsetIndex++) {
                 Vector2Int neighborPosition = current.getPosition() + TilemapUtilities.neighborFullArray[neighborOffsetIndex];
-                if (!TilemapUtilities.areTilesNeighbors(current.getPosition(), neighborPosition, true, defaultIsWalkable)) {
+                if (!TilemapUtilities.areTilesNeighbors(current.getPosition(), neighborPosition, true, isWalkableFunction)) {
                     continue;
                 }
 
@@ -178,17 +178,6 @@ public class Astar : MonoBehaviour {
         }
 
         return finalPath;
-    }
-
-    public static Dictionary<Vector2Int, bool> _isWalkableCache = new Dictionary<Vector2Int, bool>();
-    public static bool defaultIsWalkable(Vector2Int position) {
-        bool walkableBool;
-        if (_isWalkableCache.TryGetValue(position, out walkableBool)) {
-            return walkableBool;
-        }
-        walkableBool = Tilemap.getInstance().isWalkable(position);
-        _isWalkableCache[position] = walkableBool;
-        return walkableBool;
     }
 
     //the cost of moving directly from one node to another

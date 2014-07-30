@@ -9,11 +9,13 @@ public class Tile : MonoBehaviour {
     private const string OVERLAY_LAYER_NAME = "TileOverlay";
 
     public bool isWalkable = true;
-    public bool isDeadly = false;
+    public bool isSlimeable = true;
+    public bool isTransparent = true;
     public Sprite groundSprite;
     public Sprite groundEffectSprite;
     public Sprite objectSprite;
     public Sprite overlaySprite;
+    public Color minimapColor = new Color(1.0f, 0.0f, 1.0f);
 
     private SpriteRenderer _groundSpriteRenderer;
     private SpriteRenderer _groundEffectSpriteRenderer;
@@ -150,5 +152,44 @@ public class Tile : MonoBehaviour {
             return spriteRenderer;
         }
         return null;
+    }
+
+
+
+
+    public static bool isWalkableFunction(Vector2Int location) {
+        Tile tile = Tilemap.getInstance().getTile(location);
+        if (tile == null) {
+            return false;
+        }
+
+        return tile.isWalkable;
+    }
+
+    public static bool isSlimeableFunction(Vector2Int location) {
+        Tile tile = Tilemap.getInstance().getTile(location);
+        if (tile == null) {
+            return false;
+        }
+
+        return tile.isSlimeable;
+    }
+
+    public static bool isTransparentFunction(Vector2Int location) {
+        Tile tile = Tilemap.getInstance().getTile(location);
+        if (tile == null) {
+            return false;
+        }
+
+        return tile.isTransparent;
+    }
+
+    public static bool isSlimeFunction(Vector2Int location) {
+        Tile tile = Tilemap.getInstance().getTile(location);
+        if (tile == null) {
+            return false;
+        }
+
+        return tile.GetComponent<Slime>() != null;
     }
 }

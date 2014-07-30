@@ -79,6 +79,7 @@ public class TilemapEditor : Editor {
                 textureRect.height -= SCROLL_BORDER * 2;
                 if (index < _tilePrefabs.Count) {
                     GameObject prefab = _tilePrefabs[index];
+                    GUI.backgroundColor = _tilePrefabs[index].GetComponent<Tile>().minimapColor;
                     if (prefab == currentTilePrefab) {
                         GUI.backgroundColor = Color.blue;
                     }

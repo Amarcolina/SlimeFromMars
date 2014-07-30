@@ -19,6 +19,7 @@ public class GameUI : MonoBehaviour {
 	public GameObject PopoutMenu_GameObject;
 	public GameObject SkillsToggleButton_GameObject;
 	public GameObject AbilityText_GameObject;
+	public GameObject HotKeys_GameObject;
 	//GameObject References, for toggling shadows on non-unlocked abilities
 	public GameObject ElectricityActive_GameObject;
 	public GameObject BioActive_GameObject;
@@ -102,11 +103,13 @@ public class GameUI : MonoBehaviour {
 	public void MenuActivated(){
 		SkillsToggleButton_GameObject.SetActive(false);
 		PopoutMenu_GameObject.SetActive (true);
+		HotKeys_GameObject.SetActive (false);
 	}
 
 	public void MenuDeactivated(){
 		PopoutMenu_GameObject.SetActive (false);
 		SkillsToggleButton_GameObject.SetActive (true);
+		HotKeys_GameObject.SetActive (true);
 	}
 
 

@@ -137,7 +137,7 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable{
         _nearestSlime = null;
         float closestDistance = float.MaxValue;
         for (float angle = 0.0f; angle < 360.0f; angle += 22.5f) {
-            TileRayHit hit = TilemapUtilities.castTileRay(transform.position, Quaternion.AngleAxis(angle, Vector3.forward) * Vector2.right, 15.0f, tileRayHitSlime);
+            TileRayHit hit = TilemapUtilities.castTileRay(transform.position, Quaternion.AngleAxis(angle, Vector3.forward) * Vector2.right, maxTileDistance, tileRayHitSlime);
             if (hit.didHit) {
                 GameObject hitObj = _tilemap.getTileGameObject(hit.hitPosition);
                 if (hitObj != null) {

@@ -182,9 +182,14 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable{
     private float _nextUpdateRunAwayDirectionTime = -1;
     private int _rotationDirection = 1;
     private float _timeCanRunAwayAgain = 0.0f;
-    protected void runAwayFromSlime(float speed = 2.5f) {
+
+
+    /*
+     * 
+     */
+    protected bool runAwayFromSlime(float speed = 2.5f) {
         if (Time.time < _timeCanRunAwayAgain) {
-            return;
+            return false;
         }
 
         if (Time.time > _nextUpdateRunAwayDirectionTime) {
@@ -218,9 +223,12 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable{
                 }
                 if (getNearestVisibleSlime() == null) {
                     _timeCanRunAwayAgain = Time.time + Random.Range(1.0f, 2.0f);
+                    return true;
                 }
             }
         }
+
+        return false;
     }
 
     public void OnDrawGizmos() {

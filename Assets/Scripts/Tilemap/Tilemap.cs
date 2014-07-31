@@ -75,6 +75,14 @@ public class Tilemap : MonoBehaviour {
         return tileObj.GetComponent<Tile>();
     }
 
+    public bool isWalkable(Vector2Int location) {
+        Tile tile = getTile(location);
+        if (tile == null) {
+            return false;
+        }
+        return tile.isWalkable;
+    }
+
     //####################################################################################################
     /* Given a 2D integer tilemap position, this returns the Tile
      * Gameobject that is located at that position.  This returns the 

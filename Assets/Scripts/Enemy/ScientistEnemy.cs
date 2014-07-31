@@ -34,6 +34,9 @@ public class ScientistEnemy : BaseEnemy {
             case ScientistState.FLEEING:
                 fleeState();
                 break;
+            case ScientistState.HIDING:
+                hideState();
+                break;
             default:
                 Debug.LogWarning("Cannot handle state " + _currentState);
                 break;
@@ -78,7 +81,7 @@ public class ScientistEnemy : BaseEnemy {
 
         bool didFindHidingSpot = runAwayFromSlime(fleeSpeed);
 
-        if (didFindHidingSpot && Time.time - _timeStartedFleeing > 30.0f) {
+        if (didFindHidingSpot && Time.time - _timeStartedFleeing > 45.0f) {
             enterHideState();
         }
     }

@@ -123,27 +123,39 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable{
      * allon the 4 main axes and the 4 diagonals, so it will not return
      * correctly in every case
      */
-    protected Slime getNearestVisibleSlime(int maxTileDistance = 20) {
-        Slime nearestSlime = null;
+    private Slime _nearestSlime = null;
+    private float _nextUpdateNearestSlimeTime = -1;
+    protected Slime getNearestVisibleSlime(int maxTileDistance = 20, bool forceUpdate = false) {
+        if (Time.time < _nextUpdateNearestSlimeTime && !forceUpdate) {
+            return _nearestSlime;
+        }
+
+        _nearestSlime = null;
         float closestDistance = float.MaxValue;
-        for (float angle = 0.0f; angle < 360.0f; angle += 45.0f) {
+        for (float angle = 0.0f; angle < 360.0f; angle += 22.5f) {
             TileRayHit hit = TilemapUtilities.castTileRay(transform.position, Quaternion.AngleAxis(angle, Vector3.forward) * Vector2.right, 15.0f, tileRayHitSlime);
             if (hit.didHit) {
-                Debug.DrawLine(transform.position, hit.hitPosition, Color.red);
                 GameObject hitObj = _tilemap.getTileGameObject(hit.hitPosition);
                 if (hitObj != null) {
                     Slime slime = hitObj.GetComponent<Slime>();
                     if (slime != null) {
                         float dist = (slime.transform.position - transform.position).sqrMagnitude;
                         if (dist < closestDistance) {
-                            nearestSlime = slime;
+                            _nearestSlime = slime;
                             closestDistance = dist;
                         }
                     }
                 }
             }
         }
-        return nearestSlime;
+
+        if (_nearestSlime == null) {
+            _nextUpdateNearestSlimeTime = Time.time + 0.5f;
+        } else {
+            _nextUpdateNearestSlimeTime = Time.time + 1.7f;
+        }
+
+        return _nearestSlime;
     }
 
     public static bool tileRayHitSlime(GameObject tileObj) {
@@ -156,45 +168,39 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable{
         return false;
     }
 
+    private Vector2Int _runAwayDirection = new Vector2Int(1, 0);
+    private float _nextUpdateRunAwayDirectionTime = -1;
     protected bool runAwayFromSlime(float speed = 2.5f) {
-        Slime nearestSlime = getNearestVisibleSlime();
-
-        if (_currentSlimeToFleeFrom != null) {
-            if (nearestSlime == null || Vector3.Distance(transform.position, nearestSlime.transform.position) > Vector3.Distance(transform.position, _currentSlimeToFleeFrom.transform.position)) {
-                nearestSlime = _currentSlimeToFleeFrom;
-            }
-        }
-
-        if (nearestSlime == null) {
-            return false;
-        }
-
-        _currentSlimeToFleeFrom = nearestSlime;
-
-        float minCost = _fleePath == null ? float.MaxValue : -Vector3.Distance(nearestSlime.transform.position, _fleePath.getEnd()) - 4.0f;
-
-        for (float checkDistance = 2; checkDistance < 20; checkDistance += 5.0f) {
-            for (float angle = 0; angle < 360.0f; angle += 45.0f) {
-                Vector3 checkPos = transform.position + Quaternion.AngleAxis(angle, Vector3.forward) * Vector2.right * checkDistance;
-                Path path = Astar.findPath(transform.position, checkPos);
-                if (path != null) {
-                    float cost = -Vector3.Distance(nearestSlime.transform.position, checkPos);
-                    if (cost < minCost) {
-                        minCost = cost - 2.0f;
-                        if (path.hasNext()) {
-                            path.getNext();
-                        }
-                        _fleePath = path;
-                    }
+        if (Time.time > _nextUpdateRunAwayDirectionTime) {
+            Slime s = getNearestVisibleSlime();
+            if (s != null) {
+                Vector2 delta = (transform.position - s.transform.position).normalized;
+                _runAwayDirection = Vector2Int.zero;
+                if (Mathf.Abs(delta.x) > Mathf.Abs(delta.y)) {
+                    _runAwayDirection.x = delta.x > 0.0f ? 1 : -1;
+                } else {
+                    _runAwayDirection.y = delta.y > 0.0f ? 1 : -1;
                 }
+                _nextUpdateRunAwayDirectionTime = Time.time + Random.Range(0.5f, 1.5f);
             }
         }
 
-        if (minCost == float.MaxValue) {
-            return false;
+        Vector2Int origin = transform.position;
+
+        if (_tilemap.getTile(origin + _runAwayDirection).isWalkable) {
+            Debug.DrawLine(transform.position, origin + _runAwayDirection, Color.green);
+            moveTowardsPoint(origin + _runAwayDirection, speed);
+        } else {
+            Vector2Int rotatedDirection = new Vector2Int(-_runAwayDirection.y, _runAwayDirection.x);
+            if (_tilemap.getTile(origin + rotatedDirection).isWalkable) {
+                Debug.DrawLine(transform.position, origin + rotatedDirection, Color.yellow);
+                moveTowardsPoint(origin + rotatedDirection, speed);
+            } else {
+                _runAwayDirection = rotatedDirection;
+            }
         }
 
-        return followPath(_fleePath, speed);
+        return false;
     }
 
     public void OnDrawGizmos() {

@@ -77,8 +77,7 @@ public class ScientistEnemy : BaseEnemy {
 
     private void wanderState() {
         followMovementPattern(wanderSpeed);
-        //tryEnterFleeState();
-        tryEnterHidingState();
+        tryEnterFleeState();
     }
 
     private bool tryEnterFleeState(int searchDistance = 20) {

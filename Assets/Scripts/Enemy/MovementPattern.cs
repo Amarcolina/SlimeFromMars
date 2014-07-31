@@ -27,6 +27,15 @@ public class MovementPattern : MonoBehaviour {
         }
     }
 
+    public bool isRecursive() {
+        foreach (MovementPatternInfo info in movementPatterns) {
+            if (info.waypoint.GetComponent<MovementPattern>() != null) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /* This array accessor is used to grab a given Waypoint.  For example, passing in
      * 0 will access the first waypoint, 1 will access the second and so on.  This 
      * method handles all of the recursion and nesting needed, as well as the loop

@@ -56,10 +56,13 @@ public class ScientistEnemy : BaseEnemy {
     }
 
     private void fleeState() {
-        if (getLastTimeViewedSlime() > 15.0f) {
+        if (Time.time - getLastTimeViewedSlime() > 15.0f) {
             movementPattern = null;
             float closestDistance = float.MaxValue;
             foreach (MovementPattern pattern in MovementPattern.getAllMovementPatterns()) {
+                if (pattern.isRecursive()) {
+                    continue;
+                }
                 float distance = Vector3.Distance(transform.position, pattern.transform.position);
                 if (distance < closestDistance) {
                     closestDistance = distance;

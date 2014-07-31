@@ -174,7 +174,7 @@ public class Slime : MonoBehaviour {
         float residualTimeLeft = _timeUntilExpand + TIME_PER_EXPAND;
 
         Tile newSlimeTile = Tilemap.getInstance().getTile(nextNode);
-        if (newSlimeTile && newSlimeTile.isWalkable) {
+        if (newSlimeTile && newSlimeTile.isSlimeable) {
             Slime newSlime = newSlimeTile.GetComponent<Slime>();
 
             if (newSlime == null) {

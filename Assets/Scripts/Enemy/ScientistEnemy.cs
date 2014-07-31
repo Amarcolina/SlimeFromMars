@@ -26,6 +26,7 @@ public class ScientistEnemy : BaseEnemy {
     private ScientistHidingSpot _currentHidingSpot = null;
     private ProximitySearcher<ScientistHidingSpot> _hidingSpotSearcher = null;
     private Path _pathToHidingSpot = null;
+    private bool _leavingHidingSpot = false;
 
     public override void Awake() {
         base.Awake();
@@ -118,6 +119,7 @@ public class ScientistEnemy : BaseEnemy {
         if ((transform.position - spot.transform.position).sqrMagnitude < MAX_DISTANCE_TO_HIDING_SPOT_SQRD){
             if(spot.tryToClaim()){
                 _currentHidingSpot = spot;
+                _leavingHidingSpot = false;
                 _pathToHidingSpot = Astar.findPath(transform.position, spot.enterLocation.position);
                 changeState(ScientistState.HIDING);
                 return true;
@@ -131,9 +133,15 @@ public class ScientistEnemy : BaseEnemy {
             if (followPath(_pathToHidingSpot, fleeSpeed)) {
                 _pathToHidingSpot = null;
             }
-        } else {
+        } else if (_leavingHidingSpot) {
+            if(moveTowardsPoint(_currentHidingSpot.enterLocation.position, fleeSpeed)){
+                tryEnterFleeState();
+            }
+        }else{
             if(moveTowardsPoint(_currentHidingSpot.transform.position, fleeSpeed)){
-                tryEnterFleeState(1);
+                if (getNearestVisibleSlime(1) != null) {
+                    _leavingHidingSpot = true;
+                }
             }
         }
     }

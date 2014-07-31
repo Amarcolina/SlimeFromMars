@@ -3,7 +3,8 @@ using System.Collections;
 
 public enum ScientistState {
     WANDERING,
-    FLEEING
+    FLEEING,
+    HIDING
 }
 
 public class ScientistEnemy : BaseEnemy {
@@ -13,6 +14,8 @@ public class ScientistEnemy : BaseEnemy {
     public float fleeSpeed = 3.5f;
 
     private ScientistState _currentState;
+
+    private float _timeStartedFleeing = 0;
 
     public override void Awake() {
         base.Awake();
@@ -31,6 +34,9 @@ public class ScientistEnemy : BaseEnemy {
             case ScientistState.FLEEING:
                 fleeState();
                 break;
+            case ScientistState.HIDING:
+                hideState();
+                break;
             default:
                 Debug.LogWarning("Cannot handle state " + _currentState);
                 break;
@@ -47,15 +53,44 @@ public class ScientistEnemy : BaseEnemy {
         tryEnterFleeState();
     }
 
-    private bool tryEnterFleeState() {
-        if (getNearestVisibleSlime() != null) {
+    private bool tryEnterFleeState(int searchDistance = 20) {
+        if (getNearestVisibleSlime(searchDistance) != null) {
             _currentState = ScientistState.FLEEING;
+            _timeStartedFleeing = Time.time;
             return true;
         }
         return false;
     }
 
     private void fleeState() {
-        runAwayFromSlime(fleeSpeed);
+        if (Time.time - getLastTimeViewedSlime() > 15.0f) {
+            movementPattern = null;
+            float closestDistance = float.MaxValue;
+            foreach (MovementPattern pattern in MovementPattern.getAllMovementPatterns()) {
+                if (pattern.isRecursive()) {
+                    continue;
+                }
+                float distance = Vector3.Distance(transform.position, pattern.transform.position);
+                if (distance < closestDistance) {
+                    closestDistance = distance;
+                    movementPattern = pattern;
+                }
+            }
+            enterWanderState();
+        }
+
+        bool didFindHidingSpot = runAwayFromSlime(fleeSpeed);
+
+        if (didFindHidingSpot && Time.time - _timeStartedFleeing > 45.0f) {
+            enterHideState();
+        }
+    }
+
+    private void enterHideState() {
+        _currentState = ScientistState.HIDING;
+    }
+
+    private void hideState() {
+        tryEnterFleeState(1);
     }
 }

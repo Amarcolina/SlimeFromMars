@@ -125,8 +125,12 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable{
      */
     private Slime _nearestSlime = null;
     private float _nextUpdateNearestSlimeTime = -1;
+    private float _lastTimeViewedSlime = 0.0f;
     protected Slime getNearestVisibleSlime(int maxTileDistance = 20, bool forceUpdate = false) {
         if (Time.time < _nextUpdateNearestSlimeTime && !forceUpdate) {
+            if (_nearestSlime != null) {
+                _lastTimeViewedSlime = Time.time;
+            }
             return _nearestSlime;
         }
 
@@ -153,9 +157,15 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable{
             _nextUpdateNearestSlimeTime = Time.time + 0.5f;
         } else {
             _nextUpdateNearestSlimeTime = Time.time + 1.7f;
+            _lastTimeViewedSlime = Time.time;
         }
 
         return _nearestSlime;
+    }
+
+    protected float getLastTimeViewedSlime() {
+        getNearestVisibleSlime();
+        return _lastTimeViewedSlime;
     }
 
     public static bool tileRayHitSlime(GameObject tileObj) {

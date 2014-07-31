@@ -56,6 +56,18 @@ public class ScientistEnemy : BaseEnemy {
     }
 
     private void fleeState() {
+        if (getLastTimeViewedSlime() > 15.0f) {
+            movementPattern = null;
+            float closestDistance = float.MaxValue;
+            foreach (MovementPattern pattern in MovementPattern.getAllMovementPatterns()) {
+                float distance = Vector3.Distance(transform.position, pattern.transform.position);
+                if (distance < closestDistance) {
+                    closestDistance = distance;
+                    movementPattern = pattern;
+                }
+            }
+            enterWanderState();
+        }
         runAwayFromSlime(fleeSpeed);
     }
 }

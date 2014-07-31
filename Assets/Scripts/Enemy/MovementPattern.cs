@@ -19,6 +19,15 @@ public class MovementPattern : MonoBehaviour {
     public PatternType loopAction = PatternType.NORMAL;
 
     private int _waypointsContained = int.MaxValue;
+    private static MovementPattern[] _allMovementPatterns = null;
+
+    public static MovementPattern[] getAllMovementPatterns() {
+        if (_allMovementPatterns == null) {
+            _allMovementPatterns = FindObjectsOfType<MovementPattern>();
+        }
+        return _allMovementPatterns;
+    }
+
 
     public void Awake() {
         if (_waypointsContained == int.MaxValue) {

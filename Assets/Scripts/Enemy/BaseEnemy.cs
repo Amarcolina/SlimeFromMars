@@ -180,7 +180,13 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable{
 
     private Vector2Int _runAwayDirection = new Vector2Int(1, 0);
     private float _nextUpdateRunAwayDirectionTime = -1;
-    protected bool runAwayFromSlime(float speed = 2.5f) {
+    private int _rotationDirection = 1;
+    private float _timeCanRunAwayAgain = 0.0f;
+    protected void runAwayFromSlime(float speed = 2.5f) {
+        if (Time.time < _timeCanRunAwayAgain) {
+            return;
+        }
+
         if (Time.time > _nextUpdateRunAwayDirectionTime) {
             Slime s = getNearestVisibleSlime();
             if (s != null) {
@@ -201,16 +207,20 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable{
             Debug.DrawLine(transform.position, origin + _runAwayDirection, Color.green);
             moveTowardsPoint(origin + _runAwayDirection, speed);
         } else {
-            Vector2Int rotatedDirection = new Vector2Int(-_runAwayDirection.y, _runAwayDirection.x);
+            Vector2Int rotatedDirection = new Vector2Int(_rotationDirection * _runAwayDirection.y, -_rotationDirection*_runAwayDirection.x);
             if (_tilemap.getTile(origin + rotatedDirection).isWalkable) {
                 Debug.DrawLine(transform.position, origin + rotatedDirection, Color.yellow);
                 moveTowardsPoint(origin + rotatedDirection, speed);
             } else {
                 _runAwayDirection = rotatedDirection;
+                if (Random.value > 0.5) {
+                    _rotationDirection = -_rotationDirection;
+                }
+                if (getNearestVisibleSlime() == null) {
+                    _timeCanRunAwayAgain = Time.time + Random.Range(1.0f, 2.0f);
+                }
             }
         }
-
-        return false;
     }
 
     public void OnDrawGizmos() {

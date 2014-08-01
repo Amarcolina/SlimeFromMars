@@ -23,7 +23,8 @@ public class PauseMenu : MonoBehaviour
     public GameObject fpsbox;
 
     public GameObject fpslabel;
-    public GameObject mutebox;
+    public GameObject muteMusicbox;
+    public GameObject muteSFXbox;
 
     //Game Over Menu
     public GameObject gameOverLabel;
@@ -88,7 +89,8 @@ public class PauseMenu : MonoBehaviour
         volumetitle.SetActive(true);
         backlabel.SetActive(true);
         volumeslider.SetActive(true);
-        mutebox.SetActive(true);
+        muteMusicbox.SetActive(true);
+        muteSFXbox.SetActive(true);
         fpsbox.SetActive(true);
     }
     //Go back to Main Pause Menu and remove options
@@ -105,7 +107,8 @@ public class PauseMenu : MonoBehaviour
         volumetitle.SetActive(false);
         backlabel.SetActive(false);
         volumeslider.SetActive(false);
-        mutebox.SetActive(false);
+        muteMusicbox.SetActive(false);
+        muteSFXbox.SetActive(false);
         fpsbox.SetActive(false);
     }
 
@@ -160,17 +163,19 @@ public class PauseMenu : MonoBehaviour
             fpslabel.SetActive(false);
     }
 
-    public void MuteButton(bool isActive)
+    public void MuteMusicButton(bool isActive)
     {
         muted = isActive;
-        if (isActive)
-        {
-            AudioListener.volume = 0;
-        }
-        else
-            AudioListener.volume = 1;
-
+        BackgroundMusic.mute(muted);
     }
+
+    public void MuteSFXButton(bool isActive)
+    {
+        muted = isActive;
+        SoundEffect.mute(muted);
+    }
+
+
 
     public void GameOver()
     {

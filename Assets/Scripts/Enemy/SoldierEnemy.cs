@@ -22,7 +22,6 @@ public class SoldierEnemy : BaseEnemy {
 
     private float _timeUntilNextShot = 0.0f;
     private SoldierState _currentState;
-    private Slime _nearestSlime = null;
 
     public override void Awake() {
         base.Awake();
@@ -33,7 +32,6 @@ public class SoldierEnemy : BaseEnemy {
         if (isStunned()) {
             return;
         }
-        _nearestSlime = getNearestVisibleSlime();
 
         switch (_currentState) {
             case SoldierState.WANDERING:
@@ -63,7 +61,7 @@ public class SoldierEnemy : BaseEnemy {
     }
 
     private bool tryEnterAttackState() {
-        if (_nearestSlime != null && bullets != 0) {
+        if (getNearestVisibleSlime() != null && bullets != 0) {
             _currentState = SoldierState.ATTACKING;
             return true;
         }
@@ -76,20 +74,20 @@ public class SoldierEnemy : BaseEnemy {
                 enterWanderState();
             }
         } else {
-            if (_nearestSlime == null) {
+            if (getNearestVisibleSlime() == null) {
                 enterWanderState();
                 return;
             }
 
 
-            if (Vector3.Distance(transform.position, _nearestSlime.transform.position) > fireRange) {
-                moveTowardsPoint(_nearestSlime.transform.position);
+            if (Vector3.Distance(transform.position, getNearestVisibleSlime().transform.position) > fireRange) {
+                moveTowardsPoint(getNearestVisibleSlime().transform.position);
                 _timeUntilNextShot = timePerShot;
             } else {
                 _timeUntilNextShot -= Time.deltaTime;
                 if (_timeUntilNextShot <= 0.0f) {
                     _timeUntilNextShot += timePerShot;
-                    _nearestSlime.damageSlime(1.5f);
+                    getNearestVisibleSlime().damageSlime(1.5f);
                     bullets--;
                 }
             }
@@ -97,7 +95,7 @@ public class SoldierEnemy : BaseEnemy {
     }
 
     private bool tryEnterFleeState() {
-        if (_nearestSlime != null && bullets == 0) {
+        if (getNearestVisibleSlime() != null && bullets == 0) {
             _currentState = SoldierState.FLEEING;
             return true;
         }

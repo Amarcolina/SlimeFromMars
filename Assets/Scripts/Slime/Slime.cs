@@ -41,6 +41,8 @@ public class Slime : MonoBehaviour {
             textureRamp = Resources.Load<Sprite>("Sprites/Slime/SlimeRamp");
         }
 
+        Minimap.getInstance().clearFogOfWar(transform.position, 9, 11);
+
         connectNeighbors();
 
         _slimeRenderer = GetComponent<SlimeRenderer>();

@@ -10,6 +10,8 @@ public class GameUI : MonoBehaviour {
 	public UILabel RadiationLevel_Label;
 	public UILabel AbilityText_Label;
 	public UILabel WarningText_Label;
+	public TweenScale ResourceCountTweener;
+	public TweenScale ResourceSpriteTweener;
 	//GameObject References, used primarily to activate or deactivate elemental UI
 	public GameObject LightningContainer_GameObject;
 	public GameObject BioContainer_GameObject;
@@ -55,6 +57,11 @@ public class GameUI : MonoBehaviour {
 	//Updates the resource counter. Takes in the current amount of resources. Pass the new final amount, not the amount being added.
 	public void ResourceUpdate(float ResourceUpdate){
 		ResourceCounter_Label.text = "Resources: " + ResourceUpdate;
+
+		ResourceCountTweener.Reset ();
+		ResourceCountTweener.Play (true);
+		ResourceSpriteTweener.Reset ();
+		ResourceSpriteTweener.Play (true);
 	}
 	
 	//Updates the lightning level by taking the current level as a float. Will show it when first called.
@@ -95,11 +102,13 @@ public class GameUI : MonoBehaviour {
 	public void MenuActivated(){
 		SkillsToggleButton_GameObject.SetActive(false);
 		PopoutMenu_GameObject.SetActive (true);
+
 	}
 
 	public void MenuDeactivated(){
 		PopoutMenu_GameObject.SetActive (false);
 		SkillsToggleButton_GameObject.SetActive (true);
+	
 	}
 
 
@@ -186,7 +195,7 @@ public class GameUI : MonoBehaviour {
 
 	public void LightningDefenseHover(){
 		AbilityText_GameObject.SetActive (true);
-		AbilityText_Label.text = "Electricity Shield: Electrifies a tile of slime, causing an electric burst that damages enemies";
+		AbilityText_Label.text = "Electric Shield: Electrifies a tile of slime, causing an electric burst that damages enemies";
 	}
 	
 	public void LightningDefenseHoverOut(){

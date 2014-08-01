@@ -19,12 +19,30 @@ public class MovementPattern : MonoBehaviour {
     public PatternType loopAction = PatternType.NORMAL;
 
     private int _waypointsContained = int.MaxValue;
+    private static MovementPattern[] _allMovementPatterns = null;
+
+    public static MovementPattern[] getAllMovementPatterns() {
+        if (_allMovementPatterns == null) {
+            _allMovementPatterns = FindObjectsOfType<MovementPattern>();
+        }
+        return _allMovementPatterns;
+    }
+
 
     public void Awake() {
         if (_waypointsContained == int.MaxValue) {
             int index = int.MaxValue;
             getWaypointInternal(ref index);
         }
+    }
+
+    public bool isRecursive() {
+        foreach (MovementPatternInfo info in movementPatterns) {
+            if (info.waypoint.GetComponent<MovementPattern>() != null) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /* This array accessor is used to grab a given Waypoint.  For example, passing in

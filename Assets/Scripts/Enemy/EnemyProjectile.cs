@@ -27,7 +27,7 @@ public class EnemyProjectile : MonoBehaviour
     {
         //Not sure what I'm doing here
         float fireAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-        float angleInsideOfCone = fireAngle + Random.Range(-30, 30);
+        float angleInsideOfCone = fireAngle + Random.Range(-20, 20);
         transform.eulerAngles = new Vector3(0, 0, angleInsideOfCone);
 
         //Destroy after finished its life
@@ -48,6 +48,6 @@ public class EnemyProjectile : MonoBehaviour
             }
         }
         //Move projectile along its rotation
-        transform.position += transform.up * Time.deltaTime * speed;
+        transform.position += transform.right * Time.deltaTime * speed;
     }
 }

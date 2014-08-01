@@ -20,20 +20,16 @@ public class GuardEnemy : BaseEnemy
     [MinValue(0)]
     public float timePerShot = 1.5f;
     [MinValue(0)]
-    public float fireRange = 4.0f;
+    public float fireRange = 8.0f;
 
     private float _timeUntilNextShot = 0.0f;
     private GuardState _currentState;
-    private Slime _nearestSlime = null;
 
     //The flame shot prefab
     public GameObject shot;
-    //Set # of flames in the shot
-    public float numFlames;
+    public int numFlames;
 
-    private EnemyProjectile proj;
-
-
+    private float timer;
 
     void Start()
     {
@@ -46,9 +42,7 @@ public class GuardEnemy : BaseEnemy
         {
             return;
         }
-
-        _nearestSlime = getNearestVisibleSlime();
-
+        
         switch (_currentState)
         {
             case GuardState.WANDERING:
@@ -81,7 +75,7 @@ public class GuardEnemy : BaseEnemy
 
     private bool tryEnterAttackState()
     {
-        if (_nearestSlime != null && bullets != 0)
+        if (getNearestVisibleSlime() != null && bullets != 0)
         {
             _currentState = GuardState.ATTACKING;
             return true;
@@ -100,34 +94,35 @@ public class GuardEnemy : BaseEnemy
         }
         else
         {
-            if (_nearestSlime == null)
+            if (getNearestVisibleSlime() == null)
             {
                 enterWanderState();
                 return;
             }
 
-            if (Vector3.Distance(transform.position, _nearestSlime.transform.position) > fireRange)
+            if (Vector3.Distance(transform.position, getNearestVisibleSlime().transform.position) > fireRange)
             {
-                moveTowardsPoint(_nearestSlime.transform.position);
+                moveTowardsPoint(getNearestVisibleSlime().transform.position);
                 _timeUntilNextShot = timePerShot;
             }
             else
             {
-                //Set direction of the projectile
-                shot.GetComponent<EnemyProjectile>().direction = _nearestSlime.transform.position - transform.position;
                 useFlameThrower();
             }
         }
     }
 
+
     private void useFlameThrower()
     {
-        Instantiate(shot, transform.position, transform.rotation);
+            Instantiate(shot, transform.position, transform.rotation);
+            //Set direction of the projectile
+            shot.GetComponent<EnemyProjectile>().direction = getNearestVisibleSlime().transform.position - transform.position;
     }
 
     private bool tryEnterFleeState()
     {
-        if (_nearestSlime != null && bullets == 0)
+        if (getNearestVisibleSlime() != null && bullets == 0)
         {
             _currentState = GuardState.FLEEING;
             return true;

@@ -56,6 +56,10 @@ public class SlimeController : MonoBehaviour {
     private ElementalCastType _currentCastType = ElementalCastType.NONE;
     private bool _shouldSkipNext = false;
 
+	//The Animator for the eye, used to transfer states via triggers
+	public Animator Eye_Animator;
+	public GameObject Eye_GameObject;
+
     //selected tile of slime
     private Slime currentSelectedSlime;
     private static SlimeController _instance = null;
@@ -246,8 +250,13 @@ public class SlimeController : MonoBehaviour {
 
     public Tile getTilePositionUnderCursor() {
         //finds the cursorPosition and then uses cursorPosition to find position of tileUnderCursor
-        Camera testCam = Camera.main;
+		// In addition, spawns a blinking eye at the old spot which will delete itself on blink completion, then the new eye plays opening eye animation
+		GameObject OldEye = (GameObject)Instantiate (Eye_GameObject, transform.position, transform.rotation);
+		Animator OldEyeAnimator = OldEye.GetComponent<Animator> ();
+		OldEyeAnimator.SetTrigger ("Blink");
+		Camera testCam = Camera.main;
         Vector2 cursorPosition = testCam.ScreenToWorldPoint(Input.mousePosition);
+		Eye_Animator.SetTrigger ("ReverseBlink");
         Tilemap tilemap = Tilemap.getInstance();
         return tilemap.getTile(cursorPosition);
     }
@@ -460,5 +469,14 @@ public class SlimeController : MonoBehaviour {
         }
         return false;
     }
+
+	//Called when forward blink begins, signaling that the player is moving the cursor, triggering the eye to open at new space with reverseblink
+	public void BlinkStarted(){
+	
+		Eye_Animator.SetTrigger ("ReverseBlink");
+
+	}
+
+
 }
 

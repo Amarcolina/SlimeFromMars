@@ -4,7 +4,7 @@ using System.Collections;
 public class SoundEffect : MonoBehaviour
 {
 
-    //Attach this to any object with a SFX to allow it to be muted
+    //Attach this script as a component to any object with a SFX
     public AudioClip sfx;
     private AudioSource source;
     private int scene = -1;

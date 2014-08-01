@@ -59,7 +59,8 @@ public class ElectricityArc : MonoBehaviour {
 
     //creates a single arc 
     private void doArc() {
-        AudioSource.PlayClipAtPoint(electricArcSFX, transform.position, 0.3f);
+        gameObject.AddComponent<SoundEffect>();
+        gameObject.GetComponent<SoundEffect>().sfx = electricArcSFX;
 
         List<Tile> _jumpableTiles = new List<Tile>();
         for (int dx = -arcRadius; dx <= arcRadius; dx++) {

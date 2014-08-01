@@ -23,6 +23,10 @@ public class SlimeSentinel : MonoBehaviour {
     }
 
     public static void removeSlimeFromDestroyList(Slime slime) {
+        if (!_slimeIndexMap.ContainsKey(slime)) {
+            return;
+        }
+
         int index = _slimeIndexMap[slime];
         Slime topSlime = _slimesToDestroy[_slimesToDestroy.Count - 1];
         _slimesToDestroy[index] = topSlime;

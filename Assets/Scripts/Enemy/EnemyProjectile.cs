@@ -22,32 +22,24 @@ public class EnemyProjectile : MonoBehaviour
 
     private GameObject tileGameObject;
     private Slime slime;
-    private Vector2 movement;
 
     void Start()
     {
-        if (transform != null)
-        {
-            // 2 - Semi-Random movement
-            movement = speed * direction;
-        }
-
-        float fireAngle = Mathf.Atan2(direction.y, direction.y) * Mathf.Rad2Deg;
+        //Not sure what I'm doing here
+        float fireAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         float angleInsideOfCone = fireAngle + Random.Range(-30, 30);
         transform.eulerAngles = new Vector3(0, 0, angleInsideOfCone);
-        //Get instance of the Slime tile
+
+        //Destroy after finished its life
         Destroy(gameObject, life);
     }
 
     void Update()
     {
         tileGameObject = Tilemap.getInstance().getTileGameObject(transform.position);
-        
-        Debug.Log(transform.forward);
         if (tileGameObject != null)
         {
             slime = tileGameObject.GetComponent<Slime>();
-            transform.position += new Vector3(direction.x, direction.y, 0) * Time.deltaTime * speed;
             //Check if we are on a slime tile
             if (slime != null)
             {
@@ -55,11 +47,7 @@ public class EnemyProjectile : MonoBehaviour
                 slime.damageSlime(5f);
             }
         }
-
-    }
-
-    void FixedUpdate()
-    {
-        // Apply movement to the rigidbody
+        //Move projectile along its rotation
+        transform.position += transform.up * Time.deltaTime * speed;
     }
 }

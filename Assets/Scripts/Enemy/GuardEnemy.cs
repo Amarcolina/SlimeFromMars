@@ -22,8 +22,6 @@ public class GuardEnemy : BaseEnemy
     [MinValue(0)]
     public float fireRange = 4.0f;
 
-    const float FLAME_SPEED = 1050f;
-
     private float _timeUntilNextShot = 0.0f;
     private GuardState _currentState;
     private Slime _nearestSlime = null;
@@ -115,39 +113,16 @@ public class GuardEnemy : BaseEnemy
             }
             else
             {
-                _timeUntilNextShot -= Time.deltaTime;
-                if (_timeUntilNextShot <= 0.0f)
-                {
-                    shot.GetComponent<EnemyProjectile>().direction = getBulletDirection();
-                    _timeUntilNextShot += timePerShot;
-                    useFlameThrower();
-                    bullets--;
-                }
+                //Set direction of the projectile
+                shot.GetComponent<EnemyProjectile>().direction = _nearestSlime.transform.position - transform.position;
+                useFlameThrower();
             }
         }
     }
 
-    public Vector2 getBulletDirection()
-    {
-        Vector2 direction =_nearestSlime.transform.position - transform.position;
-
-        return direction;
-    }
-
     private void useFlameThrower()
     {
-            
-
-        //        for (int i = 0; i < 2; i++)
-        //        {
-        //Vector2 direction = Vector2.zero;
-        //direction = _nearestSlime.transform.position - transform.position;
-        //direction.Normalize();
-        //direction += new Vector2(Random.Range(-0.1f, 0.1f), Random.Range(-0.1f, 0.1f));
-        //direction = direction * Random.Range(FLAME_SPEED, FLAME_SPEED);
-            Instantiate(shot, transform.position, transform.rotation);
-                //}
-            
+        Instantiate(shot, transform.position, transform.rotation);
     }
 
     private bool tryEnterFleeState()

@@ -2,7 +2,7 @@
 using System.Collections;
 
 [System.Serializable]
-public class Array2D<T> : ScriptableObject{
+public class Array2D<T> : ScriptableObject where T : class{
     [SerializeField]
     private T[] _array;
     [SerializeField]

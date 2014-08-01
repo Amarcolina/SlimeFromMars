@@ -317,7 +317,7 @@ public class SlimeController : MonoBehaviour {
         if (Vector2Int.distance(getStartLocation(), getGoalLocation()) <= rangeOfAttack) {
             int circleRadius = 3 * radiationLevel;
 
-            AudioSource.PlayClipAtPoint(radioactiveDefenseSFX, getGoalLocation());
+            //AudioSource.PlayClipAtPoint(radioactiveDefenseSFX, getGoalLocation());
             for (int dx = -circleRadius; dx <= circleRadius; dx++) {
                 for (int dy = -circleRadius; dy <= circleRadius; dy++) {
                     Vector2 tileOffset = new Vector2(dx, dy);
@@ -327,6 +327,8 @@ public class SlimeController : MonoBehaviour {
                             Irradiated radComponent = tile.GetComponent<Irradiated>();
                             if (radComponent == null) {
                                 radComponent = tile.gameObject.AddComponent<Irradiated>();
+                                tile.gameObject.AddComponent<SoundEffect>();
+                                tile.gameObject.GetComponent<SoundEffect>().sfx = radioactiveDefenseSFX;
                             }
                             radComponent.setStunned(true);
                         }
@@ -355,6 +357,9 @@ public class SlimeController : MonoBehaviour {
                             Irradiated radComponent = tile.GetComponent<Irradiated>();
                             if (radComponent == null) {
                                 radComponent = tile.gameObject.AddComponent<Irradiated>();
+
+                                tile.gameObject.AddComponent<SoundEffect>();
+                                tile.gameObject.GetComponent<SoundEffect>().sfx = radioactiveOffenseSFX;
                             }
                             radComponent.setDamaged(true);
                         }
@@ -362,7 +367,7 @@ public class SlimeController : MonoBehaviour {
                 }
             }
 
-            AudioSource.PlayClipAtPoint(radioactiveOffenseSFX, getStartLocation(), 0.3f);
+            //AudioSource.PlayClipAtPoint(radioactiveOffenseSFX, getStartLocation(), 0.3f);
             loseEnergy(RADIATION_OFFENSE_COST);
             return true;
         }
@@ -372,7 +377,7 @@ public class SlimeController : MonoBehaviour {
     //outputs circle of enemy-damaging electricity from central point of selected slime tile
     //radius increases with electricityLevel, as does damage
     public void useElectricityDefense() {
-        AudioSource.PlayClipAtPoint(electricDefenseSFX, getStartLocation(), 0.2f);
+        //AudioSource.PlayClipAtPoint(electricDefenseSFX, getStartLocation(), 0.2f);
 
         int circleRadius = electricityLevel;
         for (int dx = -circleRadius; dx <= circleRadius; dx++) {
@@ -382,6 +387,8 @@ public class SlimeController : MonoBehaviour {
                     Tile tile = Tilemap.getInstance().getTile(getStartLocation() + new Vector2Int(dx, dy));
                     if (tile != null && tile.GetComponent<Slime>() != null) {
                         tile.gameObject.AddComponent<Electrified>();
+                        tile.gameObject.AddComponent<SoundEffect>();
+                        tile.gameObject.GetComponent<SoundEffect>().sfx = electricDefenseSFX;
                     }
                 }
             }
@@ -418,7 +425,7 @@ public class SlimeController : MonoBehaviour {
     //radius and health increases with bioLevel
     //defense will remain until destroyed by enemies
     public void useBioDefense() {
-        AudioSource.PlayClipAtPoint(bioDefenseSFX, getStartLocation(), 0.3f);
+        //AudioSource.PlayClipAtPoint(bioDefenseSFX, getStartLocation(), 0.3f);
 
         int circleRadius = bioLevel;
         for (int dx = -circleRadius; dx <= circleRadius; dx++) {
@@ -429,6 +436,9 @@ public class SlimeController : MonoBehaviour {
                     if (tile != null && tile.GetComponent<Slime>() != null) {
                         tile.isWalkable = false;
                         tile.gameObject.AddComponent<BioMutated>();
+
+                        tile.gameObject.AddComponent<SoundEffect>();
+                        tile.gameObject.GetComponent<SoundEffect>().sfx = bioDefenseSFX;
                     }
                 }
             }
@@ -453,8 +463,9 @@ public class SlimeController : MonoBehaviour {
                 bio.setLancePath(astarPath);
                 bio.setLanceDamage(damageDone);
                 loseEnergy(BIO_OFFENSE_COST);
-
-                AudioSource.PlayClipAtPoint(bioOffenseSFX, bioLance.transform.position, 0.3f);
+                bio.gameObject.AddComponent<SoundEffect>();
+                bio.gameObject.GetComponent<SoundEffect>().sfx = bioOffenseSFX;
+                //AudioSource.PlayClipAtPoint(bioOffenseSFX, bioLance.transform.position, 0.3f);
                 return true;
             }
         }

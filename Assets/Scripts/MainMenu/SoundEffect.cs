@@ -8,6 +8,9 @@ public class SoundEffect : MonoBehaviour
     public AudioClip sfx;
     private AudioSource source;
     private int scene = -1;
+    private bool muted;
+
+    private GameUI gameUI;
 
     void OnLevelWasLoaded()
     {
@@ -20,8 +23,13 @@ public class SoundEffect : MonoBehaviour
 
     public static void mute(bool shouldMute)
     {
-        SoundEffect sfx = FindObjectOfType<SoundEffect>();
-        sfx.GetComponent<AudioSource>().mute = shouldMute;
+        //SoundEffect sfx = FindObjectOfType<SoundEffect>();
+
+        SoundEffect[] SFXs = FindObjectsOfType<SoundEffect>();
+        foreach (SoundEffect sfx in SFXs)
+        {
+            sfx.GetComponent<AudioSource>().mute = shouldMute;
+        }
     }
 
     public void Update()
@@ -35,16 +43,16 @@ public class SoundEffect : MonoBehaviour
     // Use this for initialization
     void Start()
     {
-        SoundEffect[] SFXs = FindObjectsOfType<SoundEffect>();
-        if (SFXs.Length != 1)
-        {
-            Destroy(gameObject);
-        }
+        gameUI = GameUI.getInstance();
+        gameUI.GetComponent<PauseMenu>();
 
         DontDestroyOnLoad(gameObject);
         scene = Application.loadedLevel;
-
         source = gameObject.AddComponent<AudioSource>();
         source.clip = sfx;
+        if (!gameUI.GetComponent<PauseMenu>().sfxMuted)
+        {
+            source.Play();
+        }
     }
 }

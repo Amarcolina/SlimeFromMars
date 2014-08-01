@@ -6,7 +6,8 @@ public class PauseMenu : MonoBehaviour
 
 
     private float startTime = 0.1f;
-    public bool muted;
+    public bool musicMuted;
+    public bool sfxMuted;
 
 
     //Main Pause Menu
@@ -165,14 +166,14 @@ public class PauseMenu : MonoBehaviour
 
     public void MuteMusicButton(bool isActive)
     {
-        muted = isActive;
-        BackgroundMusic.mute(muted);
+        musicMuted = isActive;
+        BackgroundMusic.mute(musicMuted);
     }
 
     public void MuteSFXButton(bool isActive)
     {
-        muted = isActive;
-        SoundEffect.mute(muted);
+        sfxMuted = isActive;
+        SoundEffect.mute(sfxMuted);
     }
 
 

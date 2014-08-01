@@ -75,15 +75,8 @@ public class Tilemap : MonoBehaviour {
         return tileObj.GetComponent<Tile>();
     }
 
-    //####################################################################################################
-    /* Returns whether or not a given position represents a space that can
-     * be walked on.  If there is no tile at the given location, this method
-     * returns false.  If there is a tile at the given location, this method
-     * returns whether or not that tile is walkable
-     */
-
-    public bool isWalkable(Vector2Int position) {
-        Tile tile = getTile(position);
+    public bool isWalkable(Vector2Int location) {
+        Tile tile = getTile(location);
         if (tile == null) {
             return false;
         }

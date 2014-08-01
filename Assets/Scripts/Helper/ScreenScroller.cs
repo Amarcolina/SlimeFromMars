@@ -17,25 +17,26 @@ public class ScreenScroller : MonoBehaviour {
     void Update() {
         var mousePosX = Input.mousePosition.x;
         var mousePosY = Input.mousePosition.y;
-       
+
+        float scrollSpeedAdjusted = scrollSpeed * camera.orthographicSize / 5.0f;
         if (mousePosX < scrollDistance) {
-            transform.Translate(Vector3.right * -scrollSpeed * Time.deltaTime);
+            transform.Translate(Vector3.right * -scrollSpeedAdjusted * Time.deltaTime);
         }
 
         if (mousePosX >= Screen.width - scrollDistance) {
-            transform.Translate(Vector3.right * scrollSpeed * Time.deltaTime);
+            transform.Translate(Vector3.right * scrollSpeedAdjusted * Time.deltaTime);
         }
 
         if (mousePosY < scrollDistance) {
-            transform.Translate(transform.up * -scrollSpeed * Time.deltaTime);
+            transform.Translate(transform.up * -scrollSpeedAdjusted * Time.deltaTime);
         }
 
         if (mousePosY >= Screen.height - scrollDistance) {
-            transform.Translate(transform.up * scrollSpeed * Time.deltaTime);
+            transform.Translate(transform.up * scrollSpeedAdjusted * Time.deltaTime);
         }
 
-        _goalZoom -= Input.GetAxis("Mouse ScrollWheel") * 4;
-        _goalZoom = Mathf.Clamp(_goalZoom, 5, 10);
+        _goalZoom -= Input.GetAxis("Mouse ScrollWheel") * camera.orthographicSize;
+        _goalZoom = Mathf.Clamp(_goalZoom, 5, 50);
         camera.orthographicSize += (_goalZoom - camera.orthographicSize) / 5.0f;
 
     }

@@ -23,6 +23,10 @@ public class SlimeSentinel : MonoBehaviour {
     }
 
     public static void removeSlimeFromDestroyList(Slime slime) {
+        if (!_slimeIndexMap.ContainsKey(slime)) {
+            return;
+        }
+
         int index = _slimeIndexMap[slime];
         Slime topSlime = _slimesToDestroy[_slimesToDestroy.Count - 1];
         _slimesToDestroy[index] = topSlime;
@@ -34,10 +38,12 @@ public class SlimeSentinel : MonoBehaviour {
         _isRunningDestroyCoroutine = true;
         while (_slimesToDestroy.Count > 1) {
             yield return new WaitForSeconds(1.0f);
-            int randomIndex = Random.Range(0, _slimesToDestroy.Count);
-            Slime slimeToDestroy = _slimesToDestroy[randomIndex];
-            removeSlimeFromDestroyList(slimeToDestroy);
-            slimeToDestroy.damageSlime(1.0f);
+            if (_slimesToDestroy.Count != 0) {
+                int randomIndex = Random.Range(0, _slimesToDestroy.Count);
+                Slime slimeToDestroy = _slimesToDestroy[randomIndex];
+                removeSlimeFromDestroyList(slimeToDestroy);
+                slimeToDestroy.damageSlime(1.0f);
+            }
         }
         _isRunningDestroyCoroutine = false;
     }

@@ -203,6 +203,9 @@ public class Slime : MonoBehaviour {
 
         for (int i = 0; i < TilemapUtilities.neighborFullArray.Length; i++) {
             Vector2Int neighborPos = origin + TilemapUtilities.neighborFullArray[i];
+            if (!TilemapUtilities.areTilesNeighbors(origin, neighborPos, true, Tile.isSlimeableFunction)) {
+                continue;
+            }
 
             GameObject neighborObj = Tilemap.getInstance().getTileGameObject(neighborPos);
             if (neighborObj == null) {

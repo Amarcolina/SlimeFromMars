@@ -35,8 +35,8 @@ public class ScreenScroller : MonoBehaviour {
             transform.Translate(transform.up * scrollSpeedAdjusted * Time.deltaTime);
         }
 
-        _goalZoom -= Input.GetAxis("Mouse ScrollWheel") * 4;
-        _goalZoom = Mathf.Clamp(_goalZoom, 5, 10);
+        _goalZoom -= Input.GetAxis("Mouse ScrollWheel") * camera.orthographicSize;
+        _goalZoom = Mathf.Clamp(_goalZoom, 5, 50);
         camera.orthographicSize += (_goalZoom - camera.orthographicSize) / 5.0f;
 
     }

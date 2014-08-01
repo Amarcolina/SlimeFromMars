@@ -3,10 +3,10 @@
 /// <summary>
 /// Simply moves the projectiles
 /// </summary>
-public class EnemyProjectile : MonoBehaviour
+public class FlameProjectile : MonoBehaviour
 {
     /// <summary>
-    /// Object speed
+    /// projectile speed
     /// </summary>
     public float speed;
 
@@ -16,7 +16,7 @@ public class EnemyProjectile : MonoBehaviour
     public Vector2 direction;
 
     /// <summary>
-    /// Moving direction
+    /// projectile life
     /// </summary>
     public float life;
 
@@ -43,8 +43,8 @@ public class EnemyProjectile : MonoBehaviour
             //Check if we are on a slime tile
             if (slime != null)
             {
-                //Get instance of the Slime tile
-                slime.damageSlime(5f);
+                //damage the slime
+                slime.damageSlime(0.25f);
             }
         }
         //Move projectile along its rotation

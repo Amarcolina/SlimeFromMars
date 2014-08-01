@@ -16,24 +16,23 @@ public class GuardEnemy : BaseEnemy
     public float fleeSpeed = 3.5f;
 
     [MinValue(0)]
-    public int bullets = 20;
+    public int ammo = 0;
     [MinValue(0)]
     public float timePerShot = 1.5f;
     [MinValue(0)]
     public float fireRange = 8.0f;
 
-    private float _timeUntilNextShot = 0.0f;
     private GuardState _currentState;
+    private float timeUntilDeath = 3f;
 
     //The flame shot prefab
     public GameObject shot;
-    public int numFlames;
 
-    private float timer;
+    private float countDown = 2f;
 
     void Start()
     {
-        shot.GetComponent<EnemyProjectile>();
+        shot.GetComponent<FlameProjectile>();
     }
 
     void Update()
@@ -41,6 +40,14 @@ public class GuardEnemy : BaseEnemy
         if (isStunned())
         {
             return;
+        }
+        if (isOnSlimeTile())
+        {
+            timeUntilDeath -= Time.deltaTime;
+            if (timeUntilDeath <= 0)
+            {
+                Destroy(gameObject);
+            }
         }
         
         switch (_currentState)
@@ -75,7 +82,7 @@ public class GuardEnemy : BaseEnemy
 
     private bool tryEnterAttackState()
     {
-        if (getNearestVisibleSlime() != null && bullets != 0)
+        if (getNearestVisibleSlime() != null && ammo != 0)
         {
             _currentState = GuardState.ATTACKING;
             return true;
@@ -85,7 +92,7 @@ public class GuardEnemy : BaseEnemy
 
     private void attackState()
     {
-        if (bullets == 0)
+        if (ammo == 0)
         {
             if (tryEnterFleeState())
             {
@@ -103,11 +110,21 @@ public class GuardEnemy : BaseEnemy
             if (Vector3.Distance(transform.position, getNearestVisibleSlime().transform.position) > fireRange)
             {
                 moveTowardsPoint(getNearestVisibleSlime().transform.position);
-                _timeUntilNextShot = timePerShot;
             }
             else
             {
-                useFlameThrower();
+                if (countDown >= 0)
+                {
+                    //use flamethrower for certain amount of time
+                    countDown -= Time.deltaTime;
+                    useFlameThrower();
+                }
+                //Reset countdown
+                if(countDown <= 0)
+                {
+                    ammo--;
+                    countDown = 5f;
+                }
             }
         }
     }
@@ -117,12 +134,12 @@ public class GuardEnemy : BaseEnemy
     {
             Instantiate(shot, transform.position, transform.rotation);
             //Set direction of the projectile
-            shot.GetComponent<EnemyProjectile>().direction = getNearestVisibleSlime().transform.position - transform.position;
+            shot.GetComponent<FlameProjectile>().direction = getNearestVisibleSlime().transform.position - transform.position;
     }
 
     private bool tryEnterFleeState()
     {
-        if (getNearestVisibleSlime() != null && bullets == 0)
+        if (getNearestVisibleSlime() != null && ammo == 0)
         {
             _currentState = GuardState.FLEEING;
             return true;

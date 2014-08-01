@@ -111,7 +111,7 @@ public class ScientistEnemy : BaseEnemy {
 
     private bool tryEnterHidingState() {
         ScientistHidingSpot spot = _hidingSpotSearcher.searchForClosest(transform.position, 9, 1);
-        if (getNearestVisibleSlime() != null) {
+        if (getNearestVisibleSlime(1 != null) {
             return false;
         }
 

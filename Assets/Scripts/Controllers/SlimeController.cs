@@ -133,6 +133,7 @@ public class SlimeController : MonoBehaviour {
         if (Input.GetMouseButtonDown(1) && currentSelectedSlime != null){
             if (energy > 0) {
                 Astar.isWalkableFunction = Tile.isSlimeableFunction;
+                Astar.isNeighborWalkableFunction = Tile.isSlimeableFunction;
                 Path astarPath = Astar.findPath(getStartLocation(), getCursorPosition());
                 if (astarPath != null) {
                     int pathCost = Slime.getPathCost(astarPath);
@@ -444,6 +445,8 @@ public class SlimeController : MonoBehaviour {
     public bool useBioOffense() {
         int damageDone = BIO_BASE_DAMAGE * bioLevel;
         float rangeOfAttack = BIO_BASE_RANGE * bioLevel;
+        Astar.isWalkableFunction = Tile.isSpikeableFunction;
+        Astar.isNeighborWalkableFunction = Tile.isSpikeableFunction;
         Path astarPath = Astar.findPath(getStartLocation(), getCursorPosition());
 
         float pathCost = astarPath.getLength();
@@ -465,6 +468,16 @@ public class SlimeController : MonoBehaviour {
         return false;
     }
 
+    public float getElectricityLevel() {
+        return electricityLevel;
+    }
+    public float getBioLevel() {
+        return bioLevel;
+    }
+
+    public float getRadiationLevel() {
+        return radiationLevel;
+    }
 	//Called at the end of the blink animation to move the eye to the new position and play the opening animation.
 	public void EyeBlink(){
         if (currentSelectedSlime == null) {

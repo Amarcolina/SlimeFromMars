@@ -33,10 +33,6 @@ public class SoldierEnemy : BaseEnemy {
             return;
         }
 
-        if (Input.GetKeyDown(KeyCode.D)) {
-            damage(0.0f);
-        }
-
         switch (_currentState) {
             case SoldierState.WANDERING:
                 wanderState();

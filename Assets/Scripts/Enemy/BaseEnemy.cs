@@ -28,8 +28,10 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable{
     protected virtual void OnEnemyFire() {
     }
 
+    private int _previousDamageFrame = 0;
     public virtual void damage(float damage) {
-        if (health > 0) {
+        if (health > 0 && Time.frameCount != _previousDamageFrame) {
+            _previousDamageFrame = Time.frameCount;
             health -= damage;
             _enemyAnimation.EnemyHit();
             if (health <= 0.0f) {

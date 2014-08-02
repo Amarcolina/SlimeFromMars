@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 
-public enum ElementalCastType{
+public enum ElementalCastType {
     NONE,
     ELECTRICITY_OFFENSIVE,
     BIO_OFFENSIVE,
@@ -56,6 +56,9 @@ public class SlimeController : MonoBehaviour {
     private ElementalCastType _currentCastType = ElementalCastType.NONE;
     private bool _shouldSkipNext = false;
 
+	//The Animator for the eye, used to transfer states via triggers
+	public Animator Eye_Animator;
+
     //selected tile of slime
     private Slime currentSelectedSlime;
     private static SlimeController _instance = null;
@@ -103,6 +106,8 @@ public class SlimeController : MonoBehaviour {
             gainBioLevel();
         }
 
+
+
         if (_shouldSkipNext) {
             _shouldSkipNext = false;
         } else {
@@ -110,7 +115,7 @@ public class SlimeController : MonoBehaviour {
                 handleNormalInteraction();
             } else {
                 handleCastInteraction();
-            }   
+            }
         }
     }
 
@@ -135,12 +140,10 @@ public class SlimeController : MonoBehaviour {
                 loseEnergy(pathCost);
                 currentSelectedSlime.requestExpansionAllongPath(astarPath);
 
-                if (energy <= 0)
-                {
+                if (energy <= 0) {
                     GameOver();
                 }
-                if (!audio.isPlaying)
-                {
+                if (!audio.isPlaying) {
                     audio.clip = slimeExpansionSFX;
                     audio.Play();
                 }
@@ -217,6 +220,7 @@ public class SlimeController : MonoBehaviour {
         }
 
         Destroy(eatenItem.gameObject);
+
     }
 
     public void highlightSlimeTile() {
@@ -233,10 +237,7 @@ public class SlimeController : MonoBehaviour {
         if (currentSelectedSlime == null) {
             renderer.enabled = false;
         } else {
-            //moves highlighter to tile position
-            transform.position = currentSelectedSlime.transform.position;
-            //makes sprite visible
-            renderer.enabled = true;
+			Eye_Animator.SetTrigger ("Blink");
         }
     }
 
@@ -246,8 +247,10 @@ public class SlimeController : MonoBehaviour {
 
     public Tile getTilePositionUnderCursor() {
         //finds the cursorPosition and then uses cursorPosition to find position of tileUnderCursor
-        Camera testCam = Camera.main;
+	
+		Camera testCam = Camera.main;
         Vector2 cursorPosition = testCam.ScreenToWorldPoint(Input.mousePosition);
+	
         Tilemap tilemap = Tilemap.getInstance();
         return tilemap.getTile(cursorPosition);
     }
@@ -270,13 +273,12 @@ public class SlimeController : MonoBehaviour {
         _gameUi.ResourceUpdate(energy);
     }
 
-    private void gainEnergy(int plus) {
+    public void gainEnergy(int plus) {
         energy += plus;
         _gameUi.ResourceUpdate(energy);
     }
 
-    private void GameOver()
-    {
+    private void GameOver() {
         PauseMenu gameover = _gameUi.GetComponent<PauseMenu>();
         gameover.GameOver();
     }
@@ -428,6 +430,8 @@ public class SlimeController : MonoBehaviour {
                     Tile tile = Tilemap.getInstance().getTile(getStartLocation() + new Vector2Int(dx, dy));
                     if (tile != null && tile.GetComponent<Slime>() != null) {
                         tile.isWalkable = false;
+                        tile.isSlimeable = true;
+                        tile.isTransparent = true;
                         tile.gameObject.AddComponent<BioMutated>();
                     }
                 }
@@ -460,5 +464,14 @@ public class SlimeController : MonoBehaviour {
         }
         return false;
     }
+
+	//Called at the end of the blink animation to move the eye to the new position and play the opening animation.
+	public void EyeBlink(){
+        transform.position = currentSelectedSlime.transform.position;
+        renderer.enabled = true;
+        Eye_Animator.SetTrigger ("ReverseBlink");
+    }
+	
+
 }
 

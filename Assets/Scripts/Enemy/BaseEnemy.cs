@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable{
+public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable{
     public MovementPattern movementPattern;
     public GameObject corpsePrefab = null;
     public float health = 1.0f;
@@ -194,6 +194,7 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable{
         getNearestVisibleSlime();
         return _lastTimeViewedSlime;
     }
+
 
     public static bool tileRayHitSlime(GameObject tileObj) {
         if (tileObj == null || !tileObj.GetComponent<Tile>().isTransparent) {

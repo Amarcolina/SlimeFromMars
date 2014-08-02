@@ -114,39 +114,50 @@ public class SlimeController : MonoBehaviour {
         }
     }
 
-    private void handleNormalInteraction() {
-        if (Input.GetMouseButtonDown(0)) {
+    private void handleNormalInteraction()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
             highlightSlimeTile();
         }
 
-        if (currentSelectedSlime == null) {
+        if (currentSelectedSlime == null)
+        {
             renderer.enabled = false;
-        } else {
+        }
+        else
+        {
             attemptToEat();
         }
 
-        if (Input.GetMouseButtonDown(1) && currentSelectedSlime != null) {
+        if (Input.GetMouseButtonDown(1) && currentSelectedSlime != null)
+        {
             Astar.isWalkableFunction = Tile.isSlimeableFunction;
             Path astarPath = Astar.findPath(getStartLocation(), getGoalLocation());
             int pathCost = Slime.getPathCost(astarPath);
-
-            //if the slime has the energy to move, take the astar path
-            if (energy >= pathCost) {
-                loseEnergy(pathCost);
-                currentSelectedSlime.requestExpansionAllongPath(astarPath);
-
-                if (energy <= 0)
+            if (energy > 0)
+            {
+                //if the slime has the energy to move, take the astar path
+                if (energy >= pathCost)
                 {
-                    GameOver();
+                    loseEnergy(pathCost);
+                    currentSelectedSlime.requestExpansionAllongPath(astarPath);
+                    if (!audio.isPlaying)
+                    {
+                        audio.clip = slimeExpansionSFX;
+                        audio.Play();
+                    }
                 }
-                if (!audio.isPlaying)
+                else
                 {
-                    audio.clip = slimeExpansionSFX;
-                    audio.Play();
+                    //message: not enough energy
                 }
-            } else {
-                //message: not enough energy
             }
+            else if(energy <=0)
+            {
+                GameOver();
+            }
+
         }
     }
 

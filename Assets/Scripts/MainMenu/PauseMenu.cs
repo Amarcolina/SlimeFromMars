@@ -176,8 +176,6 @@ public class PauseMenu : MonoBehaviour
         SoundEffect.mute(sfxMuted);
     }
 
-
-
     public void GameOver()
     {
         gameOverLabel.SetActive(true);
@@ -187,7 +185,10 @@ public class PauseMenu : MonoBehaviour
 
     public void RestartClicked()
     {
-        Application.LoadLevel("MainLevel");
+        Application.LoadLevel(Application.loadedLevel);
+        gameOverLabel.SetActive(false);
+        RestartButton.SetActive(false);
+        ExitButton.SetActive(false);
     }
     public void ExitClicked()
     {

@@ -39,7 +39,7 @@ public class BackgroundMusic : MonoBehaviour
             Destroy(gameObject);
         }
 
-        DontDestroyOnLoad(gameObject);
+        //DontDestroyOnLoad(gameObject);
         scene = Application.loadedLevel;
 
         source = gameObject.AddComponent<AudioSource>();

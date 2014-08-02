@@ -46,7 +46,7 @@ public class SoundEffect : MonoBehaviour
         gameUI = GameUI.getInstance();
         gameUI.GetComponent<PauseMenu>();
 
-        DontDestroyOnLoad(gameObject);
+        //DontDestroyOnLoad(gameObject);
         scene = Application.loadedLevel;
         source = gameObject.AddComponent<AudioSource>();
         source.clip = sfx;

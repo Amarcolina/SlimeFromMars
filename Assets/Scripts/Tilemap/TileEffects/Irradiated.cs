@@ -21,6 +21,7 @@ public class Irradiated : MonoBehaviour {
         }
 
         _tile = GetComponent<Tile>();
+        _tile.damageTileEntities(0, true);
     }
 
     public void setStunned(bool stun) {
@@ -60,13 +61,15 @@ public class Irradiated : MonoBehaviour {
      */
     public void Update() {
         if (shouldDamage) {
-            _tile.damageTileEntities(TOTAL_DAMAGE * Time.deltaTime / DURATION);
+            _tile.damageTileEntities(TOTAL_DAMAGE * Time.deltaTime / DURATION, false);
 
             _totalTime += Time.deltaTime;
             if (_totalTime >= DURATION ) {
                 setDamaged(false);
             }
         }
+
+
         if (shouldStun) {
             _tile.stunTileEntities(DURATION);
         }

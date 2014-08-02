@@ -1,8 +1,8 @@
 fileFormatVersion: 2
-guid: 143df3ff84ee8844686ed8123391c9e2
+guid: 6bee3c4ca3bce41459adf22718122e5d
 TextureImporter:
   fileIDToRecycleName:
-    21300000: radiationHazard
+    21300000: glassCornerSide
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0

@@ -49,9 +49,9 @@ public class SlimeController : MonoBehaviour {
     private const int RADIATION_BASE_DAMAGE = 1;
 
     //base range for skills
-    private const int ELECTRICITY_BASE_RANGE = 5;
-    private const int BIO_BASE_RANGE = 2;
-    private const int RADIATION_BASE_RANGE = 4;
+    private const int ELECTRICITY_BASE_RANGE = 3;
+    private const int BIO_BASE_RANGE = 3;
+    private const int RADIATION_BASE_RANGE = 2;
 
     private ElementalCastType _currentCastType = ElementalCastType.NONE;
     private bool _shouldSkipNext = false;
@@ -119,50 +119,36 @@ public class SlimeController : MonoBehaviour {
         }
     }
 
-    private void handleNormalInteraction()
-    {
-        if (Input.GetMouseButtonDown(0))
-        {
+    private void handleNormalInteraction() {
+        if (Input.GetMouseButtonDown(0)){
             highlightSlimeTile();
         }
 
-        if (currentSelectedSlime == null)
-        {
+        if (currentSelectedSlime == null){
             renderer.enabled = false;
-        }
-        else
-        {
+        }else{
             attemptToEat();
         }
 
-        if (Input.GetMouseButtonDown(1) && currentSelectedSlime != null)
-        {
-            Astar.isWalkableFunction = Tile.isSlimeableFunction;
-            Path astarPath = Astar.findPath(getStartLocation(), getTilePositionUnderCursor());
-            int pathCost = Slime.getPathCost(astarPath);
-            if (energy > 0)
-            {
-                //if the slime has the energy to move, take the astar path
-                if (energy >= pathCost)
-                {
-                    loseEnergy(pathCost);
-                    currentSelectedSlime.requestExpansionAllongPath(astarPath);
-                    if (!audio.isPlaying)
-                    {
-                        audio.clip = slimeExpansionSFX;
-                        audio.Play();
+        if (Input.GetMouseButtonDown(1) && currentSelectedSlime != null){
+            if (energy > 0) {
+                Astar.isWalkableFunction = Tile.isSlimeableFunction;
+                Path astarPath = Astar.findPath(getStartLocation(), getCursorPosition());
+                if (astarPath != null) {
+                    int pathCost = Slime.getPathCost(astarPath);
+                    //if the slime has the energy to move, take the astar path
+                    if (energy >= pathCost) {
+                        loseEnergy(pathCost);
+                        currentSelectedSlime.requestExpansionAllongPath(astarPath);
+                        if (!audio.isPlaying) {
+                            audio.clip = slimeExpansionSFX;
+                            audio.Play();
+                        }
                     }
                 }
-                else
-                {
-                    //message: not enough energy
-                }
-            }
-            else if(energy <=0)
-            {
+            } else {
                 GameOver();
             }
-
         }
     }
 
@@ -258,14 +244,14 @@ public class SlimeController : MonoBehaviour {
         return currentSelectedSlime;
     }
 
-    public Vector2Int getTilePositionUnderCursor() {
+    public Vector2Int getCursorPosition() {
         //finds the cursorPosition and then uses cursorPosition to find position of tileUnderCursor
 		Camera testCam = Camera.main;
         return testCam.ScreenToWorldPoint(Input.mousePosition);
     }
 
     public Tile getTileUnderCursor() {
-        return Tilemap.getInstance().getTile(getTilePositionUnderCursor());
+        return Tilemap.getInstance().getTile(getCursorPosition());
     }
 
     public Vector2Int getStartLocation() {
@@ -325,7 +311,7 @@ public class SlimeController : MonoBehaviour {
     public bool useRadiationDefense() {
         float rangeOfAttack = RADIATION_BASE_RANGE * radiationLevel;
         //if distance is within range of attack, check each tile in the radius and then irradiate each tile that can be irradiated
-        if (Vector2Int.distance(getStartLocation(), getTilePositionUnderCursor()) <= rangeOfAttack) {
+        if (Vector2Int.distance(getStartLocation(), getCursorPosition()) <= rangeOfAttack) {
             int circleRadius = 3 * radiationLevel;
 
             gameObject.AddComponent<SoundEffect>().sfx = radioactiveDefenseSFX;
@@ -333,7 +319,7 @@ public class SlimeController : MonoBehaviour {
                 for (int dy = -circleRadius; dy <= circleRadius; dy++) {
                     Vector2 tileOffset = new Vector2(dx, dy);
                     if (tileOffset.sqrMagnitude <= circleRadius * circleRadius) {
-                        Tile tile = Tilemap.getInstance().getTile(getTilePositionUnderCursor() + new Vector2Int(dx, dy));
+                        Tile tile = Tilemap.getInstance().getTile(getCursorPosition() + new Vector2Int(dx, dy));
                         if (tile != null) {
                             Irradiated radComponent = tile.GetComponent<Irradiated>();
                             if (radComponent == null) {
@@ -355,14 +341,14 @@ public class SlimeController : MonoBehaviour {
     public bool useRadiationOffense() {
         float rangeOfAttack = RADIATION_BASE_RANGE * radiationLevel;
         //if distance is within range of attack, create the radius of radiation
-        if (Vector2Int.distance(getStartLocation(), getTilePositionUnderCursor()) <= rangeOfAttack) {
+        if (Vector2Int.distance(getStartLocation(), getCursorPosition()) <= rangeOfAttack) {
             gameObject.AddComponent<SoundEffect>().sfx = radioactiveOffenseSFX;
             int circleRadius = 3 * radiationLevel;
             for (int dx = -circleRadius; dx <= circleRadius; dx++) {
                 for (int dy = -circleRadius; dy <= circleRadius; dy++) {
                     Vector2 tileOffset = new Vector2(dx, dy);
                     if (tileOffset.sqrMagnitude <= circleRadius * circleRadius) {
-                        Tile tile = Tilemap.getInstance().getTile(getTilePositionUnderCursor() + new Vector2Int(dx, dy));
+                        Tile tile = Tilemap.getInstance().getTile(getCursorPosition() + new Vector2Int(dx, dy));
                         if (tile != null) {
                             Irradiated radComponent = tile.GetComponent<Irradiated>();
                             if (radComponent == null) {
@@ -408,7 +394,7 @@ public class SlimeController : MonoBehaviour {
         int damageDone = ELECTRICITY_BASE_DAMAGE * electricityLevel;
         float rangeOfAttack = ELECTRICITY_BASE_RANGE * electricityLevel;
         //if enemy is within range of attack, use electricity
-        if (Vector2Int.distance(getStartLocation(), getTilePositionUnderCursor()) <= rangeOfAttack) {
+        if (Vector2Int.distance(getStartLocation(), getCursorPosition()) <= rangeOfAttack) {
             bool canDamage = getTileUnderCursor().canDamageEntities();
 
             //if an enemy was damaged, check to see if there are enemies close by to arc to
@@ -421,7 +407,7 @@ public class SlimeController : MonoBehaviour {
                 arc.setArcRadius(electricityLevel + 1);
                 arc.setArcDamage(damageDone);
                 arc.setArcNumber(electricityLevel + 1);
-                arc.setDestination(getTilePositionUnderCursor());
+                arc.setDestination(getCursorPosition());
                 return true;
             }
         }
@@ -458,7 +444,7 @@ public class SlimeController : MonoBehaviour {
     public bool useBioOffense() {
         int damageDone = BIO_BASE_DAMAGE * bioLevel;
         float rangeOfAttack = BIO_BASE_RANGE * bioLevel;
-        Path astarPath = Astar.findPath(getStartLocation(), getTilePositionUnderCursor());
+        Path astarPath = Astar.findPath(getStartLocation(), getCursorPosition());
 
         float pathCost = astarPath.getLength();
         if (pathCost <= rangeOfAttack) {

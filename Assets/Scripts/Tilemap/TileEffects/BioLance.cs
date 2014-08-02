@@ -24,21 +24,29 @@ public class BioLance : MonoBehaviour {
         Vector2Int tilePosition = lancePath.getEnd();
         Tile tile = Tilemap.getInstance().getTile(tilePosition);
         HashSet<TileEntity> tileEntities = tile.getTileEntities();
+
         GameObject damageableObject = null;
+        IDamageable damageable = null;
+        bool shouldGrab = false;
+
         if(tileEntities != null){
             foreach (TileEntity entity in tileEntities) {
-                IDamageable damageable = entity.GetComponent(typeof(IDamageable)) as IDamageable;
+                damageable = entity.GetComponent(typeof(IDamageable)) as IDamageable;
                 if (damageable!= null) {
-                    damageable.damage(lanceDamage);
                     damageableObject = (entity.gameObject);
-                    break;
+                    if (damageable is IGrabbable) {
+                        shouldGrab = true;
+                        break;
+                    }
                 }
             }
         }
 
+        damageable.damage(lanceDamage);
+
         for (float percent = 1; percent >= 0; percent -= (SPINE_SPEED / (lancePath.getLength())) * Time.deltaTime) {
             _spineRenderer.spineLengthPercent = percent;//set to percent
-            if(damageableObject != null){
+            if (damageableObject != null && shouldGrab) {
                 damageableObject.transform.position = lancePath.getSmoothPoint(percent*(lancePath.Count - 1));
             }
 

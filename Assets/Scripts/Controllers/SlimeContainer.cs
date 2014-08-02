@@ -33,7 +33,6 @@ public class SlimeContainer : GenericConsumeable, IDamageable {
     }
 
     public void damage(float dam) {
-        Debug.Log("Alex has food on his face again");
         if (!broken) {
             if (mintCondition) {
                 mintCondition = false;

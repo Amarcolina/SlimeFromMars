@@ -35,7 +35,7 @@ public class SlimeRenderer : MonoBehaviour {
         _spriteRenderer = rendererGameObject.AddComponent<SpriteRenderer>();
 
         _spriteRenderer.enabled = false;
-        _spriteRenderer.material.shader = Shader.Find("Sprites/SlimeShader");
+        _spriteRenderer.material.shader = Shader.Find("Custom/SlimeShader");
     }
 
     public void OnDestroy() {

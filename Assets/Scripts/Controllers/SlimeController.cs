@@ -119,50 +119,36 @@ public class SlimeController : MonoBehaviour {
         }
     }
 
-    private void handleNormalInteraction()
-    {
-        if (Input.GetMouseButtonDown(0))
-        {
+    private void handleNormalInteraction() {
+        if (Input.GetMouseButtonDown(0)){
             highlightSlimeTile();
         }
 
-        if (currentSelectedSlime == null)
-        {
+        if (currentSelectedSlime == null){
             renderer.enabled = false;
-        }
-        else
-        {
+        }else{
             attemptToEat();
         }
 
-        if (Input.GetMouseButtonDown(1) && currentSelectedSlime != null)
-        {
-            Astar.isWalkableFunction = Tile.isSlimeableFunction;
-            Path astarPath = Astar.findPath(getStartLocation(), getCursorPosition());
-            int pathCost = Slime.getPathCost(astarPath);
-            if (energy > 0)
-            {
-                //if the slime has the energy to move, take the astar path
-                if (energy >= pathCost)
-                {
-                    loseEnergy(pathCost);
-                    currentSelectedSlime.requestExpansionAllongPath(astarPath);
-                    if (!audio.isPlaying)
-                    {
-                        audio.clip = slimeExpansionSFX;
-                        audio.Play();
+        if (Input.GetMouseButtonDown(1) && currentSelectedSlime != null){
+            if (energy > 0) {
+                Astar.isWalkableFunction = Tile.isSlimeableFunction;
+                Path astarPath = Astar.findPath(getStartLocation(), getCursorPosition());
+                if (astarPath != null) {
+                    int pathCost = Slime.getPathCost(astarPath);
+                    //if the slime has the energy to move, take the astar path
+                    if (energy >= pathCost) {
+                        loseEnergy(pathCost);
+                        currentSelectedSlime.requestExpansionAllongPath(astarPath);
+                        if (!audio.isPlaying) {
+                            audio.clip = slimeExpansionSFX;
+                            audio.Play();
+                        }
                     }
                 }
-                else
-                {
-                    //message: not enough energy
-                }
-            }
-            else if(energy <=0)
-            {
+            } else {
                 GameOver();
             }
-
         }
     }
 

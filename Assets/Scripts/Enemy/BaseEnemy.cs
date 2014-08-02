@@ -40,7 +40,9 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable{
 
     private IEnumerator deathCoroutine() {
         yield return new WaitForSeconds(0.5f);
-        Instantiate(corpsePrefab, transform.position, Quaternion.identity);
+        if (corpsePrefab) {
+            Instantiate(corpsePrefab, transform.position, Quaternion.identity);
+        }
         Destroy(this);
     }
 

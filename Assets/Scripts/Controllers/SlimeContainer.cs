@@ -10,7 +10,7 @@ public class SlimeContainer : MonoBehaviour, IDamageable {
     private SlimeController containerEnergy;
     //upon creation, update container number plus one
 
-    private GameUI _gameUi;
+    private static GameUI _gameUi;
 
     void Awake() {
         containerCounter++;
@@ -23,22 +23,17 @@ public class SlimeContainer : MonoBehaviour, IDamageable {
    
     // Update is called once per frame
     void Update() {
-        if (containerCounter <= 0)
-        {
-            winState();
-        }
     }
-
-    private void winState()
-    {
-        PauseMenu winState = _gameUi.GetComponent<PauseMenu>();
-        winState.Victory();
-    }
-
 
     //updates number of containers in the world minus one
     public static void decrementContainer() {
         containerCounter--;
+
+        if (containerCounter <= 0)
+        {
+            PauseMenu winState = _gameUi.GetComponent<PauseMenu>();
+            winState.Victory();
+        }
     }
 
     //replaces full container with broken one

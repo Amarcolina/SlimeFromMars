@@ -4,7 +4,7 @@ using System.Collections;
 public class BioMutated : MonoBehaviour {
     private static Sprite[] _bioSprites = null;
     private SpriteRenderer _bioRenderer = null;
-    private const float SLIME_HEALTH = 20;
+    private const float SLIME_HEALTH = 5;
     private void initBioSprites() {
         _bioSprites = new Sprite[1];
         _bioSprites[0] = Resources.Load<Sprite>("Sprites/Elements/Bio/Bio00");

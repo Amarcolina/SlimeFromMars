@@ -29,8 +29,7 @@ public class EnemyAnimation : MonoBehaviour {
 	}
 
 	//Used for when an enemy is hit by the slime, or is absorbed by the slime
-	public void EnemyHit(float direction){
-		Flip(direction);
+	public void EnemyHit(){
 		enemy.SetBool(WALK_KEY, false);
 		enemy.SetTrigger(HIT_KEY);
 	}

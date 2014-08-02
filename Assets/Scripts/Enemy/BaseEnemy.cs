@@ -4,6 +4,8 @@ using System.Collections.Generic;
 
 public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable{
     public MovementPattern movementPattern;
+    public GameObject corpsePrefab = null;
+    public float health = 1.0f;
 
     protected int _waypointIndex = 0;
     protected Path _currentWaypointPath = null;
@@ -26,8 +28,20 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable{
     protected virtual void OnEnemyFire() {
     }
 
-    public void damage(float damage) {
-        Destroy(gameObject);
+    public virtual void damage(float damage) {
+        if (health > 0) {
+            health -= damage;
+            _enemyAnimation.EnemyHit();
+            if (health <= 0.0f) {
+                StartCoroutine(deathCoroutine());
+            }
+        }
+    }
+
+    private IEnumerator deathCoroutine() {
+        yield return new WaitForSeconds(0.5f);
+        Instantiate(corpsePrefab, transform.position, Quaternion.identity);
+        Destroy(this);
     }
 
     public void stun(float duration) {

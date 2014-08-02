@@ -21,7 +21,7 @@ public class TileEntity : MonoBehaviour {
         _currentTile.removeTileEntity(this);
     }
 
-    public void Update() {
+    public void forceUpdate() {
         Vector2Int newPosition = transform.position;
         if (newPosition != _currentTilePosition) {
             if (_currentTile) {
@@ -33,5 +33,9 @@ public class TileEntity : MonoBehaviour {
                 _currentTile.addTileEntity(this);
             }
         }
+    }
+
+    public void Update() {
+        forceUpdate();
     }
 }

@@ -24,10 +24,14 @@ public class TileEntity : MonoBehaviour {
     public void Update() {
         Vector2Int newPosition = transform.position;
         if (newPosition != _currentTilePosition) {
-            _currentTile.removeTileEntity(this);
+            if (_currentTile) {
+                _currentTile.removeTileEntity(this);
+            }
             _currentTilePosition = newPosition;
             _currentTile = _tilemap.getTile(_currentTilePosition);
-            _currentTile.addTileEntity(this);
+            if (_currentTile) {
+                _currentTile.addTileEntity(this);
+            }
         }
     }
 }

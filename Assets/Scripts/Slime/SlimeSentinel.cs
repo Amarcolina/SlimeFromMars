@@ -9,8 +9,10 @@ public class SlimeSentinel : MonoBehaviour {
     private static SlimeSentinel _sentinelInstance = null;
 
     public static void addSlimeToDestroyList(Slime slime) {
-        _slimeIndexMap[slime] = _slimesToDestroy.Count;
-        _slimesToDestroy.Add(slime);
+        if (!_slimeIndexMap.ContainsKey(slime)) {
+            _slimeIndexMap[slime] = _slimesToDestroy.Count;
+            _slimesToDestroy.Add(slime);
+        }
 
         if (_sentinelInstance == null) {
             GameObject sentinelObj = new GameObject("Slime Sentinel");
@@ -32,6 +34,7 @@ public class SlimeSentinel : MonoBehaviour {
         _slimesToDestroy[index] = topSlime;
         _slimeIndexMap[topSlime] = index;
         _slimesToDestroy.RemoveAt(_slimesToDestroy.Count - 1);
+        _slimeIndexMap.Remove(slime);
     }
 
     private IEnumerator destroySlimeCoroutine() {

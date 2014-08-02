@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-[RequireComponent (typeof (SpriteRenderer))]
+[RequireComponent(typeof(SpriteRenderer))]
 public class Tile : MonoBehaviour {
     public const int TILE_PIXEL_SIZE = 64;
     private const string GROUND_LAYER_NAME = "TileGround";
@@ -11,6 +11,7 @@ public class Tile : MonoBehaviour {
     public bool isWalkable = true;
     public bool isSlimeable = true;
     public bool isTransparent = true;
+    public bool isSpikeable = false;
     public Sprite groundSprite;
     public Sprite groundEffectSprite;
     public Sprite objectSprite;
@@ -84,14 +85,17 @@ public class Tile : MonoBehaviour {
      * standing on the Tile.  This method returns true only if 
      * at least one TileEntity was damaged.
      */
-    public bool damageTileEntities(float damage) {
+    public bool damageTileEntities(float damage, bool damageSlimeContainers = true) {
+
         bool didDamage = false;
         if (_containedTileEntities != null) {
             foreach (TileEntity entity in _containedTileEntities) {
                 IDamageable damageable = entity.GetComponent(typeof(IDamageable)) as IDamageable;
                 if (damageable != null) {
-                    didDamage = true;
-                    damageable.damage(damage);
+                    if (damageSlimeContainers || !(damageable is SlimeContainer)) {
+                        didDamage = true;
+                        damageable.damage(damage);
+                    }
                 }
             }
         }
@@ -191,5 +195,13 @@ public class Tile : MonoBehaviour {
         }
 
         return tile.GetComponent<Slime>() != null;
+    }
+
+    public static bool isSpikeableFunction(Vector2Int location) {
+        Tile tile = Tilemap.getInstance().getTile(location);
+        if (tile == null) {
+            return false;
+        }
+        return tile.isSpikeable;
     }
 }

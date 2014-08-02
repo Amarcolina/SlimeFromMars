@@ -31,10 +31,10 @@ public class TileEntity : MonoBehaviour {
 
     private void generateNewList() {
         for (int x = 0; x < 3; x++) {
-            float xPercent = (x - 1.0f) / 1.0f;
+            float xPercent = (x - 1.0f) * 0.95f;
             for (int y = 0; y < 3; y++) {
                 int index = y * 3 + x;
-                float yPercent = (y - 1.0f) / 1.0f;
+                float yPercent = (y - 1.0f) * 0.95f;
                 Vector3 extent = _spriteRenderer.sprite.bounds.extents;
                 extent.x *= xPercent * transform.localScale.x;
                 extent.y *= yPercent * transform.localScale.y;

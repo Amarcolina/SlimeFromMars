@@ -444,6 +444,8 @@ public class SlimeController : MonoBehaviour {
     public bool useBioOffense() {
         int damageDone = BIO_BASE_DAMAGE * bioLevel;
         float rangeOfAttack = BIO_BASE_RANGE * bioLevel;
+        Astar.isWalkableFunction = Tile.isSpikeableFunction;
+        Astar.isNeighborWalkableFunction = Tile.isSpikeableFunction;
         Path astarPath = Astar.findPath(getStartLocation(), getCursorPosition());
 
         float pathCost = astarPath.getLength();

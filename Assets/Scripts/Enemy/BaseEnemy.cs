@@ -137,7 +137,7 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable{
         _nearestSlime = null;
         float closestDistance = float.MaxValue;
         for (float angle = 0.0f; angle < 360.0f; angle += 22.5f) {
-            TileRayHit hit = TilemapUtilities.castTileRay(transform.position, Quaternion.AngleAxis(angle, Vector3.forward) * Vector2.right, 15.0f, tileRayHitSlime);
+            TileRayHit hit = TilemapUtilities.castTileRay(transform.position, Quaternion.AngleAxis(angle, Vector3.forward) * Vector2.right, maxTileDistance, tileRayHitSlime);
             if (hit.didHit) {
                 GameObject hitObj = _tilemap.getTileGameObject(hit.hitPosition);
                 if (hitObj != null) {
@@ -183,7 +183,6 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable{
     private int _rotationDirection = 1;
     private float _timeCanRunAwayAgain = 0.0f;
 
-
     /*
      * 
      */
@@ -208,12 +207,12 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable{
 
         Vector2Int origin = transform.position;
 
-        if (_tilemap.getTile(origin + _runAwayDirection).isWalkable) {
+        if (_tilemap.isWalkable(origin + _runAwayDirection)) {
             Debug.DrawLine(transform.position, origin + _runAwayDirection, Color.green);
             moveTowardsPoint(origin + _runAwayDirection, speed);
         } else {
             Vector2Int rotatedDirection = new Vector2Int(_rotationDirection * _runAwayDirection.y, -_rotationDirection*_runAwayDirection.x);
-            if (_tilemap.getTile(origin + rotatedDirection).isWalkable) {
+            if (_tilemap.isWalkable(origin + rotatedDirection)) {
                 Debug.DrawLine(transform.position, origin + rotatedDirection, Color.yellow);
                 moveTowardsPoint(origin + rotatedDirection, speed);
             } else {

@@ -15,6 +15,7 @@ public class Astar : MonoBehaviour {
     public static AStarIsPathWalkable isWalkableFunction = Tile.isWalkableFunction;
     public static AStarEarlySuccessFunction earlySuccessFunction = null;
     public static AStarEarlyFailureFunction earlyFailureFunction = null;
+    public static AStarIsPathWalkable isNeighborWalkableFunction = Tile.isWalkableFunction;
     public static int maxNodesToCheck = -1;
 
     public class Node : IComparable {
@@ -76,6 +77,7 @@ public class Astar : MonoBehaviour {
         movementCostFunction = defaultMovementCost;
         heuristicFunction = defaultHeuristic;
         isWalkableFunction = Tile.isWalkableFunction;
+        isNeighborWalkableFunction = Tile.isWalkableFunction;
         earlySuccessFunction = null;
         earlyFailureFunction = null;
         maxNodesToCheck = -1;
@@ -124,7 +126,7 @@ public class Astar : MonoBehaviour {
             //for neighbors of current:
             for(int neighborOffsetIndex = 0; neighborOffsetIndex < TilemapUtilities.neighborFullArray.Length; neighborOffsetIndex++) {
                 Vector2Int neighborPosition = current.getPosition() + TilemapUtilities.neighborFullArray[neighborOffsetIndex];
-                if (!TilemapUtilities.areTilesNeighbors(current.getPosition(), neighborPosition, true, isWalkableFunction)) {
+                if (!TilemapUtilities.areTilesNeighbors(current.getPosition(), neighborPosition, true, isNeighborWalkableFunction)) {
                     continue;
                 }
 

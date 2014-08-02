@@ -42,8 +42,9 @@ public class Slime : MonoBehaviour {
         }
 
         Minimap.getInstance().clearFogOfWar(transform.position, 9, 11);
+        _connectedPathingIndex = _currSearchingConnectedIndex;
 
-        connectNeighbors();
+        connectRecursively();
 
         _slimeRenderer = GetComponent<SlimeRenderer>();
         if (_slimeRenderer == null) {
@@ -83,11 +84,6 @@ public class Slime : MonoBehaviour {
         numberOfAwakeSlimes++;
 
         if (_isConnected) {
-            if (_shouldConnectNeighbors) {
-                connectNeighbors();
-                canGoToSleep = false;
-            }
-
             if (_currentExpandPath != null) {
                 _timeUntilExpand -= Time.deltaTime;
                 if (_timeUntilExpand <= 0.0f) {
@@ -99,12 +95,6 @@ public class Slime : MonoBehaviour {
             if (_percentHealth != 1.0f && _percentHealth > 0.0f) {
                 _percentHealth = Mathf.MoveTowards(_percentHealth, 1.0f, HEALTH_REGEN_RATE * Time.deltaTime);
                 canGoToSleep = false;
-            }
-        }else{
-            if (_shouldDisconnectNeighbors) {
-                disconnectNeighbors();
-                canGoToSleep = false;
-                _shouldDisconnectNeighbors = false;
             }
         }
 
@@ -203,6 +193,9 @@ public class Slime : MonoBehaviour {
 
         for (int i = 0; i < TilemapUtilities.neighborFullArray.Length; i++) {
             Vector2Int neighborPos = origin + TilemapUtilities.neighborFullArray[i];
+            if (!TilemapUtilities.areTilesNeighbors(origin, neighborPos, true, Tile.isSlimeableFunction)) {
+                continue;
+            }
 
             GameObject neighborObj = Tilemap.getInstance().getTileGameObject(neighborPos);
             if (neighborObj == null) {
@@ -222,6 +215,7 @@ public class Slime : MonoBehaviour {
         Astar.isWalkableFunction = isSlimeTile;
         Astar.earlySuccessFunction = isLocationConnected;
         Astar.earlyFailureFunction = isLocationDisconnected;
+        Astar.isNeighborWalkableFunction = Tile.isSlimeableFunction;
 
         _currSearchingConnectedIndex++;
 
@@ -229,7 +223,7 @@ public class Slime : MonoBehaviour {
             Path pathHome = Astar.findPath(neighborPosition, _anchorSlimeLocation, false);
 
             if (pathHome == null) {
-                neighborSlime.disconnectSlime();
+                neighborSlime.disconnectRecursively();
             } else {
                 for (int j = 0; j < pathHome.Count; j++) {
                     Vector2Int pathNode = pathHome[j];
@@ -243,42 +237,36 @@ public class Slime : MonoBehaviour {
         Astar.resetDefaults();
     }
 
-    private void disconnectNeighbors() {
-        NeighborSlimeFunction function = delegate(Slime neighborSlime, Vector2Int neighborPos){
-            if (neighborSlime._isConnected) {
-                neighborSlime.disconnectSlime();
-            }
-        };
-        forEachNeighborSlime(function);
-    }
-
-    private void disconnectSlime() {
+    private void disconnectRecursively() {
         SlimeSentinel.addSlimeToDestroyList(this);
         _isConnected = false;
-        _shouldDisconnectNeighbors = true;
         _currentExpandPath = null;
         _timeUntilExpand = 0.0f;
         if (SlimeController.getInstance().getSelectedSlime() == this) {
             SlimeController.getInstance().setSelectedSlime(null);
         }
         wakeUpSlime();
+
+        NeighborSlimeFunction function = delegate(Slime neighborSlime, Vector2Int neighborPos){
+            if (neighborSlime._isConnected) {
+                neighborSlime.disconnectRecursively();
+            }
+        };
+
+        forEachNeighborSlime(function);
     }
 
-    private void connectSlime() {
+    private void connectRecursively() {
         SlimeSentinel.removeSlimeFromDestroyList(this);
         _isConnected = true;
-        _shouldConnectNeighbors = true;
         wakeUpSlime();
-    }
 
-    private void connectNeighbors() {
         NeighborSlimeFunction reviveFunc = delegate(Slime slime, Vector2Int pos) {
             if (!slime._isConnected) {
-                slime.connectSlime();
+                slime.connectRecursively();
             }
         };
         forEachNeighborSlime(reviveFunc);
-        _shouldConnectNeighbors = false;
     }
 
     private static bool isSlimeTile(Vector2Int location) {

@@ -11,6 +11,7 @@ public class Tile : MonoBehaviour {
     public bool isWalkable = true;
     public bool isSlimeable = true;
     public bool isTransparent = true;
+    public bool isSpikeable = false;
     public Sprite groundSprite;
     public Sprite groundEffectSprite;
     public Sprite objectSprite;
@@ -194,5 +195,13 @@ public class Tile : MonoBehaviour {
         }
 
         return tile.GetComponent<Slime>() != null;
+    }
+
+    public static bool isSpikeableFunction(Vector2Int location) {
+        Tile tile = Tilemap.getInstance().getTile(location);
+        if (tile == null) {
+            return false;
+        }
+        return tile.isSpikeable;
     }
 }

@@ -12,6 +12,9 @@ public class SlimeContainer : MonoBehaviour, IDamageable {
     private Sprite brokenSprite;
     private SpriteRenderer spriteComponent;
     //upon creation, update container number plus one
+
+    private static GameUI _gameUi;
+
     void Awake() {
         partiallyDamagedSprite = Resources.Load<Sprite>("Sprites/Accessories/partiallyBrokenHoldingTube");
         brokenSprite = Resources.Load<Sprite>("Sprites/Accessories/escapedHoldingTube");
@@ -19,6 +22,11 @@ public class SlimeContainer : MonoBehaviour, IDamageable {
         containerCounter++;
     }
 
+    void Start()
+    {
+        _gameUi = GameUI.getInstance();
+    }
+   
     // Update is called once per frame
     void Update() {
 
@@ -27,6 +35,12 @@ public class SlimeContainer : MonoBehaviour, IDamageable {
     //updates number of containers in the world minus one
     public static void decrementContainer() {
         containerCounter--;
+
+        if (containerCounter <= 0)
+        {
+            PauseMenu winState = _gameUi.GetComponent<PauseMenu>();
+            winState.Victory();
+        }
     }
 
     //replaces full container with broken one

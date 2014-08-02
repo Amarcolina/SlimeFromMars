@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 
-public enum ElementalCastType{
+public enum ElementalCastType {
     NONE,
     ELECTRICITY_OFFENSIVE,
     BIO_OFFENSIVE,
@@ -115,7 +115,7 @@ public class SlimeController : MonoBehaviour {
                 handleNormalInteraction();
             } else {
                 handleCastInteraction();
-            }   
+            }
         }
     }
 
@@ -140,12 +140,10 @@ public class SlimeController : MonoBehaviour {
                 loseEnergy(pathCost);
                 currentSelectedSlime.requestExpansionAllongPath(astarPath);
 
-                if (energy <= 0)
-                {
+                if (energy <= 0) {
                     GameOver();
                 }
-                if (!audio.isPlaying)
-                {
+                if (!audio.isPlaying) {
                     audio.clip = slimeExpansionSFX;
                     audio.Play();
                 }
@@ -222,6 +220,7 @@ public class SlimeController : MonoBehaviour {
         }
 
         Destroy(eatenItem.gameObject);
+
     }
 
     public void highlightSlimeTile() {
@@ -274,13 +273,12 @@ public class SlimeController : MonoBehaviour {
         _gameUi.ResourceUpdate(energy);
     }
 
-    private void gainEnergy(int plus) {
+    public void gainEnergy(int plus) {
         energy += plus;
         _gameUi.ResourceUpdate(energy);
     }
 
-    private void GameOver()
-    {
+    private void GameOver() {
         PauseMenu gameover = _gameUi.GetComponent<PauseMenu>();
         gameover.GameOver();
     }
@@ -432,6 +430,8 @@ public class SlimeController : MonoBehaviour {
                     Tile tile = Tilemap.getInstance().getTile(getStartLocation() + new Vector2Int(dx, dy));
                     if (tile != null && tile.GetComponent<Slime>() != null) {
                         tile.isWalkable = false;
+                        tile.isSlimeable = true;
+                        tile.isTransparent = true;
                         tile.gameObject.AddComponent<BioMutated>();
                     }
                 }

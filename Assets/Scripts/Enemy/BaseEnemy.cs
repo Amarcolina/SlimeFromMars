@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable{
+public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable{
     public MovementPattern movementPattern;
 
     protected int _waypointIndex = 0;

@@ -30,8 +30,7 @@ public class EnemyAnimation : MonoBehaviour {
 
 	//Used for when an enemy is hit by the slime, or is absorbed by the slime
 	public void EnemyHit(){
-		enemy.SetBool(WALK_KEY, false);
-		enemy.SetTrigger(HIT_KEY);
+		enemy.SetBool(HIT_KEY, true);
 	}
 
 	//Takes a directional float in order to flip the sprite in the correct direction. -1 for left facing, 1 for right facing.
@@ -50,4 +49,8 @@ public class EnemyAnimation : MonoBehaviour {
 	public void EnemyStopped(){
 		enemy.SetBool (WALK_KEY, false);
 	}
+
+    public void LateUpdate() {
+        enemy.SetBool(HIT_KEY, false);
+    }
 }

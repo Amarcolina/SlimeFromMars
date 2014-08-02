@@ -30,6 +30,9 @@ public class PauseMenu : MonoBehaviour
     public GameObject RestartButton;
     public GameObject ExitButton;
 
+    //Victory Label
+    public GameObject victoryLabel;
+
     void Start()
     {
         //Screen.lockCursor = true;
@@ -175,6 +178,13 @@ public class PauseMenu : MonoBehaviour
     public void GameOver()
     {
         gameOverLabel.SetActive(true);
+        RestartButton.SetActive(true);
+        ExitButton.SetActive(true);
+    }
+
+    public void Victory()
+    {
+        victoryLabel.SetActive(true);
         RestartButton.SetActive(true);
         ExitButton.SetActive(true);
     }

@@ -4,12 +4,12 @@ using System.Collections;
 //Energy is given based off item's size when consumed
 //Enemies are also considered consumeable
 public enum ItemSize {
-    SMALL = 5,
-    MEDIUM = 10,
-    LARGE = 20
+    SMALL = 4,
+    MEDIUM = 8,
+    LARGE = 12
 }
 
-public class GenericConsumeable : MonoBehaviour {
+public class GenericConsumeable : MonoBehaviour, IGrabbable {
     //items have elemenal affinity values as well as default energy value
     public ItemSize size;
     public int radiation;

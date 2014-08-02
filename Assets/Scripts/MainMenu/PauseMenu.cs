@@ -6,7 +6,8 @@ public class PauseMenu : MonoBehaviour
 
 
     private float startTime = 0.1f;
-    public bool muted;
+    public bool musicMuted;
+    public bool sfxMuted;
 
 
     //Main Pause Menu
@@ -23,7 +24,8 @@ public class PauseMenu : MonoBehaviour
     public GameObject fpsbox;
 
     public GameObject fpslabel;
-    public GameObject mutebox;
+    public GameObject muteMusicbox;
+    public GameObject muteSFXbox;
 
     //Game Over Menu
     public GameObject gameOverLabel;
@@ -88,7 +90,8 @@ public class PauseMenu : MonoBehaviour
         volumetitle.SetActive(true);
         backlabel.SetActive(true);
         volumeslider.SetActive(true);
-        mutebox.SetActive(true);
+        muteMusicbox.SetActive(true);
+        muteSFXbox.SetActive(true);
         fpsbox.SetActive(true);
     }
     //Go back to Main Pause Menu and remove options
@@ -105,7 +108,8 @@ public class PauseMenu : MonoBehaviour
         volumetitle.SetActive(false);
         backlabel.SetActive(false);
         volumeslider.SetActive(false);
-        mutebox.SetActive(false);
+        muteMusicbox.SetActive(false);
+        muteSFXbox.SetActive(false);
         fpsbox.SetActive(false);
     }
 
@@ -160,16 +164,22 @@ public class PauseMenu : MonoBehaviour
             fpslabel.SetActive(false);
     }
 
-    public void MuteButton(bool isActive)
+    public void MuteMusicButton(bool isActive)
     {
-        muted = isActive;
-        if (isActive)
-        {
-            AudioListener.volume = 0;
-        }
-        else
-            AudioListener.volume = 1;
+        musicMuted = isActive;
+        BackgroundMusic.mute(musicMuted);
+    }
 
+    public void MuteSFXButton(bool isActive)
+    {
+        sfxMuted = isActive;
+        //SoundEffect.mute(sfxMuted);
+        SoundEffect[] SFXs = FindObjectsOfType<SoundEffect>();
+
+        foreach (SoundEffect sfx in SFXs)
+        {
+            sfx.GetComponent<AudioSource>().mute = isActive;
+        }
     }
 
     public void GameOver()
@@ -181,7 +191,10 @@ public class PauseMenu : MonoBehaviour
 
     public void RestartClicked()
     {
-        Application.LoadLevel("MainLevel");
+        Application.LoadLevel(Application.loadedLevel);
+        gameOverLabel.SetActive(false);
+        RestartButton.SetActive(false);
+        ExitButton.SetActive(false);
     }
     public void ExitClicked()
     {

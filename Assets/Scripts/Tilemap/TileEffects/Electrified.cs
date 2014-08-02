@@ -26,6 +26,7 @@ public class Electrified : MonoBehaviour {
         }
 
         _tile = GetComponent<Tile>();
+        _tile.damageTileEntities(0, true);
         _electricityEffect = Instantiate(_electricityParticleEffectPrefab) as GameObject;
         _electricityEffect.transform.position = transform.position + Vector3.back;
 	}
@@ -40,7 +41,7 @@ public class Electrified : MonoBehaviour {
      * each frame
      */
     public void Update() {
-        _tile.damageTileEntities(TOTAL_DAMAGE * Time.deltaTime / DURATION);
+        _tile.damageTileEntities(TOTAL_DAMAGE * Time.deltaTime / DURATION, false);
 
         _totalTime += Time.deltaTime;
         if (_totalTime >= DURATION) {

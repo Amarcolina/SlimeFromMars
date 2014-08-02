@@ -25,6 +25,8 @@ public class ElectricityArc : MonoBehaviour {
         Quaternion arcAngle = Quaternion.Euler(yAngle, 90, 0);
         GameObject arcObject = Instantiate(_electricArcPrefab, transform.position + Vector3.back, arcAngle) as GameObject;
         arcObject.GetComponent<ParticleSystem>().startSize = Vector3.Distance(transform.position, _destination) / 7.0f;
+
+        arcObject.AddComponent<SoundEffect>().sfx = electricArcSFX;
         Destroy(arcObject, 1.5f);
 
         Tilemap.getInstance().getTileGameObject(_destination).AddComponent<Electrified>();
@@ -59,7 +61,6 @@ public class ElectricityArc : MonoBehaviour {
 
     //creates a single arc 
     private void doArc() {
-        AudioSource.PlayClipAtPoint(electricArcSFX, transform.position, 0.3f);
 
         List<Tile> _jumpableTiles = new List<Tile>();
         for (int dx = -arcRadius; dx <= arcRadius; dx++) {

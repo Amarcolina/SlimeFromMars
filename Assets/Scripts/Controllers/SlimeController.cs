@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 
-public enum ElementalCastType{
+public enum ElementalCastType {
     NONE,
     ELECTRICITY_OFFENSIVE,
     BIO_OFFENSIVE,
@@ -115,43 +115,54 @@ public class SlimeController : MonoBehaviour {
                 handleNormalInteraction();
             } else {
                 handleCastInteraction();
-            }   
+            }
         }
     }
 
-    private void handleNormalInteraction() {
-        if (Input.GetMouseButtonDown(0)) {
+    private void handleNormalInteraction()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
             highlightSlimeTile();
         }
 
-        if (currentSelectedSlime == null) {
+        if (currentSelectedSlime == null)
+        {
             renderer.enabled = false;
-        } else {
+        }
+        else
+        {
             attemptToEat();
         }
 
-        if (Input.GetMouseButtonDown(1) && currentSelectedSlime != null) {
+        if (Input.GetMouseButtonDown(1) && currentSelectedSlime != null)
+        {
             Astar.isWalkableFunction = Tile.isSlimeableFunction;
             Path astarPath = Astar.findPath(getStartLocation(), getGoalLocation());
             int pathCost = Slime.getPathCost(astarPath);
-
-            //if the slime has the energy to move, take the astar path
-            if (energy >= pathCost) {
-                loseEnergy(pathCost);
-                currentSelectedSlime.requestExpansionAllongPath(astarPath);
-
-                if (energy <= 0)
+            if (energy > 0)
+            {
+                //if the slime has the energy to move, take the astar path
+                if (energy >= pathCost)
                 {
-                    GameOver();
+                    loseEnergy(pathCost);
+                    currentSelectedSlime.requestExpansionAllongPath(astarPath);
+                    if (!audio.isPlaying)
+                    {
+                        audio.clip = slimeExpansionSFX;
+                        audio.Play();
+                    }
                 }
-                if (!audio.isPlaying)
+                else
                 {
-                    audio.clip = slimeExpansionSFX;
-                    audio.Play();
+                    //message: not enough energy
                 }
-            } else {
-                //message: not enough energy
             }
+            else if(energy <=0)
+            {
+                GameOver();
+            }
+
         }
     }
 
@@ -222,6 +233,7 @@ public class SlimeController : MonoBehaviour {
         }
 
         Destroy(eatenItem.gameObject);
+
     }
 
     public void highlightSlimeTile() {
@@ -274,13 +286,12 @@ public class SlimeController : MonoBehaviour {
         _gameUi.ResourceUpdate(energy);
     }
 
-    private void gainEnergy(int plus) {
+    public void gainEnergy(int plus) {
         energy += plus;
         _gameUi.ResourceUpdate(energy);
     }
 
-    private void GameOver()
-    {
+    private void GameOver() {
         PauseMenu gameover = _gameUi.GetComponent<PauseMenu>();
         gameover.GameOver();
     }
@@ -321,7 +332,8 @@ public class SlimeController : MonoBehaviour {
         if (Vector2Int.distance(getStartLocation(), getGoalLocation()) <= rangeOfAttack) {
             int circleRadius = 3 * radiationLevel;
 
-            AudioSource.PlayClipAtPoint(radioactiveDefenseSFX, getGoalLocation());
+            gameObject.AddComponent<SoundEffect>().sfx = radioactiveDefenseSFX;
+            //AudioSource.PlayClipAtPoint(radioactiveDefenseSFX, getGoalLocation());
             for (int dx = -circleRadius; dx <= circleRadius; dx++) {
                 for (int dy = -circleRadius; dy <= circleRadius; dy++) {
                     Vector2 tileOffset = new Vector2(dx, dy);
@@ -349,6 +361,7 @@ public class SlimeController : MonoBehaviour {
         float rangeOfAttack = RADIATION_BASE_RANGE * radiationLevel;
         //if distance is within range of attack, create the radius of radiation
         if (Vector2Int.distance(getStartLocation(), getGoalLocation()) <= rangeOfAttack) {
+            gameObject.AddComponent<SoundEffect>().sfx = radioactiveOffenseSFX;
             int circleRadius = 3 * radiationLevel;
             for (int dx = -circleRadius; dx <= circleRadius; dx++) {
                 for (int dy = -circleRadius; dy <= circleRadius; dy++) {
@@ -366,7 +379,7 @@ public class SlimeController : MonoBehaviour {
                 }
             }
 
-            AudioSource.PlayClipAtPoint(radioactiveOffenseSFX, getStartLocation(), 0.3f);
+            //AudioSource.PlayClipAtPoint(radioactiveOffenseSFX, getStartLocation(), 0.3f);
             loseEnergy(RADIATION_OFFENSE_COST);
             return true;
         }
@@ -376,8 +389,9 @@ public class SlimeController : MonoBehaviour {
     //outputs circle of enemy-damaging electricity from central point of selected slime tile
     //radius increases with electricityLevel, as does damage
     public void useElectricityDefense() {
-        AudioSource.PlayClipAtPoint(electricDefenseSFX, getStartLocation(), 0.2f);
+        //AudioSource.PlayClipAtPoint(electricDefenseSFX, getStartLocation(), 0.2f);
 
+        gameObject.AddComponent<SoundEffect>().sfx = electricDefenseSFX;
         int circleRadius = electricityLevel;
         for (int dx = -circleRadius; dx <= circleRadius; dx++) {
             for (int dy = -circleRadius; dy <= circleRadius; dy++) {
@@ -408,6 +422,7 @@ public class SlimeController : MonoBehaviour {
                 GameObject electricityArc = new GameObject("ElectricityArc");
                 electricityArc.transform.position = getStartLocation();
                 ElectricityArc arc = electricityArc.AddComponent<ElectricityArc>();
+
                 arc.setArcRadius(electricityLevel + 1);
                 arc.setArcDamage(damageDone);
                 arc.setArcNumber(electricityLevel + 1);
@@ -422,8 +437,9 @@ public class SlimeController : MonoBehaviour {
     //radius and health increases with bioLevel
     //defense will remain until destroyed by enemies
     public void useBioDefense() {
-        AudioSource.PlayClipAtPoint(bioDefenseSFX, getStartLocation(), 0.3f);
+        //AudioSource.PlayClipAtPoint(bioDefenseSFX, getStartLocation(), 0.3f);
 
+        gameObject.AddComponent<SoundEffect>().sfx = bioDefenseSFX;
         int circleRadius = bioLevel;
         for (int dx = -circleRadius; dx <= circleRadius; dx++) {
             for (int dy = -circleRadius; dy <= circleRadius; dy++) {
@@ -432,6 +448,8 @@ public class SlimeController : MonoBehaviour {
                     Tile tile = Tilemap.getInstance().getTile(getStartLocation() + new Vector2Int(dx, dy));
                     if (tile != null && tile.GetComponent<Slime>() != null) {
                         tile.isWalkable = false;
+                        tile.isSlimeable = true;
+                        tile.isTransparent = true;
                         tile.gameObject.AddComponent<BioMutated>();
                     }
                 }
@@ -458,7 +476,8 @@ public class SlimeController : MonoBehaviour {
                 bio.setLanceDamage(damageDone);
                 loseEnergy(BIO_OFFENSE_COST);
 
-                AudioSource.PlayClipAtPoint(bioOffenseSFX, bioLance.transform.position, 0.3f);
+                gameObject.AddComponent<SoundEffect>().sfx = bioOffenseSFX;
+                //AudioSource.PlayClipAtPoint(bioOffenseSFX, bioLance.transform.position, 0.3f);
                 return true;
             }
         }

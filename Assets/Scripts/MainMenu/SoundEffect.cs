@@ -7,7 +7,6 @@ public class SoundEffect : MonoBehaviour
     //Attach this script as a component to any object with a SFX
     public AudioClip sfx;
     private AudioSource source;
-    private bool muted;
 
     private GameUI gameUI;
 
@@ -18,7 +17,7 @@ public class SoundEffect : MonoBehaviour
         SoundEffect[] SFXs = FindObjectsOfType<SoundEffect>();
         foreach (SoundEffect sfx in SFXs)
         {
-            sfx.GetComponent<AudioSource>().mute = shouldMute;
+            //sfx.GetComponent<AudioSource>().mute = shouldMute;
         }
     }
 
@@ -28,19 +27,24 @@ public class SoundEffect : MonoBehaviour
         {
             mute(!source.mute);
         }
+        if (gameUI.GetComponent<PauseMenu>().sfxMuted)
+        {
+            source.mute = true;
+        }
+        else
+            source.mute = false;
     }
 
     // Use this for initialization
     void Start()
     {
         gameUI = GameUI.getInstance();
-
         //DontDestroyOnLoad(gameObject);
         source = gameObject.AddComponent<AudioSource>();
         source.clip = sfx;
-        if (!gameUI.GetComponent<PauseMenu>().sfxMuted)
-        {
+       // if (!gameUI.GetComponent<PauseMenu>().sfxMuted)
+       // {
             source.Play();
-        }
+       // }
     }
 }

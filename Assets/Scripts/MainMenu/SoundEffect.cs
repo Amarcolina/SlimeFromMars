@@ -7,19 +7,9 @@ public class SoundEffect : MonoBehaviour
     //Attach this script as a component to any object with a SFX
     public AudioClip sfx;
     private AudioSource source;
-    private int scene = -1;
     private bool muted;
 
     private GameUI gameUI;
-
-    void OnLevelWasLoaded()
-    {
-        if (scene != -1 && Application.loadedLevel != scene)
-        {
-            Destroy(gameObject);
-            return;
-        }
-    }
 
     public static void mute(bool shouldMute)
     {
@@ -44,10 +34,8 @@ public class SoundEffect : MonoBehaviour
     void Start()
     {
         gameUI = GameUI.getInstance();
-        gameUI.GetComponent<PauseMenu>();
 
         //DontDestroyOnLoad(gameObject);
-        scene = Application.loadedLevel;
         source = gameObject.AddComponent<AudioSource>();
         source.clip = sfx;
         if (!gameUI.GetComponent<PauseMenu>().sfxMuted)

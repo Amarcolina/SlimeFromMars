@@ -49,9 +49,9 @@ public class SlimeController : MonoBehaviour {
     private const int RADIATION_BASE_DAMAGE = 1;
 
     //base range for skills
-    private const int ELECTRICITY_BASE_RANGE = 5;
-    private const int BIO_BASE_RANGE = 2;
-    private const int RADIATION_BASE_RANGE = 4;
+    private const int ELECTRICITY_BASE_RANGE = 3;
+    private const int BIO_BASE_RANGE = 3;
+    private const int RADIATION_BASE_RANGE = 2;
 
     private ElementalCastType _currentCastType = ElementalCastType.NONE;
     private bool _shouldSkipNext = false;

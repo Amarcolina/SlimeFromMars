@@ -19,8 +19,6 @@ public class Slime : MonoBehaviour {
     private SlimeRenderer _slimeRenderer = null;
 
     private bool _isConnected = true;
-    private bool _shouldDisconnectNeighbors = false;
-    private bool _shouldConnectNeighbors = false;
 
     private int _connectedPathingIndex = 0;
     private static int _currSearchingConnectedIndex = 0;
@@ -53,6 +51,10 @@ public class Slime : MonoBehaviour {
         _slimeRenderer.setTextureRamp(textureRamp);
         _slimeRenderer.setMorphTime(SLIME_RENDERER_MORPH_TIME);
         _slimeRenderer.wakeUpRenderer();
+    }
+
+    public void OnDestroy() {
+        SlimeSentinel.removeSlimeFromDestroyList(this);
     }
 
     /* Forces this slime to wake up.  This causes it to recount it's

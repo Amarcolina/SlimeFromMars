@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class SlimeContainer : GenericConsumeable, IDamageable {
+public class SlimeContainer : IDamageable {
 
     public static int containerCounter = 0;
     private bool mintCondition = true;

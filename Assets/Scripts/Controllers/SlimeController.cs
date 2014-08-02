@@ -58,7 +58,7 @@ public class SlimeController : MonoBehaviour {
 
 	//The Animator for the eye, used to transfer states via triggers
 	public Animator Eye_Animator;
-	public GameObject Eye_GameObject;
+	public GameObject YellowTargeter_GameObject;
 
     //selected tile of slime
     private Slime currentSelectedSlime;
@@ -106,6 +106,8 @@ public class SlimeController : MonoBehaviour {
         if (Input.GetKeyDown(KeyCode.B)) {
             gainBioLevel();
         }
+
+
 
         if (_shouldSkipNext) {
             _shouldSkipNext = false;
@@ -237,10 +239,7 @@ public class SlimeController : MonoBehaviour {
         if (currentSelectedSlime == null) {
             renderer.enabled = false;
         } else {
-            //moves highlighter to tile position
-            transform.position = currentSelectedSlime.transform.position;
-            //makes sprite visible
-            renderer.enabled = true;
+		
         }
     }
 
@@ -250,13 +249,10 @@ public class SlimeController : MonoBehaviour {
 
     public Tile getTilePositionUnderCursor() {
         //finds the cursorPosition and then uses cursorPosition to find position of tileUnderCursor
-		// In addition, spawns a blinking eye at the old spot which will delete itself on blink completion, then the new eye plays opening eye animation
-		GameObject OldEye = (GameObject)Instantiate (Eye_GameObject, transform.position, transform.rotation);
-		Animator OldEyeAnimator = OldEye.GetComponent<Animator> ();
-		OldEyeAnimator.SetTrigger ("Blink");
+	
 		Camera testCam = Camera.main;
         Vector2 cursorPosition = testCam.ScreenToWorldPoint(Input.mousePosition);
-		Eye_Animator.SetTrigger ("ReverseBlink");
+		Eye_Animator.SetTrigger ("Blink");
         Tilemap tilemap = Tilemap.getInstance();
         return tilemap.getTile(cursorPosition);
     }
@@ -470,13 +466,13 @@ public class SlimeController : MonoBehaviour {
         return false;
     }
 
-	//Called when forward blink begins, signaling that the player is moving the cursor, triggering the eye to open at new space with reverseblink
-	public void BlinkStarted(){
-	
-		Eye_Animator.SetTrigger ("ReverseBlink");
-
+	//Called when first moving
+	public void EyeBlink(){
+		transform.position = currentSelectedSlime.transform.position;
+		renderer.enabled = true;
+		Eye_Animator.SetTrigger("ReverseBlink");
 	}
-
+	
 
 }
 

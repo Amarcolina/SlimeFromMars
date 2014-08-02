@@ -15,7 +15,7 @@ public class UIVolumeControl : MonoBehaviour {
         }
 
         void Update(){
-                if(!pause.muted){
+                if(!pause.musicMuted && !pause.sfxMuted){
                         _Volumeslider = gameObject.GetComponent<UISlider>();
                         _Volumeslider.sliderValue = AudioListener.volume;
                         _Volumeslider.onValueChange += OnValueChange;
@@ -24,7 +24,7 @@ public class UIVolumeControl : MonoBehaviour {
         
         void OnValueChange(float val)
         {   
-                if (!pause.muted)
+                if (!pause.musicMuted && !pause.sfxMuted)
                 {
                 AudioListener.volume = val;
                 }

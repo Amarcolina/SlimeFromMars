@@ -310,9 +310,6 @@ public class SlimeController : MonoBehaviour {
         return Tilemap.getTilemapLocation(getTilePositionUnderCursor().transform.position);
     }
 
-    private void freeContainer() { 
-
-    }
     /*###################################### ELEMENTAL SKILLS #######################################*/
 
     //Allows slime to irradiate tiles permanently so that enemies that walk into the area are stunned for short periods of time

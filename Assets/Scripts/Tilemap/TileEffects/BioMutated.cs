@@ -4,7 +4,7 @@ using System.Collections;
 public class BioMutated : MonoBehaviour {
     private static Sprite[] _bioSprites = null;
     private SpriteRenderer _bioRenderer = null;
-
+    private const float SLIME_HEALTH = 20;
     private void initBioSprites() {
         _bioSprites = new Sprite[1];
         _bioSprites[0] = Resources.Load<Sprite>("Sprites/Elements/Bio/Bio00");
@@ -14,7 +14,7 @@ public class BioMutated : MonoBehaviour {
         if (_bioSprites == null) {
             initBioSprites();
         }
-
+        Tilemap.getInstance().getTile(transform.position).GetComponent<Slime>().upgradeHealth(SLIME_HEALTH);
         GameObject rendererGameObject = new GameObject("Bio");
         rendererGameObject.transform.parent = transform;
         rendererGameObject.transform.position = transform.position;

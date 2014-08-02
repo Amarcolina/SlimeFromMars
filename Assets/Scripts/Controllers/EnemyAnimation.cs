@@ -50,18 +50,4 @@ public class EnemyAnimation : MonoBehaviour {
 	public void EnemyStopped(){
 		enemy.SetBool (WALK_KEY, false);
 	}
-
-	// An update loop designed simply to test features of this script. Remove this when functionality is ready to be combined.
-	void Update () {
-	
-		if(Input.GetKeyDown(KeyCode.W)){
-			EnemyMoving(1);
-		}
-
-		if(Input.GetKeyDown(KeyCode.E)){
-			//EnemyHit(-1);
-			EnemyFlameThrower(-1);
-		}
-
-	}
 }

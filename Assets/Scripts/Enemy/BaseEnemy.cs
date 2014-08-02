@@ -168,6 +168,7 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable{
         return _lastTimeViewedSlime;
     }
 
+
     public static bool tileRayHitSlime(GameObject tileObj) {
         if (tileObj == null || !tileObj.GetComponent<Tile>().isTransparent) {
             return true;

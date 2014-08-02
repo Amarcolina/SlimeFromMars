@@ -29,8 +29,7 @@ public class EnemyAnimation : MonoBehaviour {
 	}
 
 	//Used for when an enemy is hit by the slime, or is absorbed by the slime
-	public void EnemyHit(float direction){
-		Flip(direction);
+	public void EnemyHit(){
 		enemy.SetBool(WALK_KEY, false);
 		enemy.SetTrigger(HIT_KEY);
 	}
@@ -50,19 +49,5 @@ public class EnemyAnimation : MonoBehaviour {
 	//Called when you want the enemy to return to idle animation
 	public void EnemyStopped(){
 		enemy.SetBool (WALK_KEY, false);
-	}
-
-	// An update loop designed simply to test features of this script. Remove this when functionality is ready to be combined.
-	void Update () {
-	
-		if(Input.GetKeyDown(KeyCode.W)){
-			EnemyMoving(1);
-		}
-
-		if(Input.GetKeyDown(KeyCode.E)){
-			//EnemyHit(-1);
-			EnemyFlameThrower(-1);
-		}
-
 	}
 }

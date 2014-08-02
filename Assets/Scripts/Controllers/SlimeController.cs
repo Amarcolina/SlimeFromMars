@@ -49,9 +49,9 @@ public class SlimeController : MonoBehaviour {
     private const int RADIATION_BASE_DAMAGE = 1;
 
     //base range for skills
-    private const int ELECTRICITY_BASE_RANGE = 5;
-    private const int BIO_BASE_RANGE = 2;
-    private const int RADIATION_BASE_RANGE = 4;
+    private const int ELECTRICITY_BASE_RANGE = 3;
+    private const int BIO_BASE_RANGE = 3;
+    private const int RADIATION_BASE_RANGE = 2;
 
     private ElementalCastType _currentCastType = ElementalCastType.NONE;
     private bool _shouldSkipNext = false;
@@ -119,50 +119,36 @@ public class SlimeController : MonoBehaviour {
         }
     }
 
-    private void handleNormalInteraction()
-    {
-        if (Input.GetMouseButtonDown(0))
-        {
+    private void handleNormalInteraction() {
+        if (Input.GetMouseButtonDown(0)){
             highlightSlimeTile();
         }
 
-        if (currentSelectedSlime == null)
-        {
+        if (currentSelectedSlime == null){
             renderer.enabled = false;
-        }
-        else
-        {
+        }else{
             attemptToEat();
         }
 
-        if (Input.GetMouseButtonDown(1) && currentSelectedSlime != null)
-        {
-            Astar.isWalkableFunction = Tile.isSlimeableFunction;
-            Path astarPath = Astar.findPath(getStartLocation(), getGoalLocation());
-            int pathCost = Slime.getPathCost(astarPath);
-            if (energy > 0)
-            {
-                //if the slime has the energy to move, take the astar path
-                if (energy >= pathCost)
-                {
-                    loseEnergy(pathCost);
-                    currentSelectedSlime.requestExpansionAllongPath(astarPath);
-                    if (!audio.isPlaying)
-                    {
-                        audio.clip = slimeExpansionSFX;
-                        audio.Play();
+        if (Input.GetMouseButtonDown(1) && currentSelectedSlime != null){
+            if (energy > 0) {
+                Astar.isWalkableFunction = Tile.isSlimeableFunction;
+                Path astarPath = Astar.findPath(getStartLocation(), getCursorPosition());
+                if (astarPath != null) {
+                    int pathCost = Slime.getPathCost(astarPath);
+                    //if the slime has the energy to move, take the astar path
+                    if (energy >= pathCost) {
+                        loseEnergy(pathCost);
+                        currentSelectedSlime.requestExpansionAllongPath(astarPath);
+                        if (!audio.isPlaying) {
+                            audio.clip = slimeExpansionSFX;
+                            audio.Play();
+                        }
                     }
                 }
-                else
-                {
-                    //message: not enough energy
-                }
-            }
-            else if(energy <=0)
-            {
+            } else {
                 GameOver();
             }
-
         }
     }
 
@@ -237,7 +223,7 @@ public class SlimeController : MonoBehaviour {
     }
 
     public void highlightSlimeTile() {
-        Tile tileUnderCursor = getTilePositionUnderCursor();
+        Tile tileUnderCursor = getTileUnderCursor();
         //gets the slime component under the highlighted tile, if it exists
         Slime slimeTile = tileUnderCursor.GetComponent<Slime>();
         if (slimeTile != null && slimeTile.isConnected()) {
@@ -258,14 +244,18 @@ public class SlimeController : MonoBehaviour {
         return currentSelectedSlime;
     }
 
-    public Tile getTilePositionUnderCursor() {
+    public Vector2Int getCursorPosition() {
         //finds the cursorPosition and then uses cursorPosition to find position of tileUnderCursor
-	
 		Camera testCam = Camera.main;
-        Vector2 cursorPosition = testCam.ScreenToWorldPoint(Input.mousePosition);
-	
-        Tilemap tilemap = Tilemap.getInstance();
-        return tilemap.getTile(cursorPosition);
+        return testCam.ScreenToWorldPoint(Input.mousePosition);
+    }
+
+    public Tile getTileUnderCursor() {
+        return Tilemap.getInstance().getTile(getCursorPosition());
+    }
+
+    public Vector2Int getStartLocation() {
+        return Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
     }
 
     public void attemptToEat() {
@@ -315,30 +305,21 @@ public class SlimeController : MonoBehaviour {
         _gameUi.LightningUpdate(electricityLevel);
     }
 
-    public Vector2Int getStartLocation() {
-        return Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
-    }
-
-    public Vector2Int getGoalLocation() {
-        return Tilemap.getTilemapLocation(getTilePositionUnderCursor().transform.position);
-    }
-
     /*###################################### ELEMENTAL SKILLS #######################################*/
 
     //Allows slime to irradiate tiles permanently so that enemies that walk into the area are stunned for short periods of time
     public bool useRadiationDefense() {
         float rangeOfAttack = RADIATION_BASE_RANGE * radiationLevel;
         //if distance is within range of attack, check each tile in the radius and then irradiate each tile that can be irradiated
-        if (Vector2Int.distance(getStartLocation(), getGoalLocation()) <= rangeOfAttack) {
+        if (Vector2Int.distance(getStartLocation(), getCursorPosition()) <= rangeOfAttack) {
             int circleRadius = 3 * radiationLevel;
 
             gameObject.AddComponent<SoundEffect>().sfx = radioactiveDefenseSFX;
-            //AudioSource.PlayClipAtPoint(radioactiveDefenseSFX, getGoalLocation());
             for (int dx = -circleRadius; dx <= circleRadius; dx++) {
                 for (int dy = -circleRadius; dy <= circleRadius; dy++) {
                     Vector2 tileOffset = new Vector2(dx, dy);
                     if (tileOffset.sqrMagnitude <= circleRadius * circleRadius) {
-                        Tile tile = Tilemap.getInstance().getTile(getGoalLocation() + new Vector2Int(dx, dy));
+                        Tile tile = Tilemap.getInstance().getTile(getCursorPosition() + new Vector2Int(dx, dy));
                         if (tile != null) {
                             Irradiated radComponent = tile.GetComponent<Irradiated>();
                             if (radComponent == null) {
@@ -360,14 +341,14 @@ public class SlimeController : MonoBehaviour {
     public bool useRadiationOffense() {
         float rangeOfAttack = RADIATION_BASE_RANGE * radiationLevel;
         //if distance is within range of attack, create the radius of radiation
-        if (Vector2Int.distance(getStartLocation(), getGoalLocation()) <= rangeOfAttack) {
+        if (Vector2Int.distance(getStartLocation(), getCursorPosition()) <= rangeOfAttack) {
             gameObject.AddComponent<SoundEffect>().sfx = radioactiveOffenseSFX;
             int circleRadius = 3 * radiationLevel;
             for (int dx = -circleRadius; dx <= circleRadius; dx++) {
                 for (int dy = -circleRadius; dy <= circleRadius; dy++) {
                     Vector2 tileOffset = new Vector2(dx, dy);
                     if (tileOffset.sqrMagnitude <= circleRadius * circleRadius) {
-                        Tile tile = Tilemap.getInstance().getTile(getGoalLocation() + new Vector2Int(dx, dy));
+                        Tile tile = Tilemap.getInstance().getTile(getCursorPosition() + new Vector2Int(dx, dy));
                         if (tile != null) {
                             Irradiated radComponent = tile.GetComponent<Irradiated>();
                             if (radComponent == null) {
@@ -413,8 +394,8 @@ public class SlimeController : MonoBehaviour {
         int damageDone = ELECTRICITY_BASE_DAMAGE * electricityLevel;
         float rangeOfAttack = ELECTRICITY_BASE_RANGE * electricityLevel;
         //if enemy is within range of attack, use electricity
-        if (Vector2Int.distance(getStartLocation(), getGoalLocation()) <= rangeOfAttack) {
-            bool canDamage = getTilePositionUnderCursor().canDamageEntities();
+        if (Vector2Int.distance(getStartLocation(), getCursorPosition()) <= rangeOfAttack) {
+            bool canDamage = getTileUnderCursor().canDamageEntities();
 
             //if an enemy was damaged, check to see if there are enemies close by to arc to
             if (canDamage) {
@@ -426,7 +407,7 @@ public class SlimeController : MonoBehaviour {
                 arc.setArcRadius(electricityLevel + 1);
                 arc.setArcDamage(damageDone);
                 arc.setArcNumber(electricityLevel + 1);
-                arc.setDestination(getGoalLocation());
+                arc.setDestination(getCursorPosition());
                 return true;
             }
         }
@@ -463,14 +444,14 @@ public class SlimeController : MonoBehaviour {
     public bool useBioOffense() {
         int damageDone = BIO_BASE_DAMAGE * bioLevel;
         float rangeOfAttack = BIO_BASE_RANGE * bioLevel;
-        Path astarPath = Astar.findPath(getStartLocation(), getGoalLocation());
+        Path astarPath = Astar.findPath(getStartLocation(), getCursorPosition());
 
         float pathCost = astarPath.getLength();
         if (pathCost <= rangeOfAttack) {
-            bool canDamage = getTilePositionUnderCursor().canDamageEntities();
+            bool canDamage = getTileUnderCursor().canDamageEntities();
             if (canDamage) {
                 GameObject bioLance = Instantiate(spinePrefab) as GameObject;
-                bioLance.transform.position = getTilePositionUnderCursor().transform.position;
+                bioLance.transform.position = getTileUnderCursor().transform.position;
                 BioLance bio = bioLance.GetComponent<BioLance>();
                 bio.setLancePath(astarPath);
                 bio.setLanceDamage(damageDone);
@@ -486,11 +467,13 @@ public class SlimeController : MonoBehaviour {
 
 	//Called at the end of the blink animation to move the eye to the new position and play the opening animation.
 	public void EyeBlink(){
+        if (currentSelectedSlime == null) {
+            renderer.enabled = false;
+            return;
+        }
         transform.position = currentSelectedSlime.transform.position;
         renderer.enabled = true;
         Eye_Animator.SetTrigger ("ReverseBlink");
     }
-	
-
 }
 

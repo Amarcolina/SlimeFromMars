@@ -238,7 +238,7 @@ public class SlimeController : MonoBehaviour {
         if (currentSelectedSlime == null) {
             renderer.enabled = false;
         } else {
-            //no logic required here anymore, potentially if tweaks are needed later
+			Eye_Animator.SetTrigger ("Blink");
         }
     }
 
@@ -251,7 +251,7 @@ public class SlimeController : MonoBehaviour {
 	
 		Camera testCam = Camera.main;
         Vector2 cursorPosition = testCam.ScreenToWorldPoint(Input.mousePosition);
-		Eye_Animator.SetTrigger ("Blink");
+	
         Tilemap tilemap = Tilemap.getInstance();
         return tilemap.getTile(cursorPosition);
     }
@@ -469,8 +469,8 @@ public class SlimeController : MonoBehaviour {
 	public void EyeBlink(){
         transform.position = currentSelectedSlime.transform.position;
         renderer.enabled = true;
-        Eye_Animator.SetTrigger("ReverseBlink");
-	}
+        Eye_Animator.SetTrigger ("ReverseBlink");
+    }
 	
 
 }

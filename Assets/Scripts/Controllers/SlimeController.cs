@@ -467,6 +467,16 @@ public class SlimeController : MonoBehaviour {
         return false;
     }
 
+    public float getElectricityLevel() {
+        return electricityLevel;
+    }
+    public float getBioLevel() {
+        return bioLevel;
+    }
+
+    public float getRadiationLevel() {
+        return radiationLevel;
+    }
 	//Called at the end of the blink animation to move the eye to the new position and play the opening animation.
 	public void EyeBlink(){
         if (currentSelectedSlime == null) {

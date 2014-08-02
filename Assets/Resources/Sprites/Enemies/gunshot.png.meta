@@ -23,7 +23,7 @@ TextureImporter:
   grayScaleToAlpha: 0
   generateCubemap: 0
   seamlessCubemap: 0
-  textureFormat: -1
+  textureFormat: -3
   maxTextureSize: 1024
   textureSettings:
     filterMode: -1
@@ -48,12 +48,12 @@ TextureImporter:
     - name: gunshot_0
       rect:
         serializedVersion: 2
-        x: 17
-        y: 11
-        width: 39
-        height: 38
-      alignment: 0
-      pivot: {x: .5, y: .5}
+        x: 7
+        y: 7
+        width: 51
+        height: 50
+      alignment: 9
+      pivot: {x: .5, y: .150000006}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: gunshot_1
       rect:

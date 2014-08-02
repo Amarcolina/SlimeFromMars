@@ -10,6 +10,8 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable{
     protected float _timeUntilNextWaypoint = 0.0f;
     protected Tilemap _tilemap = null;
 
+    protected EnemyAnimation _enemyAnimation;
+
     protected Slime _currentSlimeToFleeFrom = null;
     protected Path _fleePath = null;
 
@@ -18,6 +20,10 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable{
 
     public virtual void Awake(){
         _tilemap = Tilemap.getInstance();
+        _enemyAnimation = GetComponent<EnemyAnimation>();
+    }
+
+    protected virtual void OnEnemyFire() {
     }
 
     public void damage(float damage) {
@@ -59,6 +65,7 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable{
 
         //If we are currently waiting at a waypoint, decrease that timer
         if (_timeUntilNextWaypoint >= 0) {
+            _enemyAnimation.EnemyStopped();
             _timeUntilNextWaypoint -= Time.deltaTime;
         } else {
             //If we currently don't have a path, find one
@@ -99,8 +106,14 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable{
      * that destination
      */
     protected bool moveTowardsPoint(Vector2 destination, float speed = 2.5f) {
-        transform.position = Vector2.MoveTowards(transform.position, destination, speed * Time.deltaTime);
-        return new Vector2(transform.position.x, transform.position.y) == destination;
+        Vector2 newPosition = Vector2.MoveTowards(transform.position, destination, speed * Time.deltaTime);
+        if (newPosition == (Vector2)transform.position) {
+            _enemyAnimation.EnemyStopped();
+        } else {
+            _enemyAnimation.EnemyMoving(newPosition.x > transform.position.x ? 1.0f : -1.0f);
+        }
+        transform.position = newPosition;
+        return newPosition == destination;
     }
 
     /* Calling this method every frame will move the enemy allong a given path

@@ -58,7 +58,6 @@ public class SlimeController : MonoBehaviour {
 
 	//The Animator for the eye, used to transfer states via triggers
 	public Animator Eye_Animator;
-	public GameObject YellowTargeter_GameObject;
 
     //selected tile of slime
     private Slime currentSelectedSlime;
@@ -239,7 +238,7 @@ public class SlimeController : MonoBehaviour {
         if (currentSelectedSlime == null) {
             renderer.enabled = false;
         } else {
-		
+            //no logic required here anymore, potentially if tweaks are needed later
         }
     }
 
@@ -466,11 +465,11 @@ public class SlimeController : MonoBehaviour {
         return false;
     }
 
-	//Called when first moving
+	//Called at the end of the blink animation to move the eye to the new position and play the opening animation.
 	public void EyeBlink(){
-		transform.position = currentSelectedSlime.transform.position;
-		renderer.enabled = true;
-		Eye_Animator.SetTrigger("ReverseBlink");
+        transform.position = currentSelectedSlime.transform.position;
+        renderer.enabled = true;
+        Eye_Animator.SetTrigger("ReverseBlink");
 	}
 	
 

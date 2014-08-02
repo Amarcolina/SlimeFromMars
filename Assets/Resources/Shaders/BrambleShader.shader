@@ -1,6 +1,6 @@
 ﻿Shader "Custom/BrambleShader" {
 	Properties {
-		_MainTex ("Base (RGBA)", 2D) = "white" {}
+		[PerRendererData] _MainTex ("Base (RGBA)", 2D) = "white" {}
         _Cutoff  ("Cutoff", Range(0.004, 0.996)) = 0.5
         _Spread  ("Alpha Spread", Range(0, 0.5)) = 0.1
 	}

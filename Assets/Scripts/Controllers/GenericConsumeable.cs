@@ -21,6 +21,7 @@ public class GenericConsumeable : MonoBehaviour, IGrabbable {
     public int bio;
     public int electricity;
     public UILabel resourcedisplay_Label;
+	public UISprite resourcedisplay_Sprite;
     public GameObject resourcedisplay_GameObject;
 
     //flags item with special mutation property and type
@@ -30,15 +31,17 @@ public class GenericConsumeable : MonoBehaviour, IGrabbable {
 
     //Will destroy the info box if the item is eaten by slime
 	public void OnDestroy(){
-        if (resourcedisplay_Label != null) {
+        if (resourcedisplay_Label != null && resourcedisplay_Sprite != null ) {
              resourcedisplay_Label.enabled = false;
+			 resourcedisplay_Sprite.enabled = false;
         }
     }
 
     //Finds reference to the information display label and adds a box collider
     public void Awake(){
         resourcedisplay_GameObject = GameObject.FindGameObjectWithTag ("ItemInfo");
-        resourcedisplay_Label = resourcedisplay_GameObject.GetComponent<UILabel> ();
+        resourcedisplay_Label = resourcedisplay_GameObject.GetComponentInChildren<UILabel> ();
+		resourcedisplay_Sprite = resourcedisplay_GameObject.GetComponentInChildren<UISprite> ();
         gameObject.AddComponent<BoxCollider2D> ();
 	}
 
@@ -46,10 +49,12 @@ public class GenericConsumeable : MonoBehaviour, IGrabbable {
 	public void OnMouseOver(){
         resourcedisplay_Label.text = gameObject.name +"\nRadiation:" + radiation + "\nBio:" + bio + "\nElectricity:" + electricity;
         resourcedisplay_Label.enabled = true;
+		resourcedisplay_Sprite.enabled = true;
 	}
     //Hides the information for a given item
 	public void OnMouseExit(){
         resourcedisplay_Label.enabled = false;
+		resourcedisplay_Sprite.enabled = false;
 	}
 
 }

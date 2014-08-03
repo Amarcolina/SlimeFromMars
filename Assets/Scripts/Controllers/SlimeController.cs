@@ -553,7 +553,7 @@ public class SlimeController : MonoBehaviour {
                 Vector2 tileOffset = new Vector2(dx, dy);
                 if (tileOffset.sqrMagnitude <= circleRadius * circleRadius) {
                     Tile tile = Tilemap.getInstance().getTile(getStartLocation() + new Vector2Int(dx, dy));
-                    if (tile != null && tile.GetComponent<Slime>() != null) {
+                    if (tile != null && tile.GetComponent<Slime>() != null && tile.GetComponent<BioMutated>() == null) {
                         tile.isWalkable = false;
                         tile.isSlimeable = true;
                         tile.isTransparent = true;

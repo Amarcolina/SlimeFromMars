@@ -43,9 +43,6 @@ public class GuardEnemy : BaseEnemy
     void Start()
     {
         shot.GetComponent<FlameProjectile>();
-
-        //Bad way of handling this, but for now it'll have to do until I find a better solution
-        shot.gameObject.AddComponent<SoundEffect>().sfx = flameThrowerSFX;
     }
 
     void Update()
@@ -126,6 +123,9 @@ public class GuardEnemy : BaseEnemy
             }
             else
             {
+
+                //Need a better solution for this later
+                gameObject.AddComponent<SoundEffect>().sfx = flameThrowerSFX;
                 if (countDown >= 0)
                 {
                     //use flamethrower for certain amount of time

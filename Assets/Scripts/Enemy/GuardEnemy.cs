@@ -27,6 +27,7 @@ public class GuardEnemy : BaseEnemy
 
     //The flame shot prefab
     public GameObject shot;
+    public GameObject flamethrowerEffect = null;
 
     private float countDown = 2f;
 
@@ -131,13 +132,16 @@ public class GuardEnemy : BaseEnemy
 
 
     private void useFlameThrower(){
+        Vector3 direction = getNearestVisibleSlime().transform.position - transform.position;
+        float fireAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        Quaternion particleRotation = Quaternion.Euler(0, 0, fireAngle);
+        Instantiate(flamethrowerEffect, transform.position, particleRotation);
 
         for (int i = 0; i < 20; i++) {
-            Instantiate(shot, transform.position, transform.rotation);
+            float angleInsideOfCone = fireAngle + Random.Range(-20, 20);
+            Quaternion shotRotation = Quaternion.Euler(0, 0, angleInsideOfCone);
+            Instantiate(shot, transform.position, shotRotation);
         }
-            
-        //Set direction of the projectile
-        shot.GetComponent<FlameProjectile>().direction = getNearestVisibleSlime().transform.position - transform.position;
     }
 
     private bool tryEnterFleeState()

@@ -9,14 +9,18 @@ public delegate bool AStarIsPathWalkable(Vector2Int position);
 public delegate bool AStarEarlySuccessFunction(Vector2Int position);
 public delegate bool AStarEarlyFailureFunction(Vector2Int position);
 
+public class AstarSettings {
+    public AStarMovementCost movementCostFunction = Astar.defaultMovementCost;
+    public AStarNodeHeuristic heuristicFunction = Astar.defaultHeuristic;
+    public AStarIsPathWalkable isWalkableFunction = Tile.isWalkableFunction;
+    public AStarEarlySuccessFunction earlySuccessFunction = null;
+    public AStarEarlyFailureFunction earlyFailureFunction = null;
+    public AStarIsPathWalkable isNeighborWalkableFunction = Tile.isWalkableFunction;
+    public int maxNodesToCheck = -1;
+}
+
 public class Astar : MonoBehaviour {
-    public static AStarMovementCost movementCostFunction = defaultMovementCost;
-    public static AStarNodeHeuristic heuristicFunction = defaultHeuristic;
-    public static AStarIsPathWalkable isWalkableFunction = Tile.isWalkableFunction;
-    public static AStarEarlySuccessFunction earlySuccessFunction = null;
-    public static AStarEarlyFailureFunction earlyFailureFunction = null;
-    public static AStarIsPathWalkable isNeighborWalkableFunction = Tile.isWalkableFunction;
-    public static int maxNodesToCheck = -1;
+    public static AstarSettings astarSettings = new AstarSettings();
 
     public class Node : IComparable {
         Vector2Int position; //tilemap position of node
@@ -66,30 +70,35 @@ public class Astar : MonoBehaviour {
     }
 
     public static Path findPath(Vector2Int start, Vector2Int goal, bool shouldResetDefaults = true){
-        Path path = findPathInternal(start, goal);
+        Path path = new Path();
+        findPathInternal(path, start, goal);
         if (shouldResetDefaults) {
             resetDefaults();
         }
-        return path;
+        return path.Count == 0 ? null : path;
+    }
+
+    public static IEnumerator findPathCoroutine(Path path, Vector2Int start, Vector2Int goal, bool shouldResetDefaults = true) {
+
     }
 
     public static void resetDefaults() {
-        movementCostFunction = defaultMovementCost;
-        heuristicFunction = defaultHeuristic;
-        isWalkableFunction = Tile.isWalkableFunction;
-        isNeighborWalkableFunction = Tile.isWalkableFunction;
-        earlySuccessFunction = null;
-        earlyFailureFunction = null;
-        maxNodesToCheck = -1;
+        astarSettings.movementCostFunction = defaultMovementCost;
+        astarSettings.heuristicFunction = defaultHeuristic;
+        astarSettings.isWalkableFunction = Tile.isWalkableFunction;
+        astarSettings.isNeighborWalkableFunction = Tile.isWalkableFunction;
+        astarSettings.earlySuccessFunction = null;
+        astarSettings.earlyFailureFunction = null;
+        astarSettings.maxNodesToCheck = -1;
     }
 
-    private static Path findPathInternal(Vector2Int start, Vector2Int goal) {  
+    private static IEnumerator findPathInternal(Path path, Vector2Int start, Vector2Int goal) {
         if (start == null || goal == null) {
-            return null;
+            yield break;
         }
 
         if (!isWalkableFunction(goal)) {
-            return null;
+            yield break;
         }
 
         MinHashHeap<Node> openList = new MinHashHeap<Node>();//nodes to be examined
@@ -118,7 +127,7 @@ public class Astar : MonoBehaviour {
 
             //We terminate the function and return no path found if the earlyFailureFunction is met
             if (earlyFailureFunction != null && earlyFailureFunction(current.getPosition())) {
-                return null;
+                yield break;
             }
 
             closedList.Add(current);//add current to closedList
@@ -159,27 +168,25 @@ public class Astar : MonoBehaviour {
             //of places to check.  In this case we have failed to find a path and we must
             //return null
             if (openList.getHeapSize() == 0) {
-                return null;
+                yield break;
             }
 
             //if maxNodesToCheck is 0 or less, that is interpreted as unlimited number of nodes
             //if maxNodesToCheck is nonzero, we terminate with no path found 
             nodesChecked++;
             if (maxNodesToCheck > 0 && nodesChecked >= maxNodesToCheck) {
-                return null;
+                yield return null;
             }
         }
 
-        Path finalPath = new Path();//path from start to goal
+        //Path finalPath = new Path();//path from start to goal
         goalNode = current;
         //reconstruct reverse path from goal to start by following parent pointers
-        finalPath.addNodeToStart(goalNode.getPosition());
+        path.addNodeToStart(goalNode.getPosition());
         while (goalNode.getParent() != null) {
             goalNode = goalNode.getParent();
-            finalPath.addNodeToStart(goalNode.getPosition());
+            path.addNodeToStart(goalNode.getPosition());
         }
-
-        return finalPath;
     }
 
     //the cost of moving directly from one node to another

@@ -190,6 +190,9 @@ public class SlimeController : MonoBehaviour {
                 }
                 
                 _slimeHighlightPath = Astar.findPath(getStartLocation(), getCursorPosition());
+                if (_slimeHighlightPath != null) {
+                    _slimeHighlightPath.removeNodeFromStart();
+                }
             }
         }
 

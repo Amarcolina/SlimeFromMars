@@ -88,6 +88,7 @@ public class Astar : MonoBehaviour {
 
         Path path = new Path();
         findPathInternal(path, start, goal, settings);
+        Debug.Log("there");
 
         return path.Count == 0 ? null : path;
     }
@@ -97,15 +98,20 @@ public class Astar : MonoBehaviour {
             settings = defaultSettings;
         }
 
+      
+
         yield return findPathInternal(path, start, goal, settings);
     }
 
     private static IEnumerator findPathInternal(Path path, Vector2Int start, Vector2Int goal, AstarSettings settings) {
+        Debug.Log("made it???");
         if (start == null || goal == null) {
+            Debug.Log("1");
             yield break;
         }
 
         if (!settings.isWalkableFunction(goal)) {
+            Debug.Log("2");
             yield break;
         }
 
@@ -135,6 +141,7 @@ public class Astar : MonoBehaviour {
 
             //We terminate the function and return no path found if the earlyFailureFunction is met
             if (settings.earlyFailureFunction != null && settings.earlyFailureFunction(current.getPosition())) {
+                Debug.Log("3");
                 yield break;
             }
 
@@ -176,6 +183,7 @@ public class Astar : MonoBehaviour {
             //of places to check.  In this case we have failed to find a path and we must
             //return null
             if (openList.getHeapSize() == 0) {
+                Debug.Log("4");
                 yield break;
             }
 
@@ -183,6 +191,7 @@ public class Astar : MonoBehaviour {
             //if maxNodesToCheck is nonzero, we terminate with no path found 
             nodesChecked++;
             if (settings.maxNodesToCheck > 0 && nodesChecked >= settings.maxNodesToCheck) {
+                Debug.Log("5");
                 yield return null;
             }
         }

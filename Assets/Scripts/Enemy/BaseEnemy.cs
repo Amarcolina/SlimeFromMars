@@ -4,11 +4,15 @@ using System.Collections.Generic;
 
 public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable{
     public MovementPattern movementPattern;
+    public GameObject corpsePrefab = null;
+    public float health = 1.0f;
 
     protected int _waypointIndex = 0;
     protected Path _currentWaypointPath = null;
     protected float _timeUntilNextWaypoint = 0.0f;
     protected Tilemap _tilemap = null;
+
+    protected EnemyAnimation _enemyAnimation;
 
     protected Slime _currentSlimeToFleeFrom = null;
     protected Path _fleePath = null;
@@ -18,10 +22,30 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable{
 
     public virtual void Awake(){
         _tilemap = Tilemap.getInstance();
+        _enemyAnimation = GetComponent<EnemyAnimation>();
     }
 
-    public void damage(float damage) {
-        Destroy(gameObject);
+    protected virtual void OnEnemyFire() {
+    }
+
+    private int _previousDamageFrame = 0;
+    public virtual void damage(float damage) {
+        if (health > 0 && Time.frameCount != _previousDamageFrame) {
+            _previousDamageFrame = Time.frameCount;
+            health -= damage;
+            _enemyAnimation.EnemyHit();
+            if (health <= 0.0f) {
+                StartCoroutine(deathCoroutine());
+            }
+        }
+    }
+
+    private IEnumerator deathCoroutine() {
+        yield return new WaitForSeconds(0.5f);
+        if (corpsePrefab) {
+            Instantiate(corpsePrefab, transform.position, Quaternion.identity);
+        }
+        Destroy(this);
     }
 
     public void stun(float duration) {
@@ -59,6 +83,7 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable{
 
         //If we are currently waiting at a waypoint, decrease that timer
         if (_timeUntilNextWaypoint >= 0) {
+            _enemyAnimation.EnemyStopped();
             _timeUntilNextWaypoint -= Time.deltaTime;
         } else {
             //If we currently don't have a path, find one
@@ -99,8 +124,14 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable{
      * that destination
      */
     protected bool moveTowardsPoint(Vector2 destination, float speed = 2.5f) {
-        transform.position = Vector2.MoveTowards(transform.position, destination, speed * Time.deltaTime);
-        return new Vector2(transform.position.x, transform.position.y) == destination;
+        Vector2 newPosition = Vector2.MoveTowards(transform.position, destination, speed * Time.deltaTime);
+        if (newPosition == (Vector2)transform.position) {
+            _enemyAnimation.EnemyStopped();
+        } else {
+            _enemyAnimation.EnemyMoving(newPosition.x > transform.position.x ? 1.0f : -1.0f);
+        }
+        transform.position = newPosition;
+        return newPosition == destination;
     }
 
     /* Calling this method every frame will move the enemy allong a given path

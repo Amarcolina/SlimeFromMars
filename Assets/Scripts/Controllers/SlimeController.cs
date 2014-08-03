@@ -119,6 +119,12 @@ public class SlimeController : MonoBehaviour {
         if (currentSelectedSlime != null) {
             switch (_currentCastType) {
                 case ElementalCastType.NONE:
+                    if (Input.GetKey(KeyCode.Mouse1)) {
+                        doPathHighlight();
+                    } else {
+                        _slimeHighlightPath = null;
+                    }
+                    break;
                 case ElementalCastType.BIO_OFFENSIVE:
                     doPathHighlight();
                     break;
@@ -264,7 +270,7 @@ public class SlimeController : MonoBehaviour {
             attemptToEat();
         }
 
-        if (Input.GetMouseButtonDown(1) && currentSelectedSlime != null){
+        if (Input.GetMouseButtonUp(1) && currentSelectedSlime != null){
             if (energy > 0) {
                 Astar.isWalkableFunction = Tile.isSlimeableFunction;
                 Astar.isNeighborWalkableFunction = Tile.isSlimeableFunction;

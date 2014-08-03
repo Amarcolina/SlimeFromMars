@@ -105,6 +105,10 @@ public class Slime : MonoBehaviour {
         }
     }
 
+    public void upgradeHealth(float extraHealth) {
+        _percentHealth += extraHealth;
+    }
+
     /* This damages the slime and lowers its total health
      * This wakes up the slime
      */
@@ -188,8 +192,8 @@ public class Slime : MonoBehaviour {
     }
 
     private delegate void NeighborSlimeFunction(Slime neighborSlime, Vector2Int neighborPosition);
-    private void forEachNeighborSlime(NeighborSlimeFunction function, Vector2Int origin = null){
-        if(origin == null){
+    private void forEachNeighborSlime(NeighborSlimeFunction function, Vector2Int origin = null) {
+        if (origin == null) {
             origin = transform.position;
         }
 
@@ -221,7 +225,7 @@ public class Slime : MonoBehaviour {
 
         _currSearchingConnectedIndex++;
 
-        NeighborSlimeFunction function = delegate(Slime neighborSlime, Vector2Int neighborPosition){
+        NeighborSlimeFunction function = delegate(Slime neighborSlime, Vector2Int neighborPosition) {
             Path pathHome = Astar.findPath(neighborPosition, _anchorSlimeLocation, false);
 
             if (pathHome == null) {
@@ -249,7 +253,7 @@ public class Slime : MonoBehaviour {
         }
         wakeUpSlime();
 
-        NeighborSlimeFunction function = delegate(Slime neighborSlime, Vector2Int neighborPos){
+        NeighborSlimeFunction function = delegate(Slime neighborSlime, Vector2Int neighborPos) {
             if (neighborSlime._isConnected) {
                 neighborSlime.disconnectRecursively();
             }

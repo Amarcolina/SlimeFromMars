@@ -25,9 +25,6 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable{
         _enemyAnimation = GetComponent<EnemyAnimation>();
     }
 
-    protected virtual void OnEnemyFire() {
-    }
-
     private int _previousDamageFrame = 0;
     public virtual void damage(float damage) {
         if (health > 0 && Time.frameCount != _previousDamageFrame) {

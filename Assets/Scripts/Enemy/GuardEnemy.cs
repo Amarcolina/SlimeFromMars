@@ -3,8 +3,7 @@ using System.Collections;
 
 public enum GuardState {
     WANDERING,
-    ATTACKING,
-    FLEEING
+    ATTACKING
 }
 
 public class GuardEnemy : BaseEnemy {
@@ -14,34 +13,24 @@ public class GuardEnemy : BaseEnemy {
     public float fleeSpeed = 3.5f;
 
     [MinValue(0)]
-    public int ammo = 0;
-    [MinValue(0)]
     public float timePerShot = 1.5f;
     [MinValue(0)]
     public float fireRange = 8.0f;
 
-    private GuardState _currentState;
-    private float timeUntilDeath = 3f;
-
-    //The flame shot prefab
-    public GameObject shot;
+    public GameObject shotPrefab = null;
     public GameObject flamethrowerEffect = null;
 
-    private float countDown = 2f;
+    private bool _onShootCooldown = false;
+    private GuardState _currentState;
 
-    void Start() {
-        shot.GetComponent<FlameProjectile>();
+    public override void Awake() {
+        base.Awake();
+        _currentState = startState;
     }
 
     void Update() {
         if (isStunned()) {
             return;
-        }
-        if (isOnSlimeTile()) {
-            timeUntilDeath -= Time.deltaTime;
-            if (timeUntilDeath <= 0) {
-                Destroy(gameObject);
-            }
         }
 
         switch (_currentState) {
@@ -50,9 +39,6 @@ public class GuardEnemy : BaseEnemy {
                 break;
             case GuardState.ATTACKING:
                 attackState();
-                break;
-            case GuardState.FLEEING:
-                fleeState();
                 break;
             default:
                 Debug.LogWarning("Cannot handle state " + _currentState);
@@ -68,68 +54,47 @@ public class GuardEnemy : BaseEnemy {
     private void wanderState() {
         followMovementPattern(wanderSpeed);
         tryEnterAttackState();
-        tryEnterFleeState();
     }
 
     private bool tryEnterAttackState() {
-        if (getNearestVisibleSlime() != null && ammo != 0) {
+        if (getNearestVisibleSlime() != null) {
             _currentState = GuardState.ATTACKING;
+            _onShootCooldown = false;
             return true;
         }
         return false;
     }
 
     private void attackState() {
-        if (ammo == 0) {
-            if (tryEnterFleeState()) {
-                enterWanderState();
-            }
-        } else {
-            if (getNearestVisibleSlime() == null) {
-                enterWanderState();
-                return;
-            }
+        if (_onShootCooldown) {
+            _enemyAnimation.EnemyStopped();
+            return;
+        }
 
-            if (Vector3.Distance(transform.position, getNearestVisibleSlime().transform.position) > fireRange) {
-                moveTowardsPoint(getNearestVisibleSlime().transform.position);
-            } else {
-                if (countDown >= 0) {
-                    //use flamethrower for certain amount of time
-                    countDown -= Time.deltaTime;
-                    useFlameThrower();
-                }
-                //Reset countdown
-                if (countDown <= 0) {
-                    ammo--;
-                    countDown = 5f;
-                }
-            }
+        if (getNearestVisibleSlime() == null) {
+            enterWanderState();
+            return;
+        }
+
+        if (Vector3.Distance(transform.position, getNearestVisibleSlime().transform.position) > fireRange) {
+            moveTowardsPoint(getNearestVisibleSlime().transform.position);
+        } else {
+            _onShootCooldown = true;
+            _enemyAnimation.EnemyShoot(getNearestVisibleSlime().transform.position.x > transform.position.x ? 1.0f : -1.0f);
         }
     }
 
-
-    private void useFlameThrower() {
+    public void OnEnemyFire() {
         Vector3 direction = getNearestVisibleSlime().transform.position - transform.position;
         float fireAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         Quaternion particleRotation = Quaternion.Euler(0, 0, fireAngle);
-        Instantiate(flamethrowerEffect, transform.position, particleRotation);
+        GameObject effect = Instantiate(flamethrowerEffect, transform.position, particleRotation) as GameObject;
+        Destroy(effect, 10.0f);
 
         for (int i = 0; i < 20; i++) {
             float angleInsideOfCone = fireAngle + Random.Range(-20, 20);
             Quaternion shotRotation = Quaternion.Euler(0, 0, angleInsideOfCone);
-            Instantiate(shot, transform.position, shotRotation);
+            Instantiate(shotPrefab, transform.position, shotRotation);
         }
-    }
-
-    private bool tryEnterFleeState() {
-        if (getNearestVisibleSlime() != null && ammo == 0) {
-            _currentState = GuardState.FLEEING;
-            return true;
-        }
-        return false;
-    }
-
-    private void fleeState() {
-        runAwayFromSlime(fleeSpeed);
     }
 }

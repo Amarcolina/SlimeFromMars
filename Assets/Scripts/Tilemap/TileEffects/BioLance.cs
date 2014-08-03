@@ -24,26 +24,46 @@ public class BioLance : MonoBehaviour {
         Vector2Int tilePosition = lancePath.getEnd();
         Tile tile = Tilemap.getInstance().getTile(tilePosition);
         HashSet<TileEntity> tileEntities = tile.getTileEntities();
-        GameObject damageableObject = null;
+
+        GameObject interactionObject = null;
+
         if(tileEntities != null){
             foreach (TileEntity entity in tileEntities) {
                 IDamageable damageable = entity.GetComponent(typeof(IDamageable)) as IDamageable;
-                if (damageable!= null) {
-                    damageable.damage(lanceDamage);
-                    damageableObject = (entity.gameObject);
-                    break;
+                if (damageable != null) {
+                    interactionObject = (entity.gameObject);
+                    if (damageable is IGrabbable) {
+                        break;
+                    }
+                }
+
+                IGrabbable grabbable = entity.GetComponent(typeof(IGrabbable)) as IGrabbable;
+                if (grabbable != null && interactionObject == null) {
+                    interactionObject = entity.gameObject;
                 }
             }
         }
 
+        IDamageable objDamageable = interactionObject == null ? null : interactionObject.GetComponent(typeof(IDamageable)) as IDamageable;
+        IGrabbable objGrabbable = interactionObject == null ? null : interactionObject.GetComponent(typeof(IGrabbable)) as IGrabbable;
+
+        if (objDamageable != null) {
+            objDamageable.damage(lanceDamage);
+        }
+
         for (float percent = 1; percent >= 0; percent -= (SPINE_SPEED / (lancePath.getLength())) * Time.deltaTime) {
             _spineRenderer.spineLengthPercent = percent;//set to percent
-            if(damageableObject != null){
-                damageableObject.transform.position = lancePath.getSmoothPoint(percent*(lancePath.Count - 1));
+            if (objGrabbable != null && interactionObject != null) {
+                interactionObject.transform.position = lancePath.getSmoothPoint(percent*(lancePath.Count - 1));
             }
 
             yield return null;//wait for one frame
         }
+
+        if (interactionObject != null) {
+            interactionObject.GetComponent<TileEntity>().forceUpdate();
+        }
+
         Destroy(gameObject);
     }
     public void setLanceDamage(int damage) {

@@ -7,9 +7,7 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable{
     public GameObject corpsePrefab = null;
     public float health = 1.0f;
 
-    protected int _waypointIndex = 0;
-    protected Path _currentWaypointPath = null;
-    protected float _timeUntilNextWaypoint = 0.0f;
+    
     protected Tilemap _tilemap = null;
 
     protected EnemyAnimation _enemyAnimation;
@@ -77,6 +75,10 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable{
      * the path is recalculated to be from your current position, rather than
      * trying to use the old stale path
      */
+    protected int _waypointIndex = 0;
+    protected Path _currentWaypointPath = null;
+    protected float _timeUntilNextWaypoint = 0.0f;
+    protected bool _isCalculatingWaypointPath = false;
     protected Waypoint followMovementPattern(float speed = 2.5f) {
         Waypoint currentWaypoint = movementPattern[_waypointIndex];
 
@@ -101,6 +103,8 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable{
                     //Set the current path to null since we are at the end of it
                     _currentWaypointPath = null;
                     _waypointIndex++;
+
+                    recalculateMovementPatternPath();
                 }
             }
         }
@@ -113,11 +117,26 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable{
      * the shortest path is followed after the environmnt has changed)
      */
     protected void recalculateMovementPatternPath(Waypoint waypoint = null) {
+        if (_isCalculatingWaypointPath) {
+            return;
+        }
+
         if (waypoint == null) {
             waypoint = movementPattern[_waypointIndex];
         }
 
-        _currentWaypointPath = Astar.findPath(transform.position, waypoint.transform.position);
+        StartCoroutine(recalculateMovementPatternPathCoroutine(waypoint));
+    }
+
+    private IEnumerator recalculateMovementPatternPathCoroutine(Waypoint waypoint) {
+        _isCalculatingWaypointPath = true;
+        _currentWaypointPath = null;
+        Path newPath = new Path();
+        AstarSettings settings = new AstarSettings();
+        settings.maxNodesToCheck = 1;
+        yield return StartCoroutine(Astar.findPathCoroutine(newPath, transform.position, waypoint.transform.position, settings));
+        _currentWaypointPath = newPath;
+        _isCalculatingWaypointPath = false;
     }
 
     /* Calling this method every frame will move the enemy towards a given destination

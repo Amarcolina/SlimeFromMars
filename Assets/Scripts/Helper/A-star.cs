@@ -82,36 +82,38 @@ public class Astar : MonoBehaviour {
     }
 
     public static Path findPath(Vector2Int start, Vector2Int goal, AstarSettings settings = null){
+        GameObject obj = new GameObject("AstarGameObject");
+        obj.hideFlags = HideFlags.HideAndDontSave;
+        Astar _astarInstance = obj.AddComponent<Astar>();
+
         if (settings == null) {
             settings = defaultSettings;
         }
 
         Path path = new Path();
-        findPathInternal(path, start, goal, settings);
-        Debug.Log("there");
+        _astarInstance.StartCoroutine(findPathInternal(path, start, goal, settings, false));
 
         return path.Count == 0 ? null : path;
     }
 
     public static IEnumerator findPathCoroutine(Path path, Vector2Int start, Vector2Int goal, AstarSettings settings = null) {
+        GameObject obj = new GameObject("AstarGameObject");
+        obj.hideFlags = HideFlags.HideAndDontSave;
+        Astar _astarInstance = obj.AddComponent<Astar>();
+
         if (settings == null) {
             settings = defaultSettings;
         }
 
-      
-
-        yield return findPathInternal(path, start, goal, settings);
+        yield return _astarInstance.StartCoroutine(findPathInternal(path, start, goal, settings, true));
     }
 
-    private static IEnumerator findPathInternal(Path path, Vector2Int start, Vector2Int goal, AstarSettings settings) {
-        Debug.Log("made it???");
+    private static IEnumerator findPathInternal(Path path, Vector2Int start, Vector2Int goal, AstarSettings settings, bool shouldContinue) {
         if (start == null || goal == null) {
-            Debug.Log("1");
             yield break;
         }
 
         if (!settings.isWalkableFunction(goal)) {
-            Debug.Log("2");
             yield break;
         }
 
@@ -183,7 +185,6 @@ public class Astar : MonoBehaviour {
             //of places to check.  In this case we have failed to find a path and we must
             //return null
             if (openList.getHeapSize() == 0) {
-                Debug.Log("4");
                 yield break;
             }
 
@@ -191,8 +192,11 @@ public class Astar : MonoBehaviour {
             //if maxNodesToCheck is nonzero, we terminate with no path found 
             nodesChecked++;
             if (settings.maxNodesToCheck > 0 && nodesChecked >= settings.maxNodesToCheck) {
-                Debug.Log("5");
-                yield return null;
+                if (shouldContinue) {
+                    yield return null;
+                } else {
+                    yield break;
+                }
             }
         }
 

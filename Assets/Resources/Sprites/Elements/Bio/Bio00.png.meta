@@ -1,8 +1,9 @@
 fileFormatVersion: 2
-guid: 780c00cf1906fae41adfcd65822c9a6f
+guid: 5ce81babf32879b46991f2a325d9ade6
 TextureImporter:
   fileIDToRecycleName:
-    21300000: Bio00
+    21300000: spikeNest
+    21300002: Bio00
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0
@@ -38,7 +39,7 @@ TextureImporter:
   alignment: 0
   spritePivot: {x: .5, y: .5}
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
-  spritePixelsToUnits: 64
+  spritePixelsToUnits: 128
   alphaIsTransparency: 1
   textureType: 8
   buildTargetSettings: []

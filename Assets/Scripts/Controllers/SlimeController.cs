@@ -23,9 +23,9 @@ public class SlimeController : MonoBehaviour {
     public GameObject spinePrefab;
     //levels dictate how much more powerful your attacks/defenses are
     //levels also give bonuses in energy from items of that attribute
-    public int radiationLevel;
-    public int electricityLevel;
-    public int bioLevel;
+    private int radiationLevel;
+    private int electricityLevel;
+    private int bioLevel;
 
     //list of sound effects for abilities
     private AudioClip electricDefenseSFX;

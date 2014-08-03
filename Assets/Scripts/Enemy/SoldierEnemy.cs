@@ -95,8 +95,7 @@ public class SoldierEnemy : BaseEnemy {
         }
     }
 
-    protected override void OnEnemyFire() {
-        base.OnEnemyFire();
+    public void OnEnemyFire() {
         StartCoroutine(damageSlimeCoroutine());
     }
 

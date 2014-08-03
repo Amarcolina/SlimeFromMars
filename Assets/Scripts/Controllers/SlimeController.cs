@@ -18,7 +18,7 @@ public enum ElementalCastType {
  */
 public class SlimeController : MonoBehaviour {
     //energy is a pool of resources used to move, attack and defend
-    private int energy;
+    public int energy;
     private GameUI _gameUi;
     public GameObject spinePrefab;
     //levels dictate how much more powerful your attacks/defenses are

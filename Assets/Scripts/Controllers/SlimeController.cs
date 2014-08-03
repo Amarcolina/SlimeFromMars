@@ -61,7 +61,6 @@ public class SlimeController : MonoBehaviour {
 
     //asdasd
     private Path _slimeHighlightPath = null;
-    private float _timeForPathRecalculate = 0.0f;
     private Texture2D _greenTexture;
     private Texture2D _redTexture;
 
@@ -113,6 +112,7 @@ public class SlimeController : MonoBehaviour {
 
         switch (_currentCastType) {
             case ElementalCastType.NONE:
+            case ElementalCastType.BIO_OFFENSIVE:
                 doPathHighlight();
                 break;
             case ElementalCastType.ELECTRICITY_OFFENSIVE:
@@ -123,9 +123,6 @@ public class SlimeController : MonoBehaviour {
                 break;
             case ElementalCastType.RADIATION_OFFENSIVE:
                 doCircleHighlight(5);
-                break;
-            case ElementalCastType.BIO_OFFENSIVE:
-                doPathHighlight();
                 break;
             default:
                 Debug.LogWarning("Cannot handle [" + _currentCastType + "] elementatl cast type");
@@ -144,11 +141,14 @@ public class SlimeController : MonoBehaviour {
         }
     }
 
-    private void doCircleHighlight(int radius) {
+    private void doCircleHighlight(int radius, float range) {
+        Vector2 castDelta = getStartLocation() - getCursorPosition();
+        Texture2D _fillTexture = castDelta.magnitude > range ? _redTexture : _greenTexture;
+
         for (int dx = -radius; dx <= radius; dx++) {
             for (int dy = -radius; dy <= radius; dy++) {
                 if (dx * dx + dy * dy <= radius * radius) {
-                    drawGuiTexture(getCursorPosition() + new Vector2Int(dx, dy), 1.0f, _greenTexture);
+                    drawGuiTexture(getCursorPosition() + new Vector2Int(dx, dy), 1.0f, _fillTexture);
                 }
             }
         }
@@ -156,7 +156,6 @@ public class SlimeController : MonoBehaviour {
 
     private void doPathHighlight() {
         if ((Input.GetAxis("Mouse X") == 0) && (Input.GetAxis("Mouse Y") == 0)) {
-            _timeForPathRecalculate = float.MaxValue;
             _slimeHighlightPath = null;
             if (!Minimap.getInstance().isPositionInFogOfWar(getCursorPosition())) {
 
@@ -217,8 +216,6 @@ public class SlimeController : MonoBehaviour {
         if (Input.GetKeyDown(KeyCode.B)) {
             gainBioLevel();
         }
-
-
 
         if (_shouldSkipNext) {
             _shouldSkipNext = false;
@@ -414,10 +411,10 @@ public class SlimeController : MonoBehaviour {
 
     //Allows slime to irradiate tiles permanently so that enemies that walk into the area are stunned for short periods of time
     public bool useRadiationDefense() {
-        float rangeOfAttack = RADIATION_BASE_RANGE * radiationLevel;
+        float rangeOfAttack = getRadiationDefenceRange();
         //if distance is within range of attack, check each tile in the radius and then irradiate each tile that can be irradiated
         if (Vector2Int.distance(getStartLocation(), getCursorPosition()) <= rangeOfAttack) {
-            int circleRadius = 3 * radiationLevel;
+            int circleRadius = getRadiationDefenceRadius();
 
             gameObject.AddComponent<SoundEffect>().sfx = radioactiveDefenseSFX;
             for (int dx = -circleRadius; dx <= circleRadius; dx++) {
@@ -441,14 +438,22 @@ public class SlimeController : MonoBehaviour {
         return false;
     }
 
+    private float getRadiationDefenceRange() {
+        return RADIATION_BASE_RANGE * radiationLevel;
+    }
+
+    private int getRadiationDefenceRadius() {
+        return 3 * radiationLevel;
+    }
+
     //Allows slime to irradiate an area for a period of time such that enemies are damaged per second
     //Damage and range will increase based on level
     public bool useRadiationOffense() {
-        float rangeOfAttack = RADIATION_BASE_RANGE * radiationLevel;
+        float rangeOfAttack = getRadiationOffenceRange();
         //if distance is within range of attack, create the radius of radiation
         if (Vector2Int.distance(getStartLocation(), getCursorPosition()) <= rangeOfAttack) {
             gameObject.AddComponent<SoundEffect>().sfx = radioactiveOffenseSFX;
-            int circleRadius = 3 * radiationLevel;
+            int circleRadius = getRadiationOffenceRadius();
             for (int dx = -circleRadius; dx <= circleRadius; dx++) {
                 for (int dy = -circleRadius; dy <= circleRadius; dy++) {
                     Vector2 tileOffset = new Vector2(dx, dy);
@@ -470,6 +475,14 @@ public class SlimeController : MonoBehaviour {
             return true;
         }
         return false;
+    }
+
+    private float getRadiationOffenceRange() {
+        return RADIATION_BASE_RANGE * radiationLevel;
+    }
+
+    private int getRadiationOffenceRadius() {
+        return 3 * radiationLevel;
     }
 
     //outputs circle of enemy-damaging electricity from central point of selected slime tile

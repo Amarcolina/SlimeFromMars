@@ -11,12 +11,22 @@ public class ElectricityArc : MonoBehaviour {
 
     private AudioClip electricArcSFX;
 
-    void Awake()
-    {
-        electricArcSFX = Resources.Load<AudioClip>("Sounds/SFX/electric_arc");
-    }
+    private HashSet<TileEntity> _alreadyHitEntities = null;
 
     void Start() {
+        if (_alreadyHitEntities == null) {
+            _alreadyHitEntities = new HashSet<TileEntity>();
+        }
+
+        HashSet<TileEntity> _tileEntities = Tilemap.getInstance().getTile(_destination).getTileEntities();
+        if (_tileEntities != null) {
+            foreach (TileEntity entity in _tileEntities) {
+                _alreadyHitEntities.Add(entity);
+            }
+        }
+
+        electricArcSFX = Resources.Load<AudioClip>("Sounds/SFX/electric_arc");
+
         if (_electricArcPrefab == null) {
             _electricArcPrefab = Resources.Load<GameObject>("Particles/ChainLightning");
         }
@@ -31,6 +41,7 @@ public class ElectricityArc : MonoBehaviour {
 
         Tilemap.getInstance().getTileGameObject(_destination).AddComponent<Electrified>();
     }
+
     // Update is called once per frame
     void Update() {
         if (timeUntilArc > 0) {
@@ -59,31 +70,60 @@ public class ElectricityArc : MonoBehaviour {
         _destination = destination;
     }
 
+    public void setAlreadyHitSet(HashSet<TileEntity> set) {
+        _alreadyHitEntities = set;
+    }
+
     //creates a single arc 
     private void doArc() {
 
-        List<Tile> _jumpableTiles = new List<Tile>();
+        List<Tile> _newJumpableTiles = new List<Tile>();
+        List<Tile> _oldJumpableTiles = new List<Tile>();
+
         for (int dx = -arcRadius; dx <= arcRadius; dx++) {
             for (int dy = -arcRadius; dy <= arcRadius; dy++) {
                 Vector2 tileOffset = new Vector2(dx, dy);
                 if (tileOffset.sqrMagnitude <= arcRadius * arcRadius) {
                     Tile tile = Tilemap.getInstance().getTile(Tilemap.getTilemapLocation(_destination) + new Vector2Int(dx, dy));
-                    if (tile != null && tile.canDamageEntities() && tile.gameObject.GetComponent<Electrified>() == null && arcNumber > 0) {
-                        _jumpableTiles.Add(tile);
 
+                    if (tile != null && tile.canDamageEntities() && tile.gameObject.GetComponent<Electrified>() == null && arcNumber > 0) {
+
+                        HashSet<TileEntity> _potentialEntities = tile.getTileEntities();
+                        bool foundNewEntity = false;
+                        foreach (TileEntity entity in _potentialEntities) {
+                            if (!_alreadyHitEntities.Contains(entity)) {
+                                foundNewEntity = true;
+                                break;
+                            }
+                        }
+
+                        if (foundNewEntity) {
+                            _newJumpableTiles.Add(tile);
+                        }
+                        _oldJumpableTiles.Add(tile);
                     }
                 }
             }
         }
 
-        if (_jumpableTiles.Count != 0) {
-            Tile jumpTile = _jumpableTiles[Random.Range(0, _jumpableTiles.Count)];
+        if (_newJumpableTiles.Count == 0) {
+            _newJumpableTiles = _oldJumpableTiles;
+        }
+
+        if (_newJumpableTiles.Count != 0) {
+            Tile jumpTile = _newJumpableTiles[Random.Range(0, _newJumpableTiles.Count)];
             GameObject electricityArc = new GameObject("ElectricityArc");
             electricityArc.transform.position = _destination;
+
+            foreach (TileEntity entity in jumpTile.getTileEntities()) {
+                _alreadyHitEntities.Add(entity);
+            }
+
             ElectricityArc arcComponent = electricityArc.AddComponent<ElectricityArc>();
             arcComponent.setArcDamage(arcDamage);
             arcComponent.setArcNumber(arcNumber - 1);
             arcComponent.setDestination(jumpTile.transform.position);
+            arcComponent.setAlreadyHitSet(_alreadyHitEntities);
             //initializes arcRadius in new component for created game object
             arcComponent.setArcRadius(arcRadius);
         }

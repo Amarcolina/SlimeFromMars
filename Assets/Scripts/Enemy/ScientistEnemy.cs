@@ -28,6 +28,10 @@ public class ScientistEnemy : BaseEnemy {
     private Path _pathToHidingSpot = null;
     private bool _leavingHidingSpot = false;
 
+    private AudioClip screamSFX;
+    //private AudioClip walkSFX;
+    //private AudioClip deathSFX;
+
     public override void Awake() {
         base.Awake();
         if (_hidingSpots == null) {
@@ -36,6 +40,10 @@ public class ScientistEnemy : BaseEnemy {
         _hidingSpotSearcher = new ProximitySearcher<ScientistHidingSpot>(_hidingSpots, CHECK_RADIUS_FOR_HIDING_SPOTS);
 
         changeState(startState);
+
+        screamSFX = Resources.Load<AudioClip>("Sounds/SFX/scientist_scream");
+        //walkSFX = Resources.Load<AudioClip>("Sounds/SFX/scientist_footsteps");
+        //deathSFX = Resources.Load<AudioClip>("Sounds/SFX/scientist_death");
     }
 
     void Update() {
@@ -55,9 +63,13 @@ public class ScientistEnemy : BaseEnemy {
         _currentState = newState;
         switch (_currentState) {
             case ScientistState.WANDERING:
+                //gameObject.AddComponent<SoundEffect>().sfx = walkSFX;
+                //gameObject.GetComponent<SoundEffect>().loop = true;
                 _currentStateFunction = wanderState;
                 break;
             case ScientistState.FLEEING:
+                gameObject.AddComponent<SoundEffect>().sfx = screamSFX;
+
                 _currentStateFunction = fleeState;
                 break;
             case ScientistState.HIDING:
@@ -104,7 +116,6 @@ public class ScientistEnemy : BaseEnemy {
             }
             enterWanderState();
         }
-
         runAwayFromSlime(fleeSpeed);
         tryEnterHidingState();
     }

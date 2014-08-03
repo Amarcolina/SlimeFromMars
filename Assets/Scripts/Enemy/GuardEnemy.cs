@@ -1,15 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public enum GuardState
-{
+public enum GuardState {
     WANDERING,
     ATTACKING,
     FLEEING
 }
 
-public class GuardEnemy : BaseEnemy
-{
+public class GuardEnemy : BaseEnemy {
     public GuardState startState = GuardState.WANDERING;
 
     public float wanderSpeed = 2.5f;
@@ -31,28 +29,22 @@ public class GuardEnemy : BaseEnemy
 
     private float countDown = 2f;
 
-    void Start()
-    {
+    void Start() {
         shot.GetComponent<FlameProjectile>();
     }
 
-    void Update()
-    {
-        if (isStunned())
-        {
+    void Update() {
+        if (isStunned()) {
             return;
         }
-        if (isOnSlimeTile())
-        {
+        if (isOnSlimeTile()) {
             timeUntilDeath -= Time.deltaTime;
-            if (timeUntilDeath <= 0)
-            {
+            if (timeUntilDeath <= 0) {
                 Destroy(gameObject);
             }
         }
-        
-        switch (_currentState)
-        {
+
+        switch (_currentState) {
             case GuardState.WANDERING:
                 wanderState();
                 break;
@@ -68,61 +60,46 @@ public class GuardEnemy : BaseEnemy
         }
     }
 
-    private void enterWanderState()
-    {
+    private void enterWanderState() {
         recalculateMovementPatternPath();
         _currentState = GuardState.WANDERING;
     }
 
-    private void wanderState()
-    {
+    private void wanderState() {
         followMovementPattern(wanderSpeed);
         tryEnterAttackState();
         tryEnterFleeState();
     }
 
-    private bool tryEnterAttackState()
-    {
-        if (getNearestVisibleSlime() != null && ammo != 0)
-        {
+    private bool tryEnterAttackState() {
+        if (getNearestVisibleSlime() != null && ammo != 0) {
             _currentState = GuardState.ATTACKING;
             return true;
         }
         return false;
     }
 
-    private void attackState()
-    {
-        if (ammo == 0)
-        {
-            if (tryEnterFleeState())
-            {
+    private void attackState() {
+        if (ammo == 0) {
+            if (tryEnterFleeState()) {
                 enterWanderState();
             }
-        }
-        else
-        {
-            if (getNearestVisibleSlime() == null)
-            {
+        } else {
+            if (getNearestVisibleSlime() == null) {
                 enterWanderState();
                 return;
             }
 
-            if (Vector3.Distance(transform.position, getNearestVisibleSlime().transform.position) > fireRange)
-            {
+            if (Vector3.Distance(transform.position, getNearestVisibleSlime().transform.position) > fireRange) {
                 moveTowardsPoint(getNearestVisibleSlime().transform.position);
-            }
-            else
-            {
-                if (countDown >= 0)
-                {
+            } else {
+                if (countDown >= 0) {
                     //use flamethrower for certain amount of time
                     countDown -= Time.deltaTime;
                     useFlameThrower();
                 }
                 //Reset countdown
-                if(countDown <= 0)
-                {
+                if (countDown <= 0) {
                     ammo--;
                     countDown = 5f;
                 }
@@ -131,7 +108,7 @@ public class GuardEnemy : BaseEnemy
     }
 
 
-    private void useFlameThrower(){
+    private void useFlameThrower() {
         Vector3 direction = getNearestVisibleSlime().transform.position - transform.position;
         float fireAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         Quaternion particleRotation = Quaternion.Euler(0, 0, fireAngle);
@@ -144,18 +121,15 @@ public class GuardEnemy : BaseEnemy
         }
     }
 
-    private bool tryEnterFleeState()
-    {
-        if (getNearestVisibleSlime() != null && ammo == 0)
-        {
+    private bool tryEnterFleeState() {
+        if (getNearestVisibleSlime() != null && ammo == 0) {
             _currentState = GuardState.FLEEING;
             return true;
         }
         return false;
     }
 
-    private void fleeState()
-    {
+    private void fleeState() {
         runAwayFromSlime(fleeSpeed);
     }
 }

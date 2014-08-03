@@ -38,7 +38,10 @@ public class TileEntity : MonoBehaviour {
                 Vector3 extent = _spriteRenderer.sprite.bounds.extents;
                 extent.x *= xPercent * transform.localScale.x;
                 extent.y *= yPercent * transform.localScale.y;
-                _newList[index].tilePos = _spriteRenderer.sprite.bounds.center + extent + transform.position;
+                Vector3 center = _spriteRenderer.sprite.bounds.center;
+                center.x *= transform.localScale.x;
+                center.y *= transform.localScale.y;
+                _newList[index].tilePos = center + extent + transform.position;
                 _newList[index].tile = _tilemap.getTile(_newList[index].tilePos);
             }
         }

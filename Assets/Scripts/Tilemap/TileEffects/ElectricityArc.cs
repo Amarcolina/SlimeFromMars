@@ -3,7 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class ElectricityArc : MonoBehaviour {
-    int arcRadius, arcDamage, arcNumber;
+    int arcRadius, arcNumber;
+    float arcDamage;
     private float timeUntilArc = 0.2f;
     private Vector3 _destination;
 
@@ -58,7 +59,7 @@ public class ElectricityArc : MonoBehaviour {
         arcRadius = radius;
     }
 
-    public void setArcDamage(int damage) {
+    public void setArcDamage(float damage) {
         arcDamage = damage;
     }
 
@@ -114,6 +115,8 @@ public class ElectricityArc : MonoBehaviour {
             Tile jumpTile = _newJumpableTiles[Random.Range(0, _newJumpableTiles.Count)];
             GameObject electricityArc = new GameObject("ElectricityArc");
             electricityArc.transform.position = _destination;
+
+            jumpTile.damageTileEntities(arcDamage);
 
             foreach (TileEntity entity in jumpTile.getTileEntities()) {
                 _alreadyHitEntities.Add(entity);

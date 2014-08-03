@@ -33,7 +33,9 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable{
         if (health > 0 && Time.frameCount != _previousDamageFrame) {
             _previousDamageFrame = Time.frameCount;
             health -= damage;
-            _enemyAnimation.EnemyHit();
+            if (_enemyAnimation != null) {
+                _enemyAnimation.EnemyHit();
+            }
             if (health <= 0.0f) {
                 StartCoroutine(deathCoroutine());
             }
@@ -83,7 +85,9 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable{
 
         //If we are currently waiting at a waypoint, decrease that timer
         if (_timeUntilNextWaypoint >= 0) {
-            _enemyAnimation.EnemyStopped();
+            if (_enemyAnimation != null) {
+                _enemyAnimation.EnemyStopped();
+            }
             _timeUntilNextWaypoint -= Time.deltaTime;
         } else {
             //If we currently don't have a path, find one
@@ -126,9 +130,13 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable{
     protected bool moveTowardsPoint(Vector2 destination, float speed = 2.5f) {
         Vector2 newPosition = Vector2.MoveTowards(transform.position, destination, speed * Time.deltaTime);
         if (newPosition == (Vector2)transform.position) {
-            _enemyAnimation.EnemyStopped();
+            if (_enemyAnimation != null) {
+                _enemyAnimation.EnemyStopped();
+            }
         } else {
-            _enemyAnimation.EnemyMoving(newPosition.x > transform.position.x ? 1.0f : -1.0f);
+            if (_enemyAnimation != null) {
+                _enemyAnimation.EnemyMoving(newPosition.x > transform.position.x ? 1.0f : -1.0f);
+            }
         }
         transform.position = newPosition;
         return newPosition == destination;

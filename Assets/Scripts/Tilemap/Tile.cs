@@ -55,12 +55,14 @@ public class Tile : MonoBehaviour {
     }
 
     public void removeTileEntity(TileEntity tileEntity) {
-        _containedTileEntities.Remove(tileEntity);
-        if (_containedTileEntities.Count == 0) {
-            if (_tileEntitySetPool.Count != MAX_POOL_SIZE) {
-                _tileEntitySetPool.Push(_containedTileEntities);
+        if (_containedTileEntities != null) {
+            _containedTileEntities.Remove(tileEntity);
+            if (_containedTileEntities.Count == 0) {
+                if (_tileEntitySetPool.Count != MAX_POOL_SIZE) {
+                    _tileEntitySetPool.Push(_containedTileEntities);
+                }
+                _containedTileEntities = null;
             }
-            _containedTileEntities = null;
         }
     }
 
@@ -203,5 +205,12 @@ public class Tile : MonoBehaviour {
             return false;
         }
         return tile.isSpikeable;
+    }
+
+    public void OnDrawGizmos() {
+        if (_containedTileEntities != null) {
+            Gizmos.color = new Color(1.0f, 0.5f, 0.0f, 0.4f);
+            Gizmos.DrawCube(transform.position, Vector3.one);
+        }
     }
 }

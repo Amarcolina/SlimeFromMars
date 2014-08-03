@@ -53,7 +53,7 @@ public class BioLance : MonoBehaviour {
 
         for (float percent = 1; percent >= 0; percent -= (SPINE_SPEED / (lancePath.getLength())) * Time.deltaTime) {
             _spineRenderer.spineLengthPercent = percent;//set to percent
-            if (objGrabbable != null) {
+            if (objGrabbable != null && interactionObject != null) {
                 interactionObject.transform.position = lancePath.getSmoothPoint(percent*(lancePath.Count - 1));
             }
 

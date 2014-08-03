@@ -32,7 +32,7 @@ public class GuardEnemy : BaseEnemy {
         _currentState = startState;
 
         flameThrowerSFX = Resources.Load<AudioClip>("Sounds/SFX/guard_flamethrower");
-    }
+    
 
         gameObject.AddComponent<SoundEffect>();
     }

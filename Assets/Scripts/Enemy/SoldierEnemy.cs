@@ -23,9 +23,14 @@ public class SoldierEnemy : BaseEnemy {
     private bool _onShootCooldown = false;
     private SoldierState _currentState;
 
+    private AudioClip bulletSFX;
+
     public override void Awake() {
         base.Awake();
         _currentState = startState;
+
+
+        bulletSFX = Resources.Load<AudioClip>("Sounds/SFX/soldier_bullet");
     }
 
     void Update() {
@@ -91,6 +96,7 @@ public class SoldierEnemy : BaseEnemy {
             } else {
                 _onShootCooldown = true;
                 _enemyAnimation.EnemyShoot(getNearestVisibleSlime().transform.position.x > transform.position.x ? 1.0f : -1.0f);
+                    gameObject.AddComponent<SoundEffect>().sfx = bulletSFX;
             }
         }
     }

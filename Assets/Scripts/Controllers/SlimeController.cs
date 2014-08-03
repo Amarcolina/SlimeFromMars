@@ -34,6 +34,7 @@ public class SlimeController : MonoBehaviour {
     private AudioClip radioactiveDefenseSFX;
     private AudioClip radioactiveOffenseSFX;
     private AudioClip slimeExpansionSFX;
+    private AudioClip slimeEatingSFX;
 
     //cost for using skills
     public const int ELECTRICITY_DEFENSE_COST = 5;
@@ -85,7 +86,7 @@ public class SlimeController : MonoBehaviour {
         radioactiveOffenseSFX = Resources.Load<AudioClip>("Sounds/SFX/radiation_offense");
 
         slimeExpansionSFX = Resources.Load<AudioClip>("Sounds/SFX/slime_expanding");
-
+        slimeEatingSFX = Resources.Load<AudioClip>("Sounds/SFX/slime_eating");
         _greenTexture = new Texture2D(1, 1, TextureFormat.ARGB32, false, true);
         _greenTexture.SetPixel(0, 0, new Color(0.3f, 0.45f, 0.3f, 0.5f));
         _greenTexture.Apply();
@@ -310,7 +311,6 @@ public class SlimeController : MonoBehaviour {
         //calculates resource bonus from item element affinity multiplied by level of slime attribute
         //calculates default item resource value based on size and adds any bonuses
         gainEnergy((int)eatenItem.size + radiationLevel * eatenItem.radiation + bioLevel * eatenItem.bio + electricityLevel * eatenItem.electricity);
-
         //if the eatenItem is a mutation, level up affinity
         if (eatenItem.isRadiationMutation) {
             gainRadiationLevel();
@@ -365,6 +365,7 @@ public class SlimeController : MonoBehaviour {
     }
 
     public void attemptToEat() {
+
         Tile tileComponent = currentSelectedSlime.GetComponent<Tile>();
         HashSet<TileEntity> entities = tileComponent.getTileEntities();
         if (entities != null) {
@@ -372,6 +373,7 @@ public class SlimeController : MonoBehaviour {
                 GenericConsumeable possibleConsumeable = entity.GetComponent<GenericConsumeable>();
                 if (possibleConsumeable != null) {
                     consume(possibleConsumeable);
+                    gameObject.AddComponent<SoundEffect>().sfx = slimeEatingSFX;
                 }
             }
         }

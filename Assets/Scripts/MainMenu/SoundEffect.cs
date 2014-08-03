@@ -6,7 +6,7 @@ public class SoundEffect : MonoBehaviour {
     //Attach this script as a component to any object with a SFX
     public AudioClip sfx;
     private AudioSource source;
-
+    public bool loop;
     private GameUI gameUI;
 
     public void Update() {
@@ -25,7 +25,13 @@ public class SoundEffect : MonoBehaviour {
         source.clip = sfx;
         // if (!gameUI.GetComponent<PauseMenu>().sfxMuted)
         // {
-        source.Play();
+        //AudioSource.PlayClipAtPoint(sfx, gameObject.transform.position);
+            source.Play();
+        
+        if (loop)
+        {
+            source.loop = true;
+        }
         // }
     }
 }

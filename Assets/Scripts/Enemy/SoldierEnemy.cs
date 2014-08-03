@@ -23,9 +23,14 @@ public class SoldierEnemy : BaseEnemy {
     private float _timeUntilNextShot = 0.0f;
     private SoldierState _currentState;
 
+    private AudioClip bulletSFX;
+
     public override void Awake() {
         base.Awake();
         _currentState = startState;
+
+
+        bulletSFX = Resources.Load<AudioClip>("Sounds/SFX/soldier_bullet");
     }
 
     void Update() {
@@ -88,6 +93,7 @@ public class SoldierEnemy : BaseEnemy {
                 if (_timeUntilNextShot <= 0.0f) {
                     _timeUntilNextShot += timePerShot;
                     getNearestVisibleSlime().damageSlime(1.5f);
+                    gameObject.AddComponent<SoundEffect>().sfx = bulletSFX;
                     bullets--;
                 }
             }

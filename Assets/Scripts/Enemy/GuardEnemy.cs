@@ -30,9 +30,22 @@ public class GuardEnemy : BaseEnemy
 
     private float countDown = 2f;
 
+    private AudioClip flameThrowerSFX;
+
+    public override void Awake()
+    {
+        base.Awake();
+        _currentState = startState;
+
+        flameThrowerSFX = Resources.Load<AudioClip>("Sounds/SFX/guard_flamethrower");
+    }
+
     void Start()
     {
         shot.GetComponent<FlameProjectile>();
+
+        //Bad way of handling this, but for now it'll have to do until I find a better solution
+        shot.gameObject.AddComponent<SoundEffect>().sfx = flameThrowerSFX;
     }
 
     void Update()

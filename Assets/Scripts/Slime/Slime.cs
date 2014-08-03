@@ -24,6 +24,8 @@ public class Slime : MonoBehaviour {
     private static int _currSearchingConnectedIndex = 0;
     private static Vector2Int _anchorSlimeLocation = null;
 
+    private AudioClip slimeDetach;
+
     /* This method does the following:
      *      Initializes the slime sprite lookup table if it is not already initialized
      *      Creates the gameobject to display the slime sprite
@@ -51,6 +53,12 @@ public class Slime : MonoBehaviour {
         _slimeRenderer.setTextureRamp(textureRamp);
         _slimeRenderer.setMorphTime(SLIME_RENDERER_MORPH_TIME);
         _slimeRenderer.wakeUpRenderer();
+    }
+
+    void Awake()
+    {
+
+        slimeDetach = Resources.Load<AudioClip>("Sounds/SFX/slime_dissolve");
     }
 
     public void OnDestroy() {
@@ -224,12 +232,12 @@ public class Slime : MonoBehaviour {
         Astar.isNeighborWalkableFunction = Tile.isSlimeableFunction;
 
         _currSearchingConnectedIndex++;
-
         NeighborSlimeFunction function = delegate(Slime neighborSlime, Vector2Int neighborPosition) {
             Path pathHome = Astar.findPath(neighborPosition, _anchorSlimeLocation, false);
 
             if (pathHome == null) {
                 neighborSlime.disconnectRecursively();
+                neighborSlime.gameObject.AddComponent<SoundEffect>().sfx = slimeDetach;
             } else {
                 for (int j = 0; j < pathHome.Count; j++) {
                     Vector2Int pathNode = pathHome[j];

@@ -20,6 +20,9 @@ public class SoldierEnemy : BaseEnemy {
     [MinValue (0)]
     public float fireRange = 8.0f;
 
+    public GameObject muzzleFlashEffect;
+    public Transform shotSpawn;
+
     private bool _onShootCooldown = false;
     private SoldierState _currentState;
 
@@ -96,7 +99,7 @@ public class SoldierEnemy : BaseEnemy {
             } else {
                 _onShootCooldown = true;
                 _enemyAnimation.EnemyShoot(getNearestVisibleSlime().transform.position.x > transform.position.x ? 1.0f : -1.0f);
-                    gameObject.AddComponent<SoundEffect>().sfx = bulletSFX;
+                gameObject.AddComponent<SoundEffect>().sfx = bulletSFX;
             }
         }
     }
@@ -108,6 +111,8 @@ public class SoldierEnemy : BaseEnemy {
     protected IEnumerator damageSlimeCoroutine() {
         yield return null;
         if (getNearestVisibleSlime(20, true) != null) {
+            Instantiate(muzzleFlashEffect, shotSpawn.position, Quaternion.identity);
+            Instantiate(muzzleFlashEffect, getNearestVisibleSlime().transform.position + new Vector3(Random.Range(-0.4f, 0.4f), Random.Range(-0.4f, 0.4f), 0), Quaternion.identity);
             getNearestVisibleSlime().damageSlime(1.5f);
             getNearestVisibleSlime(20, true);
             bullets--;

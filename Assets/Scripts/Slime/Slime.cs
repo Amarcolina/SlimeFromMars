@@ -54,6 +54,10 @@ public class Slime : MonoBehaviour {
     }
 
     public void OnDestroy() {
+        BioMutated bioMutation = GetComponent<BioMutated>();
+        if (bioMutation != null) {
+            bioMutation.wither();
+        }
         SlimeSentinel.removeSlimeFromDestroyList(this);
     }
 

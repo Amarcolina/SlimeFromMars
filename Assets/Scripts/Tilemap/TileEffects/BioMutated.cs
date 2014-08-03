@@ -22,12 +22,11 @@ public class BioMutated : MonoBehaviour {
         _bioRenderer.sprite = _bioSprites[0];
     }
 
+    public void wither() {
+        Destroy(this);
+    }
+
     public void OnDestroy() {
         Destroy(_bioRenderer.gameObject);
     }
-
-	// Update is called once per frame
-	void Update () {
-	
-	}
 }

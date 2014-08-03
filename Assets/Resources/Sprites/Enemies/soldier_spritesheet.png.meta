@@ -1,0 +1,311 @@
+fileFormatVersion: 2
+guid: 9ac077c8fde522e408d2682ed43d7df4
+TextureImporter:
+  fileIDToRecycleName:
+    21300000: spritefinal_0
+    21300002: spritefinal_1
+    21300004: spritefinal_2
+    21300006: spritefinal_3
+    21300008: spritefinal_4
+    21300010: spritefinal_5
+    21300012: spritefinal_6
+    21300014: spritefinal_7
+    21300016: spritefinal_8
+    21300018: spritefinal_9
+    21300020: spritefinal_10
+    21300022: spritefinal_11
+    21300024: spritefinal_12
+    21300026: spritefinal_13
+    21300028: spritefinal_14
+    21300030: spritefinal_15
+    21300032: spritefinal_16
+    21300034: spritefinal_17
+    21300036: spritefinal_18
+    21300038: spritefinal_19
+    21300040: spritefinal_20
+    21300042: spritefinal_21
+    21300044: spritefinal_22
+    21300046: spritefinal_23
+  serializedVersion: 2
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    linearTexture: 0
+    correctGamma: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: .25
+    normalMapFilter: 0
+  isReadable: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 0
+  seamlessCubemap: 0
+  textureFormat: -3
+  maxTextureSize: 1024
+  textureSettings:
+    filterMode: -1
+    aniso: 1
+    mipBias: -1
+    wrapMode: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: .5, y: .5}
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spritePixelsToUnits: 100
+  alphaIsTransparency: 1
+  textureType: 8
+  buildTargetSettings: []
+  spriteSheet:
+    sprites:
+    - name: spritefinal_0
+      rect:
+        serializedVersion: 2
+        x: 8
+        y: 123
+        width: 51
+        height: 50
+      alignment: 9
+      pivot: {x: .5, y: .150000006}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: spritefinal_1
+      rect:
+        serializedVersion: 2
+        x: 59
+        y: 123
+        width: 51
+        height: 50
+      alignment: 9
+      pivot: {x: .5, y: .150000006}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: spritefinal_2
+      rect:
+        serializedVersion: 2
+        x: 110
+        y: 123
+        width: 51
+        height: 50
+      alignment: 9
+      pivot: {x: .5, y: .150000006}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: spritefinal_3
+      rect:
+        serializedVersion: 2
+        x: 161
+        y: 123
+        width: 51
+        height: 50
+      alignment: 9
+      pivot: {x: .5, y: .150000006}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: spritefinal_4
+      rect:
+        serializedVersion: 2
+        x: 212
+        y: 123
+        width: 51
+        height: 50
+      alignment: 9
+      pivot: {x: .5, y: .150000006}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: spritefinal_5
+      rect:
+        serializedVersion: 2
+        x: 263
+        y: 123
+        width: 51
+        height: 50
+      alignment: 9
+      pivot: {x: .5, y: .150000006}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: spritefinal_6
+      rect:
+        serializedVersion: 2
+        x: 314
+        y: 123
+        width: 51
+        height: 50
+      alignment: 9
+      pivot: {x: .5, y: .150000006}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: spritefinal_7
+      rect:
+        serializedVersion: 2
+        x: 365
+        y: 123
+        width: 51
+        height: 50
+      alignment: 9
+      pivot: {x: .5, y: .150000006}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: spritefinal_8
+      rect:
+        serializedVersion: 2
+        x: 8
+        y: 67
+        width: 51
+        height: 50
+      alignment: 9
+      pivot: {x: .5, y: .150000006}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: spritefinal_9
+      rect:
+        serializedVersion: 2
+        x: 59
+        y: 67
+        width: 51
+        height: 50
+      alignment: 9
+      pivot: {x: .5, y: .150000006}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: spritefinal_10
+      rect:
+        serializedVersion: 2
+        x: 110
+        y: 67
+        width: 51
+        height: 50
+      alignment: 9
+      pivot: {x: .5, y: .150000006}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: spritefinal_11
+      rect:
+        serializedVersion: 2
+        x: 161
+        y: 67
+        width: 51
+        height: 50
+      alignment: 9
+      pivot: {x: .5, y: .150000006}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: spritefinal_12
+      rect:
+        serializedVersion: 2
+        x: 212
+        y: 67
+        width: 51
+        height: 50
+      alignment: 9
+      pivot: {x: .5, y: .150000006}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: spritefinal_13
+      rect:
+        serializedVersion: 2
+        x: 263
+        y: 67
+        width: 51
+        height: 50
+      alignment: 9
+      pivot: {x: .5, y: .150000006}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: spritefinal_14
+      rect:
+        serializedVersion: 2
+        x: 314
+        y: 67
+        width: 51
+        height: 50
+      alignment: 9
+      pivot: {x: .5, y: .150000006}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: spritefinal_15
+      rect:
+        serializedVersion: 2
+        x: 365
+        y: 67
+        width: 51
+        height: 50
+      alignment: 9
+      pivot: {x: .5, y: .150000006}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: spritefinal_16
+      rect:
+        serializedVersion: 2
+        x: 8
+        y: 11
+        width: 51
+        height: 50
+      alignment: 9
+      pivot: {x: .5, y: .150000006}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: spritefinal_17
+      rect:
+        serializedVersion: 2
+        x: 59
+        y: 11
+        width: 51
+        height: 50
+      alignment: 9
+      pivot: {x: .5, y: .150000006}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: spritefinal_18
+      rect:
+        serializedVersion: 2
+        x: 110
+        y: 11
+        width: 51
+        height: 50
+      alignment: 9
+      pivot: {x: .5, y: .150000006}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: spritefinal_19
+      rect:
+        serializedVersion: 2
+        x: 161
+        y: 11
+        width: 51
+        height: 50
+      alignment: 9
+      pivot: {x: .5, y: .150000006}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: spritefinal_20
+      rect:
+        serializedVersion: 2
+        x: 212
+        y: 11
+        width: 51
+        height: 50
+      alignment: 9
+      pivot: {x: .5, y: .150000006}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: spritefinal_21
+      rect:
+        serializedVersion: 2
+        x: 263
+        y: 11
+        width: 51
+        height: 50
+      alignment: 9
+      pivot: {x: .5, y: .150000006}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: spritefinal_22
+      rect:
+        serializedVersion: 2
+        x: 314
+        y: 11
+        width: 51
+        height: 50
+      alignment: 9
+      pivot: {x: .5, y: .150000006}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: spritefinal_23
+      rect:
+        serializedVersion: 2
+        x: 365
+        y: 11
+        width: 51
+        height: 50
+      alignment: 9
+      pivot: {x: .5, y: .150000006}
+      border: {x: 0, y: 0, z: 0, w: 0}
+  spritePackingTag: 
+  userData: 

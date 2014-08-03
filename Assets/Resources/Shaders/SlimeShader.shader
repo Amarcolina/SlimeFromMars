@@ -1,4 +1,4 @@
-﻿Shader "Sprites/SlimeShader" {
+﻿Shader "Custom/SlimeShader" {
 	Properties {
 		[PerRendererData] _MainTex ("Ramp (RGB)", 2D) = "white" {}
         _weights0 ("Weights0", Vector) = (0, 0, 0, 0)

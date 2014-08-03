@@ -19,8 +19,6 @@ public class Slime : MonoBehaviour {
     private SlimeRenderer _slimeRenderer = null;
 
     private bool _isConnected = true;
-    private bool _shouldDisconnectNeighbors = false;
-    private bool _shouldConnectNeighbors = false;
 
     private int _connectedPathingIndex = 0;
     private static int _currSearchingConnectedIndex = 0;
@@ -53,6 +51,10 @@ public class Slime : MonoBehaviour {
         _slimeRenderer.setTextureRamp(textureRamp);
         _slimeRenderer.setMorphTime(SLIME_RENDERER_MORPH_TIME);
         _slimeRenderer.wakeUpRenderer();
+    }
+
+    public void OnDestroy() {
+        SlimeSentinel.removeSlimeFromDestroyList(this);
     }
 
     /* Forces this slime to wake up.  This causes it to recount it's
@@ -101,6 +103,10 @@ public class Slime : MonoBehaviour {
         if (canGoToSleep) {
             enabled = false;
         }
+    }
+
+    public void upgradeHealth(float extraHealth) {
+        _percentHealth += extraHealth;
     }
 
     /* This damages the slime and lowers its total health
@@ -186,8 +192,8 @@ public class Slime : MonoBehaviour {
     }
 
     private delegate void NeighborSlimeFunction(Slime neighborSlime, Vector2Int neighborPosition);
-    private void forEachNeighborSlime(NeighborSlimeFunction function, Vector2Int origin = null){
-        if(origin == null){
+    private void forEachNeighborSlime(NeighborSlimeFunction function, Vector2Int origin = null) {
+        if (origin == null) {
             origin = transform.position;
         }
 
@@ -219,7 +225,7 @@ public class Slime : MonoBehaviour {
 
         _currSearchingConnectedIndex++;
 
-        NeighborSlimeFunction function = delegate(Slime neighborSlime, Vector2Int neighborPosition){
+        NeighborSlimeFunction function = delegate(Slime neighborSlime, Vector2Int neighborPosition) {
             Path pathHome = Astar.findPath(neighborPosition, _anchorSlimeLocation, false);
 
             if (pathHome == null) {
@@ -247,7 +253,7 @@ public class Slime : MonoBehaviour {
         }
         wakeUpSlime();
 
-        NeighborSlimeFunction function = delegate(Slime neighborSlime, Vector2Int neighborPos){
+        NeighborSlimeFunction function = delegate(Slime neighborSlime, Vector2Int neighborPos) {
             if (neighborSlime._isConnected) {
                 neighborSlime.disconnectRecursively();
             }

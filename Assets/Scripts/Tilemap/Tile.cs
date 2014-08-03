@@ -11,6 +11,7 @@ public class Tile : MonoBehaviour {
     public bool isWalkable = true;
     public bool isSlimeable = true;
     public bool isTransparent = true;
+    public bool isSpikeable = false;
     public Sprite groundSprite;
     public Sprite groundEffectSprite;
     public Sprite objectSprite;
@@ -54,12 +55,14 @@ public class Tile : MonoBehaviour {
     }
 
     public void removeTileEntity(TileEntity tileEntity) {
-        _containedTileEntities.Remove(tileEntity);
-        if (_containedTileEntities.Count == 0) {
-            if (_tileEntitySetPool.Count != MAX_POOL_SIZE) {
-                _tileEntitySetPool.Push(_containedTileEntities);
+        if (_containedTileEntities != null) {
+            _containedTileEntities.Remove(tileEntity);
+            if (_containedTileEntities.Count == 0) {
+                if (_tileEntitySetPool.Count != MAX_POOL_SIZE) {
+                    _tileEntitySetPool.Push(_containedTileEntities);
+                }
+                _containedTileEntities = null;
             }
-            _containedTileEntities = null;
         }
     }
 
@@ -194,5 +197,20 @@ public class Tile : MonoBehaviour {
         }
 
         return tile.GetComponent<Slime>() != null;
+    }
+
+    public static bool isSpikeableFunction(Vector2Int location) {
+        Tile tile = Tilemap.getInstance().getTile(location);
+        if (tile == null) {
+            return false;
+        }
+        return tile.isSpikeable;
+    }
+
+    public void OnDrawGizmos() {
+        if (_containedTileEntities != null) {
+            Gizmos.color = new Color(1.0f, 0.5f, 0.0f, 0.4f);
+            Gizmos.DrawCube(transform.position, Vector3.one);
+        }
     }
 }

@@ -130,11 +130,14 @@ public class GuardEnemy : BaseEnemy
     }
 
 
-    private void useFlameThrower()
-    {
+    private void useFlameThrower(){
+
+        for (int i = 0; i < 20; i++) {
             Instantiate(shot, transform.position, transform.rotation);
-            //Set direction of the projectile
-            shot.GetComponent<FlameProjectile>().direction = getNearestVisibleSlime().transform.position - transform.position;
+        }
+            
+        //Set direction of the projectile
+        shot.GetComponent<FlameProjectile>().direction = getNearestVisibleSlime().transform.position - transform.position;
     }
 
     private bool tryEnterFleeState()

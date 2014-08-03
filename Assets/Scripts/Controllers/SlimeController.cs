@@ -59,6 +59,12 @@ public class SlimeController : MonoBehaviour {
 	//The Animator for the eye, used to transfer states via triggers
 	public Animator Eye_Animator;
 
+    //asdasd
+    private Path _slimeHighlightPath = null;
+    private float _timeForPathRecalculate = 0.0f;
+    private Texture2D _greenTexture;
+    private Texture2D _redTexture;
+
     //selected tile of slime
     private Slime currentSelectedSlime;
     private static SlimeController _instance = null;
@@ -80,6 +86,13 @@ public class SlimeController : MonoBehaviour {
         radioactiveOffenseSFX = Resources.Load<AudioClip>("Sounds/SFX/radiation_offense");
 
         slimeExpansionSFX = Resources.Load<AudioClip>("Sounds/SFX/slime_expanding");
+
+        _greenTexture = new Texture2D(1, 1, TextureFormat.ARGB32, false, true);
+        _greenTexture.SetPixel(0, 0, new Color(0.3f, 0.45f, 0.3f, 0.5f));
+        _greenTexture.Apply();
+        _redTexture = new Texture2D(1, 1, TextureFormat.ARGB32, false, true);
+        _redTexture.SetPixel(0, 0, new Color(0.5f, 0.3f, 0.3f, 0.6f));
+        _redTexture.Apply();
     }
 
     // Use this for initialization
@@ -89,6 +102,49 @@ public class SlimeController : MonoBehaviour {
         electricityLevel = 0;
         bioLevel = 0;
         gainEnergy(20);
+    }
+
+    public void OnGUI() {
+        if (_currentCastType != ElementalCastType.NONE) {
+            Vector2 mousePosition = Input.mousePosition;
+            mousePosition.y = Screen.height - mousePosition.y;
+            GUI.Box(new Rect(mousePosition.x - 8, mousePosition.y - 8, 16, 16), "");
+        }
+
+        if ((Input.GetAxis("Mouse X") != 0) || (Input.GetAxis("Mouse Y") != 0)) {
+            _timeForPathRecalculate = Time.time + 0.1f;
+        }
+
+        if (currentSelectedSlime != null) {
+            if (Time.time > _timeForPathRecalculate) {
+                _timeForPathRecalculate = float.MaxValue;
+                _slimeHighlightPath = null;
+                if (!Minimap.getInstance().isPositionInFogOfWar(getCursorPosition())) {
+                    Astar.isWalkableFunction = Tile.isSlimeableFunction;
+                    Astar.isNeighborWalkableFunction = Tile.isSlimeableFunction;
+                    _slimeHighlightPath = Astar.findPath(getStartLocation(), getCursorPosition());
+                }
+            }
+        } else {
+            _slimeHighlightPath = null;
+        }
+
+        if (_slimeHighlightPath != null) {
+            float pathCost = Slime.getPathCost(_slimeHighlightPath);
+            Texture2D fillColor = pathCost > energy ? _redTexture : _greenTexture;
+
+            for (int i = 0; i < _slimeHighlightPath.Count; i++) {
+                Vector2 nodePos = _slimeHighlightPath[i];
+                Vector2 widthPos = Camera.main.WorldToScreenPoint(nodePos + Vector2.right);
+
+                nodePos = Camera.main.WorldToScreenPoint(nodePos);
+                float width = widthPos.x - nodePos.x;
+
+                nodePos.y = Screen.height - nodePos.y;
+
+                GUI.DrawTexture(new Rect(nodePos.x - width / 2, nodePos.y - width / 2, width, width), fillColor);
+            }
+        }
     }
 
     // Update is called once per frame
@@ -185,14 +241,6 @@ public class SlimeController : MonoBehaviour {
 
     public void skipNextFrame() {
         _shouldSkipNext = true;
-    }
-
-    public void OnGUI() {
-        if (_currentCastType != ElementalCastType.NONE) {
-            Vector2 mousePosition = Input.mousePosition;
-            mousePosition.y = Screen.height - mousePosition.y;
-            GUI.Box(new Rect(mousePosition.x - 8, mousePosition.y - 8, 16, 16), "");
-        }
     }
 
     public void beginCast(ElementalCastType castType) {

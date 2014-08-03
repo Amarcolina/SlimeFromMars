@@ -564,7 +564,7 @@ public class SlimeController : MonoBehaviour {
     }
 
     private float getElectricityOffenseDamage() {
-        return electricityLevel * 0.4f;
+        return 0.15f;
     }
 
     //outputs a circle of thick, high health slime from central point of selected slime tile

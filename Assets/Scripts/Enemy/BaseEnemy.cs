@@ -42,7 +42,7 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable{
         if (corpsePrefab) {
             Instantiate(corpsePrefab, transform.position, Quaternion.identity);
         }
-        Destroy(this);
+        Destroy(gameObject);
     }
 
     public void stun(float duration) {

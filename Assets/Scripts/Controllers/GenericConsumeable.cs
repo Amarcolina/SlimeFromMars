@@ -23,11 +23,13 @@ public class GenericConsumeable : MonoBehaviour, IGrabbable {
     public UILabel resourcedisplay_Label;
 	public UISprite resourcedisplay_Sprite;
     public GameObject resourcedisplay_GameObject;
+	private SlimeController _slimeControllerInstance;
 
     //flags item with special mutation property and type
     public bool isRadiationMutation = false;
     public bool isBioMutation = false;
     public bool isElectricityMutation = false;
+
 
     //Will destroy the info box if the item is eaten by slime
 	public void OnDestroy(){
@@ -39,15 +41,17 @@ public class GenericConsumeable : MonoBehaviour, IGrabbable {
 
     //Finds reference to the information display label and adds a box collider
     public void Awake(){
-        resourcedisplay_GameObject = GameObject.FindGameObjectWithTag ("ItemInfo");
+		_slimeControllerInstance = SlimeController.getInstance();
+		resourcedisplay_GameObject = GameObject.FindGameObjectWithTag ("ItemInfo");
         resourcedisplay_Label = resourcedisplay_GameObject.GetComponentInChildren<UILabel> ();
 		resourcedisplay_Sprite = resourcedisplay_GameObject.GetComponentInChildren<UISprite> ();
         gameObject.AddComponent<BoxCollider2D> ();
 	}
 
-    //Displays the information for a given item
+    //Displays the information for a given item and calculates potential energy
 	public void OnMouseOver(){
-        resourcedisplay_Label.text = gameObject.name +"\nRadiation:" + radiation + "\nBio:" + bio + "\nElectricity:" + electricity;
+		int potentialenergy = (int)size + ((int)_slimeControllerInstance.getRadiationLevel() * radiation) + ((int)_slimeControllerInstance.getElectricityLevel() * electricity) + ((int)_slimeControllerInstance.getBioLevel() * bio);
+		resourcedisplay_Label.text = gameObject.name +"\nRadiation:" + radiation + "\nBio:" + bio + "\nElectricity:" + electricity +"\nEnergy:" + potentialenergy;
         resourcedisplay_Label.enabled = true;
 		resourcedisplay_Sprite.enabled = true;
 	}

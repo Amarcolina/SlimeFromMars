@@ -129,12 +129,16 @@ public class GameUI : MonoBehaviour {
 
     }
 
+	public void SetAbilityRadius(float level, int radius){
+		
+	}
 
     // A set of functions set out to be used upon clicking the abilities in the skills panel. Each one corresponds to the icon
     // or ability on the panel.
     public void RadiationOffense() {
-        if (_slimeControllerInstance.getRadiationLevel() > 0) {
+		if (_slimeControllerInstance.getRadiationLevel() > 0) {
             _slimeControllerInstance.skipNextFrame();
+			//SetAbilityRadius(_slimeControllerInstance.getRadiationLevel, _slimeControllerInstance.RADIATION_BASE_RANGE);
             if (checkCanCastAbility(SlimeController.RADIATION_OFFENSE_COST)) {
                 _slimeControllerInstance.beginCast(ElementalCastType.RADIATION_OFFENSIVE);
             }

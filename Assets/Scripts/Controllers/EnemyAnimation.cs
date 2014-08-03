@@ -8,18 +8,8 @@ public class EnemyAnimation : MonoBehaviour {
 
 	public Animator enemy;
 	public const string WALK_KEY = "walk";
-	public const string SHOOT_KEY = "bulletfire";
-	public const string FLAMETHROWER_KEY = "flamethrower";
+	public const string SHOOT_KEY = "shoot";
 	public const string HIT_KEY = "hit";
-
-
-
-	//Called when enemy is ready to shoot flamethrower, requires direction input.
-	public void EnemyFlameThrower(float direction){
-		Flip (direction);
-		enemy.SetBool(WALK_KEY, false);
-		enemy.SetTrigger(FLAMETHROWER_KEY);
-	}
 
 	//Called when the enemy is ready to fire, requires a direction input.
 	public void EnemyShoot(float direction){

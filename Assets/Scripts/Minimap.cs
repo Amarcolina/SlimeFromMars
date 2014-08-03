@@ -68,6 +68,11 @@ public class Minimap : MonoBehaviour {
         handleFogOfWar();
     }
 
+    public bool isPositionInFogOfWar(Vector2Int position) {
+        Color c = _fogTexture.GetPixel(position.x - TEXTURE_OFFSET_X, position.y - TEXTURE_OFFSET_Y);
+        return c.a > 0.9f;
+    }
+
     public void clearFogOfWar(Vector2Int center, int envelopeRadius, int maxRadius) {
         for (int dx = -maxRadius; dx <= maxRadius; dx++) {
             for (int dy = -maxRadius; dy <= maxRadius; dy++) {

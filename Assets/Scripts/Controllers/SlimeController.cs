@@ -110,23 +110,25 @@ public class SlimeController : MonoBehaviour {
             GUI.Box(new Rect(mousePosition.x - 8, mousePosition.y - 8, 16, 16), "");
         }
 
-        switch (_currentCastType) {
-            case ElementalCastType.NONE:
-            case ElementalCastType.BIO_OFFENSIVE:
-                doPathHighlight();
-                break;
-            case ElementalCastType.ELECTRICITY_OFFENSIVE:
-                doLineHighlight();
-                break;
-            case ElementalCastType.RADIATION_DEFENSIVE:
-                doCircleHighlight(5);
-                break;
-            case ElementalCastType.RADIATION_OFFENSIVE:
-                doCircleHighlight(5);
-                break;
-            default:
-                Debug.LogWarning("Cannot handle [" + _currentCastType + "] elementatl cast type");
-                break;
+        if (currentSelectedSlime != null) {
+            switch (_currentCastType) {
+                case ElementalCastType.NONE:
+                case ElementalCastType.BIO_OFFENSIVE:
+                    doPathHighlight();
+                    break;
+                case ElementalCastType.ELECTRICITY_OFFENSIVE:
+                    doLineHighlight();
+                    break;
+                case ElementalCastType.RADIATION_DEFENSIVE:
+                    doCircleHighlight(getRadiationDefenceRadius(), getRadiationDefenceRange());
+                    break;
+                case ElementalCastType.RADIATION_OFFENSIVE:
+                    doCircleHighlight(getRadiationOffenceRadius(), getRadiationOffenceRange());
+                    break;
+                default:
+                    Debug.LogWarning("Cannot handle [" + _currentCastType + "] elementatl cast type");
+                    break;
+            }
         }
     }
 
@@ -327,9 +329,11 @@ public class SlimeController : MonoBehaviour {
     public void highlightSlimeTile() {
         Tile tileUnderCursor = getTileUnderCursor();
         //gets the slime component under the highlighted tile, if it exists
-        Slime slimeTile = tileUnderCursor.GetComponent<Slime>();
-        if (slimeTile != null && slimeTile.isConnected()) {
-            setSelectedSlime(slimeTile);
+        if (tileUnderCursor != null) {
+            Slime slimeTile = tileUnderCursor.GetComponent<Slime>();
+            if (slimeTile != null && slimeTile.isConnected()) {
+                setSelectedSlime(slimeTile);
+            }
         }
     }
 
@@ -357,7 +361,7 @@ public class SlimeController : MonoBehaviour {
     }
 
     public Vector2Int getStartLocation() {
-        return Tilemap.getTilemapLocation(currentSelectedSlime.transform.position);
+        return currentSelectedSlime.transform.position;
     }
 
     public void attemptToEat() {

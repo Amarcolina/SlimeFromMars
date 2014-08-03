@@ -61,8 +61,12 @@ public class SlimeController : MonoBehaviour {
 
     //asdasd
     private Path _slimeHighlightPath = null;
-    private Texture2D _greenTexture;
-    private Texture2D _redTexture;
+    private Texture2D _edgeGreenHorizontal;
+    private Texture2D _edgeGreenVertical;
+    private Texture2D _edgeRedHorizontal;
+    private Texture2D _edgeRedVertical;
+    private Texture2D _pathDotRed;
+    private Texture2D _pathDotGreen;
 
     //selected tile of slime
     private Slime currentSelectedSlime;
@@ -86,12 +90,12 @@ public class SlimeController : MonoBehaviour {
 
         slimeExpansionSFX = Resources.Load<AudioClip>("Sounds/SFX/slime_expanding");
 
-        _greenTexture = new Texture2D(1, 1, TextureFormat.ARGB32, false, true);
-        _greenTexture.SetPixel(0, 0, new Color(0.3f, 0.45f, 0.3f, 0.5f));
-        _greenTexture.Apply();
-        _redTexture = new Texture2D(1, 1, TextureFormat.ARGB32, false, true);
-        _redTexture.SetPixel(0, 0, new Color(0.5f, 0.3f, 0.3f, 0.6f));
-        _redTexture.Apply();
+        _edgeGreenHorizontal = Resources.Load<Texture2D>("Sprites/UISprites/Interface/BoundaryEdgeGreenHorizontal");
+        _edgeGreenVertical = Resources.Load<Texture2D>("Sprites/UISprites/Interface/BoundaryEdgeGreenVertical");
+        _edgeRedHorizontal = Resources.Load<Texture2D>("Sprites/UISprites/Interface/BoundaryEdgeRedHorizontal");
+        _edgeRedVertical = Resources.Load<Texture2D>("Sprites/UISprites/Interface/BoundaryEdgeRedVertical");
+        _pathDotGreen = Resources.Load<Texture2D>("Sprites/UISprites/Interface/PathDotGreen");
+        _pathDotRed = Resources.Load<Texture2D>("Sprites/UISprites/Interface/PathDotRed");
     }
 
     // Use this for initialization
@@ -139,18 +143,30 @@ public class SlimeController : MonoBehaviour {
         float distance = delta.magnitude;
         for (float d = distance; d >= 0.0f; d -= 1.0f) {
             Vector2 pos = startWorld + delta / distance * d;
-            drawGuiTexture(pos, 0.5f, d > getElectricityOffenseRange() ? _redTexture : _greenTexture);
+            drawGuiTexture(pos, 0.5f, 0.5f, d > getElectricityOffenseRange() ? _pathDotRed : _pathDotGreen);
         }
     }
 
     private void doCircleHighlight(int radius, float range) {
         Vector2 castDelta = getStartLocation() - getCursorPosition();
-        Texture2D _fillTexture = castDelta.magnitude > range ? _redTexture : _greenTexture;
+        float mag = castDelta.magnitude;
 
         for (int dx = -radius; dx <= radius; dx++) {
             for (int dy = -radius; dy <= radius; dy++) {
                 if (dx * dx + dy * dy <= radius * radius) {
-                    drawGuiTexture(getCursorPosition() + new Vector2Int(dx, dy), 1.0f, _fillTexture);
+                    Vector2 center = getCursorPosition() + new Vector2Int(dx, dy);
+                    if (dx * dx + (dy + 1) * (dy + 1) > radius * radius) {
+                        drawGuiTexture(center + new Vector2(0, 0.5f), 1.0f, 0.2f, mag > range ? _edgeRedHorizontal : _edgeGreenHorizontal);
+                    }
+                    if (dx * dx + (dy - 1) * (dy - 1) > radius * radius) {
+                        drawGuiTexture(center + new Vector2(0, -0.5f), 1.0f, 0.2f, mag > range ? _edgeRedHorizontal : _edgeGreenHorizontal);
+                    }
+                    if ((dx + 1) * (dx + 1) + dy * dy > radius * radius) {
+                        drawGuiTexture(center + new Vector2(0.5f, 0), 0.2f, 1.0f, mag > range ? _edgeRedVertical : _edgeGreenVertical);
+                    }
+                    if ((dx - 1) * (dx - 1) + dy * dy > radius * radius) {
+                        drawGuiTexture(center + new Vector2(-0.5f, 0), 0.2f, 1.0f, mag > range ? _edgeRedVertical : _edgeGreenVertical);
+                    } 
                 }
             }
         }
@@ -180,28 +196,30 @@ public class SlimeController : MonoBehaviour {
             Texture2D fillColor = null;
             if (_currentCastType == ElementalCastType.NONE) {
                 float pathCost = Slime.getPathCost(_slimeHighlightPath);
-                fillColor = pathCost > energy ? _redTexture : _greenTexture;
+                fillColor = pathCost > energy ? _pathDotRed : _pathDotGreen;
             } else {
                 float pathCost = _slimeHighlightPath.getLength();
-                fillColor = pathCost > getBioOffenseLength() ? _redTexture : _greenTexture;
+                fillColor = pathCost > getBioOffenseLength() ? _pathDotRed : _pathDotGreen;
             }
 
             for (int i = 0; i < _slimeHighlightPath.Count; i++) {
-                drawGuiTexture(_slimeHighlightPath[i], 1.0f, fillColor);
+                drawGuiTexture(_slimeHighlightPath[i], 1.0f, 1.0f, fillColor);
             }
         }
     }
 
-    private void drawGuiTexture(Vector2 position, float worldSize, Texture2D texture) {
+    private void drawGuiTexture(Vector2 position, float worldWidth, float worldHeight, Texture2D texture) {
         Vector2 nodePos = position;
-        Vector2 widthPos = Camera.main.WorldToScreenPoint(nodePos + Vector2.right * worldSize);
+        Vector2 widthPos = Camera.main.WorldToScreenPoint(nodePos + Vector2.right * worldWidth);
+        Vector2 heightPos = Camera.main.WorldToScreenPoint(nodePos + Vector2.up * worldHeight);
 
         nodePos = Camera.main.WorldToScreenPoint(nodePos);
         float width = widthPos.x - nodePos.x;
+        float height = heightPos.y - nodePos.y;
 
         nodePos.y = Screen.height - nodePos.y;
 
-        GUI.DrawTexture(new Rect(nodePos.x - width / 2, nodePos.y - width / 2, width, width), texture);
+        GUI.DrawTexture(new Rect(nodePos.x - width / 2, nodePos.y - height / 2, width, height), texture);
     }
 
     // Update is called once per frame

@@ -20,7 +20,7 @@ public class SoldierEnemy : BaseEnemy {
     [MinValue (0)]
     public float fireRange = 8.0f;
 
-    private float _timeUntilNextShot = 0.0f;
+    private bool _onShootCooldown = false;
     private SoldierState _currentState;
 
     private AudioClip bulletSFX;
@@ -68,12 +68,18 @@ public class SoldierEnemy : BaseEnemy {
     private bool tryEnterAttackState() {
         if (getNearestVisibleSlime() != null && bullets != 0) {
             _currentState = SoldierState.ATTACKING;
+            _onShootCooldown = false;
             return true;
         }
         return false;
     }
 
     private void attackState() {
+        if (_onShootCooldown) {
+            _enemyAnimation.EnemyStopped();
+            return;
+        }
+
         if (bullets == 0) {
             if (tryEnterFleeState()) {
                 enterWanderState();
@@ -84,20 +90,31 @@ public class SoldierEnemy : BaseEnemy {
                 return;
             }
 
-
+            
             if (Vector3.Distance(transform.position, getNearestVisibleSlime().transform.position) > fireRange) {
                 moveTowardsPoint(getNearestVisibleSlime().transform.position);
-                _timeUntilNextShot = timePerShot;
             } else {
-                _timeUntilNextShot -= Time.deltaTime;
-                if (_timeUntilNextShot <= 0.0f) {
-                    _timeUntilNextShot += timePerShot;
-                    getNearestVisibleSlime().damageSlime(1.5f);
+                _onShootCooldown = true;
+                _enemyAnimation.EnemyShoot(getNearestVisibleSlime().transform.position.x > transform.position.x ? 1.0f : -1.0f);
                     gameObject.AddComponent<SoundEffect>().sfx = bulletSFX;
-                    bullets--;
-                }
             }
         }
+    }
+
+    protected override void OnEnemyFire() {
+        base.OnEnemyFire();
+        StartCoroutine(damageSlimeCoroutine());
+    }
+
+    protected IEnumerator damageSlimeCoroutine() {
+        yield return null;
+        if (getNearestVisibleSlime(20, true) != null) {
+            getNearestVisibleSlime().damageSlime(1.5f);
+            getNearestVisibleSlime(20, true);
+            bullets--;
+        }
+        yield return new WaitForSeconds(timePerShot);
+        _onShootCooldown = false;
     }
 
     private bool tryEnterFleeState() {

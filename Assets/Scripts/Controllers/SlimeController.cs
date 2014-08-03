@@ -452,21 +452,16 @@ public class SlimeController : MonoBehaviour {
         Astar.isNeighborWalkableFunction = Tile.isSpikeableFunction;
         Path astarPath = Astar.findPath(getStartLocation(), getCursorPosition());
 
-        float pathCost = astarPath.getLength();
-        if (pathCost <= rangeOfAttack) {
-            bool canDamage = getTileUnderCursor().canDamageEntities();
-            if (canDamage) {
-                GameObject bioLance = Instantiate(spinePrefab) as GameObject;
-                bioLance.transform.position = getTileUnderCursor().transform.position;
-                BioLance bio = bioLance.GetComponent<BioLance>();
-                bio.setLancePath(astarPath);
-                bio.setLanceDamage(damageDone);
-                loseEnergy(BIO_OFFENSE_COST);
+        if (astarPath != null && astarPath.getLength() <= rangeOfAttack) {
+            GameObject bioLance = Instantiate(spinePrefab) as GameObject;
+            bioLance.transform.position = getTileUnderCursor().transform.position;
+            BioLance bio = bioLance.GetComponent<BioLance>();
+            bio.setLancePath(astarPath);
+            bio.setLanceDamage(damageDone);
+            loseEnergy(BIO_OFFENSE_COST);
 
-                gameObject.AddComponent<SoundEffect>().sfx = bioOffenseSFX;
-                //AudioSource.PlayClipAtPoint(bioOffenseSFX, bioLance.transform.position, 0.3f);
-                return true;
-            }
+            gameObject.AddComponent<SoundEffect>().sfx = bioOffenseSFX;
+            return true;
         }
         return false;
     }

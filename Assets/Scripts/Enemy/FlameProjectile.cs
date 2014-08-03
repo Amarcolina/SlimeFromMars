@@ -11,11 +11,6 @@ public class FlameProjectile : MonoBehaviour
     public float speed;
 
     /// <summary>
-    /// Moving direction
-    /// </summary>
-    public Vector2 direction;
-
-    /// <summary>
     /// projectile life
     /// </summary>
     public float life;
@@ -23,14 +18,7 @@ public class FlameProjectile : MonoBehaviour
     private GameObject tileGameObject;
     private Slime slime;
 
-    void Start()
-    {
-        //Not sure what I'm doing here
-        float fireAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-        float angleInsideOfCone = fireAngle + Random.Range(-20, 20);
-        transform.eulerAngles = new Vector3(0, 0, angleInsideOfCone);
-
-        //Destroy after finished its life
+    void Start(){
         Destroy(gameObject, life);
     }
 

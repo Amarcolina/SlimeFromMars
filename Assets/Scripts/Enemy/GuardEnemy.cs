@@ -32,8 +32,10 @@ public class GuardEnemy : BaseEnemy {
         _currentState = startState;
 
         flameThrowerSFX = Resources.Load<AudioClip>("Sounds/SFX/guard_flamethrower");
-    
+    }
 
+    void Start()
+    {
         gameObject.AddComponent<SoundEffect>();
     }
 
@@ -89,13 +91,14 @@ public class GuardEnemy : BaseEnemy {
             Mathf.Abs(transform.position.y - getNearestVisibleSlime().transform.position.y) > 0.1f) {
                 moveTowardsPoint(getNearestVisibleSlime().transform.position, attackSpeed);
         } else {
+            if (gameObject.GetComponent<SoundEffect>() != null)
+            {
+            }
             if (getNearestVisibleSlime(20, true) != null) {
                 _onShootCooldown = true;
-                if (gameObject.GetComponent<SoundEffect>() != null)
                 _enemyAnimation.EnemyShoot(getNearestVisibleSlime().transform.position.x > shotOrigin.position.x ? 1.0f : -1.0f);
-                {
-                    gameObject.GetComponent<SoundEffect>().PlaySound(flameThrowerSFX);
-                }
+                gameObject.GetComponent<SoundEffect>().PlaySound(flameThrowerSFX);
+                
             }
         }
     }

@@ -17,10 +17,22 @@ public class AstarSettings {
     public AStarEarlyFailureFunction earlyFailureFunction = null;
     public AStarIsPathWalkable isNeighborWalkableFunction = Tile.isWalkableFunction;
     public int maxNodesToCheck = -1;
+
+    public AstarSettings() { }
+
+    public AstarSettings(AstarSettings settings) {
+        this.movementCostFunction = settings.movementCostFunction;
+        this.heuristicFunction = settings.heuristicFunction;
+        this.isWalkableFunction = settings.isWalkableFunction;
+        this.earlySuccessFunction = settings.earlySuccessFunction;
+        this.earlyFailureFunction = settings.earlyFailureFunction;
+        this.isNeighborWalkableFunction = settings.isNeighborWalkableFunction;
+        this.maxNodesToCheck = settings.maxNodesToCheck;
+    }
 }
 
 public class Astar : MonoBehaviour {
-    public static AstarSettings astarSettings = new AstarSettings();
+    private static AstarSettings defaultSettings = new AstarSettings();
 
     public class Node : IComparable {
         Vector2Int position; //tilemap position of node
@@ -69,42 +81,38 @@ public class Astar : MonoBehaviour {
         }
     }
 
-    public static Path findPath(Vector2Int start, Vector2Int goal, bool shouldResetDefaults = true){
-        Path path = new Path();
-        findPathInternal(path, start, goal);
-        if (shouldResetDefaults) {
-            resetDefaults();
+    public static Path findPath(Vector2Int start, Vector2Int goal, AstarSettings settings = null){
+        if (settings == null) {
+            settings = defaultSettings;
         }
+
+        Path path = new Path();
+        findPathInternal(path, start, goal, settings);
+
         return path.Count == 0 ? null : path;
     }
 
-    public static IEnumerator findPathCoroutine(Path path, Vector2Int start, Vector2Int goal, bool shouldResetDefaults = true) {
+    public static IEnumerator findPathCoroutine(Path path, Vector2Int start, Vector2Int goal, AstarSettings settings = null) {
+        if (settings == null) {
+            settings = defaultSettings;
+        }
 
+        yield return findPathInternal(path, start, goal, settings);
     }
 
-    public static void resetDefaults() {
-        astarSettings.movementCostFunction = defaultMovementCost;
-        astarSettings.heuristicFunction = defaultHeuristic;
-        astarSettings.isWalkableFunction = Tile.isWalkableFunction;
-        astarSettings.isNeighborWalkableFunction = Tile.isWalkableFunction;
-        astarSettings.earlySuccessFunction = null;
-        astarSettings.earlyFailureFunction = null;
-        astarSettings.maxNodesToCheck = -1;
-    }
-
-    private static IEnumerator findPathInternal(Path path, Vector2Int start, Vector2Int goal) {
+    private static IEnumerator findPathInternal(Path path, Vector2Int start, Vector2Int goal, AstarSettings settings) {
         if (start == null || goal == null) {
             yield break;
         }
 
-        if (!isWalkableFunction(goal)) {
+        if (!settings.isWalkableFunction(goal)) {
             yield break;
         }
 
         MinHashHeap<Node> openList = new MinHashHeap<Node>();//nodes to be examined
         HashSet<Node> closedList = new HashSet<Node>();
         Dictionary<Vector2Int, Node> nodePostionMap = new Dictionary<Vector2Int, Node>();
-        Node startNode = new Node(start, goal, null, heuristicFunction(start, goal));
+        Node startNode = new Node(start, goal, null, settings.heuristicFunction(start, goal));
         Node goalNode = null;
         nodePostionMap.Add(startNode.getPosition(), startNode);
 
@@ -121,12 +129,12 @@ public class Astar : MonoBehaviour {
             }
 
             //We break the while loop if the earlySuccessFunction is met
-            if (earlySuccessFunction != null && earlySuccessFunction(current.getPosition())) {
+            if (settings.earlySuccessFunction != null && settings.earlySuccessFunction(current.getPosition())) {
                 break;
             }
 
             //We terminate the function and return no path found if the earlyFailureFunction is met
-            if (earlyFailureFunction != null && earlyFailureFunction(current.getPosition())) {
+            if (settings.earlyFailureFunction != null && settings.earlyFailureFunction(current.getPosition())) {
                 yield break;
             }
 
@@ -135,22 +143,22 @@ public class Astar : MonoBehaviour {
             //for neighbors of current:
             for(int neighborOffsetIndex = 0; neighborOffsetIndex < TilemapUtilities.neighborFullArray.Length; neighborOffsetIndex++) {
                 Vector2Int neighborPosition = current.getPosition() + TilemapUtilities.neighborFullArray[neighborOffsetIndex];
-                if (!TilemapUtilities.areTilesNeighbors(current.getPosition(), neighborPosition, true, isNeighborWalkableFunction)) {
+                if (!TilemapUtilities.areTilesNeighbors(current.getPosition(), neighborPosition, true, settings.isNeighborWalkableFunction)) {
                     continue;
                 }
 
-                if (!isWalkableFunction(neighborPosition)) {
+                if (!settings.isWalkableFunction(neighborPosition)) {
                     continue;
                 }
 
                 //checks for element in dictionary, then adds if non-existent
                 Node neighborNode = null;
                 if (!nodePostionMap.TryGetValue(neighborPosition, out neighborNode)) {
-                    neighborNode = new Node(neighborPosition, goal, current, heuristicFunction(neighborPosition, goal));
+                    neighborNode = new Node(neighborPosition, goal, current, settings.heuristicFunction(neighborPosition, goal));
                     nodePostionMap.Add(neighborNode.getPosition(), neighborNode);
                 }
 
-                float costFromStartToNeighbor = (current.getTotalCostFromStart() + movementCostFunction(current.getPosition(), neighborNode.getPosition()));
+                float costFromStartToNeighbor = (current.getTotalCostFromStart() + settings.movementCostFunction(current.getPosition(), neighborNode.getPosition()));
                 if (openList.contains(neighborNode) && costFromStartToNeighbor < neighborNode.getTotalCostFromStart()) {//if neighbor in OPEN and cost less than g(neighbor):
                     openList.extractElement(neighborNode);
                 }
@@ -174,7 +182,7 @@ public class Astar : MonoBehaviour {
             //if maxNodesToCheck is 0 or less, that is interpreted as unlimited number of nodes
             //if maxNodesToCheck is nonzero, we terminate with no path found 
             nodesChecked++;
-            if (maxNodesToCheck > 0 && nodesChecked >= maxNodesToCheck) {
+            if (settings.maxNodesToCheck > 0 && nodesChecked >= settings.maxNodesToCheck) {
                 yield return null;
             }
         }

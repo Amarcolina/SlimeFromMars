@@ -218,15 +218,16 @@ public class Slime : MonoBehaviour {
     }
 
     private void handleSlimeDetatch(Vector2Int origin) {
-        Astar.isWalkableFunction = isSlimeTile;
-        Astar.earlySuccessFunction = isLocationConnected;
-        Astar.earlyFailureFunction = isLocationDisconnected;
-        Astar.isNeighborWalkableFunction = Tile.isSlimeableFunction;
+        AstarSettings settings = new AstarSettings();
+        settings.isWalkableFunction = isSlimeTile;
+        settings.earlySuccessFunction = isLocationConnected;
+        settings.earlyFailureFunction = isLocationDisconnected;
+        settings.isNeighborWalkableFunction = Tile.isSlimeableFunction;
 
         _currSearchingConnectedIndex++;
 
         NeighborSlimeFunction function = delegate(Slime neighborSlime, Vector2Int neighborPosition) {
-            Path pathHome = Astar.findPath(neighborPosition, _anchorSlimeLocation, false);
+            Path pathHome = Astar.findPath(neighborPosition, _anchorSlimeLocation, settings);
 
             if (pathHome == null) {
                 neighborSlime.disconnectRecursively();
@@ -240,7 +241,6 @@ public class Slime : MonoBehaviour {
         };
 
         forEachNeighborSlime(function, origin);
-        Astar.resetDefaults();
     }
 
     private void disconnectRecursively() {

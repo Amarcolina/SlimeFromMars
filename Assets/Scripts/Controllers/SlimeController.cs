@@ -132,9 +132,10 @@ public class SlimeController : MonoBehaviour {
 
         if (Input.GetMouseButtonDown(1) && currentSelectedSlime != null){
             if (energy > 0) {
-                Astar.isWalkableFunction = Tile.isSlimeableFunction;
-                Astar.isNeighborWalkableFunction = Tile.isSlimeableFunction;
-                Path astarPath = Astar.findPath(getStartLocation(), getCursorPosition());
+                AstarSettings settings = new AstarSettings();
+                settings.isWalkableFunction = Tile.isSlimeableFunction;
+                settings.isNeighborWalkableFunction = Tile.isSlimeableFunction;
+                Path astarPath = Astar.findPath(getStartLocation(), getCursorPosition(), settings);
                 if (astarPath != null) {
                     int pathCost = Slime.getPathCost(astarPath);
                     //if the slime has the energy to move, take the astar path
@@ -445,9 +446,10 @@ public class SlimeController : MonoBehaviour {
     public bool useBioOffense() {
         int damageDone = BIO_BASE_DAMAGE * bioLevel;
         float rangeOfAttack = BIO_BASE_RANGE * bioLevel;
-        Astar.isWalkableFunction = Tile.isSpikeableFunction;
-        Astar.isNeighborWalkableFunction = Tile.isSpikeableFunction;
-        Path astarPath = Astar.findPath(getStartLocation(), getCursorPosition());
+        AstarSettings settings = new AstarSettings();
+        settings.isWalkableFunction = Tile.isSpikeableFunction;
+        settings.isNeighborWalkableFunction = Tile.isSpikeableFunction;
+        Path astarPath = Astar.findPath(getStartLocation(), getCursorPosition(), settings);
 
         if (astarPath != null && astarPath.getLength() <= rangeOfAttack) {
             GameObject bioLance = Instantiate(spinePrefab) as GameObject;

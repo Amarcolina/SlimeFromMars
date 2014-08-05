@@ -13,7 +13,7 @@
         
         CGPROGRAM
         #pragma surface surf Lambert
-        //
+
         sampler2D _MainTex;
         half _Health;
         half4 _Replace;

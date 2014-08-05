@@ -29,7 +29,7 @@
 			half4 c = tex2D (_MainTex, IN.uv_MainTex);
 
             half anyDiff = any(c.rgb - _Replace.rgb);
-            half4 replaceColor = lerp(_HealthColor, _EmptyColor, step(_Health, c.a));
+            half4 replaceColor = lerp(_HealthColor, _EmptyColor, smoothstep(_Health, _Health + 1.0 / 8.0, c.a));
 
             c = lerp(replaceColor, c, anyDiff) * _Color;
 

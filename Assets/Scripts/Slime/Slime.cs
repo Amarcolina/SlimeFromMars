@@ -25,6 +25,7 @@ public class Slime : MonoBehaviour {
     private static Vector2Int _anchorSlimeLocation = null;
 
     private AudioClip slimeDetach;
+    private SoundManager sfx;
 
     /* This method does the following:
      *      Initializes the slime sprite lookup table if it is not already initialized
@@ -36,6 +37,8 @@ public class Slime : MonoBehaviour {
         if (_anchorSlimeLocation == null) {
             _anchorSlimeLocation = transform.position;
         }
+
+        sfx = SoundManager.getInstance();
 
         if (textureRamp == null) {
             textureRamp = Resources.Load<Sprite>("Sprites/Slime/SlimeRamp");
@@ -248,7 +251,8 @@ public class Slime : MonoBehaviour {
         };
         forEachNeighborSlime(function, origin);
         if (didDetach) {
-            _slimeRenderer.gameObject.AddComponent<SoundEffect>().sfx = slimeDetach;
+            //_slimeRenderer.gameObject.AddComponent<SoundEffect>().sfx = slimeDetach;
+            sfx.PlaySound(gameObject, slimeDetach);
         }
         Astar.resetDefaults();
     }

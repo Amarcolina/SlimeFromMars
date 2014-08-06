@@ -27,6 +27,7 @@ public class SoldierEnemy : BaseEnemy {
     private SoldierState _currentState;
 
     private AudioClip bulletSFX;
+    private SoundManager sound;
 
     public override void Awake() {
         base.Awake();
@@ -34,6 +35,11 @@ public class SoldierEnemy : BaseEnemy {
 
 
         bulletSFX = Resources.Load<AudioClip>("Sounds/SFX/soldier_bullet");
+    }
+
+    void Start()
+    {
+        sound = SoundManager.getInstance();
     }
 
     void Update() {
@@ -99,7 +105,8 @@ public class SoldierEnemy : BaseEnemy {
             } else {
                 _onShootCooldown = true;
                 _enemyAnimation.EnemyShoot(getNearestVisibleSlime().transform.position.x > transform.position.x ? 1.0f : -1.0f);
-                gameObject.AddComponent<SoundEffect>().sfx = bulletSFX;
+               // gameObject.AddComponent<SoundEffect>().sfx = bulletSFX;
+                sound.PlaySoundAndWait(bulletSFX);
             }
         }
     }

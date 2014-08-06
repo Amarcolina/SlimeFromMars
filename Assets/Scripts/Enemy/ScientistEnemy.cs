@@ -29,6 +29,7 @@ public class ScientistEnemy : BaseEnemy {
     private bool _leavingHidingSpot = false;
 
     private AudioClip screamSFX;
+    private SoundManager sound;
     //private AudioClip walkSFX;
     //private AudioClip deathSFX;
 
@@ -44,6 +45,11 @@ public class ScientistEnemy : BaseEnemy {
         screamSFX = Resources.Load<AudioClip>("Sounds/SFX/scientist_scream");
         //walkSFX = Resources.Load<AudioClip>("Sounds/SFX/scientist_footsteps");
         //deathSFX = Resources.Load<AudioClip>("Sounds/SFX/scientist_death");
+    }
+
+    void Start()
+    {
+        sound = SoundManager.getInstance();
     }
 
     void Update() {
@@ -68,7 +74,7 @@ public class ScientistEnemy : BaseEnemy {
                 _currentStateFunction = wanderState;
                 break;
             case ScientistState.FLEEING:
-                gameObject.AddComponent<SoundEffect>().sfx = screamSFX;
+                sound.PlaySoundAndWait(screamSFX);
 
                 _currentStateFunction = fleeState;
                 break;

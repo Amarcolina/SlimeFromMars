@@ -57,6 +57,8 @@ public class SlimeController : MonoBehaviour {
     private Texture2D _pathDotRed;
     private Texture2D _pathDotGreen;
 
+    private SoundManager sound;
+
     //selected tile of slime
     private Slime currentSelectedSlime;
     private static SlimeController _instance = null;
@@ -91,6 +93,7 @@ public class SlimeController : MonoBehaviour {
     // Use this for initialization
     void Start() {
         _gameUi = GameUI.getInstance();
+        sound = SoundManager.getInstance();
         radiationLevel = 0;
         electricityLevel = 0;
         bioLevel = 0;
@@ -269,10 +272,14 @@ public class SlimeController : MonoBehaviour {
                     if (energy >= pathCost) {
                         loseEnergy(pathCost);
                         currentSelectedSlime.requestExpansionAllongPath(astarPath);
-                        if (!audio.isPlaying) {
+                     /*   if (!audio.isPlaying) {
                             audio.clip = slimeExpansionSFX;
                             audio.Play();
-                        }
+                        }*/
+                      //  if (!sound.isPlaying())
+                      //  {
+                            sound.PlaySoundAndWait(slimeExpansionSFX);
+                      //  }
                     }
                 }
             } else {
@@ -389,7 +396,8 @@ public class SlimeController : MonoBehaviour {
                 GenericConsumeable possibleConsumeable = entity.GetComponent<GenericConsumeable>();
                 if (possibleConsumeable != null) {
                     consume(possibleConsumeable);
-                    gameObject.AddComponent<SoundEffect>().sfx = slimeEatingSFX;
+                    sound.PlaySoundAndWait(slimeEatingSFX);
+                    //gameObject.AddComponent<SoundEffect>().sfx = slimeEatingSFX;
                 }
             }
         }
@@ -437,8 +445,8 @@ public class SlimeController : MonoBehaviour {
         //if distance is within range of attack, check each tile in the radius and then irradiate each tile that can be irradiated
         if (Vector2Int.distance(getStartLocation(), getCursorPosition()) <= rangeOfAttack) {
             int circleRadius = getRadiationDefenceRadius();
-
-            gameObject.AddComponent<SoundEffect>().sfx = radioactiveDefenseSFX;
+            sound.PlaySoundAndWait(radioactiveDefenseSFX);
+            //gameObject.AddComponent<SoundEffect>().sfx = radioactiveDefenseSFX;
             for (int dx = -circleRadius; dx <= circleRadius; dx++) {
                 for (int dy = -circleRadius; dy <= circleRadius; dy++) {
                     Vector2 tileOffset = new Vector2(dx, dy);
@@ -474,7 +482,8 @@ public class SlimeController : MonoBehaviour {
         float rangeOfAttack = getRadiationOffenceRange();
         //if distance is within range of attack, create the radius of radiation
         if (Vector2Int.distance(getStartLocation(), getCursorPosition()) <= rangeOfAttack) {
-            gameObject.AddComponent<SoundEffect>().sfx = radioactiveOffenseSFX;
+            sound.PlaySoundAndWait(radioactiveOffenseSFX);
+            //gameObject.AddComponent<SoundEffect>().sfx = radioactiveOffenseSFX;
             int circleRadius = getRadiationOffenceRadius();
             for (int dx = -circleRadius; dx <= circleRadius; dx++) {
                 for (int dy = -circleRadius; dy <= circleRadius; dy++) {
@@ -508,7 +517,8 @@ public class SlimeController : MonoBehaviour {
     //outputs circle of enemy-damaging electricity from central point of selected slime tile
     //radius increases with electricityLevel, as does damage
     public void useElectricityDefense() {
-        gameObject.AddComponent<SoundEffect>().sfx = electricDefenseSFX;
+        sound.PlaySoundAndWait(electricDefenseSFX);
+        //gameObject.AddComponent<SoundEffect>().sfx = electricDefenseSFX;
 
         int circleRadius = getElectricityDefenceRadius();
         for (int dx = -circleRadius; dx <= circleRadius; dx++) {
@@ -571,7 +581,8 @@ public class SlimeController : MonoBehaviour {
     //radius and health increases with bioLevel
     //defense will remain until destroyed by enemies
     public void useBioDefense() {
-        gameObject.AddComponent<SoundEffect>().sfx = bioDefenseSFX;
+        sound.PlaySoundAndWait(bioDefenseSFX);
+        //gameObject.AddComponent<SoundEffect>().sfx = bioDefenseSFX;
         int circleRadius = getBioDefenceRadius();
         for (int dx = -circleRadius; dx <= circleRadius; dx++) {
             for (int dy = -circleRadius; dy <= circleRadius; dy++) {
@@ -609,8 +620,8 @@ public class SlimeController : MonoBehaviour {
             bio.setLancePath(astarPath);
             bio.setLanceDamage(getBioOffenseDamage());
             loseEnergy(BIO_OFFENSE_COST);
-
-            gameObject.AddComponent<SoundEffect>().sfx = bioOffenseSFX;
+            sound.PlaySoundAndWait(bioOffenseSFX);
+            //gameObject.AddComponent<SoundEffect>().sfx = bioOffenseSFX;
             return true;
         }
         return false;

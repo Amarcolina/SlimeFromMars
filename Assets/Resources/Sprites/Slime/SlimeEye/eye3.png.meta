@@ -1,6 +1,8 @@
 fileFormatVersion: 2
 guid: e2715ce8f7b018d4ebed02fae0c38760
 TextureImporter:
+  fileIDToRecycleName:
+    21300000: eye3
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0

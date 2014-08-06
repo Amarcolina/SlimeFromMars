@@ -46,24 +46,26 @@ public class GameUI : MonoBehaviour {
     }
 
     public void Update() {
-        if (Input.GetKeyDown(KeyCode.F1)) {
+
+        if (Input.GetKeyDown(HotkeyType.BIO_OFFENSIVE_KEY.getKeyCode())) {
             BioOffense();
         }
-        if (Input.GetKeyDown(KeyCode.F2)) {
+        if (Input.GetKeyDown(HotkeyType.ELECTRIC_OFFENSIVE_KEY.getKeyCode())) {
             LightningOffense();
         }
-        if (Input.GetKeyDown(KeyCode.F3)) {
+        if (Input.GetKeyDown(HotkeyType.RADIATION_OFFENSIVE_KEY.getKeyCode())) {
             RadiationOffense();
         }
-        if (Input.GetKeyDown(KeyCode.F4)) {
+        if (Input.GetKeyDown(HotkeyType.BIO_DEFENSIVE_KEY.getKeyCode())) {
             BioDefense();
         }
-        if (Input.GetKeyDown(KeyCode.F5)) {
+        if (Input.GetKeyDown(HotkeyType.ELECTRIC_DEFENSIVE_KEY.getKeyCode())) {
             LightningDefense();
         }
-        if (Input.GetKeyDown(KeyCode.F6)) {
+        if (Input.GetKeyDown(HotkeyType.RADIATION_DEFENSIVE_KEY.getKeyCode())) {
             RadiationDefense();
         }
+
         if (warningtime > 0) {
             warningtime -= Time.deltaTime;
             WarningText_Label.alpha -= .01f;

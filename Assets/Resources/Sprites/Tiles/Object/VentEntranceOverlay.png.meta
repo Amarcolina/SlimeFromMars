@@ -1,8 +1,8 @@
 fileFormatVersion: 2
-guid: 93f0e781db29aca4687e866f89ad6c00
+guid: 2003ede6b35f9394dbe28886ddd01525
 TextureImporter:
   fileIDToRecycleName:
-    21300000: smallVent
+    21300000: VentEntranceOverlay
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0

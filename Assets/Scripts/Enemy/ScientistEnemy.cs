@@ -74,7 +74,7 @@ public class ScientistEnemy : BaseEnemy {
                 _currentStateFunction = wanderState;
                 break;
             case ScientistState.FLEEING:
-                sound.PlaySoundAndWait(screamSFX);
+                sound.PlaySound(gameObject, screamSFX);
 
                 _currentStateFunction = fleeState;
                 break;

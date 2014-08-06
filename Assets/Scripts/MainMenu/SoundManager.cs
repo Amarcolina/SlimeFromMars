@@ -43,7 +43,7 @@ public class SoundManager : MonoBehaviour
     }
 
     //Plays a sound and waits until it is finished to play the sound again
-    public void PlaySoundAndWait(GameObject gameObj, AudioClip sfx)
+    public void PlaySoundAndWait(AudioClip sfx)
     {
         source.clip = sfx;
         if (sfx != null /*&& !source.isPlaying*/)
@@ -55,7 +55,8 @@ public class SoundManager : MonoBehaviour
             }
         }
     }
-    public void PlaySoundAndWait(GameObject gameObj, AudioClip sfx, bool loop)
+    //Override method to loop sound
+    public void PlayLoop(AudioClip sfx)
     {
         source.clip = sfx;
         if (sfx != null)
@@ -63,15 +64,12 @@ public class SoundManager : MonoBehaviour
             if (!source.isPlaying)
             {
                 source.Play();
+                source.loop = true;
                 //AudioSource.PlayClipAtPoint(source.clip, gameObj.transform.position);
             }
         }
-        if (loop)
-        {
-            source.loop = true;
-        }
     }
-
+    //Plays a sound at position
     public void PlaySound(GameObject gameObj, AudioClip sfx)
     {
         source.clip = sfx;

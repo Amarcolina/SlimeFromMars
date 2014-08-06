@@ -106,7 +106,7 @@ public class SoldierEnemy : BaseEnemy {
                 _onShootCooldown = true;
                 _enemyAnimation.EnemyShoot(getNearestVisibleSlime().transform.position.x > transform.position.x ? 1.0f : -1.0f);
                // gameObject.AddComponent<SoundEffect>().sfx = bulletSFX;
-                sound.PlaySoundAndWait(bulletSFX);
+                sound.PlaySound(gameObject, bulletSFX);
             }
         }
     }

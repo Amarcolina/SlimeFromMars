@@ -252,7 +252,7 @@ public class Slime : MonoBehaviour {
         forEachNeighborSlime(function, origin);
         if (didDetach) {
             //_slimeRenderer.gameObject.AddComponent<SoundEffect>().sfx = slimeDetach;
-            sfx.PlaySound(gameObject, slimeDetach);
+            sfx.PlaySoundAndWait(slimeDetach);
         }
         Astar.resetDefaults();
     }

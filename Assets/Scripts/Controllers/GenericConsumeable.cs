@@ -50,16 +50,19 @@ public class GenericConsumeable : MonoBehaviour, IGrabbable {
 
     //Displays the information for a given item and calculates potential energy
 	public void OnMouseOver(){
-		int potentialenergy = (int)size + ((int)_slimeControllerInstance.getRadiationLevel() * radiation) + ((int)_slimeControllerInstance.getElectricityLevel() * electricity) + ((int)_slimeControllerInstance.getBioLevel() * bio);
-		resourcedisplay_Label.text = gameObject.name +"\nRadiation:" + radiation + "\nBio:" + bio + "\nElectricity:" + electricity +"\nEnergy:" + potentialenergy;
-        resourcedisplay_Label.enabled = true;
-		resourcedisplay_Sprite.enabled = true;
+		if (Input.GetMouseButtonDown (0)) {
+			int potentialenergy = (int)size + ((int)_slimeControllerInstance.getRadiationLevel () * radiation) + ((int)_slimeControllerInstance.getElectricityLevel () * electricity) + ((int)_slimeControllerInstance.getBioLevel () * bio);
+			resourcedisplay_Label.text = gameObject.name + "\nRadiation:" + radiation + "\nBio:" + bio + "\nElectricity:" + electricity + "\nEnergy:" + potentialenergy;
+			resourcedisplay_Label.enabled = true;
+			resourcedisplay_Sprite.enabled = true;
+		}
 	}
     //Hides the information for a given item
+/*
 	public void OnMouseExit(){
         resourcedisplay_Label.enabled = false;
 		resourcedisplay_Sprite.enabled = false;
 	}
-
+*/
 }
 

@@ -48,6 +48,11 @@ public class SlimeController : MonoBehaviour {
 	//The Animator for the eye, used to transfer states via triggers
 	public Animator Eye_Animator;
 
+	//Resource UI related objects
+	public UILabel resourcedisplay_Label;
+	public UISprite resourcedisplay_Sprite;
+	public GameObject resourcedisplay_GameObject;
+
     //asdasd
     private Path _slimeHighlightPath = null;
     private Texture2D _edgeGreenHorizontal;
@@ -86,6 +91,10 @@ public class SlimeController : MonoBehaviour {
         _pathDotGreen = Resources.Load<Texture2D>("Sprites/UISprites/Interface/PathDotGreen");
         _pathDotRed = Resources.Load<Texture2D>("Sprites/UISprites/Interface/PathDotRed");
         slimeEatingSFX = Resources.Load<AudioClip>("Sounds/SFX/slime_eating");
+		//Finds the Resource UI
+		resourcedisplay_GameObject = GameObject.FindGameObjectWithTag ("ItemInfo");
+		resourcedisplay_Label = resourcedisplay_GameObject.GetComponentInChildren<UILabel> ();
+		resourcedisplay_Sprite = resourcedisplay_GameObject.GetComponentInChildren<UISprite> ();
     }
 
     // Use this for initialization
@@ -248,6 +257,7 @@ public class SlimeController : MonoBehaviour {
     }
 
     private void handleNormalInteraction() {
+
         if (Input.GetMouseButtonDown(0)){
             highlightSlimeTile();
         }
@@ -259,7 +269,8 @@ public class SlimeController : MonoBehaviour {
         }
 
         if (Input.GetMouseButtonUp(1) && currentSelectedSlime != null){
-            if (energy > 0) {
+			RemoveResourceBox ();
+			if (energy > 0) {
                 Astar.isWalkableFunction = Tile.isSlimeableFunction;
                 Astar.isNeighborWalkableFunction = Tile.isSlimeableFunction;
                 Path astarPath = Astar.findPath(getStartLocation(), getCursorPosition());
@@ -282,7 +293,8 @@ public class SlimeController : MonoBehaviour {
     }
 
     private void handleCastInteraction() {
-        if (Input.GetKeyDown(KeyCode.Mouse1)) {
+		RemoveResourceBox ();
+		if (Input.GetKeyDown(KeyCode.Mouse1)) {
             _currentCastType = ElementalCastType.NONE;
         }
 
@@ -348,7 +360,8 @@ public class SlimeController : MonoBehaviour {
         if (tileUnderCursor != null) {
             Slime slimeTile = tileUnderCursor.GetComponent<Slime>();
             if (slimeTile != null && slimeTile.isConnected()) {
-                setSelectedSlime(slimeTile);
+				RemoveResourceBox ();
+				setSelectedSlime(slimeTile);
             }
         }
     }
@@ -358,7 +371,7 @@ public class SlimeController : MonoBehaviour {
         if (currentSelectedSlime == null) {
             renderer.enabled = false;
         } else {
-			Eye_Animator.SetTrigger ("Blink");
+            Eye_Animator.SetTrigger ("Blink");
         }
     }
 
@@ -396,13 +409,17 @@ public class SlimeController : MonoBehaviour {
     }
 
     private void loseEnergy(int cost) {
-        energy -= cost;
-        _gameUi.ResourceUpdate(energy);
+       energy -= cost;
+       if (cost != 0) {
+           _gameUi.ResourceUpdate (energy);
+       }
     }
 
     public void gainEnergy(int plus) {
         energy += plus;
-        _gameUi.ResourceUpdate(energy);
+        if (plus != 0){
+           _gameUi.ResourceUpdate (energy);
+		}
     }
 
     private void GameOver() {
@@ -648,5 +665,11 @@ public class SlimeController : MonoBehaviour {
         renderer.enabled = true;
         Eye_Animator.SetTrigger ("ReverseBlink");
     }
+
+	public void RemoveResourceBox(){
+		resourcedisplay_Label.enabled = false;
+		resourcedisplay_Sprite.enabled = false;
+	}
+
 }
 

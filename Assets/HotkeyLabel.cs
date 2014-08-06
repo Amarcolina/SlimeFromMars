@@ -25,4 +25,9 @@ public static class HotkeyTypeExtensions{
 
 public class HotkeyLabel : MonoBehaviour {
     public HotkeyType hotkeyType;
+
+    public void Awake() {
+        UILabel label = GetComponent<UILabel>();
+        label.text = hotkeyType.getKeyCode().ToString();
+    }
 }

@@ -11,8 +11,6 @@ public enum ElementalCastType {
     RADIATION_DEFENSIVE
 }
 
-
-
 /*This class keeps track of slime attribute values, mutation types, offense/defense abilities based on mutation type, and offense/defense values
  * 
  */
@@ -43,16 +41,6 @@ public class SlimeController : MonoBehaviour {
     public const int BIO_OFFENSE_COST = 8;
     public const int RADIATION_DEFENSE_COST = 12;
     public const int RADIATION_OFFENSE_COST = 10;
-
-    //base damage for skills
-    private const int ELECTRICITY_BASE_DAMAGE = 5;
-    private const int BIO_BASE_DAMAGE = 2;
-    private const int RADIATION_BASE_DAMAGE = 1;
-
-    //base range for skills
-    private const int ELECTRICITY_BASE_RANGE = 3;
-    private const int BIO_BASE_RANGE = 3;
-    private const int RADIATION_BASE_RANGE = 2;
 
     private ElementalCastType _currentCastType = ElementalCastType.NONE;
     private bool _shouldSkipNext = false;
@@ -473,11 +461,11 @@ public class SlimeController : MonoBehaviour {
     }
 
     private float getRadiationDefenceRange() {
-        return RADIATION_BASE_RANGE * radiationLevel;
+        return 2 * radiationLevel + 3;
     }
 
     private int getRadiationDefenceRadius() {
-        return 3 * radiationLevel;
+        return radiationLevel + 1;
     }
 
     //Allows slime to irradiate an area for a period of time such that enemies are damaged per second
@@ -503,8 +491,6 @@ public class SlimeController : MonoBehaviour {
                     }
                 }
             }
-
-            //AudioSource.PlayClipAtPoint(radioactiveOffenseSFX, getStartLocation(), 0.3f);
             loseEnergy(RADIATION_OFFENSE_COST);
             return true;
         }
@@ -512,27 +498,27 @@ public class SlimeController : MonoBehaviour {
     }
 
     private float getRadiationOffenceRange() {
-        return RADIATION_BASE_RANGE * radiationLevel;
+        return 3 * radiationLevel + 2;
     }
 
     private int getRadiationOffenceRadius() {
-        return 3 * radiationLevel;
+        return radiationLevel + 1;
     }
 
     //outputs circle of enemy-damaging electricity from central point of selected slime tile
     //radius increases with electricityLevel, as does damage
     public void useElectricityDefense() {
-        //AudioSource.PlayClipAtPoint(electricDefenseSFX, getStartLocation(), 0.2f);
-
         gameObject.AddComponent<SoundEffect>().sfx = electricDefenseSFX;
-        int circleRadius = electricityLevel;
+
+        int circleRadius = getElectricityDefenceRadius();
         for (int dx = -circleRadius; dx <= circleRadius; dx++) {
             for (int dy = -circleRadius; dy <= circleRadius; dy++) {
                 Vector2 tileOffset = new Vector2(dx, dy);
                 if (tileOffset.sqrMagnitude <= circleRadius * circleRadius) {
                     Tile tile = Tilemap.getInstance().getTile(getStartLocation() + new Vector2Int(dx, dy));
                     if (tile != null && tile.GetComponent<Slime>() != null) {
-                        tile.gameObject.AddComponent<Electrified>();
+                        Electrified electrified = tile.gameObject.AddComponent<Electrified>();
+                        electrified.setDamage(getElectricityDefenseDamage());
                     }
                 }
             }
@@ -540,10 +526,17 @@ public class SlimeController : MonoBehaviour {
         loseEnergy(ELECTRICITY_DEFENSE_COST);
     }
 
+    private int getElectricityDefenceRadius() {
+        return electricityLevel;
+    }
+
+    private float getElectricityDefenseDamage() {
+        return electricityLevel * 0.2f + 0.2f;
+    }
+
     //sends a bolt of electricity at an enemy, up to a max distance away, and ars to nearby enemies for chain damage
     //damage and range increase with electricityLevel
     public bool useElectricityOffense() {
-        int damageDone = ELECTRICITY_BASE_DAMAGE * electricityLevel;
         float rangeOfAttack = getElectricityOffenseRange();
         //if enemy is within range of attack, use electricity
         if (Vector2Int.distance(getStartLocation(), getCursorPosition()) <= rangeOfAttack) {
@@ -557,7 +550,7 @@ public class SlimeController : MonoBehaviour {
                 ElectricityArc arc = electricityArc.AddComponent<ElectricityArc>();
 
                 arc.setArcRadius(electricityLevel + 1);
-                arc.setArcDamage(damageDone);
+                arc.setArcDamage(getElectricityOffenseDamage());
                 arc.setArcNumber(electricityLevel + 1);
                 arc.setDestination(getCursorPosition());
                 return true;
@@ -567,17 +560,19 @@ public class SlimeController : MonoBehaviour {
     }
 
     private float getElectricityOffenseRange() {
-        return ELECTRICITY_BASE_RANGE * electricityLevel;
+        return 3 * electricityLevel + 2;
+    }
+
+    private float getElectricityOffenseDamage() {
+        return 0.15f;
     }
 
     //outputs a circle of thick, high health slime from central point of selected slime tile
     //radius and health increases with bioLevel
     //defense will remain until destroyed by enemies
     public void useBioDefense() {
-        //AudioSource.PlayClipAtPoint(bioDefenseSFX, getStartLocation(), 0.3f);
-
         gameObject.AddComponent<SoundEffect>().sfx = bioDefenseSFX;
-        int circleRadius = bioLevel;
+        int circleRadius = getBioDefenceRadius();
         for (int dx = -circleRadius; dx <= circleRadius; dx++) {
             for (int dy = -circleRadius; dy <= circleRadius; dy++) {
                 Vector2 tileOffset = new Vector2(dx, dy);
@@ -595,10 +590,13 @@ public class SlimeController : MonoBehaviour {
         loseEnergy(BIO_DEFENSE_COST);
     }
 
+    private int getBioDefenceRadius() {
+        return bioLevel;
+    }
+
     //Creates a tentacle that can stab and impale enemies, as well as drag them towards the slime at higher levels
     //Damage and range are based on level
     public bool useBioOffense() {
-        int damageDone = BIO_BASE_DAMAGE * bioLevel;
         float rangeOfAttack = getBioOffenseLength();
         Astar.isWalkableFunction = Tile.isSpikeableFunction;
         Astar.isNeighborWalkableFunction = Tile.isSpikeableFunction;
@@ -609,7 +607,7 @@ public class SlimeController : MonoBehaviour {
             bioLance.transform.position = getTileUnderCursor().transform.position;
             BioLance bio = bioLance.GetComponent<BioLance>();
             bio.setLancePath(astarPath);
-            bio.setLanceDamage(damageDone);
+            bio.setLanceDamage(getBioOffenseDamage());
             loseEnergy(BIO_OFFENSE_COST);
 
             gameObject.AddComponent<SoundEffect>().sfx = bioOffenseSFX;
@@ -619,8 +617,16 @@ public class SlimeController : MonoBehaviour {
     }
 
     private float getBioOffenseLength() {
-        return BIO_BASE_RANGE * bioLevel;
+        return 3 * bioLevel + 3;
     }
+
+    private float getBioOffenseDamage() {
+        return bioLevel * 0.21f;
+    }
+
+
+
+
 
     public float getElectricityLevel() {
         return electricityLevel;

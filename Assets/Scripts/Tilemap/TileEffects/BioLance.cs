@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class BioLance : MonoBehaviour {
     Path lancePath;
-    int lanceDamage;
+    float lanceDamage;
     public const float SPINE_SPEED = 10;
     private SpineRenderer _spineRenderer;
 
@@ -66,7 +66,8 @@ public class BioLance : MonoBehaviour {
 
         Destroy(gameObject);
     }
-    public void setLanceDamage(int damage) {
+
+    public void setLanceDamage(float damage) {
         lanceDamage = damage;
     }
 

@@ -35,7 +35,14 @@ public class SlimeRenderer : MonoBehaviour {
         _spriteRenderer = rendererGameObject.AddComponent<SpriteRenderer>();
         _spriteRenderer.sortingLayerName = "Slime";
         _spriteRenderer.enabled = false;
-        _spriteRenderer.material.shader = Shader.Find("Custom/SlimeShader");
+
+        if (GetComponent<Tile>().isSlimeable) {
+            _spriteRenderer.material.shader = Shader.Find("Custom/SlimeShader");
+        } else {
+            _spriteRenderer.material.shader = Shader.Find("Custom/SlimeWallShader");
+            _spriteRenderer.sortingLayerName = "Default";
+            _spriteRenderer.material.SetTexture("_Smear", Resources.Load<Texture>("Sprites/Slime/SlimeWallRamp"));
+        }
     }
 
     public void OnDestroy() {

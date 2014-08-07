@@ -118,7 +118,7 @@ public class TilemapUtilities {
         
         rayHit.hitPosition = nextPosition;
         rayHit.previousPosition = currPosition;
-        rayHit.didHit = nextPosition != end;
+        rayHit.didHit = hitFunction(tilemap.getTileGameObject(nextPosition));
 
         return rayHit;
     }

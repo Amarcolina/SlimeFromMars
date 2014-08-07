@@ -67,6 +67,8 @@ public class SlimeController : MonoBehaviour {
     private Texture2D _edgeRedVertical;
     private Texture2D _pathDotRed;
     private Texture2D _pathDotGreen;
+    private Texture2D _tileGreen;
+    private Texture2D _tileRed;
 
     //selected tile of slime
     private Slime currentSelectedSlime;
@@ -96,6 +98,9 @@ public class SlimeController : MonoBehaviour {
         _edgeRedVertical = Resources.Load<Texture2D>("Sprites/UISprites/Interface/BoundaryEdgeRedVertical");
         _pathDotGreen = Resources.Load<Texture2D>("Sprites/UISprites/Interface/PathDotGreen");
         _pathDotRed = Resources.Load<Texture2D>("Sprites/UISprites/Interface/PathDotRed");
+        _tileGreen = Resources.Load<Texture2D>("Sprites/UISprites/Interface/TileGreen");
+        _tileRed = Resources.Load<Texture2D>("Sprites/UISprites/Interface/TileRed");
+
         slimeEatingSFX = Resources.Load<AudioClip>("Sounds/SFX/slime_eating");
         //Finds the Resource UI
         resourcedisplay_GameObject = GameObject.FindGameObjectWithTag("ItemInfo");
@@ -172,6 +177,7 @@ public class SlimeController : MonoBehaviour {
 
         foreach (Vector2Int position in _positionsInCircle) {
             Vector2 worldPosition = position;
+            drawGuiTexture(worldPosition, 1.0f, 1.0f, mag > range ? _tileRed : _tileGreen);
             if (!_positionsInCircle.Contains(position + Vector2Int.up)) {
                 drawGuiTexture(worldPosition + new Vector2(0, 0.5f), 1.0f, 0.2f, mag > range ? _edgeRedHorizontal : _edgeGreenHorizontal);
             }

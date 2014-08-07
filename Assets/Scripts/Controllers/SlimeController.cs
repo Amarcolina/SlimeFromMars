@@ -562,8 +562,7 @@ public class SlimeController : MonoBehaviour {
         Path astarPath = Astar.findPath(getStartLocation(), getCursorPosition());
 
         if (astarPath != null && astarPath.getLength() <= rangeOfAttack) {
-            GameObject bioLance = Instantiate(spinePrefab) as GameObject;
-            bioLance.transform.position = getTileUnderCursor().transform.position;
+            GameObject bioLance = Instantiate(spinePrefab, getCursorPosition(), Quaternion.identity) as GameObject;
             BioLance bio = bioLance.GetComponent<BioLance>();
             bio.setLancePath(astarPath);
             bio.setLanceDamage(getBioOffenseDamage());

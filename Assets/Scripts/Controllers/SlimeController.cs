@@ -48,6 +48,17 @@ public class SlimeController : MonoBehaviour {
     //The Animator for the eye, used to transfer states via triggers
     public Animator Eye_Animator;
 
+    //Resource UI related objects, necessary for checks
+    public UILabel resourcedisplay_Label;
+    public UISprite resourcedisplay_Sprite;
+    public GameObject resourcedisplay_GameObject;
+    public bool resourcesopen = false;
+    public int consumeradiation;
+    public int consumebio;
+    public int consumeelectricity;
+    public int consumesize;
+    public string consumename;
+
     //asdasd
     private Path _slimeHighlightPath = null;
     private Texture2D _edgeGreenHorizontal;
@@ -86,6 +97,10 @@ public class SlimeController : MonoBehaviour {
         _pathDotGreen = Resources.Load<Texture2D>("Sprites/UISprites/Interface/PathDotGreen");
         _pathDotRed = Resources.Load<Texture2D>("Sprites/UISprites/Interface/PathDotRed");
         slimeEatingSFX = Resources.Load<AudioClip>("Sounds/SFX/slime_eating");
+        //Finds the Resource UI
+        resourcedisplay_GameObject = GameObject.FindGameObjectWithTag("ItemInfo");
+        resourcedisplay_Label = resourcedisplay_GameObject.GetComponentInChildren<UILabel>();
+        resourcedisplay_Sprite = resourcedisplay_GameObject.GetComponentInChildren<UISprite>();
     }
 
     // Use this for initialization
@@ -131,6 +146,8 @@ public class SlimeController : MonoBehaviour {
             }
         }
     }
+
+
 
     private void doLineHighlight() {
         Vector2 startWorld = getStartLocation();
@@ -248,7 +265,13 @@ public class SlimeController : MonoBehaviour {
     }
 
     private void handleNormalInteraction() {
+
         if (Input.GetMouseButtonDown(0)) {
+            if (resourcesopen) {
+                ResourceUIActivated();
+            } else {
+                RemoveResourceBox();
+            }
             highlightSlimeTile();
         }
 
@@ -259,6 +282,7 @@ public class SlimeController : MonoBehaviour {
         }
 
         if (Input.GetMouseButtonUp(1) && currentSelectedSlime != null) {
+            RemoveResourceBox();
             if (energy > 0) {
                 Astar.isWalkableFunction = Tile.isSlimeableFunction;
                 Astar.isNeighborWalkableFunction = Tile.isSlimeableFunction;
@@ -282,6 +306,7 @@ public class SlimeController : MonoBehaviour {
     }
 
     private void handleCastInteraction() {
+        RemoveResourceBox();
         if (Input.GetKeyDown(KeyCode.Mouse1)) {
             _currentCastType = ElementalCastType.NONE;
         }
@@ -348,6 +373,7 @@ public class SlimeController : MonoBehaviour {
         if (tileUnderCursor != null) {
             Slime slimeTile = tileUnderCursor.GetComponent<Slime>();
             if (slimeTile != null && slimeTile.isConnected()) {
+                RemoveResourceBox();
                 setSelectedSlime(slimeTile);
             }
         }
@@ -403,12 +429,16 @@ public class SlimeController : MonoBehaviour {
 
     private void loseEnergy(int cost) {
         energy -= cost;
-        _gameUi.ResourceUpdate(energy);
+        if (cost != 0) {
+            _gameUi.ResourceUpdate(energy);
+        }
     }
 
     public void gainEnergy(int plus) {
         energy += plus;
-        _gameUi.ResourceUpdate(energy);
+        if (plus != 0) {
+            _gameUi.ResourceUpdate(energy);
+        }
     }
 
     private void GameOver() {
@@ -654,5 +684,30 @@ public class SlimeController : MonoBehaviour {
         renderer.enabled = true;
         Eye_Animator.SetTrigger("ReverseBlink");
     }
+
+    public void ResourceUIActivated() {
+        int potentialenergy = consumesize + (radiationLevel * consumeradiation) + (electricityLevel * consumeelectricity) + (bioLevel * consumebio);
+        resourcedisplay_Label.text = consumename + "\nRadiation:" + consumeradiation + "\nBio:" + consumebio + "\nElectricity:" + consumeelectricity + "\nEnergy:" + potentialenergy;
+        resourcedisplay_Label.enabled = true;
+        resourcedisplay_Sprite.enabled = true;
+        resourcesopen = false;
+    }
+
+    //Called by the consumable that was clicked on to check request the slime controller to set up the UI
+    public void ResourceUICheck(string name, int size, int bio, int radiation, int electricity) {
+        consumeradiation = radiation;
+        consumebio = bio;
+        consumeelectricity = electricity;
+        consumesize = size;
+        consumename = name;
+        resourcesopen = true;
+    }
+
+
+    public void RemoveResourceBox() {
+        resourcedisplay_Label.enabled = false;
+        resourcedisplay_Sprite.enabled = false;
+    }
+
 }
 

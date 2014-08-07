@@ -272,7 +272,7 @@ public class SlimeController : MonoBehaviour {
                     if (energy >= pathCost) {
                         loseEnergy(pathCost);
                         currentSelectedSlime.requestExpansionAllongPath(astarPath);
-                        sound.PlaySoundAndWait(gameObject.transform, slimeExpansionSFX);
+                        sound.PlaySound(gameObject.transform, slimeExpansionSFX, true);
                     }
                 }
             } else {

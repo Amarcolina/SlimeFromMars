@@ -30,19 +30,35 @@ public class SoundManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
-        foreach (AudioSource s in sounds)
+        for (int i = 0; i < sounds.Count; i++)
         {
-            if (s != null)
+            if (sounds[i] != null)
             {
                 if (gameUI.GetComponent<PauseMenu>().sfxMuted)
                 {
-                    s.mute = true;
+                    sounds[i].mute = true;
                 }
                 else
-                    s.mute = false;
+                    sounds[i].mute = false;
             }
+            else
+            {
+                sounds.RemoveAt(i);
+            }
+
         }
+        //foreach (AudioSource s in sounds)
+        //{
+        //    if (s != null)
+        //    {
+        //        if (gameUI.GetComponent<PauseMenu>().sfxMuted)
+        //        {
+        //            s.mute = true;
+        //        }
+        //        else
+        //            s.mute = false;
+        //    }
+        //}
     }
 
     //Plays a sound at position

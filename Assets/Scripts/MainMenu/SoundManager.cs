@@ -23,7 +23,7 @@ public class SoundManager : MonoBehaviour
     void Start()
     {
         gameUI = GameUI.getInstance();
-        source = gameObject.AddComponent<AudioSource>();
+        //source = gameObject.AddComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -43,14 +43,28 @@ public class SoundManager : MonoBehaviour
     }
 
     //Plays a sound and waits until it is finished to play the sound again
-    public void PlaySoundAndWait(AudioClip sfx)
+    public void PlaySoundAndWait(Transform emitter, AudioClip sfx)
     {
+        //Create an empty game object
+        GameObject go = new GameObject("Audio: " + sfx.name);
+        go.transform.position = emitter.position;
+        go.transform.parent = emitter;
+
+        ////Create the source
+        AudioSource source = go.AddComponent<AudioSource>();
         source.clip = sfx;
+        //if (!source.isPlaying)
+        //{
+        //    source.Play();
+        //    Destroy(go, sfx.length);
+        //}
+       // source = gameObject.AddComponent<AudioSource>();
         if (sfx != null /*&& !source.isPlaying*/)
         {
             if (!source.isPlaying)
             {
                 source.Play();
+                Destroy(go, sfx.length);
                 //AudioSource.PlayClipAtPoint(source.clip, gameObj.transform.position);
             }
         }
@@ -58,6 +72,7 @@ public class SoundManager : MonoBehaviour
     //Override method to loop sound
     public void PlayLoop(AudioClip sfx)
     {
+      //  source = gameObject.AddComponent<AudioSource>();
         source.clip = sfx;
         if (sfx != null)
         {
@@ -70,14 +85,15 @@ public class SoundManager : MonoBehaviour
         }
     }
     //Plays a sound at position
-    public void PlaySound(GameObject gameObj, AudioClip sfx)
+    public void PlaySound(AudioClip sfx)
     {
+        source = gameObject.AddComponent<AudioSource>();
         source.clip = sfx;
         if (sfx != null /*&& !source.isPlaying*/)
         {
-                AudioSource.PlayClipAtPoint(source.clip, gameObj.transform.position);
-            
+            source.Play();
         }
+        Destroy(gameObject.GetComponent<AudioSource>());
     }
 
 

@@ -137,7 +137,7 @@ public class SlimeController : MonoBehaviour {
                     doPathHighlight();
                     break;
                 case ElementalCastType.ELECTRICITY_OFFENSIVE:
-                    doLineHighlight();
+                    doLineHighlight(getElectricityOffenseRange());
                     break;
                 case ElementalCastType.RADIATION_DEFENSIVE:
                     doCircleHighlight(getRadiationDefenceRadius(), getRadiationDefenceRange());
@@ -154,20 +154,23 @@ public class SlimeController : MonoBehaviour {
 
 
 
-    private void doLineHighlight() {
+    private void doLineHighlight(float range) {
         Vector2 startWorld = getStartLocation();
         Vector2 endWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition); ;
         Vector2 delta = endWorld - startWorld;
         float distance = delta.magnitude;
+
+        bool canCast = canCastToCursor(range);
+
         for (float d = distance; d >= 0.0f; d -= 1.0f) {
             Vector2 pos = startWorld + delta / distance * d;
-            drawGuiTexture(pos, 0.5f, 0.5f, d > getElectricityOffenseRange() ? _pathDotRed : _pathDotGreen);
+            drawGuiTexture(pos, 0.5f, 0.5f, d <= range && canCast ? _pathDotGreen : _pathDotRed);
         }
     }
 
     private void doCircleHighlight(int radius, float range) {
         Vector2 castDelta = getStartLocation() - getCursorPosition();
-        float mag = castDelta.magnitude;
+        bool canCast = canCastToCursor(range);
 
         HashSet<Vector2Int> _positionsInCircle = new HashSet<Vector2Int>();
         TileCircleFunction circleFunction = delegate(Tile tile, Vector2Int position) {
@@ -177,18 +180,18 @@ public class SlimeController : MonoBehaviour {
 
         foreach (Vector2Int position in _positionsInCircle) {
             Vector2 worldPosition = position;
-            drawGuiTexture(worldPosition, 1.0f, 1.0f, mag > range ? _tileRed : _tileGreen);
+            drawGuiTexture(worldPosition, 1.0f, 1.0f, canCast ? _tileGreen : _tileRed);
             if (!_positionsInCircle.Contains(position + Vector2Int.up)) {
-                drawGuiTexture(worldPosition + new Vector2(0, 0.5f), 1.0f, 0.2f, mag > range ? _edgeRedHorizontal : _edgeGreenHorizontal);
+                drawGuiTexture(worldPosition + new Vector2(0, 0.5f), 1.0f, 0.2f, canCast ? _edgeGreenHorizontal : _edgeRedHorizontal);
             }
             if (!_positionsInCircle.Contains(position + Vector2Int.down)) {
-                drawGuiTexture(worldPosition + new Vector2(0, -0.5f), 1.0f, 0.2f, mag > range ? _edgeRedHorizontal : _edgeGreenHorizontal);
+                drawGuiTexture(worldPosition + new Vector2(0, -0.5f), 1.0f, 0.2f, canCast ? _edgeGreenHorizontal : _edgeRedHorizontal);
             }
             if (!_positionsInCircle.Contains(position + Vector2Int.right)) {
-                drawGuiTexture(worldPosition + new Vector2(0.5f, 0), 0.2f, 1.0f, mag > range ? _edgeRedVertical : _edgeGreenVertical);
+                drawGuiTexture(worldPosition + new Vector2(0.5f, 0), 0.2f, 1.0f, canCast ? _edgeGreenVertical : _edgeRedVertical);
             }
             if (!_positionsInCircle.Contains(position + Vector2Int.left)) {
-                drawGuiTexture(worldPosition + new Vector2(-0.5f, 0), 0.2f, 1.0f, mag > range ? _edgeRedVertical : _edgeGreenVertical);
+                drawGuiTexture(worldPosition + new Vector2(-0.5f, 0), 0.2f, 1.0f, canCast ? _edgeGreenVertical : _edgeRedVertical);
             }
         }
     }
@@ -421,7 +424,6 @@ public class SlimeController : MonoBehaviour {
     }
 
     public void attemptToEat() {
-
         Tile tileComponent = currentSelectedSlime.GetComponent<Tile>();
         HashSet<TileEntity> entities = tileComponent.getTileEntities();
         if (entities != null) {
@@ -478,7 +480,7 @@ public class SlimeController : MonoBehaviour {
     //Allows slime to irradiate tiles permanently so that enemies that walk into the area are stunned for short periods of time
     public bool useRadiationDefense() {
         //if distance is within range of attack, check each tile in the radius and then irradiate each tile that can be irradiated
-        if (Vector2Int.distance(getStartLocation(), getCursorPosition()) <= getRadiationDefenceRange()) {
+        if (canCastToCursor(getRadiationDefenceRange())) {
             gameObject.AddComponent<SoundEffect>().sfx = radioactiveDefenseSFX;
 
             TileCircleFunction circleFunction = delegate(Tile tile, Vector2Int position) {
@@ -508,7 +510,7 @@ public class SlimeController : MonoBehaviour {
     //Damage and range will increase based on level
     public bool useRadiationOffense() {
         //if distance is within range of attack, create the radius of radiation
-        if (Vector2Int.distance(getStartLocation(), getCursorPosition()) <= getRadiationOffenceRange()) {
+        if (canCastToCursor(getRadiationOffenceRange())) { 
             gameObject.AddComponent<SoundEffect>().sfx = radioactiveOffenseSFX;
 
             TileCircleFunction circleFunction = delegate(Tile tile, Vector2Int position) {
@@ -561,27 +563,18 @@ public class SlimeController : MonoBehaviour {
     //sends a bolt of electricity at an enemy, up to a max distance away, and ars to nearby enemies for chain damage
     //damage and range increase with electricityLevel
     public bool useElectricityOffense() {
-        float rangeOfAttack = getElectricityOffenseRange();
-        //if enemy is within range of attack, use electricity
-        if (Vector2Int.distance(getStartLocation(), getCursorPosition()) <= rangeOfAttack) {
-            bool canDamage = getTileUnderCursor().canDamageEntities();
+        if (canCastToCursor(getElectricityOffenseRange())) {
+            if (getTileUnderCursor().canDamageEntities()) {
+                loseEnergy(ELECTRICITY_OFFENSE_COST);
+                GameObject electricityArc = new GameObject("ElectricityArc");
+                electricityArc.transform.position = getStartLocation();
+                ElectricityArc arc = electricityArc.AddComponent<ElectricityArc>();
 
-            //if an enemy was damaged, check to see if there are enemies close by to arc to
-            if (canDamage) {
-
-                TileRayHit hit = TilemapUtilities.castTileRay(getStartLocation(), getCursorPosition(), null);
-                if (!hit.didHit) {
-                    loseEnergy(ELECTRICITY_OFFENSE_COST);
-                    GameObject electricityArc = new GameObject("ElectricityArc");
-                    electricityArc.transform.position = getStartLocation();
-                    ElectricityArc arc = electricityArc.AddComponent<ElectricityArc>();
-
-                    arc.setArcRadius(electricityLevel + 1);
-                    arc.setArcDamage(getElectricityOffenseDamage());
-                    arc.setArcNumber(electricityLevel + 1);
-                    arc.setDestination(getCursorPosition());
-                    return true;
-                }
+                arc.setArcRadius(electricityLevel + 1);
+                arc.setArcDamage(getElectricityOffenseDamage());
+                arc.setArcNumber(electricityLevel + 1);
+                arc.setDestination(getCursorPosition());
+                return true;
             }
         }
         return false;
@@ -638,14 +631,23 @@ public class SlimeController : MonoBehaviour {
         return false;
     }
 
+    private bool canCastToCursor(float castRange) {
+        Vector2Int delta = getStartLocation() - getCursorPosition();
+        if (delta.getLengthSqrd() <= castRange * castRange) {
+            if (TilemapUtilities.canSee(getStartLocation(), getCursorPosition())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private delegate void TileCircleFunction(Tile tile, Vector2Int tilePosition);
     private void forEveryTileInCircle(TileCircleFunction function, Vector2Int center, int radius, bool lineOfSight) {
         for (int dx = -radius; dx <= radius; dx++) {
             for (int dy = -radius; dy <= radius; dy++) {
                 if ((dx * dx + dy * dy) <= radius * radius) {
                     Vector2Int tilePosition = center + new Vector2Int(dx, dy);
-                    TileRayHit hit = TilemapUtilities.castTileRay(center, tilePosition, null);
-                    if (!hit.didHit) {
+                    if (TilemapUtilities.canSee(center, tilePosition)) {
                         function(Tilemap.getInstance().getTile(tilePosition), tilePosition);
                     }
                 }

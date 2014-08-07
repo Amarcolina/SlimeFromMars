@@ -68,6 +68,11 @@ public class TilemapUtilities {
         return castTileRay(start, start + Tilemap.getTilemapLocation(direction.normalized * maxDistance), hitFunction);
     }
 
+    public static bool canSee(Vector2Int start, Vector2Int end) {
+        TileRayHit hit = castTileRay(start, end, null);
+        return !hit.didHit;
+    }
+
     /* Casts a ray just like the above function, but given a destination end of the ray instead of a 
      * direction.  This can be used to search and detect whether or not a certain tile is visible
      * from another.

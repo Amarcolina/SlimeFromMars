@@ -46,14 +46,14 @@ public class GenericConsumeable : MonoBehaviour, IGrabbable {
         resourcedisplay_Label = resourcedisplay_GameObject.GetComponentInChildren<UILabel> ();
         resourcedisplay_Sprite = resourcedisplay_GameObject.GetComponentInChildren<UISprite> ();
         gameObject.AddComponent<BoxCollider2D> ();
-	}
+   }
 
     //Displays the information for a given item and calculates potential energy
-	public void OnMouseOver(){
+   public void OnMouseOver(){
         if (Input.GetMouseButtonDown (0)) {
             _slimeControllerInstance.ResourceUICheck(gameObject.name,(int)size, bio, radiation, electricity);
         }
-    }
+   }
 
 }
 

@@ -75,9 +75,8 @@ public class GameUI : MonoBehaviour {
     }
 
     //Updates the resource counter. Takes in the current amount of resources. Pass the new final amount, not the amount being added.
-    public void ResourceUpdate(float ResourceUpdate) {
+   public void ResourceUpdate(float ResourceUpdate) {
         ResourceCounter_Label.text = "Resources: " + ResourceUpdate;
-	
         ResourceCountTweener.Reset();
         ResourceCountTweener.Play(true);
         ResourceSpriteTweener.Reset();

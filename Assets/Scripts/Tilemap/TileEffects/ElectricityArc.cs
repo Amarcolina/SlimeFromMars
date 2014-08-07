@@ -11,6 +11,7 @@ public class ElectricityArc : MonoBehaviour {
     private static GameObject _electricArcPrefab = null;
 
     private AudioClip electricArcSFX;
+    private SoundManager sound;
 
     private HashSet<TileEntity> _alreadyHitEntities = null;
 
@@ -18,7 +19,7 @@ public class ElectricityArc : MonoBehaviour {
         if (_alreadyHitEntities == null) {
             _alreadyHitEntities = new HashSet<TileEntity>();
         }
-
+        sound = SoundManager.getInstance();
         HashSet<TileEntity> _tileEntities = Tilemap.getInstance().getTile(_destination).getTileEntities();
         if (_tileEntities != null) {
             foreach (TileEntity entity in _tileEntities) {
@@ -37,7 +38,8 @@ public class ElectricityArc : MonoBehaviour {
         GameObject arcObject = Instantiate(_electricArcPrefab, transform.position + Vector3.back, arcAngle) as GameObject;
         arcObject.GetComponent<ParticleSystem>().startSize = Vector3.Distance(transform.position, _destination) / 7.0f;
 
-        arcObject.AddComponent<SoundEffect>().sfx = electricArcSFX;
+        sound.PlaySound(arcObject.transform, electricArcSFX);
+
         Destroy(arcObject, 1.5f);
 
         Tilemap.getInstance().getTileGameObject(_destination).AddComponent<Electrified>();
@@ -80,7 +82,6 @@ public class ElectricityArc : MonoBehaviour {
 
         List<Tile> _newJumpableTiles = new List<Tile>();
         List<Tile> _oldJumpableTiles = new List<Tile>();
-
         for (int dx = -arcRadius; dx <= arcRadius; dx++) {
             for (int dy = -arcRadius; dy <= arcRadius; dy++) {
                 Vector2 tileOffset = new Vector2(dx, dy);

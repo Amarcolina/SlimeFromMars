@@ -4,8 +4,7 @@ using System.Collections;
 public class SoundManager : MonoBehaviour
 {
     private GameUI gameUI;
-    private AudioSource source;
-
+    private AudioSource audioSource;
     private static SoundManager soundInstance;
 
     public static SoundManager getInstance()
@@ -22,6 +21,7 @@ public class SoundManager : MonoBehaviour
     // Use this for initialization
     void Start()
     {
+        //Grab gameUI for menu settings
         gameUI = GameUI.getInstance();
         //source = gameObject.AddComponent<AudioSource>();
     }
@@ -29,15 +29,15 @@ public class SoundManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (source != null)
+        if (audioSource != null)
         {
             if (gameUI.GetComponent<PauseMenu>().sfxMuted)
             {
-                source.mute = true;
+                audioSource.mute = true;
             }
             else
             {
-                source.mute = false;
+                audioSource.mute = false;
             }
         }
     }
@@ -45,66 +45,82 @@ public class SoundManager : MonoBehaviour
     //Plays a sound and waits until it is finished to play the sound again
     public void PlaySoundAndWait(Transform emitter, AudioClip sfx)
     {
-        //Create an empty game object
-        GameObject go = new GameObject("Audio: " + sfx.name);
-        go.transform.position = emitter.position;
-        go.transform.parent = emitter;
-
-        ////Create the source
-        AudioSource source = go.AddComponent<AudioSource>();
-        source.clip = sfx;
-        //if (!source.isPlaying)
-        //{
-        //    source.Play();
-        //    Destroy(go, sfx.length);
-        //}
-       // source = gameObject.AddComponent<AudioSource>();
-        if (sfx != null /*&& !source.isPlaying*/)
+        //Only add 1 child gameobject for waiting sounds to prevent multiple of the same sounds playing(i.e slime expansion)
+        if (emitter.childCount < 1)
         {
-            if (!source.isPlaying)
+            //Create an empty game object - for tracking audio position
+            GameObject go = new GameObject("Audio: " + sfx.name);
+            go.transform.position = emitter.position;
+            go.transform.parent = emitter;
+
+            AudioSource source = go.AddComponent<AudioSource>();
+            //Allow it to mute
+            audioSource = source;
+            //Set clip to the specified sfx
+            source.clip = sfx;
+            if (sfx != null)
             {
-                source.Play();
-                Destroy(go, sfx.length);
-                //AudioSource.PlayClipAtPoint(source.clip, gameObj.transform.position);
+                if (!go.GetComponent<AudioSource>().isPlaying)
+                {
+                    source.Play();
+                    //Destroy gameobject after sound has finished playing
+                    Destroy(go, sfx.length);
+                    //AudioSource.PlayClipAtPoint(source.clip, gameObj.transform.position);
+                }
             }
         }
+        
     }
-    //Override method to loop sound
-    public void PlayLoop(AudioClip sfx)
+    //Play a looping sound
+    public void PlayLoop(Transform emitter, AudioClip sfx)
     {
-      //  source = gameObject.AddComponent<AudioSource>();
-        source.clip = sfx;
-        if (sfx != null)
+        //Only add 1 child gameobject for waiting loop sounds
+        if (emitter.childCount < 1)
         {
-            if (!source.isPlaying)
+            //Create an empty game object - for tracking audio position
+            GameObject go = new GameObject("Audio: " + sfx.name);
+            go.transform.position = emitter.position;
+            go.transform.parent = emitter;
+
+            AudioSource source = go.AddComponent<AudioSource>();
+            //Allow it to mute
+            audioSource = source;
+            //Set clip to the specified sfx
+            source.clip = sfx;
+            if (sfx != null)
             {
-                source.Play();
-                source.loop = true;
-                //AudioSource.PlayClipAtPoint(source.clip, gameObj.transform.position);
+                if (!go.GetComponent<AudioSource>().isPlaying)
+                {
+                    source.Play();
+                    source.loop = true;
+                    //AudioSource.PlayClipAtPoint(source.clip, gameObj.transform.position);
+                }
             }
         }
     }
     //Plays a sound at position
-    public void PlaySound(AudioClip sfx)
+    public void PlaySound(Transform emitter, AudioClip sfx)
     {
-        source = gameObject.AddComponent<AudioSource>();
-        source.clip = sfx;
-        if (sfx != null /*&& !source.isPlaying*/)
-        {
-            source.Play();
-        }
-        Destroy(gameObject.GetComponent<AudioSource>());
-    }
+            //Create an empty game object - for tracking audio position
+            GameObject go = new GameObject("Audio: " + sfx.name);
+            go.transform.position = emitter.position;
+            go.transform.parent = emitter;
 
-
-    public bool isPlaying()
-    {
-        if (source.isPlaying)
-        {
-            return true;
-        }
-        else
-            return false;
+            AudioSource source = go.AddComponent<AudioSource>();
+            //Allow it to mute
+            audioSource = source;
+            //Set clip to the specified sfx
+            source.clip = sfx;
+            if (sfx != null)
+            {
+                if (!go.GetComponent<AudioSource>().isPlaying)
+                {
+                    source.Play();
+                    //Destroy gameobject after sound has finished playing
+                    Destroy(go, sfx.length);
+                    //AudioSource.PlayClipAtPoint(source.clip, gameObj.transform.position);
+                }
+            }
     }
 
 

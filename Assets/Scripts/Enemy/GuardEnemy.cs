@@ -96,7 +96,7 @@ public class GuardEnemy : BaseEnemy {
             if (getNearestVisibleSlime(20, true) != null) {
                 _onShootCooldown = true;
                 _enemyAnimation.EnemyShoot(getNearestVisibleSlime().transform.position.x > shotOrigin.position.x ? 1.0f : -1.0f);
-                sound.PlaySound(flameThrowerSFX);
+                sound.PlaySound(gameObject.transform, flameThrowerSFX);
                 
             }
         }

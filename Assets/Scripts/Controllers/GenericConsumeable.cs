@@ -49,9 +49,9 @@ public class GenericConsumeable : MonoBehaviour, IGrabbable {
 	}
 
     //Displays the information for a given item and calculates potential energy
-	public void OnMouseDown(){
+	public void OnMouseOver(){
 		if (Input.GetMouseButtonDown (0)) {
-           _slimeControllerInstance.ResourceUICheck((int)size, bio, radiation, electricity);
+           _slimeControllerInstance.ResourceUICheck(gameObject.name,(int)size, bio, radiation, electricity);
 		}
 	}
 

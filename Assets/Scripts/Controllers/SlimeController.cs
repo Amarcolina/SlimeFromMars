@@ -57,6 +57,7 @@ public class SlimeController : MonoBehaviour {
     public int consumebio;
     public int consumeelectricity;
     public int consumesize;
+	public string consumename;
 
     //asdasd
     private Path _slimeHighlightPath = null;
@@ -269,7 +270,7 @@ public class SlimeController : MonoBehaviour {
             if(resourcesopen){
                 ResourceUIActivated();
             } else {
-                RemoveResourceBox();
+				RemoveResourceBox();
             }
             highlightSlimeTile();
         }
@@ -680,15 +681,20 @@ public class SlimeController : MonoBehaviour {
 
 	public void ResourceUIActivated(){
          int potentialenergy = consumesize + (radiationLevel * consumeradiation) + (electricityLevel * consumeelectricity) + (bioLevel * consumebio);
-         resourcedisplay_Label.text = gameObject.name + "\nRadiation:" + consumeradiation + "\nBio:" + consumebio + "\nElectricity:" + consumeelectricity + "\nEnergy:" + potentialenergy;
+         resourcedisplay_Label.text = consumename + "\nRadiation:" + consumeradiation + "\nBio:" + consumebio + "\nElectricity:" + consumeelectricity + "\nEnergy:" + potentialenergy;
          resourcedisplay_Label.enabled = true;
          resourcedisplay_Sprite.enabled = true;
 		 resourcesopen = false;
 	}
 
 	//Called by the consumable that was clicked on to check request the slime controller to set up the UI
-	public void ResourceUICheck(int size, int bio, int radiation, int electricity){
-        resourcesopen = true;
+	public void ResourceUICheck(string name, int size, int bio, int radiation, int electricity){
+		consumeradiation = radiation;
+		consumebio = bio;
+		consumeelectricity = electricity;
+		consumesize = size;
+		consumename = name;
+		resourcesopen = true;
 	}
 
 

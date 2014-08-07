@@ -61,6 +61,10 @@ public class Slime : MonoBehaviour {
     }
 
     public void OnDestroy() {
+        BioMutated effect = GetComponent<BioMutated>();
+        if (effect != null) {
+            effect.wither();
+        }
         SlimeSentinel.removeSlimeFromDestroyList(this);
         if (SlimeController.getInstance().getSelectedSlime() == this) {
             SlimeController.getInstance().setSelectedSlime(null);

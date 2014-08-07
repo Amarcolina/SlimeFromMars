@@ -395,6 +395,7 @@ public class SlimeController : MonoBehaviour {
     }
 
     //Called at the end of the blink animation to move the eye to the new position and play the opening animation.
+    //Called automatically by the Animator
     public void EyeBlink() {
         if (_currentSelectedSlime == null) {
             renderer.enabled = false;

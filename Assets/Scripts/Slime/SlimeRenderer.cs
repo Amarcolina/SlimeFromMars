@@ -41,6 +41,7 @@ public class SlimeRenderer : MonoBehaviour {
         } else {
             _spriteRenderer.material.shader = Shader.Find("Custom/SlimeWallShader");
             _spriteRenderer.sortingLayerName = "Default";
+            _spriteRenderer.sortingOrder = -1;
             _spriteRenderer.material.SetTexture("_Smear", Resources.Load<Texture>("Sprites/Slime/SlimeWallRamp"));
         }
     }

@@ -23,7 +23,6 @@ public class SoundManager : MonoBehaviour
     {
         //Grab gameUI for menu settings
         gameUI = GameUI.getInstance();
-        //source = gameObject.AddComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -65,7 +64,6 @@ public class SoundManager : MonoBehaviour
                     source.Play();
                     //Destroy gameobject after sound has finished playing
                     Destroy(go, sfx.length);
-                    //AudioSource.PlayClipAtPoint(source.clip, gameObj.transform.position);
                 }
             }
         }
@@ -93,7 +91,6 @@ public class SoundManager : MonoBehaviour
                 {
                     source.Play();
                     source.loop = true;
-                    //AudioSource.PlayClipAtPoint(source.clip, gameObj.transform.position);
                 }
             }
         }
@@ -118,7 +115,6 @@ public class SoundManager : MonoBehaviour
                     source.Play();
                     //Destroy gameobject after sound has finished playing
                     Destroy(go, sfx.length);
-                    //AudioSource.PlayClipAtPoint(source.clip, gameObj.transform.position);
                 }
             }
     }

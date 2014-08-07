@@ -272,15 +272,7 @@ public class SlimeController : MonoBehaviour {
                     if (energy >= pathCost) {
                         loseEnergy(pathCost);
                         currentSelectedSlime.requestExpansionAllongPath(astarPath);
-                     /*   if (!audio.isPlaying) {
-                            audio.clip = slimeExpansionSFX;
-                            audio.Play();
-                        }*/
-                      //  if (!sound.isPlaying())
-                      //  {
-                        //audio.Play(slimeExpansionSFX, gameObject.transform, 1f, 1f);
-                            sound.PlaySoundAndWait(gameObject.transform, slimeExpansionSFX);
-                      //  }
+                        sound.PlaySoundAndWait(gameObject.transform, slimeExpansionSFX);
                     }
                 }
             } else {
@@ -398,7 +390,6 @@ public class SlimeController : MonoBehaviour {
                 if (possibleConsumeable != null) {
                     consume(possibleConsumeable);
                     sound.PlaySound(gameObject.transform, slimeEatingSFX);
-                    //gameObject.AddComponent<SoundEffect>().sfx = slimeEatingSFX;
                 }
             }
         }
@@ -447,7 +438,6 @@ public class SlimeController : MonoBehaviour {
         if (Vector2Int.distance(getStartLocation(), getCursorPosition()) <= rangeOfAttack) {
             int circleRadius = getRadiationDefenceRadius();
             sound.PlaySound(gameObject.transform, radioactiveDefenseSFX);
-            //gameObject.AddComponent<SoundEffect>().sfx = radioactiveDefenseSFX;
             for (int dx = -circleRadius; dx <= circleRadius; dx++) {
                 for (int dy = -circleRadius; dy <= circleRadius; dy++) {
                     Vector2 tileOffset = new Vector2(dx, dy);
@@ -484,7 +474,6 @@ public class SlimeController : MonoBehaviour {
         //if distance is within range of attack, create the radius of radiation
         if (Vector2Int.distance(getStartLocation(), getCursorPosition()) <= rangeOfAttack) {
             sound.PlaySound(gameObject.transform, radioactiveOffenseSFX);
-            //gameObject.AddComponent<SoundEffect>().sfx = radioactiveOffenseSFX;
             int circleRadius = getRadiationOffenceRadius();
             for (int dx = -circleRadius; dx <= circleRadius; dx++) {
                 for (int dy = -circleRadius; dy <= circleRadius; dy++) {
@@ -519,7 +508,6 @@ public class SlimeController : MonoBehaviour {
     //radius increases with electricityLevel, as does damage
     public void useElectricityDefense() {
         sound.PlaySound(gameObject.transform, electricDefenseSFX);
-        //gameObject.AddComponent<SoundEffect>().sfx = electricDefenseSFX;
 
         int circleRadius = getElectricityDefenceRadius();
         for (int dx = -circleRadius; dx <= circleRadius; dx++) {
@@ -583,7 +571,6 @@ public class SlimeController : MonoBehaviour {
     //defense will remain until destroyed by enemies
     public void useBioDefense() {
         sound.PlaySound(gameObject.transform, bioDefenseSFX);
-        //gameObject.AddComponent<SoundEffect>().sfx = bioDefenseSFX;
         int circleRadius = getBioDefenceRadius();
         for (int dx = -circleRadius; dx <= circleRadius; dx++) {
             for (int dy = -circleRadius; dy <= circleRadius; dy++) {
@@ -622,7 +609,6 @@ public class SlimeController : MonoBehaviour {
             bio.setLanceDamage(getBioOffenseDamage());
             loseEnergy(BIO_OFFENSE_COST);
             sound.PlaySound(gameObject.transform, bioOffenseSFX);
-            //gameObject.AddComponent<SoundEffect>().sfx = bioOffenseSFX;
             return true;
         }
         return false;

@@ -45,8 +45,8 @@ public class SlimeController : MonoBehaviour {
     private ElementalCastType _currentCastType = ElementalCastType.NONE;
     private bool _shouldSkipNext = false;
 
-	//The Animator for the eye, used to transfer states via triggers
-	public Animator Eye_Animator;
+    //The Animator for the eye, used to transfer states via triggers
+    public Animator Eye_Animator;
 
     //asdasd
     private Path _slimeHighlightPath = null;
@@ -162,7 +162,7 @@ public class SlimeController : MonoBehaviour {
                     }
                     if ((dx - 1) * (dx - 1) + dy * dy > radius * radius) {
                         drawGuiTexture(center + new Vector2(-0.5f, 0), 0.2f, 1.0f, mag > range ? _edgeRedVertical : _edgeGreenVertical);
-                    } 
+                    }
                 }
             }
         }
@@ -176,13 +176,13 @@ public class SlimeController : MonoBehaviour {
                 if (_currentCastType == ElementalCastType.NONE) {
                     Astar.isWalkableFunction = Tile.isSlimeableFunction;
                     Astar.isNeighborWalkableFunction = Tile.isSlimeableFunction;
-                } else if (_currentCastType == ElementalCastType.BIO_OFFENSIVE){
+                } else if (_currentCastType == ElementalCastType.BIO_OFFENSIVE) {
                     Astar.isWalkableFunction = Tile.isSpikeableFunction;
                     Astar.isNeighborWalkableFunction = Tile.isSpikeableFunction;
                 } else {
                     Debug.LogWarning("Unexpected elemental cast type [" + _currentCastType + "]");
                 }
-                
+
                 _slimeHighlightPath = Astar.findPath(getStartLocation(), getCursorPosition());
                 if (_slimeHighlightPath != null) {
                     _slimeHighlightPath.removeNodeFromStart();
@@ -248,17 +248,17 @@ public class SlimeController : MonoBehaviour {
     }
 
     private void handleNormalInteraction() {
-        if (Input.GetMouseButtonDown(0)){
+        if (Input.GetMouseButtonDown(0)) {
             highlightSlimeTile();
         }
 
-        if (currentSelectedSlime == null){
+        if (currentSelectedSlime == null) {
             renderer.enabled = false;
-        }else{
+        } else {
             attemptToEat();
         }
 
-        if (Input.GetMouseButtonUp(1) && currentSelectedSlime != null){
+        if (Input.GetMouseButtonUp(1) && currentSelectedSlime != null) {
             if (energy > 0) {
                 Astar.isWalkableFunction = Tile.isSlimeableFunction;
                 Astar.isNeighborWalkableFunction = Tile.isSlimeableFunction;
@@ -354,11 +354,17 @@ public class SlimeController : MonoBehaviour {
     }
 
     public void setSelectedSlime(Slime slime) {
+        Slime previousSlime = currentSelectedSlime;
         currentSelectedSlime = slime;
+
         if (currentSelectedSlime == null) {
             renderer.enabled = false;
         } else {
-			Eye_Animator.SetTrigger ("Blink");
+            if (previousSlime == null) {
+                EyeBlink();
+            } else {
+                Eye_Animator.SetTrigger("Blink");
+            }
         }
     }
 
@@ -368,7 +374,7 @@ public class SlimeController : MonoBehaviour {
 
     public Vector2Int getCursorPosition() {
         //finds the cursorPosition and then uses cursorPosition to find position of tileUnderCursor
-		Camera testCam = Camera.main;
+        Camera testCam = Camera.main;
         return testCam.ScreenToWorldPoint(Input.mousePosition);
     }
 
@@ -638,15 +644,15 @@ public class SlimeController : MonoBehaviour {
     public float getRadiationLevel() {
         return radiationLevel;
     }
-	//Called at the end of the blink animation to move the eye to the new position and play the opening animation.
-	public void EyeBlink(){
+    //Called at the end of the blink animation to move the eye to the new position and play the opening animation.
+    public void EyeBlink() {
         if (currentSelectedSlime == null) {
             renderer.enabled = false;
             return;
         }
         transform.position = currentSelectedSlime.transform.position;
         renderer.enabled = true;
-        Eye_Animator.SetTrigger ("ReverseBlink");
+        Eye_Animator.SetTrigger("ReverseBlink");
     }
 }
 

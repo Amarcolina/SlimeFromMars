@@ -13,6 +13,7 @@ public class PauseMenu : MonoBehaviour
     //Main Pause Menu
     public GameObject continuelabel;
     public GameObject optionslabel;
+    public GameObject restartPauseButton;
     public GameObject exitlabel;
     public GameObject pauselabel;
 
@@ -57,6 +58,7 @@ public class PauseMenu : MonoBehaviour
         {
             //Display main pause labels
             pauselabel.SetActive(true);
+            restartPauseButton.SetActive(true);
             continuelabel.SetActive(true);
             optionslabel.SetActive(true);
             exitlabel.SetActive(true);
@@ -68,6 +70,7 @@ public class PauseMenu : MonoBehaviour
     {
         //Remove main pause labels
         pauselabel.SetActive(false);
+        restartPauseButton.SetActive(false);
         continuelabel.SetActive(false);
         optionslabel.SetActive(false);
         exitlabel.SetActive(false);
@@ -84,6 +87,7 @@ public class PauseMenu : MonoBehaviour
     {
         //If options are clicked, remove the main pause labels
         pauselabel.SetActive(false);
+        restartPauseButton.SetActive(false);
         continuelabel.SetActive(false);
         optionslabel.SetActive(false);
         exitlabel.SetActive(false);
@@ -102,6 +106,7 @@ public class PauseMenu : MonoBehaviour
     {
         //Display main pause labels
         pauselabel.SetActive(true);
+        restartPauseButton.SetActive(true);
         continuelabel.SetActive(true);
         optionslabel.SetActive(true);
         exitlabel.SetActive(true);
@@ -202,6 +207,7 @@ public class PauseMenu : MonoBehaviour
     public void RestartClicked()
     {
         Application.LoadLevel(Application.loadedLevel);
+        AudioListener.pause = false;
         gameOverLabel.SetActive(false);
         RestartButton.SetActive(false);
         ExitButton.SetActive(false);

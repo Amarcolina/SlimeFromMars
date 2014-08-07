@@ -10,4 +10,10 @@ public class MainMenu : MonoBehaviour
                 AudioListener.pause = false;
         }
 
+    void onExitClicked()
+    {
+        //This is ignored in the editor and web player
+        Application.Quit();
+    }
+
 }

@@ -580,16 +580,20 @@ public class SlimeController : MonoBehaviour {
 
             //if an enemy was damaged, check to see if there are enemies close by to arc to
             if (canDamage) {
-                loseEnergy(ELECTRICITY_OFFENSE_COST);
-                GameObject electricityArc = new GameObject("ElectricityArc");
-                electricityArc.transform.position = getStartLocation();
-                ElectricityArc arc = electricityArc.AddComponent<ElectricityArc>();
 
-                arc.setArcRadius(electricityLevel + 1);
-                arc.setArcDamage(getElectricityOffenseDamage());
-                arc.setArcNumber(electricityLevel + 1);
-                arc.setDestination(getCursorPosition());
-                return true;
+                TileRayHit hit = TilemapUtilities.castTileRay(getStartLocation(), getCursorPosition(), null);
+                if (!hit.didHit) {
+                    loseEnergy(ELECTRICITY_OFFENSE_COST);
+                    GameObject electricityArc = new GameObject("ElectricityArc");
+                    electricityArc.transform.position = getStartLocation();
+                    ElectricityArc arc = electricityArc.AddComponent<ElectricityArc>();
+
+                    arc.setArcRadius(electricityLevel + 1);
+                    arc.setArcDamage(getElectricityOffenseDamage());
+                    arc.setArcNumber(electricityLevel + 1);
+                    arc.setDestination(getCursorPosition());
+                    return true;
+                }
             }
         }
         return false;

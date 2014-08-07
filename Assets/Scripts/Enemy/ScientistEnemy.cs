@@ -29,7 +29,6 @@ public class ScientistEnemy : BaseEnemy {
     private bool _leavingHidingSpot = false;
 
     private AudioClip screamSFX;
-    private SoundManager sound;
     //private AudioClip walkSFX;
     //private AudioClip deathSFX;
 

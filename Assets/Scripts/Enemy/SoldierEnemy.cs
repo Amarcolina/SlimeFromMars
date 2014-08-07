@@ -27,7 +27,6 @@ public class SoldierEnemy : BaseEnemy {
     private SoldierState _currentState;
 
     private AudioClip bulletSFX;
-    private SoundManager sound;
 
     public override void Awake() {
         base.Awake();

@@ -25,7 +25,6 @@ public class GuardEnemy : BaseEnemy {
     private GuardState _currentState;
 
     private AudioClip flameThrowerSFX;
-    private SoundManager sound;
 
     public override void Awake()
     {

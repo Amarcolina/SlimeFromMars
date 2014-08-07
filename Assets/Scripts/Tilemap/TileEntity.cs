@@ -4,6 +4,7 @@ using System.Collections;
 public class TileEntity : MonoBehaviour {
     private Tilemap _tilemap;
     private SpriteRenderer _spriteRenderer;
+    private bool _isPickedUp = false;
 
     struct TilePositionStruct {
         public Vector2Int tilePos;
@@ -21,8 +22,6 @@ public class TileEntity : MonoBehaviour {
         generateNewList();
         updateCurrentWithNew();
         addToTileEntities();
-
-        //Debug.Log(_spriteRenderer.sprite.bounds.center + transform.position);
 
         if (gameObject.isStatic) {
             enabled = false;
@@ -91,7 +90,27 @@ public class TileEntity : MonoBehaviour {
         }
     }
 
+    public void pickUp() {
+        generateNewList();
+        updateCurrentWithNew();
+        removeFromTileEntities();
+        _isPickedUp = true;
+    }
+
+    public void putDown() {
+        generateNewList();
+        updateCurrentWithNew();
+        addToTileEntities();
+        _isPickedUp = false;
+    }
+
+    public bool isPickedUp() {
+        return _isPickedUp;
+    }
+
     public void Update() {
-        forceUpdate();
+        if (!_isPickedUp) {
+            forceUpdate();
+        }
     }
 }

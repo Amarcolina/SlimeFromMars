@@ -67,7 +67,7 @@ public class BioLance : MonoBehaviour {
             yield return null;//wait for one frame
         }
 
-        if (objGrabbable != null) {
+        if (objGrabbable != null && interactionObject != null) {
             interactionObject.GetComponent<TileEntity>().putDown();
         }
 

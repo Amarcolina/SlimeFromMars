@@ -28,22 +28,22 @@ public class SlimeController : MonoBehaviour {
 
     //levels dictate how much more powerful your attacks/defenses are
     //levels also give bonuses in energy from items of that attribute
-    private int radiationLevel;
-    private int electricityLevel;
-    private int bioLevel;
+    private int _radiationLevel;
+    private int _electricityLevel;
+    private int _bioLevel;
 
     //list of sound effects for abilities
-    private AudioClip electricDefenseSFX;
-    private AudioClip bioDefenseSFX;
-    private AudioClip bioOffenseSFX;
-    private AudioClip radioactiveDefenseSFX;
-    private AudioClip radioactiveOffenseSFX;
-    private AudioClip slimeExpansionSFX;
-    private AudioClip slimeEatingSFX;
+    private AudioClip _electricDefenseSFX;
+    private AudioClip _bioDefenseSFX;
+    private AudioClip _bioOffenseSFX;
+    private AudioClip _radioactiveDefenseSFX;
+    private AudioClip _radioactiveOffenseSFX;
+    private AudioClip _slimeExpansionSFX;
+    private AudioClip _slimeEatingSFX;
 
     private ElementalCastType _currentCastType = ElementalCastType.NONE;
     private bool _shouldSkipNext = false;
-    private Slime currentSelectedSlime;
+    private Slime _currentSelectedSlime;
 
     //The Animator for the eye, used to transfer states via triggers
     private Animator _eyeAnimator;
@@ -53,12 +53,6 @@ public class SlimeController : MonoBehaviour {
     private UILabel _resourcedisplayLabel;
     private UISprite _resourcedisplaySprite;
     private GameObject _resourcedisplayGameObject;
-    private bool _resourcesopen = false;
-    private int _consumeradiation;
-    private int _consumebio;
-    private int _consumeelectricity;
-    private int _consumesize;
-    private string _consumename;
 
     //asdasd
     private Path _slimeHighlightPath = null;
@@ -81,13 +75,13 @@ public class SlimeController : MonoBehaviour {
 
     void Awake() {
         //Load all sounds from File
-        electricDefenseSFX = Resources.Load<AudioClip>("Sounds/SFX/electricity_defense");
-        bioDefenseSFX = Resources.Load<AudioClip>("Sounds/SFX/bio_defense");
-        bioOffenseSFX = Resources.Load<AudioClip>("Sounds/SFX/bio_offense_impale");
-        radioactiveDefenseSFX = Resources.Load<AudioClip>("Sounds/SFX/radiation_defense");
-        radioactiveOffenseSFX = Resources.Load<AudioClip>("Sounds/SFX/radiation_offense");
-        slimeExpansionSFX = Resources.Load<AudioClip>("Sounds/SFX/slime_expanding");
-        slimeEatingSFX = Resources.Load<AudioClip>("Sounds/SFX/slime_eating");
+        _electricDefenseSFX = Resources.Load<AudioClip>("Sounds/SFX/electricity_defense");
+        _bioDefenseSFX = Resources.Load<AudioClip>("Sounds/SFX/bio_defense");
+        _bioOffenseSFX = Resources.Load<AudioClip>("Sounds/SFX/bio_offense_impale");
+        _radioactiveDefenseSFX = Resources.Load<AudioClip>("Sounds/SFX/radiation_defense");
+        _radioactiveOffenseSFX = Resources.Load<AudioClip>("Sounds/SFX/radiation_offense");
+        _slimeExpansionSFX = Resources.Load<AudioClip>("Sounds/SFX/slime_expanding");
+        _slimeEatingSFX = Resources.Load<AudioClip>("Sounds/SFX/slime_eating");
 
         _edgeGreenHorizontal = Resources.Load<Texture2D>("Sprites/UISprites/Interface/BoundaryEdgeGreenHorizontal");
         _edgeGreenVertical = Resources.Load<Texture2D>("Sprites/UISprites/Interface/BoundaryEdgeGreenVertical");
@@ -108,9 +102,9 @@ public class SlimeController : MonoBehaviour {
     // Use this for initialization
     void Start() {
         _gameUi = GameUI.getInstance();
-        radiationLevel = 0;
-        electricityLevel = 0;
-        bioLevel = 0;
+        _radiationLevel = 0;
+        _electricityLevel = 0;
+        _bioLevel = 0;
         gainEnergy(20);
     }
 
@@ -154,22 +148,18 @@ public class SlimeController : MonoBehaviour {
 
     private void handleNormalInteraction() {
         if (Input.GetMouseButtonDown(0)) {
-            if (_resourcesopen) {
-                ResourceUIActivated();
-            } else {
-                RemoveResourceBox();
-            }
+            disableResourcePopup();
             highlightSlimeTile();
         }
 
-        if (currentSelectedSlime == null) {
+        if (_currentSelectedSlime == null) {
             renderer.enabled = false;
         } else {
             attemptToEat();
         }
 
-        if (Input.GetMouseButtonUp(1) && currentSelectedSlime != null) {
-            RemoveResourceBox();
+        if (Input.GetMouseButtonUp(1) && _currentSelectedSlime != null) {
+            disableResourcePopup();
             if (energy > 0) {
                 Astar.isWalkableFunction = Tile.isSlimeableFunction;
                 Astar.isNeighborWalkableFunction = Tile.isSlimeableFunction;
@@ -179,9 +169,9 @@ public class SlimeController : MonoBehaviour {
                     //if the slime has the energy to move, take the astar path
                     if (energy >= pathCost) {
                         loseEnergy(pathCost);
-                        currentSelectedSlime.requestExpansionAllongPath(astarPath);
+                        _currentSelectedSlime.requestExpansionAllongPath(astarPath);
                         if (!audio.isPlaying) {
-                            audio.clip = slimeExpansionSFX;
+                            audio.clip = _slimeExpansionSFX;
                             audio.Play();
                         }
                     }
@@ -193,7 +183,7 @@ public class SlimeController : MonoBehaviour {
     }
 
     private void handleCastInteraction() {
-        RemoveResourceBox();
+        disableResourcePopup();
         if (Input.GetKeyDown(KeyCode.Mouse1)) {
             _currentCastType = ElementalCastType.NONE;
         }
@@ -226,7 +216,7 @@ public class SlimeController : MonoBehaviour {
     private void consume(GenericConsumeable eatenItem) {
         //calculates resource bonus from item element affinity multiplied by level of slime attribute
         //calculates default item resource value based on size and adds any bonuses
-        gainEnergy((int)eatenItem.size + radiationLevel * eatenItem.radiation + bioLevel * eatenItem.bio + electricityLevel * eatenItem.electricity);
+        gainEnergy((int)eatenItem.size + _radiationLevel * eatenItem.radiation + _bioLevel * eatenItem.bio + _electricityLevel * eatenItem.electricity);
         //if the eatenItem is a mutation, level up affinity
         if (eatenItem.isRadiationMutation) {
             gainRadiationLevel();
@@ -247,21 +237,21 @@ public class SlimeController : MonoBehaviour {
         if (tileUnderCursor != null) {
             Slime slimeTile = tileUnderCursor.GetComponent<Slime>();
             if (slimeTile != null && slimeTile.isConnected()) {
-                RemoveResourceBox();
+                disableResourcePopup();
                 setSelectedSlime(slimeTile);
             }
         }
     }
 
     private void attemptToEat() {
-        Tile tileComponent = currentSelectedSlime.GetComponent<Tile>();
+        Tile tileComponent = _currentSelectedSlime.GetComponent<Tile>();
         HashSet<TileEntity> entities = tileComponent.getTileEntities();
         if (entities != null) {
             foreach (TileEntity entity in entities) {
                 GenericConsumeable possibleConsumeable = entity.GetComponent<GenericConsumeable>();
                 if (possibleConsumeable != null) {
                     consume(possibleConsumeable);
-                    gameObject.AddComponent<SoundEffect>().sfx = slimeEatingSFX;
+                    gameObject.AddComponent<SoundEffect>().sfx = _slimeEatingSFX;
                 }
             }
         }
@@ -283,7 +273,7 @@ public class SlimeController : MonoBehaviour {
             GUI.Box(new Rect(mousePosition.x - 8, mousePosition.y - 8, 16, 16), "");
         }
 
-        if (currentSelectedSlime != null) {
+        if (_currentSelectedSlime != null) {
             switch (_currentCastType) {
                 case ElementalCastType.NONE:
                     if (Input.GetKey(KeyCode.Mouse1)) {
@@ -406,34 +396,23 @@ public class SlimeController : MonoBehaviour {
 
     //Called at the end of the blink animation to move the eye to the new position and play the opening animation.
     public void EyeBlink() {
-        if (currentSelectedSlime == null) {
+        if (_currentSelectedSlime == null) {
             renderer.enabled = false;
             return;
         }
-        transform.position = currentSelectedSlime.transform.position;
+        transform.position = _currentSelectedSlime.transform.position;
         renderer.enabled = true;
         _eyeAnimator.SetTrigger("ReverseBlink");
     }
 
-    private void ResourceUIActivated() {
-        int potentialenergy = _consumesize + (radiationLevel * _consumeradiation) + (electricityLevel * _consumeelectricity) + (bioLevel * _consumebio);
-        _resourcedisplayLabel.text = _consumename + "\nRadiation:" + _consumeradiation + "\nBio:" + _consumebio + "\nElectricity:" + _consumeelectricity + "\nEnergy:" + potentialenergy;
+    public void enableResourcePopup(string name, int size, int bio, int radiation, int electricity) {
+        int potentialenergy = size + (_radiationLevel * radiation) + (_electricityLevel * electricity) + (_bioLevel * bio);
+        _resourcedisplayLabel.text = name + "\nRadiation:" + radiation + "\nBio:" + bio + "\nElectricity:" + electricity + "\nEnergy:" + potentialenergy;
         _resourcedisplayLabel.enabled = true;
         _resourcedisplaySprite.enabled = true;
-        _resourcesopen = false;
     }
 
-    //Called by the consumable that was clicked on to check request the slime controller to set up the UI
-    public void ResourceUICheck(string name, int size, int bio, int radiation, int electricity) {
-        _consumeradiation = radiation;
-        _consumebio = bio;
-        _consumeelectricity = electricity;
-        _consumesize = size;
-        _consumename = name;
-        _resourcesopen = true;
-    }
-
-    private void RemoveResourceBox() {
+    private void disableResourcePopup() {
         _resourcedisplayLabel.enabled = false;
         _resourcedisplaySprite.enabled = false;
     }
@@ -446,7 +425,7 @@ public class SlimeController : MonoBehaviour {
     public bool useRadiationDefense() {
         //if distance is within range of attack, check each tile in the radius and then irradiate each tile that can be irradiated
         if (canCastToCursor(getRadiationDefenceRange())) {
-            gameObject.AddComponent<SoundEffect>().sfx = radioactiveDefenseSFX;
+            gameObject.AddComponent<SoundEffect>().sfx = _radioactiveDefenseSFX;
 
             TileCircleFunction circleFunction = delegate(Tile tile, Vector2Int position) {
                 Irradiated radComponent = tile.GetComponent<Irradiated>();
@@ -464,11 +443,11 @@ public class SlimeController : MonoBehaviour {
     }
 
     private float getRadiationDefenceRange() {
-        return 2 * radiationLevel + 3;
+        return 2 * _radiationLevel + 3;
     }
 
     private int getRadiationDefenceRadius() {
-        return radiationLevel + 1;
+        return _radiationLevel + 1;
     }
 
     //Allows slime to irradiate an area for a period of time such that enemies are damaged per second
@@ -476,7 +455,7 @@ public class SlimeController : MonoBehaviour {
     public bool useRadiationOffense() {
         //if distance is within range of attack, create the radius of radiation
         if (canCastToCursor(getRadiationOffenceRange())) { 
-            gameObject.AddComponent<SoundEffect>().sfx = radioactiveOffenseSFX;
+            gameObject.AddComponent<SoundEffect>().sfx = _radioactiveOffenseSFX;
 
             TileCircleFunction circleFunction = delegate(Tile tile, Vector2Int position) {
                 Irradiated radComponent = tile.GetComponent<Irradiated>();
@@ -494,17 +473,17 @@ public class SlimeController : MonoBehaviour {
     }
 
     private float getRadiationOffenceRange() {
-        return 3 * radiationLevel + 2;
+        return 3 * _radiationLevel + 2;
     }
 
     private int getRadiationOffenceRadius() {
-        return radiationLevel + 1;
+        return _radiationLevel + 1;
     }
 
     //outputs circle of enemy-damaging electricity from central point of selected slime tile
     //radius increases with electricityLevel, as does damage
     public void useElectricityDefense() {
-        gameObject.AddComponent<SoundEffect>().sfx = electricDefenseSFX;
+        gameObject.AddComponent<SoundEffect>().sfx = _electricDefenseSFX;
 
         TileCircleFunction circleFunction = delegate(Tile tile, Vector2Int tilePosition) {
             if (tile.GetComponent<Slime>() != null) {
@@ -518,11 +497,11 @@ public class SlimeController : MonoBehaviour {
     }
 
     private int getElectricityDefenceRadius() {
-        return electricityLevel;
+        return _electricityLevel;
     }
 
     private float getElectricityDefenseDamage() {
-        return electricityLevel * 0.2f + 0.2f;
+        return _electricityLevel * 0.2f + 0.2f;
     }
 
     //sends a bolt of electricity at an enemy, up to a max distance away, and ars to nearby enemies for chain damage
@@ -535,9 +514,9 @@ public class SlimeController : MonoBehaviour {
                 electricityArc.transform.position = getStartLocation();
                 ElectricityArc arc = electricityArc.AddComponent<ElectricityArc>();
 
-                arc.setArcRadius(electricityLevel + 1);
+                arc.setArcRadius(_electricityLevel + 1);
                 arc.setArcDamage(getElectricityOffenseDamage());
-                arc.setArcNumber(electricityLevel + 1);
+                arc.setArcNumber(_electricityLevel + 1);
                 arc.setDestination(getCursorPosition());
                 return true;
             }
@@ -546,7 +525,7 @@ public class SlimeController : MonoBehaviour {
     }
 
     private float getElectricityOffenseRange() {
-        return 3 * electricityLevel + 2;
+        return 3 * _electricityLevel + 2;
     }
 
     private float getElectricityOffenseDamage() {
@@ -557,7 +536,7 @@ public class SlimeController : MonoBehaviour {
     //radius and health increases with bioLevel
     //defense will remain until destroyed by enemies
     public void useBioDefense() {
-        gameObject.AddComponent<SoundEffect>().sfx = bioDefenseSFX;
+        gameObject.AddComponent<SoundEffect>().sfx = _bioDefenseSFX;
         TileCircleFunction circleFuction = delegate(Tile tile, Vector2Int position){
             if (tile.GetComponent<Slime>() != null && tile.GetComponent<BioMutated>() == null) {
                 tile.isWalkable = false;
@@ -571,7 +550,7 @@ public class SlimeController : MonoBehaviour {
     }
 
     private int getBioDefenceRadius() {
-        return bioLevel;
+        return _bioLevel;
     }
 
     //Creates a tentacle that can stab and impale enemies, as well as drag them towards the slime at higher levels
@@ -590,18 +569,18 @@ public class SlimeController : MonoBehaviour {
             bio.setLanceDamage(getBioOffenseDamage());
             loseEnergy(BIO_OFFENSE_COST);
 
-            gameObject.AddComponent<SoundEffect>().sfx = bioOffenseSFX;
+            gameObject.AddComponent<SoundEffect>().sfx = _bioOffenseSFX;
             return true;
         }
         return false;
     }
 
     private float getBioOffenseLength() {
-        return 3 * bioLevel + 3;
+        return 3 * _bioLevel + 3;
     }
 
     private float getBioOffenseDamage() {
-        return bioLevel * 0.21f;
+        return _bioLevel * 0.21f;
     }
 
     private bool canCastToCursor(float castRange) {
@@ -633,14 +612,14 @@ public class SlimeController : MonoBehaviour {
     /*###############################################################################################*/
 
     public Slime getSelectedSlime() {
-        return currentSelectedSlime;
+        return _currentSelectedSlime;
     }
 
     public void setSelectedSlime(Slime slime) {
-        Slime previousSlime = currentSelectedSlime;
-        currentSelectedSlime = slime;
+        Slime previousSlime = _currentSelectedSlime;
+        _currentSelectedSlime = slime;
 
-        if (currentSelectedSlime == null) {
+        if (_currentSelectedSlime == null) {
             renderer.enabled = false;
         } else {
             if (previousSlime == null) {
@@ -670,30 +649,30 @@ public class SlimeController : MonoBehaviour {
     }
 
     public float getBioLevel() {
-        return bioLevel;
+        return _bioLevel;
     }
 
     public void gainBioLevel() {
-        bioLevel++;
-        _gameUi.BioUpdate(bioLevel);
+        _bioLevel++;
+        _gameUi.BioUpdate(_bioLevel);
     }
 
     public float getElectricityLevel() {
-        return electricityLevel;
+        return _electricityLevel;
     }
 
     public void gainElectricityLevel() {
-        electricityLevel++;
-        _gameUi.LightningUpdate(electricityLevel);
+        _electricityLevel++;
+        _gameUi.LightningUpdate(_electricityLevel);
     }
 
     public float getRadiationLevel() {
-        return radiationLevel;
+        return _radiationLevel;
     }
 
     public void gainRadiationLevel() {
-        radiationLevel++;
-        _gameUi.RadiationUpdate(radiationLevel);
+        _radiationLevel++;
+        _gameUi.RadiationUpdate(_radiationLevel);
     }
 
     public Vector2Int getCursorPosition() {
@@ -705,7 +684,6 @@ public class SlimeController : MonoBehaviour {
     }
 
     public Vector2Int getStartLocation() {
-        return currentSelectedSlime.transform.position;
+        return _currentSelectedSlime.transform.position;
     }
 }
-

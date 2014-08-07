@@ -374,7 +374,7 @@ public class SlimeController : MonoBehaviour {
             Slime slimeTile = tileUnderCursor.GetComponent<Slime>();
             if (slimeTile != null && slimeTile.isConnected()) {
                 RemoveResourceBox ();
-				setSelectedSlime(slimeTile);
+                setSelectedSlime(slimeTile);
             }
         }
     }

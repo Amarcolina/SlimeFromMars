@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 
-
 public enum ElementalCastType {
     NONE,
     ELECTRICITY_OFFENSIVE,
@@ -376,7 +375,6 @@ public class SlimeController : MonoBehaviour {
         }
 
         if (_slimeHighlightPath != null) {
-
             Texture2D fillColor = null;
             if (_currentCastType == ElementalCastType.NONE) {
                 float pathCost = Slime.getPathCost(_slimeHighlightPath);
@@ -629,8 +627,6 @@ public class SlimeController : MonoBehaviour {
             }
         }
     }
-    
-    
 
     /*###############################################################################################*/
     /*#################################### SETTERS AND GETTERS ######################################*/

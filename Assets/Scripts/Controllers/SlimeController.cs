@@ -424,7 +424,7 @@ public class SlimeController : MonoBehaviour {
     private void loseEnergy(int cost) {
        energy -= cost;
        if (cost != 0) {
-           _gameUi.ResourceUpdate (energy);
+          _gameUi.ResourceUpdate (energy);
        }
     }
 
@@ -432,7 +432,7 @@ public class SlimeController : MonoBehaviour {
         energy += plus;
         if (plus != 0){
            _gameUi.ResourceUpdate (energy);
-		}
+        }
     }
 
     private void GameOver() {

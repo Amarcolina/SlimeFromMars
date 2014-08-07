@@ -127,10 +127,18 @@ public class SlimeRenderer : MonoBehaviour {
         if(_solidityFunction(_rendererPosition) == 0.0f){
             return;
         }
+
+        Tile myTile = GetComponent<Tile>();
+
         for (int i = 0; i < 8; i++) {
             Vector2Int neighborPosition = _rendererPosition + _cellOffset[i];
             GameObject tileObject = _tilemap.getTileGameObject(neighborPosition);
             if (tileObject != null) {
+
+                if (!myTile.isTransparent && !tileObject.GetComponent<Tile>().isSlimeable) {
+                    continue;
+                }
+
                 SlimeRenderer[] renderers = tileObject.GetComponents<SlimeRenderer>();
                 bool hasSameRenderer = false;
                 foreach (SlimeRenderer otherRenderer in renderers) {

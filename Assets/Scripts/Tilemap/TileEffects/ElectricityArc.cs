@@ -85,7 +85,8 @@ public class ElectricityArc : MonoBehaviour {
             for (int dy = -arcRadius; dy <= arcRadius; dy++) {
                 Vector2 tileOffset = new Vector2(dx, dy);
                 if (tileOffset.sqrMagnitude <= arcRadius * arcRadius) {
-                    Tile tile = Tilemap.getInstance().getTile(Tilemap.getTilemapLocation(_destination) + new Vector2Int(dx, dy));
+                    Vector2Int potentialJumpLocation = (Vector2Int)_destination + new Vector2Int(dx, dy);
+                    Tile tile = Tilemap.getInstance().getTile(potentialJumpLocation);
 
                     if (tile != null && tile.canDamageEntities() && tile.gameObject.GetComponent<Electrified>() == null && arcNumber > 0) {
 
@@ -96,6 +97,11 @@ public class ElectricityArc : MonoBehaviour {
                                 foundNewEntity = true;
                                 break;
                             }
+                        }
+
+                        TileRayHit hit = TilemapUtilities.castTileRay(_destination, potentialJumpLocation, null);
+                        if(hit.didHit){
+                            continue;
                         }
 
                         if (foundNewEntity) {

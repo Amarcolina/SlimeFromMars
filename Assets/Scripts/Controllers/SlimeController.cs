@@ -97,7 +97,7 @@ public class SlimeController : MonoBehaviour {
         _pathDotGreen = Resources.Load<Texture2D>("Sprites/UISprites/Interface/PathDotGreen");
         _pathDotRed = Resources.Load<Texture2D>("Sprites/UISprites/Interface/PathDotRed");
         slimeEatingSFX = Resources.Load<AudioClip>("Sounds/SFX/slime_eating");
-		//Finds the Resource UI
+        //Finds the Resource UI
         resourcedisplay_GameObject = GameObject.FindGameObjectWithTag ("ItemInfo");
         resourcedisplay_Label = resourcedisplay_GameObject.GetComponentInChildren<UILabel> ();
         resourcedisplay_Sprite = resourcedisplay_GameObject.GetComponentInChildren<UISprite> ();
@@ -270,7 +270,7 @@ public class SlimeController : MonoBehaviour {
             if(resourcesopen){
                 ResourceUIActivated();
             } else {
-				RemoveResourceBox();
+                RemoveResourceBox();
             }
             highlightSlimeTile();
         }
@@ -282,7 +282,7 @@ public class SlimeController : MonoBehaviour {
         }
 
         if (Input.GetMouseButtonUp(1) && currentSelectedSlime != null){
-			RemoveResourceBox ();
+            RemoveResourceBox ();
 			if (energy > 0) {
                 Astar.isWalkableFunction = Tile.isSlimeableFunction;
                 Astar.isNeighborWalkableFunction = Tile.isSlimeableFunction;
@@ -684,7 +684,7 @@ public class SlimeController : MonoBehaviour {
          resourcedisplay_Label.text = consumename + "\nRadiation:" + consumeradiation + "\nBio:" + consumebio + "\nElectricity:" + consumeelectricity + "\nEnergy:" + potentialenergy;
          resourcedisplay_Label.enabled = true;
          resourcedisplay_Sprite.enabled = true;
-		 resourcesopen = false;
+         resourcesopen = false;
 	}
 
 	//Called by the consumable that was clicked on to check request the slime controller to set up the UI

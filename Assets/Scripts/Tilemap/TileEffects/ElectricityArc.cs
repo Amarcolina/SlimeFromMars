@@ -99,7 +99,7 @@ public class ElectricityArc : MonoBehaviour {
                             }
                         }
 
-                        TileRayHit hit = TilemapUtilities.castTileRay(_destination, potentialJumpLocation);
+                        TileRayHit hit = TilemapUtilities.castTileRay(_destination, potentialJumpLocation, null);
                         if(hit.didHit){
                             continue;
                         }

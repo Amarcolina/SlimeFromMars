@@ -57,7 +57,7 @@ public class SlimeController : MonoBehaviour {
     public int consumebio;
     public int consumeelectricity;
     public int consumesize;
-	public string consumename;
+    public string consumename;
 
     //asdasd
     private Path _slimeHighlightPath = null;
@@ -98,9 +98,9 @@ public class SlimeController : MonoBehaviour {
         _pathDotRed = Resources.Load<Texture2D>("Sprites/UISprites/Interface/PathDotRed");
         slimeEatingSFX = Resources.Load<AudioClip>("Sounds/SFX/slime_eating");
 		//Finds the Resource UI
-		resourcedisplay_GameObject = GameObject.FindGameObjectWithTag ("ItemInfo");
-		resourcedisplay_Label = resourcedisplay_GameObject.GetComponentInChildren<UILabel> ();
-		resourcedisplay_Sprite = resourcedisplay_GameObject.GetComponentInChildren<UISprite> ();
+        resourcedisplay_GameObject = GameObject.FindGameObjectWithTag ("ItemInfo");
+        resourcedisplay_Label = resourcedisplay_GameObject.GetComponentInChildren<UILabel> ();
+        resourcedisplay_Sprite = resourcedisplay_GameObject.GetComponentInChildren<UISprite> ();
     }
 
     // Use this for initialization
@@ -689,12 +689,12 @@ public class SlimeController : MonoBehaviour {
 
 	//Called by the consumable that was clicked on to check request the slime controller to set up the UI
 	public void ResourceUICheck(string name, int size, int bio, int radiation, int electricity){
-		consumeradiation = radiation;
-		consumebio = bio;
-		consumeelectricity = electricity;
-		consumesize = size;
-		consumename = name;
-		resourcesopen = true;
+        consumeradiation = radiation;
+        consumebio = bio;
+        consumeelectricity = electricity;
+        consumesize = size;
+        consumename = name;
+        resourcesopen = true;
 	}
 
 

@@ -21,9 +21,9 @@ public class GenericConsumeable : MonoBehaviour, IGrabbable {
     public int bio;
     public int electricity;
     public UILabel resourcedisplay_Label;
-	public UISprite resourcedisplay_Sprite;
+    public UISprite resourcedisplay_Sprite;
     public GameObject resourcedisplay_GameObject;
-	private SlimeController _slimeControllerInstance;
+    private SlimeController _slimeControllerInstance;
 
     //flags item with special mutation property and type
     public bool isRadiationMutation = false;
@@ -41,19 +41,19 @@ public class GenericConsumeable : MonoBehaviour, IGrabbable {
 
     //Finds reference to the information display label and adds a box collider
     public void Awake(){
-		_slimeControllerInstance = SlimeController.getInstance();
-		resourcedisplay_GameObject = GameObject.FindGameObjectWithTag ("ItemInfo");
+        _slimeControllerInstance = SlimeController.getInstance();
+        resourcedisplay_GameObject = GameObject.FindGameObjectWithTag ("ItemInfo");
         resourcedisplay_Label = resourcedisplay_GameObject.GetComponentInChildren<UILabel> ();
-		resourcedisplay_Sprite = resourcedisplay_GameObject.GetComponentInChildren<UISprite> ();
+        resourcedisplay_Sprite = resourcedisplay_GameObject.GetComponentInChildren<UISprite> ();
         gameObject.AddComponent<BoxCollider2D> ();
 	}
 
     //Displays the information for a given item and calculates potential energy
 	public void OnMouseOver(){
-		if (Input.GetMouseButtonDown (0)) {
-           _slimeControllerInstance.ResourceUICheck(gameObject.name,(int)size, bio, radiation, electricity);
-		}
-	}
+        if (Input.GetMouseButtonDown (0)) {
+            _slimeControllerInstance.ResourceUICheck(gameObject.name,(int)size, bio, radiation, electricity);
+        }
+    }
 
 }
 

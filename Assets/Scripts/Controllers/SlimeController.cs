@@ -164,23 +164,25 @@ public class SlimeController : MonoBehaviour {
         Vector2 castDelta = getStartLocation() - getCursorPosition();
         float mag = castDelta.magnitude;
 
-        for (int dx = -radius; dx <= radius; dx++) {
-            for (int dy = -radius; dy <= radius; dy++) {
-                if (dx * dx + dy * dy <= radius * radius) {
-                    Vector2 center = getCursorPosition() + new Vector2Int(dx, dy);
-                    if (dx * dx + (dy + 1) * (dy + 1) > radius * radius) {
-                        drawGuiTexture(center + new Vector2(0, 0.5f), 1.0f, 0.2f, mag > range ? _edgeRedHorizontal : _edgeGreenHorizontal);
-                    }
-                    if (dx * dx + (dy - 1) * (dy - 1) > radius * radius) {
-                        drawGuiTexture(center + new Vector2(0, -0.5f), 1.0f, 0.2f, mag > range ? _edgeRedHorizontal : _edgeGreenHorizontal);
-                    }
-                    if ((dx + 1) * (dx + 1) + dy * dy > radius * radius) {
-                        drawGuiTexture(center + new Vector2(0.5f, 0), 0.2f, 1.0f, mag > range ? _edgeRedVertical : _edgeGreenVertical);
-                    }
-                    if ((dx - 1) * (dx - 1) + dy * dy > radius * radius) {
-                        drawGuiTexture(center + new Vector2(-0.5f, 0), 0.2f, 1.0f, mag > range ? _edgeRedVertical : _edgeGreenVertical);
-                    }
-                }
+        HashSet<Vector2Int> _positionsInCircle = new HashSet<Vector2Int>();
+        TileCircleFunction circleFunction = delegate(Tile tile, Vector2Int position) {
+            _positionsInCircle.Add(position);
+        };
+        forEveryTileInCircle(circleFunction, getCursorPosition(), radius, true);
+
+        foreach (Vector2Int position in _positionsInCircle) {
+            Vector2 worldPosition = position;
+            if (!_positionsInCircle.Contains(position + Vector2Int.up)) {
+                drawGuiTexture(worldPosition + new Vector2(0, 0.5f), 1.0f, 0.2f, mag > range ? _edgeRedHorizontal : _edgeGreenHorizontal);
+            }
+            if (!_positionsInCircle.Contains(position + Vector2Int.down)) {
+                drawGuiTexture(worldPosition + new Vector2(0, -0.5f), 1.0f, 0.2f, mag > range ? _edgeRedHorizontal : _edgeGreenHorizontal);
+            }
+            if (!_positionsInCircle.Contains(position + Vector2Int.right)) {
+                drawGuiTexture(worldPosition + new Vector2(0.5f, 0), 0.2f, 1.0f, mag > range ? _edgeRedVertical : _edgeGreenVertical);
+            }
+            if (!_positionsInCircle.Contains(position + Vector2Int.left)) {
+                drawGuiTexture(worldPosition + new Vector2(-0.5f, 0), 0.2f, 1.0f, mag > range ? _edgeRedVertical : _edgeGreenVertical);
             }
         }
     }
@@ -469,27 +471,19 @@ public class SlimeController : MonoBehaviour {
 
     //Allows slime to irradiate tiles permanently so that enemies that walk into the area are stunned for short periods of time
     public bool useRadiationDefense() {
-        float rangeOfAttack = getRadiationDefenceRange();
         //if distance is within range of attack, check each tile in the radius and then irradiate each tile that can be irradiated
-        if (Vector2Int.distance(getStartLocation(), getCursorPosition()) <= rangeOfAttack) {
-            int circleRadius = getRadiationDefenceRadius();
-
+        if (Vector2Int.distance(getStartLocation(), getCursorPosition()) <= getRadiationDefenceRange()) {
             gameObject.AddComponent<SoundEffect>().sfx = radioactiveDefenseSFX;
-            for (int dx = -circleRadius; dx <= circleRadius; dx++) {
-                for (int dy = -circleRadius; dy <= circleRadius; dy++) {
-                    Vector2 tileOffset = new Vector2(dx, dy);
-                    if (tileOffset.sqrMagnitude <= circleRadius * circleRadius) {
-                        Tile tile = Tilemap.getInstance().getTile(getCursorPosition() + new Vector2Int(dx, dy));
-                        if (tile != null) {
-                            Irradiated radComponent = tile.GetComponent<Irradiated>();
-                            if (radComponent == null) {
-                                radComponent = tile.gameObject.AddComponent<Irradiated>();
-                            }
-                            radComponent.setStunned(true);
-                        }
-                    }
+
+            TileCircleFunction circleFunction = delegate(Tile tile, Vector2Int position) {
+                Irradiated radComponent = tile.GetComponent<Irradiated>();
+                if (radComponent == null) {
+                    radComponent = tile.gameObject.AddComponent<Irradiated>();
                 }
-            }
+                radComponent.setStunned(true);
+            };
+            forEveryTileInCircle(circleFunction, getCursorPosition(), getRadiationDefenceRadius(), true);
+
             loseEnergy(RADIATION_DEFENSE_COST);
             return true;
         }
@@ -507,26 +501,19 @@ public class SlimeController : MonoBehaviour {
     //Allows slime to irradiate an area for a period of time such that enemies are damaged per second
     //Damage and range will increase based on level
     public bool useRadiationOffense() {
-        float rangeOfAttack = getRadiationOffenceRange();
         //if distance is within range of attack, create the radius of radiation
-        if (Vector2Int.distance(getStartLocation(), getCursorPosition()) <= rangeOfAttack) {
+        if (Vector2Int.distance(getStartLocation(), getCursorPosition()) <= getRadiationOffenceRange()) {
             gameObject.AddComponent<SoundEffect>().sfx = radioactiveOffenseSFX;
-            int circleRadius = getRadiationOffenceRadius();
-            for (int dx = -circleRadius; dx <= circleRadius; dx++) {
-                for (int dy = -circleRadius; dy <= circleRadius; dy++) {
-                    Vector2 tileOffset = new Vector2(dx, dy);
-                    if (tileOffset.sqrMagnitude <= circleRadius * circleRadius) {
-                        Tile tile = Tilemap.getInstance().getTile(getCursorPosition() + new Vector2Int(dx, dy));
-                        if (tile != null) {
-                            Irradiated radComponent = tile.GetComponent<Irradiated>();
-                            if (radComponent == null) {
-                                radComponent = tile.gameObject.AddComponent<Irradiated>();
-                            }
-                            radComponent.setDamaged(true);
-                        }
-                    }
+
+            TileCircleFunction circleFunction = delegate(Tile tile, Vector2Int position) {
+                Irradiated radComponent = tile.GetComponent<Irradiated>();
+                if (radComponent == null) {
+                    radComponent = tile.gameObject.AddComponent<Irradiated>();
                 }
-            }
+                radComponent.setDamaged(true);
+            };
+            forEveryTileInCircle(circleFunction, getCursorPosition(), getRadiationOffenceRadius(), true);
+
             loseEnergy(RADIATION_OFFENSE_COST);
             return true;
         }
@@ -546,19 +533,14 @@ public class SlimeController : MonoBehaviour {
     public void useElectricityDefense() {
         gameObject.AddComponent<SoundEffect>().sfx = electricDefenseSFX;
 
-        int circleRadius = getElectricityDefenceRadius();
-        for (int dx = -circleRadius; dx <= circleRadius; dx++) {
-            for (int dy = -circleRadius; dy <= circleRadius; dy++) {
-                Vector2 tileOffset = new Vector2(dx, dy);
-                if (tileOffset.sqrMagnitude <= circleRadius * circleRadius) {
-                    Tile tile = Tilemap.getInstance().getTile(getStartLocation() + new Vector2Int(dx, dy));
-                    if (tile != null && tile.GetComponent<Slime>() != null) {
-                        Electrified electrified = tile.gameObject.AddComponent<Electrified>();
-                        electrified.setDamage(getElectricityDefenseDamage());
-                    }
-                }
+        TileCircleFunction circleFunction = delegate(Tile tile, Vector2Int tilePosition) {
+            if (tile.GetComponent<Slime>() != null) {
+                Electrified electrified = tile.gameObject.AddComponent<Electrified>();
+                electrified.setDamage(getElectricityDefenseDamage());
             }
-        }
+        };
+        forEveryTileInCircle(circleFunction, getStartLocation(), getElectricityDefenceRadius(), true);
+
         loseEnergy(ELECTRICITY_DEFENSE_COST);
     }
 
@@ -612,21 +594,15 @@ public class SlimeController : MonoBehaviour {
     //defense will remain until destroyed by enemies
     public void useBioDefense() {
         gameObject.AddComponent<SoundEffect>().sfx = bioDefenseSFX;
-        int circleRadius = getBioDefenceRadius();
-        for (int dx = -circleRadius; dx <= circleRadius; dx++) {
-            for (int dy = -circleRadius; dy <= circleRadius; dy++) {
-                Vector2 tileOffset = new Vector2(dx, dy);
-                if (tileOffset.sqrMagnitude <= circleRadius * circleRadius) {
-                    Tile tile = Tilemap.getInstance().getTile(getStartLocation() + new Vector2Int(dx, dy));
-                    if (tile != null && tile.GetComponent<Slime>() != null && tile.GetComponent<BioMutated>() == null) {
-                        tile.isWalkable = false;
-                        tile.isSlimeable = true;
-                        tile.isTransparent = true;
-                        tile.gameObject.AddComponent<BioMutated>();
-                    }
-                }
+        TileCircleFunction circleFuction = delegate(Tile tile, Vector2Int position){
+            if (tile.GetComponent<Slime>() != null && tile.GetComponent<BioMutated>() == null) {
+                tile.isWalkable = false;
+                tile.isSlimeable = true;
+                tile.isTransparent = true;
+                tile.gameObject.AddComponent<BioMutated>();
             }
-        }
+        };
+        forEveryTileInCircle(circleFuction, getStartLocation(), getBioDefenceRadius(), true);
         loseEnergy(BIO_DEFENSE_COST);
     }
 
@@ -654,6 +630,21 @@ public class SlimeController : MonoBehaviour {
             return true;
         }
         return false;
+    }
+
+    private delegate void TileCircleFunction(Tile tile, Vector2Int tilePosition);
+    private void forEveryTileInCircle(TileCircleFunction function, Vector2Int center, int radius, bool lineOfSight) {
+        for (int dx = -radius; dx <= radius; dx++) {
+            for (int dy = -radius; dy <= radius; dy++) {
+                if ((dx * dx + dy * dy) <= radius * radius) {
+                    Vector2Int tilePosition = center + new Vector2Int(dx, dy);
+                    TileRayHit hit = TilemapUtilities.castTileRay(center, tilePosition, null);
+                    if (!hit.didHit) {
+                        function(Tilemap.getInstance().getTile(tilePosition), tilePosition);
+                    }
+                }
+            }
+        }
     }
 
     private float getBioOffenseLength() {

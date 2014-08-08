@@ -22,7 +22,6 @@ public class SoldierEnemy : BaseEnemy {
     public override void Awake() {
         base.Awake();
         _currentState = startState;
-        sound = SoundManager.getInstance();
         bulletSFX = Resources.Load<AudioClip>("Sounds/SFX/soldier_bullet");
     }
 
@@ -76,7 +75,7 @@ public class SoldierEnemy : BaseEnemy {
             } else {
                 _shotCooldownLeft = timePerShot;
                 _enemyAnimation.EnemyShoot(getNearestVisibleSlime().transform.position.x > transform.position.x ? 1.0f : -1.0f);
-                sound.PlaySound(gameObject.transform, bulletSFX);
+                _soundManager.PlaySound(gameObject.transform, bulletSFX);
             }
         }
     }

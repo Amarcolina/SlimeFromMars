@@ -22,7 +22,6 @@ public class GuardEnemy : BaseEnemy {
         base.Awake();
         _currentState = startState;
 
-        sound = SoundManager.getInstance();
         flameThrowerSFX = Resources.Load<AudioClip>("Sounds/SFX/guard_flamethrower");
     }
 
@@ -73,7 +72,7 @@ public class GuardEnemy : BaseEnemy {
             if (getNearestVisibleSlime(20, true) != null) {
                 _shotCooldownLeft = timePerShot;
                 _enemyAnimation.EnemyShoot(getNearestVisibleSlime().transform.position.x > shotOrigin.position.x ? 1.0f : -1.0f);
-                sound.PlaySound(gameObject.transform, flameThrowerSFX);
+                _soundManager.PlaySound(gameObject.transform, flameThrowerSFX);
             }
         }
     }

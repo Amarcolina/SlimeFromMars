@@ -164,9 +164,10 @@ public class SlimeController : MonoBehaviour {
         if (Input.GetMouseButtonUp(1) && _currentSelectedSlime != null) {
             disableResourcePopup();
             if (energy > 0) {
-                Astar.isWalkableFunction = Tile.isSlimeableFunction;
-                Astar.isNeighborWalkableFunction = Tile.isSlimeableFunction;
-                Path astarPath = Astar.findPath(getStartLocation(), getCursorPosition());
+                AstarSettings settings = new AstarSettings();
+                settings.isWalkableFunction = Tile.isSlimeableFunction;
+                settings.isNeighborWalkableFunction = Tile.isSlimeableFunction;
+                Path astarPath = Astar.findPath(getStartLocation(), getCursorPosition(), settings);
                 if (astarPath != null) {
                     int pathCost = Slime.getPathCost(astarPath);
                     //if the slime has the energy to move, take the astar path
@@ -347,17 +348,18 @@ public class SlimeController : MonoBehaviour {
             _slimeHighlightPath = null;
             if (!Minimap.getInstance().isPositionInFogOfWar(getCursorPosition())) {
 
+                AstarSettings settings = new AstarSettings();
                 if (_currentCastType == ElementalCastType.NONE) {
-                    Astar.isWalkableFunction = Tile.isSlimeableFunction;
-                    Astar.isNeighborWalkableFunction = Tile.isSlimeableFunction;
+                    settings.isWalkableFunction = Tile.isSlimeableFunction;
+                    settings.isNeighborWalkableFunction = Tile.isSlimeableFunction;
                 } else if (_currentCastType == ElementalCastType.BIO_OFFENSIVE) {
-                    Astar.isWalkableFunction = Tile.isSpikeableFunction;
-                    Astar.isNeighborWalkableFunction = Tile.isSpikeableFunction;
+                    settings.isWalkableFunction = Tile.isSpikeableFunction;
+                    settings.isNeighborWalkableFunction = Tile.isSpikeableFunction;
                 } else {
                     Debug.LogWarning("Unexpected elemental cast type [" + _currentCastType + "]");
                 }
 
-                _slimeHighlightPath = Astar.findPath(getStartLocation(), getCursorPosition());
+                _slimeHighlightPath = Astar.findPath(getStartLocation(), getCursorPosition(), settings);
                 if (_slimeHighlightPath != null) {
                     _slimeHighlightPath.removeNodeFromStart();
                 }
@@ -561,9 +563,10 @@ public class SlimeController : MonoBehaviour {
     //Damage and range are based on level
     public bool useBioOffense() {
         float rangeOfAttack = getBioOffenseLength();
-        Astar.isWalkableFunction = Tile.isSpikeableFunction;
-        Astar.isNeighborWalkableFunction = Tile.isSpikeableFunction;
-        Path astarPath = Astar.findPath(getStartLocation(), getCursorPosition());
+        AstarSettings settings = new AstarSettings();
+        settings.isWalkableFunction = Tile.isSpikeableFunction;
+        settings.isNeighborWalkableFunction = Tile.isSpikeableFunction;
+        Path astarPath = Astar.findPath(getStartLocation(), getCursorPosition(), settings);
 
         if (astarPath != null && astarPath.getLength() <= rangeOfAttack) {
             GameObject bioLance = Instantiate(spinePrefab, getCursorPosition(), Quaternion.identity) as GameObject;

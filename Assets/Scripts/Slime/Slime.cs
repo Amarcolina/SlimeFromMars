@@ -69,8 +69,9 @@ public class Slime : MonoBehaviour {
             effect.wither();
         }
         SlimeSentinel.removeSlimeFromDestroyList(this);
-        if (SlimeController.getInstance().getSelectedSlime() == this) {
-            SlimeController.getInstance().setSelectedSlime(null);
+        SlimeController controller = SlimeController.getInstance();
+        if (controller != null && controller.getSelectedSlime() == this) {
+            controller.setSelectedSlime(null);
         }
     }
 

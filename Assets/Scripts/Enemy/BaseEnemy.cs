@@ -35,6 +35,8 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable{
     protected float _canBeStunnedAgainTime = 0.0f;
     protected float _stunEndTime = 0.0f;
 
+    protected SoundManager sound;
+
     public virtual void Awake(){
         _tilemap = Tilemap.getInstance();
         _enemyAnimation = GetComponent<EnemyAnimation>();

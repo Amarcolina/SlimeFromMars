@@ -25,6 +25,7 @@ public class ScientistEnemy : BaseEnemy {
 
         tryEnterState(startState);
 
+        sound = SoundManager.getInstance();
         screamSFX = Resources.Load<AudioClip>("Sounds/SFX/scientist_scream");
         //walkSFX = Resources.Load<AudioClip>("Sounds/SFX/scientist_footsteps");
         //deathSFX = Resources.Load<AudioClip>("Sounds/SFX/scientist_death");

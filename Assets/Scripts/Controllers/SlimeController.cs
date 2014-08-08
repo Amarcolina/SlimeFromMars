@@ -433,7 +433,6 @@ public class SlimeController : MonoBehaviour {
                 if (radComponent == null) {
                     radComponent = tile.gameObject.AddComponent<Irradiated>();
                 }
-                radComponent.setStunned(true);
             };
             forEveryTileInCircle(circleFunction, getCursorPosition(), getRadiationDefenceRadius(), true);
 
@@ -454,22 +453,6 @@ public class SlimeController : MonoBehaviour {
     //Allows slime to irradiate an area for a period of time such that enemies are damaged per second
     //Damage and range will increase based on level
     public bool useRadiationOffense() {
-        //if distance is within range of attack, create the radius of radiation
-        if (canCastToCursor(getRadiationOffenceRange())) { 
-            gameObject.AddComponent<SoundEffect>().sfx = _radioactiveOffenseSFX;
-
-            TileCircleFunction circleFunction = delegate(Tile tile, Vector2Int position) {
-                Irradiated radComponent = tile.GetComponent<Irradiated>();
-                if (radComponent == null) {
-                    radComponent = tile.gameObject.AddComponent<Irradiated>();
-                }
-                radComponent.setDamaged(true);
-            };
-            forEveryTileInCircle(circleFunction, getCursorPosition(), getRadiationOffenceRadius(), true);
-
-            loseEnergy(RADIATION_OFFENSE_COST);
-            return true;
-        }
         return false;
     }
 

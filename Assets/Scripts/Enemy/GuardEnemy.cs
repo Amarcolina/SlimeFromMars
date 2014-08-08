@@ -18,16 +18,11 @@ public class GuardEnemy : BaseEnemy {
 
     private AudioClip flameThrowerSFX;
 
-    public override void Awake()
-    {
+    public override void Awake(){
         base.Awake();
         _currentState = startState;
 
         flameThrowerSFX = Resources.Load<AudioClip>("Sounds/SFX/guard_flamethrower");
-    }
-
-    void Start()
-    {
         gameObject.AddComponent<SoundEffect>();
     }
 

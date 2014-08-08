@@ -102,7 +102,7 @@ public class ScientistEnemy : BaseEnemy {
             }
         } else if (_leavingHidingSpot) {
             if(moveTowardsPoint(_currentHidingSpot.enterLocation.position, fleeSpeed)){
-                tryEnterState(EnemyState.HIDING);
+                tryEnterState(EnemyState.WANDERING);
             }
         }else{
             if(moveTowardsPoint(_currentHidingSpot.transform.position, fleeSpeed)){

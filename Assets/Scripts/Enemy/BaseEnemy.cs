@@ -11,6 +11,8 @@ public enum EnemyState {
 
 public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable{
     public EnemyState startState = EnemyState.WANDERING;
+    public bool enableStateDebug = false;
+
     public MovementPattern movementPattern;
     public GameObject corpsePrefab = null;
     public float health = 1.0f;
@@ -36,6 +38,9 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable{
     public virtual void Awake(){
         _tilemap = Tilemap.getInstance();
         _enemyAnimation = GetComponent<EnemyAnimation>();
+    }
+
+    public virtual void Start() {
         forceEnterState(startState);
     }
 
@@ -87,7 +92,9 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable{
     //#############################################################################
 
     protected void handleStateMachine() {
-        _currentStateFunction();
+        if (_currentStateFunction != null) {
+            _currentStateFunction();
+        }
     }
 
     protected bool tryEnterState(EnemyState state) {
@@ -138,12 +145,17 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable{
         }
 
         if (newStateFunction != null) {
+            if (enableStateDebug) {
+                Debug.Log(gameObject.name + " transitioned from " + _currentState + " to " + newState);
+            }
+
             if(_currentStateExitFunction != null){
                 _currentStateExitFunction();
             }
             _currentStateExitFunction = exitFunction;
 
             _currentState = newState;
+            _currentStateFunction = newStateFunction;
 
             enterFunction();
             return true;
@@ -316,6 +328,9 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable{
     }
 
     public static bool tileRayHitSlime(GameObject tileObj) {
+        if ((tileObj != null) && (tileObj.GetComponent<Tile>() == null)) {
+            Debug.Log(tileObj);
+        }
         if (tileObj == null || !tileObj.GetComponent<Tile>().isTransparent) {
             return true;
         }

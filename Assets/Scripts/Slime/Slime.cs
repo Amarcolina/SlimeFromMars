@@ -64,7 +64,14 @@ public class Slime : MonoBehaviour {
     }
 
     public void OnDestroy() {
+        BioMutated effect = GetComponent<BioMutated>();
+        if (effect != null) {
+            effect.wither();
+        }
         SlimeSentinel.removeSlimeFromDestroyList(this);
+        if (SlimeController.getInstance().getSelectedSlime() == this) {
+            SlimeController.getInstance().setSelectedSlime(null);
+        }
     }
 
     /* Forces this slime to wake up.  This causes it to recount it's
@@ -127,9 +134,26 @@ public class Slime : MonoBehaviour {
         wakeUpSlime();
         if (_percentHealth <= 0.0f) {
             Vector2Int deathOrigin = transform.position;
+
+            SlimeController slimeController = SlimeController.getInstance();
+            bool wasHighlighted = slimeController.getSelectedSlime() != null;
+
             DestroyImmediate(this);
             if (_isConnected) {
                 handleSlimeDetatch(deathOrigin);
+            }
+
+            if (wasHighlighted && slimeController.getSelectedSlime() == null) {
+                //Destroying this slime resulted in the highlighter being destroyed
+                //Choosing a neighbor is the best option
+
+                NeighborSlimeFunction function = delegate(Slime neighborSlime, Vector2Int neighborPosition) {
+                    if (neighborSlime.isConnected()  &&  slimeController.getSelectedSlime() == null) {
+                        slimeController.setSelectedSlime(neighborSlime);
+                    }
+                };
+
+                forEachNeighborSlime(function, deathOrigin);
             }
         }
     }
@@ -249,6 +273,7 @@ public class Slime : MonoBehaviour {
                 }
             }
         };
+
         forEachNeighborSlime(function, origin);
         if (didDetach) {
             sfx.PlaySound(_slimeRenderer.gameObject.transform, slimeDetach);

@@ -104,7 +104,7 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable{
         }
     }
 
-    protected bool tryEnterState(EnemyState state) {
+    public bool tryEnterState(EnemyState state) {
         return tryEnterStateInternal(state, false);
     }
 

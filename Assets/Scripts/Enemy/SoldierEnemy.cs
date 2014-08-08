@@ -15,15 +15,13 @@ public class SoldierEnemy : BaseEnemy {
     public GameObject muzzleFlashEffect;
     public Transform shotSpawn;
 
-    private bool _onShootCooldown = false;
+    private float _shotCooldownLeft = 0.0f;
 
     private AudioClip bulletSFX;
 
     public override void Awake() {
         base.Awake();
         _currentState = startState;
-
-
         bulletSFX = Resources.Load<AudioClip>("Sounds/SFX/soldier_bullet");
     }
 
@@ -52,11 +50,12 @@ public class SoldierEnemy : BaseEnemy {
     }
 
     protected override void onEnterAttackState(){
- 	    _onShootCooldown = false;
+ 	    _shotCooldownLeft = 0.0f;
     }
 
     protected override void attackState(){
-        if (_onShootCooldown) {
+        if (_shotCooldownLeft > 0.0f) {
+            _shotCooldownLeft -= Time.deltaTime;
             _enemyAnimation.EnemyStopped();
             return;
         }
@@ -74,7 +73,7 @@ public class SoldierEnemy : BaseEnemy {
             if (Vector3.Distance(transform.position, getNearestVisibleSlime().transform.position) > fireRange) {
                 moveTowardsPoint(getNearestVisibleSlime().transform.position);
             } else {
-                _onShootCooldown = true;
+                _shotCooldownLeft = timePerShot;
                 _enemyAnimation.EnemyShoot(getNearestVisibleSlime().transform.position.x > transform.position.x ? 1.0f : -1.0f);
                 gameObject.AddComponent<SoundEffect>().sfx = bulletSFX;
             }
@@ -94,8 +93,6 @@ public class SoldierEnemy : BaseEnemy {
             getNearestVisibleSlime(20, true);
             bullets--;
         }
-        yield return new WaitForSeconds(timePerShot);
-        _onShootCooldown = false;
     }
 
     //Flee state

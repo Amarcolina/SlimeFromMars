@@ -74,7 +74,7 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable{
     }
 
     protected virtual float getStunCooldown() {
-        return 1.0f;
+        return 0.2f;
     }
 
     protected bool isStunned() {

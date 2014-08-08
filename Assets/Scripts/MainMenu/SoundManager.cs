@@ -17,7 +17,6 @@ public class SoundManager : MonoBehaviour
                 soundInstance = FindObjectOfType<SoundManager>();
         }
         return soundInstance;
-        ;
     }
 
     // Use this for initialization
@@ -40,7 +39,9 @@ public class SoundManager : MonoBehaviour
                     sounds[i].mute = true;
                 }
                 else
+                {
                     sounds[i].mute = false;
+                }
             }
             else
             {

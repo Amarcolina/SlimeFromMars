@@ -35,6 +35,7 @@ public class AstarSettings {
 
 public class Astar : MonoBehaviour {
     private static AstarSettings defaultSettings = new AstarSettings();
+    public static List<Vector2Int> traversedNodes = new List<Vector2Int>();
 
     public class Node : IComparable {
         Vector2Int position; //tilemap position of node
@@ -95,12 +96,12 @@ public class Astar : MonoBehaviour {
         Path path = new Path();
         _astarInstance.StartCoroutine(findPathInternal(path, start, goal, settings, false));
 
+        Destroy(obj);
         return path.Count == 0 ? null : path;
     }
 
     public static IEnumerator findPathCoroutine(Path path, Vector2Int start, Vector2Int goal, AstarSettings settings = null) {
-        GameObject obj = new GameObject("AstarGameObject");
-        obj.hideFlags = HideFlags.HideAndDontSave;
+        GameObject obj = new GameObject("AstarSolver");
         Astar _astarInstance = obj.AddComponent<Astar>();
 
         if (settings == null) {
@@ -108,6 +109,8 @@ public class Astar : MonoBehaviour {
         }
 
         yield return _astarInstance.StartCoroutine(findPathInternal(path, start, goal, settings, true));
+
+        Destroy(obj);
     }
 
     private static IEnumerator findPathInternal(Path path, Vector2Int start, Vector2Int goal, AstarSettings settings, bool shouldContinue) {
@@ -129,9 +132,12 @@ public class Astar : MonoBehaviour {
         openList.insert(startNode);
         int nodesChecked = 0;
 
+        traversedNodes.Clear();
+
         Node current = null;
         while(true){
             current = openList.extractElement(0);//remove lowest rank node from openList
+            traversedNodes.Add(current.getPosition());
 
             //We break the while loop if we have found the goal node
             if (current.getPosition() == goal) {
@@ -219,6 +225,13 @@ public class Astar : MonoBehaviour {
         }
     }
 
+    public void OnDrawGizmos() {
+        Gizmos.color = new Color(0.0f, 1.0f, 0.0f, 0.3f);
+        foreach (Vector2Int pos in traversedNodes) {
+            Gizmos.DrawCube(pos, Vector3.one);
+        }
+    }
+
     //the cost of moving directly from one node to another
     public static float defaultMovementCost(Vector2Int current, Vector2Int neighbor) {
         float dx = current.x - neighbor.x;
@@ -231,6 +244,7 @@ public class Astar : MonoBehaviour {
     public static float defaultHeuristic(Vector2Int node, Vector2Int goal) {
         float dx = Mathf.Abs(node.x - goal.x);
         float dy = Mathf.Abs(node.y - goal.y);
-        return ORTHOGANAL_COST * (dx + dy) + (DIAGANOL_COST - 2 * ORTHOGANAL_COST) * Mathf.Min(dx, dy);
+        float t = ORTHOGANAL_COST * (dx + dy) + (DIAGANOL_COST - 2 * ORTHOGANAL_COST) * Mathf.Min(dx, dy);
+        return t;
     }
 }

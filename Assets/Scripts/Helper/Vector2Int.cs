@@ -61,6 +61,10 @@ public class Vector2Int {
         return Mathf.Sqrt(x * x + y * y);
     }
 
+    public int getLengthSqrd() {
+        return x * x + y * y;
+    }
+
     /* Overrides the == operator so that this class can be compared
      * to itself
      */

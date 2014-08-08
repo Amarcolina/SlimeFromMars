@@ -18,6 +18,8 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable{
     protected float _canBeStunnedAgainTime = 0.0f;
     protected float _stunEndTime = 0.0f;
 
+    protected SoundManager sound;
+
     public virtual void Awake(){
         _tilemap = Tilemap.getInstance();
         _enemyAnimation = GetComponent<EnemyAnimation>();
@@ -53,7 +55,7 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable{
     }
 
     protected virtual float getStunCooldown() {
-        return 1.0f;
+        return 0.2f;
     }
 
     protected bool isStunned() {

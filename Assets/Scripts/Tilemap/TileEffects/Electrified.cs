@@ -3,10 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class Electrified : MonoBehaviour {
-    public const float DURATION = 1.0f;
-    public const float TOTAL_DAMAGE = 0.1f;
+    public const float DURATION = 0.5f;
 
-    private float _totalTime = 0.0f;
+    private float _damage;
     private Tile _tile;
     private static GameObject _electricityParticleEffectPrefab = null;
     private GameObject _electricityEffect = null;
@@ -29,10 +28,13 @@ public class Electrified : MonoBehaviour {
         _tile.damageTileEntities(0, true);
         _electricityEffect = Instantiate(_electricityParticleEffectPrefab) as GameObject;
         _electricityEffect.transform.position = transform.position + Vector3.back;
+
+        Destroy(_electricityEffect, 2.0f);
+        Destroy(this, DURATION);
 	}
 
-    public void OnDestroy() {
-        Destroy(_electricityEffect);
+    public void setDamage(float damage) {
+        _damage = damage;
     }
 
     /* This update will run for DURATION amount of time.  It will damage any 
@@ -41,11 +43,8 @@ public class Electrified : MonoBehaviour {
      * each frame
      */
     public void Update() {
-        _tile.damageTileEntities(TOTAL_DAMAGE * Time.deltaTime / DURATION, false);
-
-        _totalTime += Time.deltaTime;
-        if (_totalTime >= DURATION) {
-            Destroy(this);
+        if (_damage != 0.0f) {
+            _tile.damageTileEntities(_damage * Time.deltaTime / DURATION, false);
         }
     }
 }

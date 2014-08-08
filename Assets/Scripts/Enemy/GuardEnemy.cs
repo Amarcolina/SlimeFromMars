@@ -21,7 +21,7 @@ public class GuardEnemy : BaseEnemy {
     public GameObject flamethrowerEffect = null;
     public Transform shotOrigin;
 
-    private bool _onShootCooldown = false;
+    private float _shotCooldownLeft = 0.0f;
     private GuardState _currentState;
 
     private AudioClip flameThrowerSFX;
@@ -36,7 +36,8 @@ public class GuardEnemy : BaseEnemy {
 
     void Start()
     {
-        gameObject.AddComponent<SoundEffect>();
+        sound = SoundManager.getInstance();
+        //gameObject.AddComponent<SoundEffect>();
     }
 
     void Update() {
@@ -70,14 +71,15 @@ public class GuardEnemy : BaseEnemy {
     private bool tryEnterAttackState() {
         if (getNearestVisibleSlime() != null) {
             _currentState = GuardState.ATTACKING;
-            _onShootCooldown = false;
+            _shotCooldownLeft = 0.0f;
             return true;
         }
         return false;
     }
 
     private void attackState() {
-        if (_onShootCooldown) {
+        if (_shotCooldownLeft >= 0.0f) {
+            _shotCooldownLeft -= Time.deltaTime;
             _enemyAnimation.EnemyStopped();
             return;
         }
@@ -91,21 +93,16 @@ public class GuardEnemy : BaseEnemy {
             Mathf.Abs(transform.position.y - getNearestVisibleSlime().transform.position.y) > 0.1f) {
                 moveTowardsPoint(getNearestVisibleSlime().transform.position, attackSpeed);
         } else {
-            if (gameObject.GetComponent<SoundEffect>() != null)
-            {
-            }
             if (getNearestVisibleSlime(20, true) != null) {
-                _onShootCooldown = true;
+                _shotCooldownLeft = timePerShot;
                 _enemyAnimation.EnemyShoot(getNearestVisibleSlime().transform.position.x > shotOrigin.position.x ? 1.0f : -1.0f);
-                gameObject.GetComponent<SoundEffect>().PlaySound(flameThrowerSFX);
+                sound.PlaySound(gameObject.transform, flameThrowerSFX);
                 
             }
         }
     }
 
     public void OnEnemyFire() {
-        StartCoroutine(fireWaitCoroutine());
-
         Vector3 direction = transform.localScale.x > 0.0f ? Vector3.right : Vector3.left;
         float fireAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         Quaternion particleRotation = Quaternion.Euler(0, 0, fireAngle);
@@ -119,10 +116,5 @@ public class GuardEnemy : BaseEnemy {
         }
 
         Instantiate(shotPrefab, transform.position, particleRotation);
-    }
-
-    private IEnumerator fireWaitCoroutine() {
-        yield return new WaitForSeconds(timePerShot);
-        _onShootCooldown = false;
     }
 }

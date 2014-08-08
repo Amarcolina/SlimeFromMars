@@ -33,9 +33,17 @@ public class SlimeRenderer : MonoBehaviour {
         rendererGameObject.transform.parent = transform;
         rendererGameObject.transform.position = transform.position;
         _spriteRenderer = rendererGameObject.AddComponent<SpriteRenderer>();
-
+        _spriteRenderer.sortingLayerName = "Slime";
         _spriteRenderer.enabled = false;
-        _spriteRenderer.material.shader = Shader.Find("Custom/SlimeShader");
+
+        if (GetComponent<Tile>().isSlimeable) {
+            _spriteRenderer.material.shader = Shader.Find("Custom/SlimeShader");
+        } else {
+            _spriteRenderer.material.shader = Shader.Find("Custom/SlimeWallShader");
+            _spriteRenderer.sortingLayerName = "Default";
+            _spriteRenderer.sortingOrder = -1;
+            _spriteRenderer.material.SetTexture("_Smear", Resources.Load<Texture>("Sprites/Slime/SlimeWallRamp"));
+        }
     }
 
     public void OnDestroy() {
@@ -120,10 +128,18 @@ public class SlimeRenderer : MonoBehaviour {
         if(_solidityFunction(_rendererPosition) == 0.0f){
             return;
         }
+
+        Tile myTile = GetComponent<Tile>();
+
         for (int i = 0; i < 8; i++) {
             Vector2Int neighborPosition = _rendererPosition + _cellOffset[i];
             GameObject tileObject = _tilemap.getTileGameObject(neighborPosition);
             if (tileObject != null) {
+
+                if (!myTile.isTransparent && !tileObject.GetComponent<Tile>().isSlimeable) {
+                    continue;
+                }
+
                 SlimeRenderer[] renderers = tileObject.GetComponents<SlimeRenderer>();
                 bool hasSameRenderer = false;
                 foreach (SlimeRenderer otherRenderer in renderers) {

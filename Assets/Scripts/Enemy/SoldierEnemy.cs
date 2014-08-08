@@ -20,7 +20,10 @@ public class SoldierEnemy : BaseEnemy {
     [MinValue (0)]
     public float fireRange = 8.0f;
 
-    private bool _onShootCooldown = false;
+    public GameObject muzzleFlashEffect;
+    public Transform shotSpawn;
+
+    private float _shotCooldownLeft = 0.0f;
     private SoldierState _currentState;
 
     private AudioClip bulletSFX;
@@ -31,6 +34,11 @@ public class SoldierEnemy : BaseEnemy {
 
 
         bulletSFX = Resources.Load<AudioClip>("Sounds/SFX/soldier_bullet");
+    }
+
+    void Start()
+    {
+        sound = SoundManager.getInstance();
     }
 
     void Update() {
@@ -68,14 +76,15 @@ public class SoldierEnemy : BaseEnemy {
     private bool tryEnterAttackState() {
         if (getNearestVisibleSlime() != null && bullets != 0) {
             _currentState = SoldierState.ATTACKING;
-            _onShootCooldown = false;
+            _shotCooldownLeft = 0.0f;
             return true;
         }
         return false;
     }
 
     private void attackState() {
-        if (_onShootCooldown) {
+        if (_shotCooldownLeft > 0.0f) {
+            _shotCooldownLeft -= Time.deltaTime;
             _enemyAnimation.EnemyStopped();
             return;
         }
@@ -89,14 +98,13 @@ public class SoldierEnemy : BaseEnemy {
                 enterWanderState();
                 return;
             }
-
             
             if (Vector3.Distance(transform.position, getNearestVisibleSlime().transform.position) > fireRange) {
                 moveTowardsPoint(getNearestVisibleSlime().transform.position);
             } else {
-                _onShootCooldown = true;
+                _shotCooldownLeft = timePerShot;
                 _enemyAnimation.EnemyShoot(getNearestVisibleSlime().transform.position.x > transform.position.x ? 1.0f : -1.0f);
-                    gameObject.AddComponent<SoundEffect>().sfx = bulletSFX;
+                sound.PlaySound(gameObject.transform, bulletSFX);
             }
         }
     }
@@ -108,12 +116,12 @@ public class SoldierEnemy : BaseEnemy {
     protected IEnumerator damageSlimeCoroutine() {
         yield return null;
         if (getNearestVisibleSlime(20, true) != null) {
+            Instantiate(muzzleFlashEffect, shotSpawn.position, Quaternion.identity);
+            Instantiate(muzzleFlashEffect, getNearestVisibleSlime().transform.position + new Vector3(Random.Range(-0.4f, 0.4f), Random.Range(-0.4f, 0.4f), 0), Quaternion.identity);
             getNearestVisibleSlime().damageSlime(1.5f);
             getNearestVisibleSlime(20, true);
             bullets--;
         }
-        yield return new WaitForSeconds(timePerShot);
-        _onShootCooldown = false;
     }
 
     private bool tryEnterFleeState() {

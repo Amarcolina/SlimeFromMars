@@ -3,13 +3,15 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class ElectricityArc : MonoBehaviour {
-    int arcRadius, arcDamage, arcNumber;
+    int arcRadius, arcNumber;
+    float arcDamage;
     private float timeUntilArc = 0.2f;
     private Vector3 _destination;
 
     private static GameObject _electricArcPrefab = null;
 
     private AudioClip electricArcSFX;
+    private SoundManager sound;
 
     private HashSet<TileEntity> _alreadyHitEntities = null;
 
@@ -17,7 +19,7 @@ public class ElectricityArc : MonoBehaviour {
         if (_alreadyHitEntities == null) {
             _alreadyHitEntities = new HashSet<TileEntity>();
         }
-
+        sound = SoundManager.getInstance();
         HashSet<TileEntity> _tileEntities = Tilemap.getInstance().getTile(_destination).getTileEntities();
         if (_tileEntities != null) {
             foreach (TileEntity entity in _tileEntities) {
@@ -36,7 +38,8 @@ public class ElectricityArc : MonoBehaviour {
         GameObject arcObject = Instantiate(_electricArcPrefab, transform.position + Vector3.back, arcAngle) as GameObject;
         arcObject.GetComponent<ParticleSystem>().startSize = Vector3.Distance(transform.position, _destination) / 7.0f;
 
-        arcObject.AddComponent<SoundEffect>().sfx = electricArcSFX;
+        sound.PlaySound(arcObject.transform, electricArcSFX);
+
         Destroy(arcObject, 1.5f);
 
         Tilemap.getInstance().getTileGameObject(_destination).AddComponent<Electrified>();
@@ -58,7 +61,7 @@ public class ElectricityArc : MonoBehaviour {
         arcRadius = radius;
     }
 
-    public void setArcDamage(int damage) {
+    public void setArcDamage(float damage) {
         arcDamage = damage;
     }
 
@@ -79,12 +82,12 @@ public class ElectricityArc : MonoBehaviour {
 
         List<Tile> _newJumpableTiles = new List<Tile>();
         List<Tile> _oldJumpableTiles = new List<Tile>();
-
         for (int dx = -arcRadius; dx <= arcRadius; dx++) {
             for (int dy = -arcRadius; dy <= arcRadius; dy++) {
                 Vector2 tileOffset = new Vector2(dx, dy);
                 if (tileOffset.sqrMagnitude <= arcRadius * arcRadius) {
-                    Tile tile = Tilemap.getInstance().getTile(Tilemap.getTilemapLocation(_destination) + new Vector2Int(dx, dy));
+                    Vector2Int potentialJumpLocation = (Vector2Int)_destination + new Vector2Int(dx, dy);
+                    Tile tile = Tilemap.getInstance().getTile(potentialJumpLocation);
 
                     if (tile != null && tile.canDamageEntities() && tile.gameObject.GetComponent<Electrified>() == null && arcNumber > 0) {
 
@@ -95,6 +98,11 @@ public class ElectricityArc : MonoBehaviour {
                                 foundNewEntity = true;
                                 break;
                             }
+                        }
+
+                        TileRayHit hit = TilemapUtilities.castTileRay(_destination, potentialJumpLocation, null);
+                        if(hit.didHit){
+                            continue;
                         }
 
                         if (foundNewEntity) {
@@ -114,6 +122,8 @@ public class ElectricityArc : MonoBehaviour {
             Tile jumpTile = _newJumpableTiles[Random.Range(0, _newJumpableTiles.Count)];
             GameObject electricityArc = new GameObject("ElectricityArc");
             electricityArc.transform.position = _destination;
+
+            jumpTile.damageTileEntities(arcDamage);
 
             foreach (TileEntity entity in jumpTile.getTileEntities()) {
                 _alreadyHitEntities.Add(entity);

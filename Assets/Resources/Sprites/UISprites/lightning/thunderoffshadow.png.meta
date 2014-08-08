@@ -1,6 +1,8 @@
 fileFormatVersion: 2
 guid: 05078c869cdf99443ba8a5e163f40a7e
 TextureImporter:
+  fileIDToRecycleName:
+    21300000: thunderoffshadow
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0
@@ -16,7 +18,7 @@ TextureImporter:
     externalNormalMap: 0
     heightScale: .25
     normalMapFilter: 0
-  isReadable: 1
+  isReadable: 0
   grayScaleToAlpha: 0
   generateCubemap: 0
   seamlessCubemap: 0

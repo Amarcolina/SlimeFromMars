@@ -173,7 +173,7 @@ public class SlimeController : MonoBehaviour {
                     if (energy >= pathCost) {
                         loseEnergy(pathCost);
                         _currentSelectedSlime.requestExpansionAllongPath(astarPath);
-                        sound.PlaySound(gameObject.transform, slimeExpansionSFX, true);
+                        sound.PlaySound(gameObject.transform, _slimeExpansionSFX, true);
                     }
                 }
             } else {
@@ -423,13 +423,17 @@ public class SlimeController : MonoBehaviour {
     /*###############################################################################################*/
 
     //Allows slime to irradiate tiles permanently so that enemies that walk into the area are stunned for short periods of time
-    public bool useRadiationDefense() {
+    public bool useRadiationDefense()
+    {
         //if distance is within range of attack, check each tile in the radius and then irradiate each tile that can be irradiated
-        if (canCastToCursor(getRadiationDefenceRange())) {
-            gameObject.AddComponent<SoundEffect>().sfx = _radioactiveDefenseSFX;
-            sound.PlaySound(gameObject.transform, radioactiveDefenseSFX);
+        if (canCastToCursor(getRadiationDefenceRange()))
+        {
+            sound.PlaySound(gameObject.transform, _radioactiveDefenseSFX);
+            TileCircleFunction circleFunction = delegate(Tile tile, Vector2Int position)
+            {
                 Irradiated radComponent = tile.GetComponent<Irradiated>();
-                if (radComponent == null) {
+                if (radComponent == null)
+                {
                     radComponent = tile.gameObject.AddComponent<Irradiated>();
                 }
                 radComponent.setStunned(true);
@@ -455,7 +459,7 @@ public class SlimeController : MonoBehaviour {
     public bool useRadiationOffense() {
         //if distance is within range of attack, create the radius of radiation
         if (canCastToCursor(getRadiationOffenceRange())) { 
-            sound.PlaySound(gameObject.transform, radioactiveOffenseSFX);
+            sound.PlaySound(gameObject.transform, _radioactiveOffenseSFX);
 
             TileCircleFunction circleFunction = delegate(Tile tile, Vector2Int position) {
                 Irradiated radComponent = tile.GetComponent<Irradiated>();
@@ -483,7 +487,7 @@ public class SlimeController : MonoBehaviour {
     //outputs circle of enemy-damaging electricity from central point of selected slime tile
     //radius increases with electricityLevel, as does damage
     public void useElectricityDefense() {
-        sound.PlaySound(gameObject.transform, electricDefenseSFX);
+        sound.PlaySound(gameObject.transform, _electricDefenseSFX);
 
         TileCircleFunction circleFunction = delegate(Tile tile, Vector2Int tilePosition) {
             if (tile.GetComponent<Slime>() != null) {
@@ -536,7 +540,7 @@ public class SlimeController : MonoBehaviour {
     //radius and health increases with bioLevel
     //defense will remain until destroyed by enemies
     public void useBioDefense() {
-        sound.PlaySound(gameObject.transform, bioDefenseSFX);
+        sound.PlaySound(gameObject.transform, _bioDefenseSFX);
         TileCircleFunction circleFuction = delegate(Tile tile, Vector2Int position){
             if (tile.GetComponent<Slime>() != null && tile.GetComponent<BioMutated>() == null) {
                 tile.isWalkable = false;
@@ -567,7 +571,7 @@ public class SlimeController : MonoBehaviour {
             bio.setLancePath(astarPath);
             bio.setLanceDamage(getBioOffenseDamage());
             loseEnergy(BIO_OFFENSE_COST);
-            sound.PlaySound(gameObject.transform, bioOffenseSFX);
+            sound.PlaySound(gameObject.transform, _bioOffenseSFX);
             return true;
         }
         return false;

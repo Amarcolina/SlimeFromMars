@@ -2,7 +2,9 @@
 using System.Collections;
 
 public class RadiationLeech : MonoBehaviour {
-    private float _damagePeriod = 1.0f;
+    public const float STARTLE_RADIUS = 10.0f;
+
+    private float _damagePeriod = 2.0f;
     private float _damagePerPeriod = 0.1f;
     private IDamageable _damageable = null;
 
@@ -28,8 +30,14 @@ public class RadiationLeech : MonoBehaviour {
     private void explode() {
         BaseEnemy[] enemies = FindObjectsOfType<BaseEnemy>();
         foreach (BaseEnemy enemy in enemies) {
+            Vector3 dist = transform.position - enemy.transform.position;
+            if (dist.sqrMagnitude <= STARTLE_RADIUS * STARTLE_RADIUS) {
+                enemy.tryEnterState(EnemyState.STARTLED);
+            }
         }
 
+        GameObject explosionEffect = Instantiate(_explosionEffectPrefab, transform.position, Quaternion.identity) as GameObject;
+        Destroy(explosionEffect, 2.0f);
 
         Destroy(gameObject);
     }

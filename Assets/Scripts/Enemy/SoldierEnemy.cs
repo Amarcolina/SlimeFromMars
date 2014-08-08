@@ -4,6 +4,7 @@ using System.Collections;
 public class SoldierEnemy : BaseEnemy {
     public float wanderSpeed = 2.5f;
     public float fleeSpeed = 3.5f;
+    public float startledSpeed = 4.5f;
 
     [MinValue (0)]
     public int bullets = 20;
@@ -102,5 +103,10 @@ public class SoldierEnemy : BaseEnemy {
 
     protected override void fleeState(){
         runAwayFromSlime(fleeSpeed);
+    }
+
+    //Startled
+    protected override void startledState() {
+        
     }
 }

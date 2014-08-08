@@ -135,7 +135,7 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable{
         _currentWaypointPath = null;
         Path newPath = new Path();
         AstarSettings settings = new AstarSettings();
-        settings.maxNodesToCheck = 1;
+        settings.maxNodesToCheck = 2;
         yield return StartCoroutine(Astar.findPathCoroutine(newPath, transform.position, waypoint.transform.position, settings));
         _currentWaypointPath = newPath;
         _isCalculatingWaypointPath = false;

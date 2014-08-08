@@ -214,6 +214,7 @@ public class Astar : MonoBehaviour {
                 if (shouldContinue) {
                     //Yield to null, which in a coroutine waits until the next frame.
                     yield return null;
+                    nodesChecked = 0;
                 } else {
                     if (settings.returnBestPathUponFail) {
                         //Break out of the loop, the current node is used to reconstruct the path

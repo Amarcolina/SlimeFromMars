@@ -17,7 +17,14 @@ public class RadiationLeech : MonoBehaviour {
         if (_timeUntilNextDamage <= 0.0f) {
             _timeUntilNextDamage += _damagePeriod;
             _damageable.damage(_damagePerPeriod);
+            if (_damageable.getHealth() <= 0.0f) {
+                explode();
+            }
         }
+    }
+
+    private void explode() {
+        Destroy(gameObject);
     }
 
     public void setDamage(float damage) {

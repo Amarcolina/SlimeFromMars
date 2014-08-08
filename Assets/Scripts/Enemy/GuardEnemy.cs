@@ -21,7 +21,7 @@ public class GuardEnemy : BaseEnemy {
     public GameObject flamethrowerEffect = null;
     public Transform shotOrigin;
 
-    private bool _onShootCooldown = false;
+    private float _shotCooldownLeft = 0.0f;
     private GuardState _currentState;
 
     private AudioClip flameThrowerSFX;
@@ -70,14 +70,15 @@ public class GuardEnemy : BaseEnemy {
     private bool tryEnterAttackState() {
         if (getNearestVisibleSlime() != null) {
             _currentState = GuardState.ATTACKING;
-            _onShootCooldown = false;
+            _shotCooldownLeft = 0.0f;
             return true;
         }
         return false;
     }
 
     private void attackState() {
-        if (_onShootCooldown) {
+        if (_shotCooldownLeft >= 0.0f) {
+            _shotCooldownLeft -= Time.deltaTime;
             _enemyAnimation.EnemyStopped();
             return;
         }
@@ -95,7 +96,7 @@ public class GuardEnemy : BaseEnemy {
             {
             }
             if (getNearestVisibleSlime(20, true) != null) {
-                _onShootCooldown = true;
+                _shotCooldownLeft = timePerShot;
                 _enemyAnimation.EnemyShoot(getNearestVisibleSlime().transform.position.x > shotOrigin.position.x ? 1.0f : -1.0f);
                 gameObject.GetComponent<SoundEffect>().PlaySound(flameThrowerSFX);
                 
@@ -104,8 +105,6 @@ public class GuardEnemy : BaseEnemy {
     }
 
     public void OnEnemyFire() {
-        StartCoroutine(fireWaitCoroutine());
-
         Vector3 direction = transform.localScale.x > 0.0f ? Vector3.right : Vector3.left;
         float fireAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         Quaternion particleRotation = Quaternion.Euler(0, 0, fireAngle);
@@ -119,10 +118,5 @@ public class GuardEnemy : BaseEnemy {
         }
 
         Instantiate(shotPrefab, transform.position, particleRotation);
-    }
-
-    private IEnumerator fireWaitCoroutine() {
-        yield return new WaitForSeconds(timePerShot);
-        _onShootCooldown = false;
     }
 }

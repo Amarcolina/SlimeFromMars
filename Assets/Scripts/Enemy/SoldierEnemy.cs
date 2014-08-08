@@ -74,8 +74,7 @@ public class SoldierEnemy : BaseEnemy {
                 moveTowardsPoint(getNearestVisibleSlime().transform.position);
             } else {
                 _shotCooldownLeft = timePerShot;
-                _enemyAnimation.EnemyShoot(getNearestVisibleSlime().transform.position.x > transform.position.x ? 1.0f : -1.0f);
-                _soundManager.PlaySound(gameObject.transform, bulletSFX);
+                _enemyAnimation.EnemyShoot(getNearestVisibleSlime().transform.position.x > transform.position.x ? 1.0f : -1.0f);  
             }
         }
     }
@@ -86,6 +85,7 @@ public class SoldierEnemy : BaseEnemy {
 
     protected IEnumerator damageSlimeCoroutine() {
         yield return null;
+        _soundManager.PlaySound(gameObject.transform, bulletSFX);
         if (getNearestVisibleSlime(20, true) != null) {
             Instantiate(muzzleFlashEffect, shotSpawn.position, Quaternion.identity);
             Instantiate(muzzleFlashEffect, getNearestVisibleSlime().transform.position + new Vector3(Random.Range(-0.4f, 0.4f), Random.Range(-0.4f, 0.4f), 0), Quaternion.identity);

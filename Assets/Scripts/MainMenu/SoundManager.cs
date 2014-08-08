@@ -30,7 +30,7 @@ public class SoundManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        for (int i = 0; i < sounds.Count; i++)
+        for (int i = sounds.Count; i >= 0; i--)
         {
             if (sounds[i] != null)
             {

@@ -39,6 +39,10 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable{
         }
     }
 
+    public float getHealth() {
+        return health;
+    }
+
     private IEnumerator deathCoroutine() {
         yield return new WaitForSeconds(0.5f);
         if (corpsePrefab) {

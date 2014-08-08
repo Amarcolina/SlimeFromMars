@@ -68,4 +68,8 @@ public class SlimeContainer : MonoBehaviour, IDamageable {
             replaceContainer();
         }
     }
+
+    public float getHealth() {
+        return broken ? 0.0f : 1.0f;
+    }
 }

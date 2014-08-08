@@ -7,7 +7,7 @@ public class RadiationLeech : MonoBehaviour {
     private IDamageable _damageable = null;
 
     private float _timeUntilNextDamage = 0.0f;
-    
+
     public void Start() {
         _damageable = GetComponent(typeof(IDamageable)) as IDamageable;
     }

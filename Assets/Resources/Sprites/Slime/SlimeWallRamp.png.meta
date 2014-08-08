@@ -1,8 +1,8 @@
 fileFormatVersion: 2
-guid: 93f0e781db29aca4687e866f89ad6c00
+guid: 1575c3091687ff14189aa6dea2d50e53
 TextureImporter:
   fileIDToRecycleName:
-    21300000: smallVent
+    21300000: SlimeWallRamp
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0
@@ -38,7 +38,7 @@ TextureImporter:
   alignment: 0
   spritePivot: {x: .5, y: .5}
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
-  spritePixelsToUnits: 64
+  spritePixelsToUnits: 100
   alphaIsTransparency: 1
   textureType: 8
   buildTargetSettings: []

@@ -292,7 +292,7 @@ public class SlimeController : MonoBehaviour {
                     doCircleHighlight(getRadiationDefenceRadius(), getRadiationDefenceRange());
                     break;
                 case ElementalCastType.RADIATION_OFFENSIVE:
-                    doCircleHighlight(getRadiationOffenceRadius(), getRadiationOffenceRange());
+                    doLineHighlight(getRadiationDefenceRange());
                     break;
                 default:
                     Debug.LogWarning("Cannot handle [" + _currentCastType + "] elementatl cast type");
@@ -456,6 +456,25 @@ public class SlimeController : MonoBehaviour {
     //Allows slime to irradiate an area for a period of time such that enemies are damaged per second
     //Damage and range will increase based on level
     public bool useRadiationOffense() {
+        if (canCastToCursor(getRadiationOffenceRange())) {
+            HashSet<TileEntity> damageableEntities = getTileUnderCursor().getTileEntities();
+            bool didCast = false;
+            if (damageableEntities != null) {
+                foreach (TileEntity entity in damageableEntities) {
+                    BaseEnemy enemy = entity.GetComponent<BaseEnemy>();
+                    if (enemy != null) {
+                        didCast = true;
+                        enemy.gameObject.AddComponent<RadiationLeech>();
+                    }
+                }
+            }
+
+            if (didCast) {
+                sound.PlaySound(transform, _radioactiveOffenseSFX);
+                loseEnergy(RADIATION_OFFENSE_COST);
+                return true;
+            }
+        }
         return false;
     }
 

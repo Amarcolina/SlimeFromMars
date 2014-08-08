@@ -7,9 +7,11 @@ public class RadiationLeech : MonoBehaviour {
     private IDamageable _damageable = null;
 
     private float _timeUntilNextDamage = 0.0f;
+    private GameObject _explosionEffectPrefab;
 
     public void Start() {
         _damageable = GetComponent(typeof(IDamageable)) as IDamageable;
+        _explosionEffectPrefab = Resources.Load<GameObject>("Particles/RadiationDefense");
     }
 
     public void Update() {
@@ -24,6 +26,11 @@ public class RadiationLeech : MonoBehaviour {
     }
 
     private void explode() {
+        BaseEnemy[] enemies = FindObjectsOfType<BaseEnemy>();
+        foreach (BaseEnemy enemy in enemies) {
+        }
+
+
         Destroy(gameObject);
     }
 

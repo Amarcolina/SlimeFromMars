@@ -3,6 +3,7 @@ guid: 55277e0bd0bc4344292987d5c67bc48b
 TextureImporter:
   fileIDToRecycleName:
     21300000: dripping-goo 1
+    21300002: radiationlevel
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0

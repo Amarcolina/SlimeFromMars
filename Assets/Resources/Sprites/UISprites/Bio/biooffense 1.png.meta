@@ -3,6 +3,7 @@ guid: c775acf4435f62b409aa8d578da805c8
 TextureImporter:
   fileIDToRecycleName:
     21300000: lightning-helix 1
+    21300002: biooffense 1
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0

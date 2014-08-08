@@ -17,6 +17,7 @@ public class AstarSettings {
     public AStarEarlyFailureFunction earlyFailureFunction = null;
     public AStarIsPathWalkable isNeighborWalkableFunction = Tile.isWalkableFunction;
     public int maxNodesToCheck = -1;
+    public bool returnBestPathUponFail = false;
 
     public AstarSettings() { }
 
@@ -28,6 +29,7 @@ public class AstarSettings {
         this.earlyFailureFunction = settings.earlyFailureFunction;
         this.isNeighborWalkableFunction = settings.isNeighborWalkableFunction;
         this.maxNodesToCheck = settings.maxNodesToCheck;
+        this.returnBestPathUponFail = settings.returnBestPathUponFail;
     }
 }
 
@@ -193,9 +195,16 @@ public class Astar : MonoBehaviour {
             nodesChecked++;
             if (settings.maxNodesToCheck > 0 && nodesChecked >= settings.maxNodesToCheck) {
                 if (shouldContinue) {
+                    //Yield to null, which in a coroutine waits until the next frame.
                     yield return null;
                 } else {
-                    yield break;
+                    if (settings.returnBestPathUponFail) {
+                        //Break out of the loop, the current node is used to reconstruct the path
+                        break;
+                    } else {
+                        //Break out of the entire method, null is returned
+                        yield break;
+                    }
                 }
             }
         }

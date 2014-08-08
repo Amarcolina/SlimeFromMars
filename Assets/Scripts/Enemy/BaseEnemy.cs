@@ -160,6 +160,34 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable{
         return newPosition == destination;
     }
 
+    private float _moveTowardsPointRepathTime = 0;
+    private Path _currentMoveTowardsPointPath = null;
+    protected bool moveTowardsPointAstar(Vector2 destination, float speed = 2.5f, AstarSettings settings = null) {
+        if (settings == null) {
+            settings = new AstarSettings();
+            settings.maxNodesToCheck = 5;
+            settings.returnBestPathUponFail = true;
+        }
+
+        if (Time.time > _moveTowardsPointRepathTime || _currentMoveTowardsPointPath == null) {
+            _currentMoveTowardsPointPath = Astar.findPath(transform.position, destination, settings);
+            _moveTowardsPointRepathTime = Time.time + 5.0f;
+            if (_currentMoveTowardsPointPath != null) {
+                if(_currentMoveTowardsPointPath.hasNext()){
+                    _currentMoveTowardsPointPath.getNext();
+                }
+            }
+        }
+
+        if (_currentMoveTowardsPointPath != null) {
+            if (followPath(_currentMoveTowardsPointPath)) {
+                _currentMoveTowardsPointPath = null;
+            }
+        }
+
+        return (Vector2Int)destination == (Vector2Int)transform.position;
+    }
+
     /* Calling this method every frame will move the enemy allong a given path
      * at a specific speed.  This method will return true once the enemy has
      * reached the end of the path.

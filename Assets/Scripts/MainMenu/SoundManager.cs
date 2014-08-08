@@ -13,8 +13,8 @@ public class SoundManager : MonoBehaviour
     {
         if (soundInstance == null)
         {
-            if (soundInstance == null)
-                soundInstance = FindObjectOfType<SoundManager>();
+            GameObject obj = new GameObject("SoundManager");
+            soundInstance = obj.AddComponent<SoundManager>();
         }
         return soundInstance;
     }

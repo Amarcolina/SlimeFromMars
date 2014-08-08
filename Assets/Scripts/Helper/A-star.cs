@@ -237,9 +237,11 @@ public class Astar : MonoBehaviour {
     }
 
     public void OnDrawGizmos() {
-        Gizmos.color = new Color(0.0f, 1.0f, 0.0f, 0.3f);
-        foreach (Node node in closedList) {
-            Gizmos.DrawCube(node.getPosition(), Vector3.one);
+        if (gameObject.hideFlags == HideFlags.None) {
+            Gizmos.color = new Color(0.0f, 1.0f, 0.0f, 0.3f);
+            foreach (Node node in closedList) {
+                Gizmos.DrawCube(node.getPosition(), Vector3.one);
+            }
         }
     }
 

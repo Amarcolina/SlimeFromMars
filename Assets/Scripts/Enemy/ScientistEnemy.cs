@@ -46,6 +46,11 @@ public class ScientistEnemy : BaseEnemy {
         //deathSFX = Resources.Load<AudioClip>("Sounds/SFX/scientist_death");
     }
 
+    void Start()
+    {
+        sound = SoundManager.getInstance();
+    }
+
     void Update() {
         if (isStunned()) {
             return;
@@ -68,7 +73,7 @@ public class ScientistEnemy : BaseEnemy {
                 _currentStateFunction = wanderState;
                 break;
             case ScientistState.FLEEING:
-                gameObject.AddComponent<SoundEffect>().sfx = screamSFX;
+                sound.PlaySound(gameObject.transform, screamSFX);
 
                 _currentStateFunction = fleeState;
                 break;

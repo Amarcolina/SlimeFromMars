@@ -37,7 +37,9 @@ public class Astar : MonoBehaviour {
     private static AstarSettings _defaultSettings = new AstarSettings();
     private static Stack<Astar> _freeObjectStack = new Stack<Astar>();
 
-    private List<Vector2Int> _traversedNodes = new List<Vector2Int>();
+    private Dictionary<Vector2Int, Node> nodePostionMap = new Dictionary<Vector2Int, Node>();
+    private HashSet<Node> closedList = new HashSet<Node>();
+    private MinHashHeap<Node> openList = new MinHashHeap<Node>();
 
     public class Node : IComparable {
         Vector2Int position; //tilemap position of node
@@ -135,9 +137,9 @@ public class Astar : MonoBehaviour {
             yield break;
         }
 
-        MinHashHeap<Node> openList = new MinHashHeap<Node>();//nodes to be examined
-        HashSet<Node> closedList = new HashSet<Node>();
-        Dictionary<Vector2Int, Node> nodePostionMap = new Dictionary<Vector2Int, Node>();
+        openList.clear();
+        closedList.Clear();
+        nodePostionMap.Clear();
         Node startNode = new Node(start, goal, null, settings.heuristicFunction(start, goal));
         Node goalNode = null;
         nodePostionMap.Add(startNode.getPosition(), startNode);
@@ -145,12 +147,9 @@ public class Astar : MonoBehaviour {
         openList.insert(startNode);
         int nodesChecked = 0;
 
-        _traversedNodes.Clear();
-
         Node current = null;
         while(true){
             current = openList.extractElement(0);//remove lowest rank node from openList
-            _traversedNodes.Add(current.getPosition());
 
             //We break the while loop if we have found the goal node
             if (current.getPosition() == goal) {
@@ -239,8 +238,8 @@ public class Astar : MonoBehaviour {
 
     public void OnDrawGizmos() {
         Gizmos.color = new Color(0.0f, 1.0f, 0.0f, 0.3f);
-        foreach (Vector2Int pos in _traversedNodes) {
-            Gizmos.DrawCube(pos, Vector3.one);
+        foreach (Node node in closedList) {
+            Gizmos.DrawCube(node.getPosition(), Vector3.one);
         }
     }
 

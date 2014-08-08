@@ -34,8 +34,10 @@ public class AstarSettings {
 }
 
 public class Astar : MonoBehaviour {
-    private static AstarSettings defaultSettings = new AstarSettings();
-    public static List<Vector2Int> traversedNodes = new List<Vector2Int>();
+    private static AstarSettings _defaultSettings = new AstarSettings();
+    private static Stack<Astar> _freeObjectStack = new Stack<Astar>();
+
+    private List<Vector2Int> _traversedNodes = new List<Vector2Int>();
 
     public class Node : IComparable {
         Vector2Int position; //tilemap position of node
@@ -85,35 +87,46 @@ public class Astar : MonoBehaviour {
     }
 
     public static Path findPath(Vector2Int start, Vector2Int goal, AstarSettings settings = null){
-        GameObject obj = new GameObject("AstarGameObject");
-        obj.hideFlags = HideFlags.HideAndDontSave;
-        Astar _astarInstance = obj.AddComponent<Astar>();
+        Astar instance = null;
+        if (_freeObjectStack.Count != 0) {
+            instance = _freeObjectStack.Peek();
+        } else {
+            GameObject obj = new GameObject("AstarSolver");
+            instance = obj.AddComponent<Astar>();
+            _freeObjectStack.Push(instance);
+        }
 
         if (settings == null) {
-            settings = defaultSettings;
+            settings = _defaultSettings;
         }
 
         Path path = new Path();
-        _astarInstance.StartCoroutine(findPathInternal(path, start, goal, settings, false));
+        instance.StartCoroutine(instance.findPathInternal(path, start, goal, settings, false));
 
-        Destroy(obj);
         return path.Count == 0 ? null : path;
     }
 
     public static IEnumerator findPathCoroutine(Path path, Vector2Int start, Vector2Int goal, AstarSettings settings = null) {
-        GameObject obj = new GameObject("AstarSolver");
-        Astar _astarInstance = obj.AddComponent<Astar>();
+        Astar instance = null;
+        if (_freeObjectStack.Count != 0) {
+            instance = _freeObjectStack.Pop();
+        } else {
+            GameObject obj = new GameObject("AstarSolver");
+            instance = obj.AddComponent<Astar>();
+        }
+        instance.gameObject.hideFlags = HideFlags.None;
 
         if (settings == null) {
-            settings = defaultSettings;
+            settings = _defaultSettings;
         }
 
-        yield return _astarInstance.StartCoroutine(findPathInternal(path, start, goal, settings, true));
+        yield return instance.StartCoroutine(instance.findPathInternal(path, start, goal, settings, true));
 
-        Destroy(obj);
+        instance.gameObject.hideFlags = HideFlags.HideAndDontSave;
+        _freeObjectStack.Push(instance);
     }
 
-    private static IEnumerator findPathInternal(Path path, Vector2Int start, Vector2Int goal, AstarSettings settings, bool shouldContinue) {
+    private IEnumerator findPathInternal(Path path, Vector2Int start, Vector2Int goal, AstarSettings settings, bool shouldContinue) {
         if (start == null || goal == null) {
             yield break;
         }
@@ -132,12 +145,12 @@ public class Astar : MonoBehaviour {
         openList.insert(startNode);
         int nodesChecked = 0;
 
-        traversedNodes.Clear();
+        _traversedNodes.Clear();
 
         Node current = null;
         while(true){
             current = openList.extractElement(0);//remove lowest rank node from openList
-            traversedNodes.Add(current.getPosition());
+            _traversedNodes.Add(current.getPosition());
 
             //We break the while loop if we have found the goal node
             if (current.getPosition() == goal) {
@@ -151,7 +164,6 @@ public class Astar : MonoBehaviour {
 
             //We terminate the function and return no path found if the earlyFailureFunction is met
             if (settings.earlyFailureFunction != null && settings.earlyFailureFunction(current.getPosition())) {
-                Debug.Log("3");
                 yield break;
             }
 
@@ -227,7 +239,7 @@ public class Astar : MonoBehaviour {
 
     public void OnDrawGizmos() {
         Gizmos.color = new Color(0.0f, 1.0f, 0.0f, 0.3f);
-        foreach (Vector2Int pos in traversedNodes) {
+        foreach (Vector2Int pos in _traversedNodes) {
             Gizmos.DrawCube(pos, Vector3.one);
         }
     }

@@ -1,26 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public enum ScientistState {
-    WANDERING,
-    FLEEING,
-    HIDING
-}
-
-
 public class ScientistEnemy : BaseEnemy {
     public const float CHECK_RADIUS_FOR_HIDING_SPOTS = 25.0f;
     public const float MAX_DISTANCE_TO_HIDING_SPOT_SQRD = 8.0f * 8.0f;
 
-    public ScientistState startState = ScientistState.WANDERING;
-
     public float wanderSpeed = 2.5f;
     public float fleeSpeed = 3.5f;
-
-    private ScientistState _currentState;
-    private delegate void StateFunction();
-    private StateFunction _currentExitFunction = null;
-    private StateFunction _currentStateFunction = null;
 
     private static ScientistHidingSpot[] _hidingSpots = null;
     private ScientistHidingSpot _currentHidingSpot = null;
@@ -29,8 +15,6 @@ public class ScientistEnemy : BaseEnemy {
     private bool _leavingHidingSpot = false;
 
     private AudioClip screamSFX;
-    //private AudioClip walkSFX;
-    //private AudioClip deathSFX;
 
     public override void Awake() {
         base.Awake();
@@ -39,7 +23,7 @@ public class ScientistEnemy : BaseEnemy {
         }
         _hidingSpotSearcher = new ProximitySearcher<ScientistHidingSpot>(_hidingSpots, CHECK_RADIUS_FOR_HIDING_SPOTS);
 
-        changeState(startState);
+        tryEnterState(startState);
 
         screamSFX = Resources.Load<AudioClip>("Sounds/SFX/scientist_scream");
         //walkSFX = Resources.Load<AudioClip>("Sounds/SFX/scientist_footsteps");
@@ -51,56 +35,29 @@ public class ScientistEnemy : BaseEnemy {
             return;
         }
 
-        _currentStateFunction();
+        handleStateMachine();
     }
 
-    private void changeState(ScientistState newState) {
-        if (_currentExitFunction != null) {
-            _currentExitFunction();
-            _currentExitFunction = null;
-        }
-
-        _currentState = newState;
-        switch (_currentState) {
-            case ScientistState.WANDERING:
-                //gameObject.AddComponent<SoundEffect>().sfx = walkSFX;
-                //gameObject.GetComponent<SoundEffect>().loop = true;
-                _currentStateFunction = wanderState;
-                break;
-            case ScientistState.FLEEING:
-                gameObject.AddComponent<SoundEffect>().sfx = screamSFX;
-
-                _currentStateFunction = fleeState;
-                break;
-            case ScientistState.HIDING:
-                _currentStateFunction = hideState;
-                _currentExitFunction = exitHideState;
-                break;
-            default:
-                Debug.LogWarning("Cannot handle state " + _currentState);
-                break;
-        }
-    }
-
-    private void enterWanderState() {
+    //Wander state
+    protected override void onEnterWanderState() {
         recalculateMovementPatternPath();
-        changeState(ScientistState.WANDERING);
     }
 
-    private void wanderState() {
+    protected override void wanderState() {
         followMovementPattern(wanderSpeed);
-        tryEnterFleeState();
+        tryEnterState(EnemyState.FLEEING);
     }
 
-    private bool tryEnterFleeState(int searchDistance = 20) {
-        if (getNearestVisibleSlime(searchDistance) != null) {
-            changeState(ScientistState.FLEEING);
-            return true;
-        }
-        return false;
+    //Flee state
+    protected override bool canEnterFleeState() {
+        return getNearestVisibleSlime(20) != null;
     }
 
-    private void fleeState() {
+    protected override void onEnterFleeState() {
+        AudioSource.PlayClipAtPoint(screamSFX, transform.position);
+    }
+
+    protected override void fleeState() {
         if (Time.time - getLastTimeViewedSlime() > 15.0f) {
             movementPattern = null;
             float closestDistance = float.MaxValue;
@@ -114,38 +71,38 @@ public class ScientistEnemy : BaseEnemy {
                     movementPattern = pattern;
                 }
             }
-            enterWanderState();
+            tryEnterState(EnemyState.WANDERING);
         }
         runAwayFromSlime(fleeSpeed);
-        tryEnterHidingState();
+        tryEnterState(EnemyState.HIDING);
     }
 
-    private bool tryEnterHidingState() {
+    //Hide state
+    protected override bool canEnterHideState(){
         ScientistHidingSpot spot = _hidingSpotSearcher.searchForClosest(transform.position, 9, 1);
         if (getNearestVisibleSlime(1) != null) {
             return false;
         }
 
-        if ((transform.position - spot.transform.position).sqrMagnitude < MAX_DISTANCE_TO_HIDING_SPOT_SQRD){
-            if(spot.tryToClaim()){
+        if ((transform.position - spot.transform.position).sqrMagnitude < MAX_DISTANCE_TO_HIDING_SPOT_SQRD) {
+            if (spot.tryToClaim()) {
                 _currentHidingSpot = spot;
                 _leavingHidingSpot = false;
                 _pathToHidingSpot = Astar.findPath(transform.position, spot.enterLocation.position);
-                changeState(ScientistState.HIDING);
                 return true;
-            }        
+            }
         }
         return false;
     }
 
-    private void hideState() {
+    protected override void hideState() {
         if (_pathToHidingSpot != null) {
             if (followPath(_pathToHidingSpot, fleeSpeed)) {
                 _pathToHidingSpot = null;
             }
         } else if (_leavingHidingSpot) {
             if(moveTowardsPoint(_currentHidingSpot.enterLocation.position, fleeSpeed)){
-                tryEnterFleeState();
+                tryEnterState(EnemyState.HIDING);
             }
         }else{
             if(moveTowardsPoint(_currentHidingSpot.transform.position, fleeSpeed)){
@@ -156,7 +113,7 @@ public class ScientistEnemy : BaseEnemy {
         }
     }
 
-    private void exitHideState() {
+    protected override void onExitHideState() {
         if (_currentHidingSpot != null) {
             _currentHidingSpot.release();
         }

@@ -1,14 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public enum GuardState {
-    WANDERING,
-    ATTACKING
-}
-
 public class GuardEnemy : BaseEnemy {
-    public GuardState startState = GuardState.WANDERING;
-
     public float wanderSpeed = 2.5f;
     public float attackSpeed = 3.5f;
 
@@ -22,7 +15,6 @@ public class GuardEnemy : BaseEnemy {
     public Transform shotOrigin;
 
     private bool _onShootCooldown = false;
-    private GuardState _currentState;
 
     private AudioClip flameThrowerSFX;
 
@@ -44,46 +36,37 @@ public class GuardEnemy : BaseEnemy {
             return;
         }
 
-        switch (_currentState) {
-            case GuardState.WANDERING:
-                wanderState();
-                break;
-            case GuardState.ATTACKING:
-                attackState();
-                break;
-            default:
-                Debug.LogWarning("Cannot handle state " + _currentState);
-                break;
-        }
+        handleStateMachine();
     }
 
-    private void enterWanderState() {
+    //Wander state
+    protected override void onEnterWanderState() {
         recalculateMovementPatternPath();
-        _currentState = GuardState.WANDERING;
     }
 
-    private void wanderState() {
+    protected override void wanderState() {
         followMovementPattern(wanderSpeed);
-        tryEnterAttackState();
+        tryEnterState(EnemyState.ATTACKING);
+        tryEnterState(EnemyState.FLEEING);
     }
 
-    private bool tryEnterAttackState() {
-        if (getNearestVisibleSlime() != null) {
-            _currentState = GuardState.ATTACKING;
-            _onShootCooldown = false;
-            return true;
-        }
-        return false;
+    //Attack state
+    protected override bool canEnterAttackState() {
+        return getNearestVisibleSlime() != null;
     }
 
-    private void attackState() {
+    protected override void onEnterAttackState() {
+        _onShootCooldown = false;
+    }
+
+    protected override void attackState() {
         if (_onShootCooldown) {
             _enemyAnimation.EnemyStopped();
             return;
         }
 
         if (getNearestVisibleSlime() == null) {
-            enterWanderState();
+            tryEnterState(EnemyState.WANDERING);
             return;
         }
 

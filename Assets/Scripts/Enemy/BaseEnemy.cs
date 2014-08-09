@@ -168,22 +168,22 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable{
     protected virtual bool canEnterWanderState() { return true; }
     protected virtual void onEnterWanderState() { }
     protected virtual void onExitWanderState() { }
-    protected virtual void wanderState() { }
+    protected virtual void wanderState() { throw new System.NotSupportedException(); }
 
     protected virtual bool canEnterFleeState() { return true; }
     protected virtual void onEnterFleeState() { }
     protected virtual void onExitFleeState() { }
-    protected virtual void fleeState() { }
+    protected virtual void fleeState() { throw new System.NotSupportedException(); }
 
     protected virtual bool canEnterAttackState() { return true; }
     protected virtual void onEnterAttackState() { }
     protected virtual void onExitAttackState() { }
-    protected virtual void attackState() { }
+    protected virtual void attackState() { throw new System.NotSupportedException(); }
 
     protected virtual bool canEnterHideState() { return true; }
     protected virtual void onEnterHideState() { }
     protected virtual void onExitHideState() { }
-    protected virtual void hideState() { }
+    protected virtual void hideState() { throw new System.NotSupportedException(); }
 
     //#############################################################################
     //##---------   MOVEMENT FUNCTIONS ------------------------------------------##

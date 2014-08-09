@@ -5,8 +5,11 @@ using System.Collections.Generic;
 public class BioLance : MonoBehaviour {
     Path lancePath;
     float lanceDamage;
-    public const float SPINE_SPEED = 10;
+    public const float SPINE_SPEED = 10f;
     private SpineRenderer _spineRenderer;
+
+    public AnimationCurve outLengthCurve;
+    public AnimationCurve inLengthCurve;
 
     // Use this for initialization
     void Start() {
@@ -17,7 +20,7 @@ public class BioLance : MonoBehaviour {
 
     private IEnumerator spineCoroutine() {
         for (float percent = 0; percent <= 1; percent += (SPINE_SPEED / (lancePath.getLength())) * Time.deltaTime) {
-            _spineRenderer.spineLengthPercent = percent;//set to percent
+            _spineRenderer.spineLengthPercent = outLengthCurve.Evaluate(percent);//set to percent
             yield return null;//wait for one frame
         }
 
@@ -51,13 +54,21 @@ public class BioLance : MonoBehaviour {
             objDamageable.damage(lanceDamage);
         }
 
-        for (float percent = 1; percent >= 0; percent -= (SPINE_SPEED / (lancePath.getLength())) * Time.deltaTime) {
-            _spineRenderer.spineLengthPercent = percent;//set to percent
+        if (objGrabbable != null) {
+            interactionObject.GetComponent<TileEntity>().pickUp();
+        }
+
+        for (float percent = 0; percent <= 1; percent += (SPINE_SPEED / (lancePath.getLength())) * Time.deltaTime) {
+            _spineRenderer.spineLengthPercent = inLengthCurve.Evaluate(percent);//set to percent
             if (objGrabbable != null && interactionObject != null) {
-                interactionObject.transform.position = lancePath.getSmoothPoint(percent*(lancePath.Count - 1));
+                interactionObject.transform.position = _spineRenderer.getTip();
             }
 
             yield return null;//wait for one frame
+        }
+
+        if (objGrabbable != null && interactionObject != null) {
+            interactionObject.GetComponent<TileEntity>().putDown();
         }
 
         if (interactionObject != null) {

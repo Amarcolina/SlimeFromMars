@@ -31,6 +31,12 @@ public class SpineRenderer : MonoBehaviour {
         _mesh.hideFlags = HideFlags.DontSave;
     }
 
+    public Vector3 getTip() {
+        float startDist = spineLengthPercent * (spinePath.Count - 1);
+        Vector2 tipCenter = spinePath.getSmoothPoint(startDist);
+        return tipCenter;
+    }
+
     public void Update() {
         if (spinePath == null) {
             if (Application.isPlaying) {

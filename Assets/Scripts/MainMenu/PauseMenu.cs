@@ -181,13 +181,6 @@ public class PauseMenu : MonoBehaviour
     public void MuteSFXButton(bool isActive)
     {
         sfxMuted = isActive;
-        //SoundEffect.mute(sfxMuted);
-        SoundEffect[] SFXs = FindObjectsOfType<SoundEffect>();
-
-        foreach (SoundEffect sfx in SFXs)
-        {
-            sfx.GetComponent<AudioSource>().mute = isActive;
-        }
     }
 
     public void GameOver()

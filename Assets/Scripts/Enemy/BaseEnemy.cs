@@ -2,17 +2,30 @@
 using System.Collections;
 using System.Collections.Generic;
 
+public enum EnemyState {
+    WANDERING,
+    FLEEING,
+    HIDING,
+    ATTACKING
+}
+
 public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable{
+    public EnemyState startState = EnemyState.WANDERING;
+    public bool enableStateDebug = false;
+
     public MovementPattern movementPattern;
     public GameObject corpsePrefab = null;
     public float health = 1.0f;
 
-    protected int _waypointIndex = 0;
-    protected Path _currentWaypointPath = null;
-    protected float _timeUntilNextWaypoint = 0.0f;
+    protected delegate void StateFunction();
+    protected EnemyState _currentState;
+    private StateFunction _currentStateExitFunction = null;
+    protected StateFunction _currentStateFunction = null;
+
     protected Tilemap _tilemap = null;
 
     protected EnemyAnimation _enemyAnimation;
+    protected SoundManager _soundManager;
 
     protected Slime _currentSlimeToFleeFrom = null;
     protected Path _fleePath = null;
@@ -23,6 +36,11 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable{
     public virtual void Awake(){
         _tilemap = Tilemap.getInstance();
         _enemyAnimation = GetComponent<EnemyAnimation>();
+        _soundManager = SoundManager.getInstance();
+    }
+
+    public virtual void Start() {
+        forceEnterState(startState);
     }
 
     private int _previousDamageFrame = 0;
@@ -55,7 +73,7 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable{
     }
 
     protected virtual float getStunCooldown() {
-        return 1.0f;
+        return 0.2f;
     }
 
     protected bool isStunned() {
@@ -68,6 +86,106 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable{
         return tileGameObject.GetComponent<Slime>() != null;
     }
 
+    //#############################################################################
+    //##---------   STATE MACHINE  ----------------------------------------------##
+    //#############################################################################
+
+    protected void handleStateMachine() {
+        if (_currentStateFunction != null) {
+            _currentStateFunction();
+        }
+    }
+
+    public bool tryEnterState(EnemyState state) {
+        return tryEnterStateInternal(state, false);
+    }
+
+    protected void forceEnterState(EnemyState state) {
+        tryEnterStateInternal(state, true);
+    }
+
+    private bool tryEnterStateInternal(EnemyState newState, bool force) {
+        StateFunction newStateFunction = null;
+        StateFunction enterFunction = null;
+        StateFunction exitFunction = null;
+
+        switch (newState) {
+            case EnemyState.WANDERING:
+                if (canEnterWanderState() || force) {
+                    newStateFunction = wanderState;
+                    enterFunction = onEnterWanderState;
+                    exitFunction = onExitWanderState;
+                }
+                break;
+            case EnemyState.FLEEING:
+                if (canEnterFleeState() || force) {
+                    newStateFunction = fleeState;
+                    enterFunction = onEnterFleeState;
+                    exitFunction = onExitFleeState;
+                }
+                break;
+            case EnemyState.HIDING:
+                if (canEnterHideState() || force) {
+                    newStateFunction = hideState;
+                    enterFunction = onEnterHideState;
+                    exitFunction = onExitHideState;
+                }
+                break;
+            case EnemyState.ATTACKING:
+                if (canEnterAttackState() || force) {
+                    newStateFunction = attackState;
+                    enterFunction = onEnterAttackState;
+                    exitFunction = onExitAttackState;
+                }
+                break;
+            default:
+                Debug.LogWarning("Cannot transition to state " + _currentState);
+                break;
+        }
+
+        if (newStateFunction != null) {
+            if (enableStateDebug) {
+                Debug.Log(gameObject.name + " transitioned from " + _currentState + " to " + newState);
+            }
+
+            if(_currentStateExitFunction != null){
+                _currentStateExitFunction();
+            }
+            _currentStateExitFunction = exitFunction;
+
+            _currentState = newState;
+            _currentStateFunction = newStateFunction;
+
+            enterFunction();
+            return true;
+        }
+        return false;
+    }
+
+    protected virtual bool canEnterWanderState() { return true; }
+    protected virtual void onEnterWanderState() { }
+    protected virtual void onExitWanderState() { }
+    protected virtual void wanderState() { throw new System.NotSupportedException(); }
+
+    protected virtual bool canEnterFleeState() { return true; }
+    protected virtual void onEnterFleeState() { }
+    protected virtual void onExitFleeState() { }
+    protected virtual void fleeState() { throw new System.NotSupportedException(); }
+
+    protected virtual bool canEnterAttackState() { return true; }
+    protected virtual void onEnterAttackState() { }
+    protected virtual void onExitAttackState() { }
+    protected virtual void attackState() { throw new System.NotSupportedException(); }
+
+    protected virtual bool canEnterHideState() { return true; }
+    protected virtual void onEnterHideState() { }
+    protected virtual void onExitHideState() { }
+    protected virtual void hideState() { throw new System.NotSupportedException(); }
+
+    //#############################################################################
+    //##---------   MOVEMENT FUNCTIONS ------------------------------------------##
+    //#############################################################################
+
     /* Calling this function every frame will result in the enemy following
      * their set movement path.  This handles everything from pathing using
      * Astar to automatically re-pathing if a path gets blocked.
@@ -77,6 +195,10 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable{
      * the path is recalculated to be from your current position, rather than
      * trying to use the old stale path
      */
+    protected int _waypointIndex = 0;
+    protected Path _currentWaypointPath = null;
+    protected float _timeUntilNextWaypoint = 0.0f;
+    protected bool _isCalculatingWaypointPath = false;
     protected Waypoint followMovementPattern(float speed = 2.5f) {
         Waypoint currentWaypoint = movementPattern[_waypointIndex];
 
@@ -101,6 +223,8 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable{
                     //Set the current path to null since we are at the end of it
                     _currentWaypointPath = null;
                     _waypointIndex++;
+
+                    recalculateMovementPatternPath();
                 }
             }
         }
@@ -113,11 +237,26 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable{
      * the shortest path is followed after the environmnt has changed)
      */
     protected void recalculateMovementPatternPath(Waypoint waypoint = null) {
+        if (_isCalculatingWaypointPath) {
+            return;
+        }
+
         if (waypoint == null) {
             waypoint = movementPattern[_waypointIndex];
         }
 
-        _currentWaypointPath = Astar.findPath(transform.position, waypoint.transform.position);
+        StartCoroutine(recalculateMovementPatternPathCoroutine(waypoint));
+    }
+
+    private IEnumerator recalculateMovementPatternPathCoroutine(Waypoint waypoint) {
+        _isCalculatingWaypointPath = true;
+        _currentWaypointPath = null;
+        Path newPath = new Path();
+        AstarSettings settings = new AstarSettings();
+        settings.maxNodesToCheck = 2;
+        yield return StartCoroutine(Astar.findPathCoroutine(newPath, transform.position, waypoint.transform.position, settings));
+        _currentWaypointPath = newPath;
+        _isCalculatingWaypointPath = false;
     }
 
     /* Calling this method every frame will move the enemy towards a given destination
@@ -139,6 +278,34 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable{
         return newPosition == destination;
     }
 
+    private float _moveTowardsPointRepathTime = 0;
+    private Path _currentMoveTowardsPointPath = null;
+    protected bool moveTowardsPointAstar(Vector2 destination, float speed = 2.5f, AstarSettings settings = null) {
+        if (settings == null) {
+            settings = new AstarSettings();
+            settings.maxNodesToCheck = 5;
+            settings.returnBestPathUponFail = true;
+        }
+
+        if (Time.time > _moveTowardsPointRepathTime || _currentMoveTowardsPointPath == null) {
+            _currentMoveTowardsPointPath = Astar.findPath(transform.position, destination, settings);
+            _moveTowardsPointRepathTime = Time.time + 5.0f;
+            if (_currentMoveTowardsPointPath != null) {
+                if(_currentMoveTowardsPointPath.hasNext()){
+                    _currentMoveTowardsPointPath.getNext();
+                }
+            }
+        }
+
+        if (_currentMoveTowardsPointPath != null) {
+            if (followPath(_currentMoveTowardsPointPath)) {
+                _currentMoveTowardsPointPath = null;
+            }
+        }
+
+        return (Vector2Int)destination == (Vector2Int)transform.position;
+    }
+
     /* Calling this method every frame will move the enemy allong a given path
      * at a specific speed.  This method will return true once the enemy has
      * reached the end of the path.
@@ -153,6 +320,10 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable{
         }
         return false;
     }
+
+    //#############################################################################
+    //##---------   HELPER FUNCTIONS --------------------------------------------##
+    //#############################################################################
 
     /* This method returns the nearest slime to the enemy, or null is none
      * were found inside of the given search radius.  This only searches
@@ -204,8 +375,10 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable{
         return _lastTimeViewedSlime;
     }
 
-
     public static bool tileRayHitSlime(GameObject tileObj) {
+        if ((tileObj != null) && (tileObj.GetComponent<Tile>() == null)) {
+            Debug.Log(tileObj);
+        }
         if (tileObj == null || !tileObj.GetComponent<Tile>().isTransparent) {
             return true;
         }
@@ -220,9 +393,6 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable{
     private int _rotationDirection = 1;
     private float _timeCanRunAwayAgain = 0.0f;
 
-    /*
-     * 
-     */
     protected bool runAwayFromSlime(float speed = 2.5f) {
         if (Time.time < _timeCanRunAwayAgain) {
             return false;

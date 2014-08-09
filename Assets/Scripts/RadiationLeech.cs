@@ -5,15 +5,22 @@ public class RadiationLeech : MonoBehaviour {
     public const float STARTLE_RADIUS = 10.0f;
 
     private float _damagePeriod = 2.0f;
-    private float _damagePerPeriod = 0.1f;
+    private float _damagePerPeriod = 0.21f;
     private IDamageable _damageable = null;
 
     private float _timeUntilNextDamage = 0.0f;
     private GameObject _explosionEffectPrefab;
+    private GameObject _leechEffectPrefab;
 
     public void Start() {
         _damageable = GetComponent(typeof(IDamageable)) as IDamageable;
-        _explosionEffectPrefab = Resources.Load<GameObject>("Particles/RadiationDefense");
+        _explosionEffectPrefab = Resources.Load<GameObject>("Particles/RadiationExplosion");
+        _leechEffectPrefab = Resources.Load<GameObject>("Particles/Virus");
+
+        GameObject virusEffect = Instantiate(_leechEffectPrefab) as GameObject;
+        virusEffect.transform.parent = transform;
+        virusEffect.transform.localPosition = Vector3.up * 0.2f;
+        virusEffect.transform.localRotation = Quaternion.identity;;
     }
 
     public void Update() {

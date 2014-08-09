@@ -110,7 +110,7 @@ public class SoldierEnemy : BaseEnemy {
     private float _startledEndTime = 0.0f;
 
     protected override void onEnterStartledState() {
-        _startledEndTime = Time.time + 2.0f;
+        _startledEndTime = Time.time + 4.0f;
     }
 
     protected override void startledState() {

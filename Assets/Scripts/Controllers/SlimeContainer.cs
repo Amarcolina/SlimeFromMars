@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
-public class SlimeContainer : MonoBehaviour, IDamageable {
+public class SlimeContainer : MonoBehaviour, IDamageable, ISaveable {
 
     public static int containerCounter = 0;
     private bool mintCondition = true;
@@ -26,7 +27,9 @@ public class SlimeContainer : MonoBehaviour, IDamageable {
     }
 
     void Start() {
-        containerCounter++;
+        if (!broken) {
+            containerCounter++;
+        }
         _gameUi = GameUI.getInstance();
     }
 
@@ -69,5 +72,18 @@ public class SlimeContainer : MonoBehaviour, IDamageable {
 
     public float getHealth() {
         return broken ? 0.0f : 1.0f;
+    }
+
+    public void onSave(Queue<object> data) {
+        data.Enqueue(broken);
+        data.Enqueue(partiallyDamaged);
+        data.Enqueue(mintCondition);
+    }
+
+    public void onLoad(Queue<object> data) {
+        broken = (bool)data.Dequeue();
+        partiallyDamaged = (bool)data.Dequeue();
+        mintCondition = (bool)data.Dequeue();
+        replaceContainer();
     }
 }

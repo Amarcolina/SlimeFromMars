@@ -44,7 +44,10 @@ public class Slime : MonoBehaviour {
             textureRamp = Resources.Load<Sprite>("Sprites/Slime/SlimeRamp");
         }
 
-        Minimap.getInstance().clearFogOfWar(transform.position, 9, 11);
+        Minimap minimap = Minimap.getInstance();
+        minimap.clearFogOfWar(transform.position, 9, 11);
+        minimap.setSlime(transform.position);
+
         _connectedPathingIndex = _currSearchingConnectedIndex;
 
         connectRecursively();
@@ -68,7 +71,11 @@ public class Slime : MonoBehaviour {
         if (effect != null) {
             effect.wither();
         }
+
         SlimeSentinel.removeSlimeFromDestroyList(this);
+
+        Minimap.getInstance().clearSlime(transform.position);
+
         SlimeController controller = SlimeController.getInstance();
         if (controller != null && controller.getSelectedSlime() == this) {
             controller.setSelectedSlime(null);

@@ -4,6 +4,7 @@ using System.Collections;
 public class SoldierEnemy : BaseEnemy {
     public float wanderSpeed = 2.5f;
     public float fleeSpeed = 3.5f;
+    public float startledSpeed = 4.5f;
 
     [MinValue (0)]
     public int bullets = 20;
@@ -16,6 +17,7 @@ public class SoldierEnemy : BaseEnemy {
     public Transform shotSpawn;
 
     private float _shotCooldownLeft = 0.0f;
+    
 
     private AudioClip bulletSFX;
 
@@ -71,11 +73,10 @@ public class SoldierEnemy : BaseEnemy {
             }
 
             if (Vector3.Distance(transform.position, getNearestVisibleSlime().transform.position) > fireRange) {
-                moveTowardsPoint(getNearestVisibleSlime().transform.position);
+                moveTowardsPointAstar(getNearestVisibleSlime().transform.position);
             } else {
                 _shotCooldownLeft = timePerShot;
-                _enemyAnimation.EnemyShoot(getNearestVisibleSlime().transform.position.x > transform.position.x ? 1.0f : -1.0f);
-                _soundManager.PlaySound(gameObject.transform, bulletSFX);
+                _enemyAnimation.EnemyShoot(getNearestVisibleSlime().transform.position.x > transform.position.x ? 1.0f : -1.0f);  
             }
         }
     }
@@ -86,6 +87,7 @@ public class SoldierEnemy : BaseEnemy {
 
     protected IEnumerator damageSlimeCoroutine() {
         yield return null;
+        _soundManager.PlaySound(gameObject.transform, bulletSFX);
         if (getNearestVisibleSlime(20, true) != null) {
             Instantiate(muzzleFlashEffect, shotSpawn.position, Quaternion.identity);
             Instantiate(muzzleFlashEffect, getNearestVisibleSlime().transform.position + new Vector3(Random.Range(-0.4f, 0.4f), Random.Range(-0.4f, 0.4f), 0), Quaternion.identity);
@@ -102,5 +104,20 @@ public class SoldierEnemy : BaseEnemy {
 
     protected override void fleeState(){
         runAwayFromSlime(fleeSpeed);
+    }
+
+    //Startled
+    private float _startledEndTime = 0.0f;
+
+    protected override void onEnterStartledState() {
+        _startledEndTime = Time.time + 4.0f;
+    }
+
+    protected override void startledState() {
+        if (Time.time > _startledEndTime) {
+            tryEnterState(EnemyState.WANDERING);
+        }
+
+        runAwayFromSlime(startledSpeed);
     }
 }

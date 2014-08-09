@@ -139,8 +139,12 @@ public class SlimeController : MonoBehaviour, ISaveable {
             gainBioLevel();
         }
 
+        if (_currentSelectedSlime != null) {
+            attemptToEat();
+        }
+
         if (_shouldSkipNext) {
-            _shouldSkipNext = false;
+            _shouldSkipNext = Input.GetKey(KeyCode.Mouse0) || Input.GetKey(KeyCode.Mouse1);
         } else {
             if (_currentCastType == ElementalCastType.NONE) {
                 handleNormalInteraction();
@@ -154,12 +158,6 @@ public class SlimeController : MonoBehaviour, ISaveable {
         if (Input.GetMouseButtonDown(0)) {
             disableResourcePopup();
             highlightSlimeTile();
-        }
-
-        if (_currentSelectedSlime == null) {
-            renderer.enabled = false;
-        } else {
-            attemptToEat();
         }
 
         if (Input.GetMouseButtonUp(1) && _currentSelectedSlime != null) {
@@ -188,6 +186,7 @@ public class SlimeController : MonoBehaviour, ISaveable {
         disableResourcePopup();
         if (Input.GetKeyDown(KeyCode.Mouse1)) {
             _currentCastType = ElementalCastType.NONE;
+            skipNextFrame();
         }
 
         if (Input.GetKeyDown(KeyCode.Mouse0)) {
@@ -210,7 +209,7 @@ public class SlimeController : MonoBehaviour, ISaveable {
                     throw new System.Exception("Unexpected elemental cast type " + _currentCastType);
             }
             if (didCast) {
-                _currentCastType = ElementalCastType.NONE;
+                //_currentCastType = ElementalCastType.NONE;
             }
         }
     }
@@ -309,7 +308,7 @@ public class SlimeController : MonoBehaviour, ISaveable {
                     doCircleHighlight(getRadiationDefenceRadius(), getRadiationDefenceRange());
                     break;
                 case ElementalCastType.RADIATION_OFFENSIVE:
-                    doCircleHighlight(getRadiationOffenceRadius(), getRadiationOffenceRange());
+                    doLineHighlight(getRadiationDefenceRange());
                     break;
                 default:
                     Debug.LogWarning("Cannot handle [" + _currentCastType + "] elementatl cast type");
@@ -425,6 +424,13 @@ public class SlimeController : MonoBehaviour, ISaveable {
     }
 
     public void enableResourcePopup(string name, int size, int bio, int radiation, int electricity) {
+        //Don't do popup if in cast mode
+        if (_currentCastType != ElementalCastType.NONE) {
+            return;
+        }
+
+        skipNextFrame();
+
         int potentialenergy = size + (_radiationLevel * radiation) + (_electricityLevel * electricity) + (_bioLevel * bio);
         _resourcedisplayLabel.text = name + "\nRadiation:" + radiation + "\nBio:" + bio + "\nElectricity:" + electricity + "\nEnergy:" + potentialenergy;
         _resourcedisplayLabel.enabled = true;
@@ -454,7 +460,6 @@ public class SlimeController : MonoBehaviour, ISaveable {
                 {
                     radComponent = tile.gameObject.AddComponent<Irradiated>();
                 }
-                radComponent.setStunned(true);
             };
             forEveryTileInCircle(circleFunction, getCursorPosition(), getRadiationDefenceRadius(), true);
 
@@ -475,21 +480,24 @@ public class SlimeController : MonoBehaviour, ISaveable {
     //Allows slime to irradiate an area for a period of time such that enemies are damaged per second
     //Damage and range will increase based on level
     public bool useRadiationOffense() {
-        //if distance is within range of attack, create the radius of radiation
-        if (canCastToCursor(getRadiationOffenceRange())) { 
-            sound.PlaySound(gameObject.transform, _radioactiveOffenseSFX);
-
-            TileCircleFunction circleFunction = delegate(Tile tile, Vector2Int position) {
-                Irradiated radComponent = tile.GetComponent<Irradiated>();
-                if (radComponent == null) {
-                    radComponent = tile.gameObject.AddComponent<Irradiated>();
+        if (canCastToCursor(getRadiationOffenceRange())) {
+            HashSet<TileEntity> damageableEntities = getTileUnderCursor().getTileEntities();
+            bool didCast = false;
+            if (damageableEntities != null) {
+                foreach (TileEntity entity in damageableEntities) {
+                    BaseEnemy enemy = entity.GetComponent<BaseEnemy>();
+                    if (enemy != null) {
+                        didCast = true;
+                        enemy.gameObject.AddComponent<RadiationLeech>();
+                    }
                 }
-                radComponent.setDamaged(true);
-            };
-            forEveryTileInCircle(circleFunction, getCursorPosition(), getRadiationOffenceRadius(), true);
+            }
 
-            loseEnergy(RADIATION_OFFENSE_COST);
-            return true;
+            if (didCast) {
+                sound.PlaySound(transform, _radioactiveOffenseSFX);
+                loseEnergy(RADIATION_OFFENSE_COST);
+                return true;
+            }
         }
         return false;
     }

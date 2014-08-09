@@ -26,6 +26,9 @@ public class GameUI : MonoBehaviour {
     public GameObject ElectricityNonActive_GameObject;
     public GameObject BioNonActive_GameObject;
     public GameObject RadiationNonActive_GameObject;
+    public GameObject RadiationUnlocked_GameObject;
+    public GameObject ElectricityUnlocked_GameObject;
+    public GameObject BioUnlocked_GameObject;
     //Private bools for only turning on the shadowed elemental UI once.
     private bool ElectricityActivated = false;
     private bool BioActivated = false;
@@ -68,9 +71,12 @@ public class GameUI : MonoBehaviour {
 
         if (warningtime > 0) {
             warningtime -= Time.deltaTime;
-            WarningText_Label.alpha -= .01f;
+            WarningText_Label.alpha -= .005f;
         } else {
             WarningText_Label.enabled = false;
+            RadiationUnlocked_GameObject.SetActive(false);
+            ElectricityUnlocked_GameObject.SetActive(false);
+            BioUnlocked_GameObject.SetActive(false);
         }
     }
 
@@ -91,6 +97,11 @@ public class GameUI : MonoBehaviour {
             ElectricityActive_GameObject.SetActive(true);
             ElectricityNonActive_GameObject.SetActive(false);
             ElectricityActivated = true;
+            WarningText_Label.enabled = true;
+            WarningText_Label.text = "Electricity Mutation Acquired!";
+            WarningText_Label.alpha = 1;
+            warningtime = 3;
+            ElectricityUnlocked_GameObject.SetActive(true);
         }
         LightningLevel_Label.text = "Electricity Level: " + CurrentLevel;
     }
@@ -102,6 +113,11 @@ public class GameUI : MonoBehaviour {
             BioActive_GameObject.SetActive(true);
             BioNonActive_GameObject.SetActive(false);
             BioActivated = true;
+            WarningText_Label.enabled = true;
+            WarningText_Label.text = "Bio Mutation Acquired!";
+            WarningText_Label.alpha = 1;
+            warningtime = 3;
+            BioUnlocked_GameObject.SetActive(true);
         }
         BioLevel_Label.text = "Bio Level: " + CurrentLevel;
     }
@@ -113,6 +129,11 @@ public class GameUI : MonoBehaviour {
             RadiationActive_GameObject.SetActive(true);
             RadiationNonActive_GameObject.SetActive(false);
             RadiationActivated = true;
+            WarningText_Label.enabled = true;
+            WarningText_Label.text = "Radiation Mutation Acquired!";
+            WarningText_Label.alpha = 1;
+            warningtime = 3;
+            RadiationUnlocked_GameObject.SetActive(true);
         }
         RadiationLevel_Label.text = "Radiation Level: " + CurrentLevel;
     }

@@ -47,7 +47,9 @@ public class Slime : MonoBehaviour, ISaveable {
         Minimap.getInstance().clearFogOfWar(transform.position, 9, 11);
         _connectedPathingIndex = _currSearchingConnectedIndex;
 
-        connectRecursively();
+        if (_isConnected) {
+            connectRecursively();
+        }
 
         _slimeRenderer = GetComponent<SlimeRenderer>();
         if (_slimeRenderer == null) {
@@ -373,5 +375,9 @@ public class Slime : MonoBehaviour, ISaveable {
     public void onLoad(Queue<object> data) {
         _percentHealth = (float)data.Dequeue();
         _isConnected = (bool)data.Dequeue();
+        Debug.Log(_isConnected);
+        if (!_isConnected) {
+            SlimeSentinel.addSlimeToDestroyList(this);
+        }
     }
 }

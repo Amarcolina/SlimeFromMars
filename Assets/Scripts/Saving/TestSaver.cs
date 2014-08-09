@@ -12,4 +12,10 @@ public class TestSaver : MonoBehaviour, ISaveable {
     public void onLoad(Queue<object> data) {
         testInt = (int)data.Dequeue();
     }
+
+    public void Update() {
+        if (Input.GetKeyDown(KeyCode.I)) {
+            SaveManager.InstantiateSaved("SaveTestPrefab", Vector3.zero, Quaternion.identity);
+        }
+    }
 }

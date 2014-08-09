@@ -51,6 +51,13 @@ public class SaveManager : MonoBehaviour {
         }
     }
 
+    public static GameObject InstantiateSaved(string prefabPath, Vector3 position, Quaternion rotation) {
+        GameObject prefab = Resources.Load<GameObject>(prefabPath);
+        GameObject obj = Instantiate(prefab, position, rotation) as GameObject;
+        obj.GetComponent<SaveMarker>().prefabPath = prefabPath;
+        return obj;
+    }
+
     [ContextMenu ("Assign Serial IDs")]
     public void assignSerialIDs() {
         SaveMarker[] existingMarkers = FindObjectsOfType<SaveMarker>();

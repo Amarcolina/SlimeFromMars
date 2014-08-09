@@ -16,6 +16,7 @@ public class SavedGameObjectData {
     public Vector3 position;
     public Quaternion rotation;
     public Vector3 localScale;
+    public string prefabPath = null;
 }
 
 public class SaveMarker : MonoBehaviour {
@@ -23,6 +24,7 @@ public class SaveMarker : MonoBehaviour {
     public SaveType saveAction = SaveType.ALWAYS_SAVE;
     //[HideInInspector]
     public int serialID = -1;
+    public string prefabPath = null;
 
     public void Awake() {
         if (serialID == -1) {
@@ -42,6 +44,7 @@ public class SaveMarker : MonoBehaviour {
         gameObjectData.position = transform.position;
         gameObjectData.rotation = transform.rotation;
         gameObjectData.localScale = transform.localScale;
+        gameObjectData.prefabPath = prefabPath;
 
         Component[] saveableComponents = GetComponents(typeof(ISaveable));
 

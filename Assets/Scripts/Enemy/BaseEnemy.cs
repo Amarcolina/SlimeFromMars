@@ -6,7 +6,8 @@ public enum EnemyState {
     WANDERING,
     FLEEING,
     HIDING,
-    ATTACKING
+    ATTACKING,
+    STARTLED,
 }
 
 public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable{
@@ -55,6 +56,10 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable{
                 StartCoroutine(deathCoroutine());
             }
         }
+    }
+
+    public float getHealth() {
+        return health;
     }
 
     private IEnumerator deathCoroutine() {
@@ -138,6 +143,13 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable{
                     exitFunction = onExitAttackState;
                 }
                 break;
+            case EnemyState.STARTLED:
+                if (canEnterStartledState() || force) {
+                    newStateFunction = startledState;
+                    enterFunction = onEnterStartledState;
+                    exitFunction = onExitStartledState;
+                }
+                break;
             default:
                 Debug.LogWarning("Cannot transition to state " + _currentState);
                 break;
@@ -181,6 +193,11 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable{
     protected virtual void onEnterHideState() { }
     protected virtual void onExitHideState() { }
     protected virtual void hideState() { throw new System.NotSupportedException(); }
+
+    protected virtual bool canEnterStartledState() { return true; }
+    protected virtual void onEnterStartledState() { }
+    protected virtual void onExitStartledState() { }
+    protected virtual void startledState() { }
 
     //#############################################################################
     //##---------   MOVEMENT FUNCTIONS ------------------------------------------##

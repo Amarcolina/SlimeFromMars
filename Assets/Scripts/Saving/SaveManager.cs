@@ -87,7 +87,9 @@ public class SaveManager : MonoBehaviour {
             SerializedProperty property = serializedObject.FindProperty("serialID");
             property.intValue = i;
             serializedObject.ApplyModifiedProperties();
+            EditorUtility.DisplayProgressBar("Assigning Serial ID's", "just a moment...", i / (float)existingMarkers.Length);
         }
+        EditorUtility.ClearProgressBar();
     }
 #endif
 

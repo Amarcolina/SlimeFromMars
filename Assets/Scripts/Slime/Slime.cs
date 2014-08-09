@@ -375,7 +375,6 @@ public class Slime : MonoBehaviour, ISaveable {
     public void onLoad(Queue<object> data) {
         _percentHealth = (float)data.Dequeue();
         _isConnected = (bool)data.Dequeue();
-        Debug.Log(_isConnected);
         if (!_isConnected) {
             SlimeSentinel.addSlimeToDestroyList(this);
         }

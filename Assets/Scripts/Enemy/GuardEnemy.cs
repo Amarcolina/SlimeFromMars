@@ -4,6 +4,7 @@ using System.Collections;
 public class GuardEnemy : BaseEnemy {
     public float wanderSpeed = 2.5f;
     public float attackSpeed = 3.5f;
+    public float startledSpeed = 4.5f;
 
     [MinValue(0)]
     public float timePerShot = 1.5f;
@@ -90,5 +91,20 @@ public class GuardEnemy : BaseEnemy {
         }
 
         Instantiate(shotPrefab, transform.position, particleRotation);
+    }
+
+    //Startled
+    private float _startledEndTime = 0.0f;
+
+    protected override void onEnterStartledState() {
+        _startledEndTime = Time.time + 2.0f;
+    }
+
+    protected override void startledState() {
+        if (Time.time > _startledEndTime) {
+            tryEnterState(EnemyState.WANDERING);
+        }
+
+        runAwayFromSlime(startledSpeed);
     }
 }

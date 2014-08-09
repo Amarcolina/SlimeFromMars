@@ -46,7 +46,6 @@ public class GenericConsumeable : MonoBehaviour, IGrabbable {
     //Displays the information for a given item and calculates potential energy
     public void OnMouseDown() {
         _slimeControllerInstance.enableResourcePopup(gameObject.name, (int)size, bio, radiation, electricity);
-        _slimeControllerInstance.skipNextFrame();
     }
 
 }

@@ -1,14 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public enum GuardState {
-    WANDERING,
-    ATTACKING
-}
-
 public class GuardEnemy : BaseEnemy {
-    public GuardState startState = GuardState.WANDERING;
-
     public float wanderSpeed = 2.5f;
     public float attackSpeed = 3.5f;
 
@@ -22,22 +15,14 @@ public class GuardEnemy : BaseEnemy {
     public Transform shotOrigin;
 
     private float _shotCooldownLeft = 0.0f;
-    private GuardState _currentState;
 
     private AudioClip flameThrowerSFX;
 
-    public override void Awake()
-    {
+    public override void Awake() {
         base.Awake();
         _currentState = startState;
 
         flameThrowerSFX = Resources.Load<AudioClip>("Sounds/SFX/guard_flamethrower");
-    }
-
-    void Start()
-    {
-        sound = SoundManager.getInstance();
-        //gameObject.AddComponent<SoundEffect>();
     }
 
     void Update() {
@@ -45,39 +30,29 @@ public class GuardEnemy : BaseEnemy {
             return;
         }
 
-        switch (_currentState) {
-            case GuardState.WANDERING:
-                wanderState();
-                break;
-            case GuardState.ATTACKING:
-                attackState();
-                break;
-            default:
-                Debug.LogWarning("Cannot handle state " + _currentState);
-                break;
-        }
+        handleStateMachine();
     }
 
-    private void enterWanderState() {
+    //Wander state
+    protected override void onEnterWanderState() {
         recalculateMovementPatternPath();
-        _currentState = GuardState.WANDERING;
     }
 
-    private void wanderState() {
+    protected override void wanderState() {
         followMovementPattern(wanderSpeed);
-        tryEnterAttackState();
+        tryEnterState(EnemyState.ATTACKING);
     }
 
-    private bool tryEnterAttackState() {
-        if (getNearestVisibleSlime() != null) {
-            _currentState = GuardState.ATTACKING;
-            _shotCooldownLeft = 0.0f;
-            return true;
-        }
-        return false;
+    //Attack state
+    protected override bool canEnterAttackState() {
+        return getNearestVisibleSlime() != null;
     }
 
-    private void attackState() {
+    protected override void onEnterAttackState() {
+        _shotCooldownLeft = 0.0f;
+    }
+
+    protected override void attackState() {
         if (_shotCooldownLeft >= 0.0f) {
             _shotCooldownLeft -= Time.deltaTime;
             _enemyAnimation.EnemyStopped();
@@ -85,7 +60,7 @@ public class GuardEnemy : BaseEnemy {
         }
 
         if (getNearestVisibleSlime() == null) {
-            enterWanderState();
+            tryEnterState(EnemyState.WANDERING);
             return;
         }
 
@@ -96,8 +71,7 @@ public class GuardEnemy : BaseEnemy {
             if (getNearestVisibleSlime(20, true) != null) {
                 _shotCooldownLeft = timePerShot;
                 _enemyAnimation.EnemyShoot(getNearestVisibleSlime().transform.position.x > shotOrigin.position.x ? 1.0f : -1.0f);
-                sound.PlaySound(gameObject.transform, flameThrowerSFX);
-                
+                _soundManager.PlaySound(gameObject.transform, flameThrowerSFX);
             }
         }
     }

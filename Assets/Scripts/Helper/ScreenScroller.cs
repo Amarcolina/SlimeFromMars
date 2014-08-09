@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
-public class ScreenScroller : MonoBehaviour {
+public class ScreenScroller : MonoBehaviour, ISaveable {
     [MinValue(0)]
     public int scrollDistance = 1;
     [MinValue(0)]
@@ -38,6 +39,13 @@ public class ScreenScroller : MonoBehaviour {
         _goalZoom -= Input.GetAxis("Mouse ScrollWheel") * camera.orthographicSize;
         _goalZoom = Mathf.Clamp(_goalZoom, 5, 50);
         camera.orthographicSize += (_goalZoom - camera.orthographicSize) / 5.0f;
+    }
 
+    public void onSave(Queue<object> data) {
+        data.Enqueue(camera.orthographicSize);
+    }
+
+    public void onLoad(Queue<object> data) {
+        camera.orthographicSize = (float)data.Dequeue();
     }
 }

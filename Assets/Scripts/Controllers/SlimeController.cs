@@ -13,7 +13,7 @@ public enum ElementalCastType {
 /*This class keeps track of slime attribute values, mutation types, offense/defense abilities based on mutation type, and offense/defense values
  * 
  */
-public class SlimeController : MonoBehaviour {
+public class SlimeController : MonoBehaviour, ISaveable {
     //cost for using skills
     public const int ELECTRICITY_DEFENSE_COST = 5;
     public const int ELECTRICITY_OFFENSE_COST = 10;
@@ -99,16 +99,17 @@ public class SlimeController : MonoBehaviour {
         _resourcedisplayGameObject = GameObject.FindGameObjectWithTag("ItemInfo");
         _resourcedisplayLabel = _resourcedisplayGameObject.GetComponentInChildren<UILabel>();
         _resourcedisplaySprite = _resourcedisplayGameObject.GetComponentInChildren<UISprite>();
+
+        _radiationLevel = 0;
+        _electricityLevel = 0;
+        _bioLevel = 0;
+        gainEnergy(20);
     }
 
     // Use this for initialization
     void Start() {
         _gameUi = GameUI.getInstance();
         sound = SoundManager.getInstance();
-        _radiationLevel = 0;
-        _electricityLevel = 0;
-        _bioLevel = 0;
-        gainEnergy(20);
     }
 
     /*###############################################################################################*/
@@ -261,6 +262,20 @@ public class SlimeController : MonoBehaviour {
     private void GameOver() {
         PauseMenu gameover = _gameUi.GetComponent<PauseMenu>();
         gameover.GameOver();
+    }
+
+    public void onSave(Queue<object> data) {
+        data.Enqueue(energy);
+        data.Enqueue(_bioLevel);
+        data.Enqueue(_electricityLevel);
+        data.Enqueue(_radiationLevel);
+    }
+
+    public void onLoad(Queue<object> data) {
+        energy = (int)data.Dequeue();
+        _bioLevel = (int)data.Dequeue();
+        _electricityLevel = (int)data.Dequeue();
+        _radiationLevel = (int)data.Dequeue();
     }
 
     /*###############################################################################################*/

@@ -103,12 +103,12 @@ public class SlimeController : MonoBehaviour, ISaveable {
         _radiationLevel = 0;
         _electricityLevel = 0;
         _bioLevel = 0;
+        _gameUi = GameUI.getInstance();
         gainEnergy(20);
     }
 
     // Use this for initialization
     void Start() {
-        _gameUi = GameUI.getInstance();
         sound = SoundManager.getInstance();
     }
 
@@ -272,7 +272,8 @@ public class SlimeController : MonoBehaviour, ISaveable {
     }
 
     public void onLoad(Queue<object> data) {
-        energy = (int)data.Dequeue();
+        energy = 0;
+        gainEnergy((int)data.Dequeue());
         _bioLevel = (int)data.Dequeue();
         _electricityLevel = (int)data.Dequeue();
         _radiationLevel = (int)data.Dequeue();

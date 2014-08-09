@@ -42,10 +42,11 @@ public class ScreenScroller : MonoBehaviour, ISaveable {
     }
 
     public void onSave(Queue<object> data) {
-        data.Enqueue(camera.orthographicSize);
+        data.Enqueue(_goalZoom);
     }
 
     public void onLoad(Queue<object> data) {
-        camera.orthographicSize = (float)data.Dequeue();
+        _goalZoom = (float)data.Dequeue();
+        camera.orthographicSize = _goalZoom;    
     }
 }

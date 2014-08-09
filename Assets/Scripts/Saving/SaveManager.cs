@@ -15,42 +15,44 @@ public class SaveManager : MonoBehaviour {
         public HashSet<int> destroyedObjects = new HashSet<int>();
     }
 
-    public void OnEnable() {
-        if (_currentSavedGame != null) {
-            SaveMarker[] markers = FindObjectsOfType<SaveMarker>();
-            foreach(SaveMarker marker in markers){
-                if(_currentSavedGame.destroyedObjects.Contains(marker.serialID)){
-                    Destroy(marker.gameObject);
-                    continue;
-                }
-
-                SavedGameObjectData data;
-                if (_currentSavedGame.modifiedGameObjects.TryGetValue(marker.serialID, out data)) {
-                    marker.loadData(data);
-                    continue;
-                }
-            }
-
-            foreach (var newObjectPair in _currentSavedGame.newGameObjects) {
-                GameObject newObject;
-                SaveMarker newMarker;
-                if (newObjectPair.Value.prefabPath != null && newObjectPair.Value.prefabPath.Length != 0) {
-                    newObject = InstantiateSaved(newObjectPair.Value.prefabPath, Vector3.zero, Quaternion.identity);
-                    newMarker = newObject.GetComponent<SaveMarker>();
-                } else {
-                    newObject = new GameObject("New game object OMG");
-                    newMarker = newObject.AddComponent<SaveMarker>();
-                }
-                
-                newMarker.serialID = newObjectPair.Key;
-                newMarker.loadData(newObjectPair.Value);
-            }
-
-            _currentDestroyedObjects.Clear();
-            _currentDestroyedObjects.UnionWith(_currentSavedGame.destroyedObjects);
-        } else {
+    public void Awake() {
+        if (_currentSavedGame == null) {
             _currentSavedGame = new SavedGame();
         }
+    }
+
+    public void OnLevelWasLoaded() {
+        SaveMarker[] markers = FindObjectsOfType<SaveMarker>();
+        foreach(SaveMarker marker in markers){
+            if(_currentSavedGame.destroyedObjects.Contains(marker.serialID)){
+                Destroy(marker.gameObject);
+                continue;
+            }
+
+            SavedGameObjectData data;
+            if (_currentSavedGame.modifiedGameObjects.TryGetValue(marker.serialID, out data)) {
+                marker.loadData(data);
+                continue;
+            }
+        }
+
+        foreach (var newObjectPair in _currentSavedGame.newGameObjects) {
+            GameObject newObject;
+            SaveMarker newMarker;
+            if (newObjectPair.Value.prefabPath != null && newObjectPair.Value.prefabPath.Length != 0) {
+                newObject = InstantiateSaved(newObjectPair.Value.prefabPath, Vector3.zero, Quaternion.identity);
+                newMarker = newObject.GetComponent<SaveMarker>();
+            } else {
+                newObject = new GameObject("New game object OMG");
+                newMarker = newObject.AddComponent<SaveMarker>();
+            }
+                
+            newMarker.serialID = newObjectPair.Key;
+            newMarker.loadData(newObjectPair.Value);
+        }
+
+        _currentDestroyedObjects.Clear();
+        _currentDestroyedObjects.UnionWith(_currentSavedGame.destroyedObjects);
 
         _isLoading = false;
     }

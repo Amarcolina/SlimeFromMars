@@ -41,7 +41,6 @@ public class GuardEnemy : BaseEnemy {
     protected override void wanderState() {
         followMovementPattern(wanderSpeed);
         tryEnterState(EnemyState.ATTACKING);
-        tryEnterState(EnemyState.FLEEING);
     }
 
     //Attack state

@@ -9,10 +9,16 @@ public class SoundManager : MonoBehaviour
     private List<AudioSource> sounds;
     private AudioSource[] sources;
 
-    public static SoundManager getInstance(){
-        if (soundInstance == null){
-            GameObject obj = new GameObject("Sound Manager");
-            soundInstance = obj.AddComponent<SoundManager>();
+    public static SoundManager getInstance()
+    {
+        if (soundInstance == null)
+        {
+            soundInstance = FindObjectOfType<SoundManager>();
+            if (soundInstance == null) 
+            {
+                GameObject obj = new GameObject("SoundManager");
+                soundInstance = obj.AddComponent<SoundManager>();
+            }
         }
         return soundInstance;
     }

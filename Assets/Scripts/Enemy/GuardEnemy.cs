@@ -66,7 +66,7 @@ public class GuardEnemy : BaseEnemy {
 
         if (Vector3.Distance(shotOrigin.position, getNearestVisibleSlime().transform.position) > fireRange ||
             Mathf.Abs(transform.position.y - getNearestVisibleSlime().transform.position.y) > 0.1f) {
-                moveTowardsPoint(getNearestVisibleSlime().transform.position, attackSpeed);
+                moveTowardsPointAstar(getNearestVisibleSlime().transform.position, attackSpeed);
         } else {
             if (getNearestVisibleSlime(20, true) != null) {
                 _shotCooldownLeft = timePerShot;

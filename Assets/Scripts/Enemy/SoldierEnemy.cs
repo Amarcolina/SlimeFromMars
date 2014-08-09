@@ -17,6 +17,7 @@ public class SoldierEnemy : BaseEnemy {
     public Transform shotSpawn;
 
     private float _shotCooldownLeft = 0.0f;
+    
 
     private AudioClip bulletSFX;
 
@@ -72,7 +73,7 @@ public class SoldierEnemy : BaseEnemy {
             }
 
             if (Vector3.Distance(transform.position, getNearestVisibleSlime().transform.position) > fireRange) {
-                moveTowardsPoint(getNearestVisibleSlime().transform.position);
+                moveTowardsPointAstar(getNearestVisibleSlime().transform.position);
             } else {
                 _shotCooldownLeft = timePerShot;
                 _enemyAnimation.EnemyShoot(getNearestVisibleSlime().transform.position.x > transform.position.x ? 1.0f : -1.0f);  
@@ -106,7 +107,17 @@ public class SoldierEnemy : BaseEnemy {
     }
 
     //Startled
+    private float _startledEndTime = 0.0f;
+
+    protected override void onEnterStartledState() {
+        _startledEndTime = Time.time + 2.0f;
+    }
+
     protected override void startledState() {
-        
+        if (Time.time > _startledEndTime) {
+            tryEnterState(EnemyState.WANDERING);
+        }
+
+        runAwayFromSlime(startledSpeed);
     }
 }

@@ -16,6 +16,12 @@ public class MinHashHeap<GenericItem> where GenericItem: IComparable{
         bubbleUp(heap.Count - 1);
     }
 
+    public void clear() {
+        heap.Clear();
+        itemIndexMap.Clear();
+        cachedHeapSize = -1;
+    }
+
     //removes the minimum element in the tree and restructures tree with minHeapify to maintain integrity
     public GenericItem extractElement(int i) {
         if (getHeapSize() <= 0) {
@@ -71,6 +77,7 @@ public class MinHashHeap<GenericItem> where GenericItem: IComparable{
             this.minHeapify(smallest);
         }
     }
+
     private void bubbleUp(int i) {
         while (i > 0) {
             int j = ((i + 1) / 2) - 1;
@@ -82,6 +89,7 @@ public class MinHashHeap<GenericItem> where GenericItem: IComparable{
             i = j;
         }
     }
+
     public int getHeapSize() {
         if (cachedHeapSize == -1) {
             cachedHeapSize = heap.Count;
@@ -92,6 +100,7 @@ public class MinHashHeap<GenericItem> where GenericItem: IComparable{
     public GenericItem getRoot() {
         return heap[0];
     }
+
     private void swapHeapElements(int i, int j) {
         GenericItem store_heap_element = heap[i];
         heap[i] = heap[j];
@@ -104,6 +113,7 @@ public class MinHashHeap<GenericItem> where GenericItem: IComparable{
         itemIndexMap.Add(item, heap.Count);
         heap.Add(item);
     }
+
     private void replaceWithEnd(int index) {
         if (index == heap.Count - 1) {
             itemIndexMap.Remove(heap[index]);

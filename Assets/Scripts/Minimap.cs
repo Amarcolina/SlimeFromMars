@@ -120,8 +120,9 @@ public class Minimap : MonoBehaviour {
         }
 
         if (_isDraggingCamera) {
-            Vector2 newCamera = new Vector2(minimapCamera.x * TEXTURE_SIZE + TEXTURE_OFFSET_X, minimapCamera.y * TEXTURE_SIZE + TEXTURE_OFFSET_Y) +
+            Vector3 newCamera = new Vector2(minimapCamera.x * TEXTURE_SIZE + TEXTURE_OFFSET_X, minimapCamera.y * TEXTURE_SIZE + TEXTURE_OFFSET_Y) +
                                 new Vector2(mapMouse.x * minimapCamera.width * TEXTURE_SIZE, (1 - mapMouse.y) * minimapCamera.height * TEXTURE_SIZE);
+            newCamera.z = -10;
             Camera.main.transform.position = newCamera;
 
             SlimeController.getInstance().skipNextFrame();

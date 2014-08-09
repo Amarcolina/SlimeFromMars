@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class Slime : MonoBehaviour {
+public class Slime : MonoBehaviour, ISaveable {
     public const float OPACITY_CHANGE_SPEED = 1.0f;
     public const float HEALTH_REGEN_RATE = 0.1f;
     public const float TIME_PER_EXPAND = 0.02f;
@@ -364,5 +364,14 @@ public class Slime : MonoBehaviour {
             }
         }
         return cost;
+    }
+
+    public void onSave(Queue<object> data) {
+        data.Enqueue(_percentHealth);
+        data.Enqueue(_isConnected);
+    }
+    public void onLoad(Queue<object> data) {
+        _percentHealth = (float)data.Dequeue();
+        _isConnected = (bool)data.Dequeue();
     }
 }

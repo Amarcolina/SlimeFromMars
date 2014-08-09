@@ -14,8 +14,6 @@ public class TestSaver : MonoBehaviour, ISaveable {
     }
 
     public void Update() {
-        if (Input.GetKeyDown(KeyCode.I)) {
-            SaveManager.InstantiateSaved("SaveTestPrefab", Vector3.zero, Quaternion.identity);
-        }
+        
     }
 }

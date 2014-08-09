@@ -4,6 +4,7 @@ using System.Collections.Generic;
 
 public class SaveManager : MonoBehaviour {
     private static SavedGame _currentSavedGame = null;
+    private static bool _isLoading = false;
 
     public class SavedGame{
         public Dictionary<int, SavedGameObjectData> modifiedGameObjects = new Dictionary<int, SavedGameObjectData>();
@@ -17,19 +18,27 @@ public class SaveManager : MonoBehaviour {
             foreach(SaveMarker marker in markers){
                 if(_currentSavedGame.destroyedObjects.Contains(marker.serialID)){
                     Destroy(marker.gameObject);
+                    continue;
                 }
 
                 SavedGameObjectData data;
                 if (_currentSavedGame.modifiedGameObjects.TryGetValue(marker.serialID, out data)) {
                     marker.loadData(data);
+                    continue;
                 }
             }
 
-            Debug.Log(1);
             foreach (var newObjectPair in _currentSavedGame.newGameObjects) {
-                Debug.Log(2);
-                GameObject newObject = new GameObject("RIP omg");
-                SaveMarker newMarker = newObject.AddComponent<SaveMarker>();
+                GameObject newObject;
+                SaveMarker newMarker;
+                if (newObjectPair.Value.prefabPath != null && newObjectPair.Value.prefabPath.Length != 0) {
+                    newObject = InstantiateSaved(newObjectPair.Value.prefabPath, Vector3.zero, Quaternion.identity);
+                    newMarker = newObject.GetComponent<SaveMarker>();
+                } else {
+                    newObject = new GameObject("New game object OMG");
+                    newMarker = newObject.AddComponent<SaveMarker>();
+                }
+                
                 newMarker.serialID = newObjectPair.Key;
                 newMarker.loadData(newObjectPair.Value);
             }
@@ -39,6 +48,8 @@ public class SaveManager : MonoBehaviour {
         } else {
             _currentSavedGame = new SavedGame();
         }
+
+        _isLoading = false;
     }
 
     public void Update() {
@@ -48,6 +59,10 @@ public class SaveManager : MonoBehaviour {
 
         if (Input.GetKeyDown(KeyCode.L)) {
             loadGame();
+        }
+
+        if (Input.GetKeyDown(KeyCode.I)) {
+            SaveManager.InstantiateSaved("SaveTestPrefab", Vector3.zero, Quaternion.identity);
         }
     }
 
@@ -68,6 +83,10 @@ public class SaveManager : MonoBehaviour {
 
     private HashSet<int> _currentDestroyedObjects = new HashSet<int>();
     public void recordObjectDestruction(int serialID) {
+        if (_isLoading) {
+            return;
+        }
+
         if (serialID < -1) {
             _currentSavedGame.newGameObjects.Remove(serialID);
         } else if (serialID > -1) {
@@ -80,11 +99,15 @@ public class SaveManager : MonoBehaviour {
     public void saveGame() {
         SaveMarker[] existingMarkers = FindObjectsOfType<SaveMarker>();
         foreach (SaveMarker marker in existingMarkers) {
+            SavedGameObjectData savedData = marker.saveData();
+            if (savedData == null) {
+                continue;
+            }
+
             if (marker.serialID < -1) {
-                Debug.Log("here???");
-                _currentSavedGame.newGameObjects[marker.serialID] = marker.saveData();
+                _currentSavedGame.newGameObjects[marker.serialID] = savedData;
             } else if (marker.serialID > -1){
-                _currentSavedGame.modifiedGameObjects[marker.serialID] = marker.saveData();
+                _currentSavedGame.modifiedGameObjects[marker.serialID] = savedData;
             } else{
                 throw new System.Exception("Trying to save an object with an uninitialized serialID");
             }
@@ -94,6 +117,7 @@ public class SaveManager : MonoBehaviour {
     }
 
     public void loadGame() {
+        _isLoading = true;
         Application.LoadLevel(Application.loadedLevel);
     }
 }

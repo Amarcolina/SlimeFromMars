@@ -18,18 +18,16 @@ public class SlimeContainer : MonoBehaviour, IDamageable {
     void Awake() {
         partiallyDamagedSprite = Resources.Load<Sprite>("Sprites/Accessories/partiallyBrokenHoldingTube");
         brokenSprite = Resources.Load<Sprite>("Sprites/Accessories/escapedHoldingTube");
-        spriteComponent = GetComponent<SpriteRenderer>();
+        spriteComponent = GetComponent<SpriteRenderer>();     
+    }
+
+    void OnLevelWasLoaded() {
+        containerCounter = 0;
+    }
+
+    void Start() {
         containerCounter++;
-    }
-
-    void Start()
-    {
         _gameUi = GameUI.getInstance();
-    }
-   
-    // Update is called once per frame
-    void Update() {
-
     }
 
     //updates number of containers in the world minus one

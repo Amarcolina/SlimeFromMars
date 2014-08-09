@@ -1,4 +1,7 @@
 ﻿using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 using System.Collections;
 using System.Collections.Generic;
 
@@ -73,13 +76,18 @@ public class SaveManager : MonoBehaviour {
         return obj;
     }
 
+#if UNITY_EDITOR
     [ContextMenu ("Assign Serial IDs")]
     public void assignSerialIDs() {
         SaveMarker[] existingMarkers = FindObjectsOfType<SaveMarker>();
         for (int i = 0; i < existingMarkers.Length; i++) {
-            existingMarkers[i].serialID = i;
+            SerializedObject serializedObject = new SerializedObject(existingMarkers[i]);
+            SerializedProperty property = serializedObject.FindProperty("serialID");
+            property.intValue = i;
+            serializedObject.ApplyModifiedProperties();
         }
     }
+#endif
 
     private HashSet<int> _currentDestroyedObjects = new HashSet<int>();
     public void recordObjectDestruction(int serialID) {

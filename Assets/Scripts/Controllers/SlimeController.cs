@@ -138,8 +138,12 @@ public class SlimeController : MonoBehaviour {
             gainBioLevel();
         }
 
+        if (_currentSelectedSlime != null) {
+            attemptToEat();
+        }
+
         if (_shouldSkipNext) {
-            _shouldSkipNext = false;
+            _shouldSkipNext = Input.GetKey(KeyCode.Mouse0) || Input.GetKey(KeyCode.Mouse1);
         } else {
             if (_currentCastType == ElementalCastType.NONE) {
                 handleNormalInteraction();
@@ -153,12 +157,6 @@ public class SlimeController : MonoBehaviour {
         if (Input.GetMouseButtonDown(0)) {
             disableResourcePopup();
             highlightSlimeTile();
-        }
-
-        if (_currentSelectedSlime == null) {
-            renderer.enabled = false;
-        } else {
-            attemptToEat();
         }
 
         if (Input.GetMouseButtonUp(1) && _currentSelectedSlime != null) {
@@ -187,6 +185,7 @@ public class SlimeController : MonoBehaviour {
         disableResourcePopup();
         if (Input.GetKeyDown(KeyCode.Mouse1)) {
             _currentCastType = ElementalCastType.NONE;
+            skipNextFrame();
         }
 
         if (Input.GetKeyDown(KeyCode.Mouse0)) {
@@ -209,7 +208,7 @@ public class SlimeController : MonoBehaviour {
                     throw new System.Exception("Unexpected elemental cast type " + _currentCastType);
             }
             if (didCast) {
-                _currentCastType = ElementalCastType.NONE;
+                //_currentCastType = ElementalCastType.NONE;
             }
         }
     }
@@ -409,6 +408,13 @@ public class SlimeController : MonoBehaviour {
     }
 
     public void enableResourcePopup(string name, int size, int bio, int radiation, int electricity) {
+        //Don't do popup if in cast mode
+        if (_currentCastType != ElementalCastType.NONE) {
+            return;
+        }
+
+        skipNextFrame();
+
         int potentialenergy = size + (_radiationLevel * radiation) + (_electricityLevel * electricity) + (_bioLevel * bio);
         _resourcedisplayLabel.text = name + "\nRadiation:" + radiation + "\nBio:" + bio + "\nElectricity:" + electricity + "\nEnergy:" + potentialenergy;
         _resourcedisplayLabel.enabled = true;

@@ -69,8 +69,9 @@ public class Slime : MonoBehaviour {
             effect.wither();
         }
         SlimeSentinel.removeSlimeFromDestroyList(this);
-        if (SlimeController.getInstance().getSelectedSlime() == this) {
-            SlimeController.getInstance().setSelectedSlime(null);
+        SlimeController controller = SlimeController.getInstance();
+        if (controller != null && controller.getSelectedSlime() == this) {
+            controller.setSelectedSlime(null);
         }
     }
 
@@ -252,15 +253,16 @@ public class Slime : MonoBehaviour {
     }
 
     private void handleSlimeDetatch(Vector2Int origin) {
-        Astar.isWalkableFunction = isSlimeTile;
-        Astar.earlySuccessFunction = isLocationConnected;
-        Astar.earlyFailureFunction = isLocationDisconnected;
-        Astar.isNeighborWalkableFunction = Tile.isSlimeableFunction;
+        AstarSettings settings = new AstarSettings();
+        settings.isWalkableFunction = isSlimeTile;
+        settings.earlySuccessFunction = isLocationConnected;
+        settings.earlyFailureFunction = isLocationDisconnected;
+        settings.isNeighborWalkableFunction = Tile.isSlimeableFunction;
 
         _currSearchingConnectedIndex++;
         bool didDetach = false;
         NeighborSlimeFunction function = delegate(Slime neighborSlime, Vector2Int neighborPosition) {
-            Path pathHome = Astar.findPath(neighborPosition, _anchorSlimeLocation, false);
+            Path pathHome = Astar.findPath(neighborPosition, _anchorSlimeLocation, settings);
 
             if (pathHome == null) {
                 didDetach = true;
@@ -278,7 +280,6 @@ public class Slime : MonoBehaviour {
         if (didDetach) {
             sfx.PlaySound(_slimeRenderer.gameObject.transform, slimeDetach);
         }
-        Astar.resetDefaults();
     }
 
     private void disconnectRecursively() {

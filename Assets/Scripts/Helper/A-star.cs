@@ -9,14 +9,37 @@ public delegate bool AStarIsPathWalkable(Vector2Int position);
 public delegate bool AStarEarlySuccessFunction(Vector2Int position);
 public delegate bool AStarEarlyFailureFunction(Vector2Int position);
 
+public class AstarSettings {
+    public AStarMovementCost movementCostFunction = Astar.defaultMovementCost;
+    public AStarNodeHeuristic heuristicFunction = Astar.defaultHeuristic;
+    public AStarIsPathWalkable isWalkableFunction = Tile.isWalkableFunction;
+    public AStarEarlySuccessFunction earlySuccessFunction = null;
+    public AStarEarlyFailureFunction earlyFailureFunction = null;
+    public AStarIsPathWalkable isNeighborWalkableFunction = Tile.isWalkableFunction;
+    public int maxNodesToCheck = -1;
+    public bool returnBestPathUponFail = false;
+
+    public AstarSettings() { }
+
+    public AstarSettings(AstarSettings settings) {
+        this.movementCostFunction = settings.movementCostFunction;
+        this.heuristicFunction = settings.heuristicFunction;
+        this.isWalkableFunction = settings.isWalkableFunction;
+        this.earlySuccessFunction = settings.earlySuccessFunction;
+        this.earlyFailureFunction = settings.earlyFailureFunction;
+        this.isNeighborWalkableFunction = settings.isNeighborWalkableFunction;
+        this.maxNodesToCheck = settings.maxNodesToCheck;
+        this.returnBestPathUponFail = settings.returnBestPathUponFail;
+    }
+}
+
 public class Astar : MonoBehaviour {
-    public static AStarMovementCost movementCostFunction = defaultMovementCost;
-    public static AStarNodeHeuristic heuristicFunction = defaultHeuristic;
-    public static AStarIsPathWalkable isWalkableFunction = Tile.isWalkableFunction;
-    public static AStarEarlySuccessFunction earlySuccessFunction = null;
-    public static AStarEarlyFailureFunction earlyFailureFunction = null;
-    public static AStarIsPathWalkable isNeighborWalkableFunction = Tile.isWalkableFunction;
-    public static int maxNodesToCheck = -1;
+    private static AstarSettings _defaultSettings = new AstarSettings();
+    private static Stack<Astar> _freeObjectStack = new Stack<Astar>();
+
+    private Dictionary<Vector2Int, Node> nodePostionMap = new Dictionary<Vector2Int, Node>();
+    private HashSet<Node> closedList = new HashSet<Node>();
+    private MinHashHeap<Node> openList = new MinHashHeap<Node>();
 
     public class Node : IComparable {
         Vector2Int position; //tilemap position of node
@@ -65,37 +88,59 @@ public class Astar : MonoBehaviour {
         }
     }
 
-    public static Path findPath(Vector2Int start, Vector2Int goal, bool shouldResetDefaults = true){
-        Path path = findPathInternal(start, goal);
-        if (shouldResetDefaults) {
-            resetDefaults();
+    public static Path findPath(Vector2Int start, Vector2Int goal, AstarSettings settings = null){
+        Astar instance = null;
+        if (_freeObjectStack.Count != 0) {
+            instance = _freeObjectStack.Peek();
+        } else {
+            GameObject obj = new GameObject("AstarSolver");
+            instance = obj.AddComponent<Astar>();
+            _freeObjectStack.Push(instance);
         }
-        return path;
+
+        if (settings == null) {
+            settings = _defaultSettings;
+        }
+
+        Path path = new Path();
+        instance.StartCoroutine(instance.findPathInternal(path, start, goal, settings, false));
+
+        return path.Count == 0 ? null : path;
     }
 
-    public static void resetDefaults() {
-        movementCostFunction = defaultMovementCost;
-        heuristicFunction = defaultHeuristic;
-        isWalkableFunction = Tile.isWalkableFunction;
-        isNeighborWalkableFunction = Tile.isWalkableFunction;
-        earlySuccessFunction = null;
-        earlyFailureFunction = null;
-        maxNodesToCheck = -1;
+    public static IEnumerator findPathCoroutine(Path path, Vector2Int start, Vector2Int goal, AstarSettings settings = null) {
+        Astar instance = null;
+        if (_freeObjectStack.Count != 0) {
+            instance = _freeObjectStack.Pop();
+        } else {
+            GameObject obj = new GameObject("AstarSolver");
+            instance = obj.AddComponent<Astar>();
+        }
+        instance.gameObject.hideFlags = HideFlags.None;
+
+        if (settings == null) {
+            settings = _defaultSettings;
+        }
+
+        yield return instance.StartCoroutine(instance.findPathInternal(path, start, goal, settings, true));
+
+        instance.gameObject.hideFlags = HideFlags.HideAndDontSave;
+        _freeObjectStack.Push(instance);
     }
 
-    private static Path findPathInternal(Vector2Int start, Vector2Int goal) {  
+    private IEnumerator findPathInternal(Path path, Vector2Int start, Vector2Int goal, AstarSettings settings, bool shouldContinue) {
         if (start == null || goal == null) {
-            return null;
+            yield break;
         }
 
-        if (!isWalkableFunction(goal)) {
-            return null;
+        if (!settings.isWalkableFunction(goal)) {
+            yield break;
         }
 
-        MinHashHeap<Node> openList = new MinHashHeap<Node>();//nodes to be examined
-        HashSet<Node> closedList = new HashSet<Node>();
-        Dictionary<Vector2Int, Node> nodePostionMap = new Dictionary<Vector2Int, Node>();
-        Node startNode = new Node(start, goal, null, heuristicFunction(start, goal));
+        openList.clear();
+        closedList.Clear();
+        nodePostionMap.Clear();
+        Node startNode = new Node(start, goal, null, settings.heuristicFunction(start, goal));
         Node goalNode = null;
         nodePostionMap.Add(startNode.getPosition(), startNode);
 
@@ -112,13 +157,13 @@ public class Astar : MonoBehaviour {
             }
 
             //We break the while loop if the earlySuccessFunction is met
-            if (earlySuccessFunction != null && earlySuccessFunction(current.getPosition())) {
+            if (settings.earlySuccessFunction != null && settings.earlySuccessFunction(current.getPosition())) {
                 break;
             }
 
             //We terminate the function and return no path found if the earlyFailureFunction is met
-            if (earlyFailureFunction != null && earlyFailureFunction(current.getPosition())) {
-                return null;
+            if (settings.earlyFailureFunction != null && settings.earlyFailureFunction(current.getPosition())) {
+                yield break;
             }
 
             closedList.Add(current);//add current to closedList
@@ -126,22 +171,22 @@ public class Astar : MonoBehaviour {
             //for neighbors of current:
             for(int neighborOffsetIndex = 0; neighborOffsetIndex < TilemapUtilities.neighborFullArray.Length; neighborOffsetIndex++) {
                 Vector2Int neighborPosition = current.getPosition() + TilemapUtilities.neighborFullArray[neighborOffsetIndex];
-                if (!TilemapUtilities.areTilesNeighbors(current.getPosition(), neighborPosition, true, isNeighborWalkableFunction)) {
+                if (!TilemapUtilities.areTilesNeighbors(current.getPosition(), neighborPosition, true, settings.isNeighborWalkableFunction)) {
                     continue;
                 }
 
-                if (!isWalkableFunction(neighborPosition)) {
+                if (!settings.isWalkableFunction(neighborPosition)) {
                     continue;
                 }
 
                 //checks for element in dictionary, then adds if non-existent
                 Node neighborNode = null;
                 if (!nodePostionMap.TryGetValue(neighborPosition, out neighborNode)) {
-                    neighborNode = new Node(neighborPosition, goal, current, heuristicFunction(neighborPosition, goal));
+                    neighborNode = new Node(neighborPosition, goal, current, settings.heuristicFunction(neighborPosition, goal));
                     nodePostionMap.Add(neighborNode.getPosition(), neighborNode);
                 }
 
-                float costFromStartToNeighbor = (current.getTotalCostFromStart() + movementCostFunction(current.getPosition(), neighborNode.getPosition()));
+                float costFromStartToNeighbor = (current.getTotalCostFromStart() + settings.movementCostFunction(current.getPosition(), neighborNode.getPosition()));
                 if (openList.contains(neighborNode) && costFromStartToNeighbor < neighborNode.getTotalCostFromStart()) {//if neighbor in OPEN and cost less than g(neighbor):
                     openList.extractElement(neighborNode);
                 }
@@ -159,27 +204,46 @@ public class Astar : MonoBehaviour {
             //of places to check.  In this case we have failed to find a path and we must
             //return null
             if (openList.getHeapSize() == 0) {
-                return null;
+                yield break;
             }
 
             //if maxNodesToCheck is 0 or less, that is interpreted as unlimited number of nodes
             //if maxNodesToCheck is nonzero, we terminate with no path found 
             nodesChecked++;
-            if (maxNodesToCheck > 0 && nodesChecked >= maxNodesToCheck) {
-                return null;
+            if (settings.maxNodesToCheck > 0 && nodesChecked >= settings.maxNodesToCheck) {
+                if (shouldContinue) {
+                    //Yield to null, which in a coroutine waits until the next frame.
+                    yield return null;
+                    nodesChecked = 0;
+                } else {
+                    if (settings.returnBestPathUponFail) {
+                        //Break out of the loop, the current node is used to reconstruct the path
+                        break;
+                    } else {
+                        //Break out of the entire method, null is returned
+                        yield break;
+                    }
+                }
             }
         }
 
-        Path finalPath = new Path();//path from start to goal
+        //Path finalPath = new Path();//path from start to goal
         goalNode = current;
         //reconstruct reverse path from goal to start by following parent pointers
-        finalPath.addNodeToStart(goalNode.getPosition());
+        path.addNodeToStart(goalNode.getPosition());
         while (goalNode.getParent() != null) {
             goalNode = goalNode.getParent();
-            finalPath.addNodeToStart(goalNode.getPosition());
+            path.addNodeToStart(goalNode.getPosition());
         }
+    }
 
-        return finalPath;
+    public void OnDrawGizmos() {
+        if (gameObject.hideFlags == HideFlags.None) {
+            Gizmos.color = new Color(0.0f, 1.0f, 0.0f, 0.3f);
+            foreach (Node node in closedList) {
+                Gizmos.DrawCube(node.getPosition(), Vector3.one);
+            }
+        }
     }
 
     //the cost of moving directly from one node to another
@@ -194,6 +258,7 @@ public class Astar : MonoBehaviour {
     public static float defaultHeuristic(Vector2Int node, Vector2Int goal) {
         float dx = Mathf.Abs(node.x - goal.x);
         float dy = Mathf.Abs(node.y - goal.y);
-        return ORTHOGANAL_COST * (dx + dy) + (DIAGANOL_COST - 2 * ORTHOGANAL_COST) * Mathf.Min(dx, dy);
+        float t = ORTHOGANAL_COST * (dx + dy) + (DIAGANOL_COST - 2 * ORTHOGANAL_COST) * Mathf.Min(dx, dy);
+        return t;
     }
 }

@@ -17,6 +17,10 @@ public class ScientistEnemy : BaseEnemy {
 
     private AudioClip screamSFX;
 
+    public void OnDestroy() {
+        _hidingSpots = null;
+    }
+
     public override void Awake() {
         base.Awake();
         if (_hidingSpots == null) {
@@ -27,8 +31,6 @@ public class ScientistEnemy : BaseEnemy {
         tryEnterState(startState);
 
         screamSFX = Resources.Load<AudioClip>("Sounds/SFX/scientist_scream");
-        //walkSFX = Resources.Load<AudioClip>("Sounds/SFX/scientist_footsteps");
-        //deathSFX = Resources.Load<AudioClip>("Sounds/SFX/scientist_death");
     }
 
     void Update() {

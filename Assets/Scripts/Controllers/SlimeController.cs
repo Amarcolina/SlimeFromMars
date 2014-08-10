@@ -106,16 +106,12 @@ public class SlimeController : MonoBehaviour, ISaveable {
         _resourcedisplayLabel = _resourcedisplayGameObject.GetComponentInChildren<UILabel>();
         _resourcedisplaySprite = _resourcedisplayGameObject.GetComponentInChildren<UISprite>();
 
+        sound = SoundManager.getInstance();
         _radiationLevel = 0;
         _electricityLevel = 0;
         _bioLevel = 0;
         _gameUi = GameUI.getInstance();
         gainEnergy(20);
-    }
-
-    // Use this for initialization
-    void Start() {
-        sound = SoundManager.getInstance();
     }
 
     /*###############################################################################################*/

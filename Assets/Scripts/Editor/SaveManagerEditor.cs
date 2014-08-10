@@ -1,9 +1,22 @@
 ﻿using UnityEngine;
 using UnityEditor;
 using System.Collections;
+using System.Collections.Generic;
 
+[InitializeOnLoad]
 [CustomEditor(typeof(SaveManager))]
 public class SaveManagerEditor : Editor {
+
+    static SaveManagerEditor() {
+        EditorApplication.hierarchyWindowItemOnGUI += hierarchyItemDrawer;
+    }
+
+    static void hierarchyItemDrawer(int instanceID, Rect drawRect){
+        GameObject obj = EditorUtility.InstanceIDToObject(instanceID) as GameObject;
+        if (obj != null && obj.name[0] == 'A') {
+            GUI.Box(drawRect, "");
+        }
+    }
 
     public override void OnInspectorGUI() {
         base.OnInspectorGUI();

@@ -13,7 +13,7 @@ public enum ElementalCastType {
 /*This class keeps track of slime attribute values, mutation types, offense/defense abilities based on mutation type, and offense/defense values
  * 
  */
-public class SlimeController : MonoBehaviour {
+public class SlimeController : MonoBehaviour, ISaveable {
     //cost for using skills
     public const int ELECTRICITY_DEFENSE_COST = 5;
     public const int ELECTRICITY_OFFENSE_COST = 10;
@@ -23,14 +23,14 @@ public class SlimeController : MonoBehaviour {
     public const int RADIATION_OFFENSE_COST = 10;
 
     //energy is a pool of resources used to move, attack and defend
-    public int energy;
+    public int energy = 20;
     public GameObject spinePrefab;
 
     //levels dictate how much more powerful your attacks/defenses are
     //levels also give bonuses in energy from items of that attribute
-    private int _radiationLevel;
-    private int _electricityLevel;
-    private int _bioLevel;
+    private int _radiationLevel = 0;
+    private int _electricityLevel = 0;
+    private int _bioLevel = 0;
 
     //list of sound effects for abilities
     private AudioClip _electricDefenseSFX;
@@ -46,6 +46,9 @@ public class SlimeController : MonoBehaviour {
 
     public ElementalCastType _currentCastType = ElementalCastType.NONE;
     private bool _shouldSkipNext = false;
+    private bool isSlimeMoving;
+    private bool didSlimeEat;
+    private bool usingBioLance;
     private Slime _currentSelectedSlime;
 
     //The Animator for the eye, used to transfer states via triggers
@@ -105,16 +108,10 @@ public class SlimeController : MonoBehaviour {
         _resourcedisplayGameObject = GameObject.FindGameObjectWithTag("ItemInfo");
         _resourcedisplayLabel = _resourcedisplayGameObject.GetComponentInChildren<UILabel>();
         _resourcedisplaySprite = _resourcedisplayGameObject.GetComponentInChildren<UISprite>();
-    }
 
-    // Use this for initialization
-    void Start() {
-        _gameUi = GameUI.getInstance();
         sound = SoundManager.getInstance();
-        _radiationLevel = 0;
-        _electricityLevel = 0;
-        _bioLevel = 0;
-        gainEnergy(20);
+        _gameUi = GameUI.getInstance();
+        _gameUi.ResourceUpdate(energy, false);
     }
 
     /*###############################################################################################*/
@@ -147,7 +144,9 @@ public class SlimeController : MonoBehaviour {
         if (_currentSelectedSlime != null) {
             attemptToEat();
         }
-
+        if(energy <= 0){
+            StartCoroutine(GameOverCoroutine());
+        }
         if (_shouldSkipNext) {
             _shouldSkipNext = Input.GetKey(KeyCode.Mouse0) || Input.GetKey(KeyCode.Mouse1);
         } else {
@@ -155,6 +154,33 @@ public class SlimeController : MonoBehaviour {
                 handleNormalInteraction();
             } else {
                 handleCastInteraction();
+            }
+        }
+    }
+
+    IEnumerator GameOverCoroutine()
+    {
+        //If slime did not eat or move at 0 energy
+        if (!didSlimeEat || !isSlimeMoving)
+        {
+            //Wait to check next frame if we land on resource
+            yield return new WaitForSeconds(0.5f);
+            if (energy <= 0)
+            {
+                //If we did not lance
+                if (!usingBioLance)
+                {
+                    GameOver();
+                }
+                else
+                {
+                    //Otherwise wait to see if we used the lance to grab something
+                    yield return new WaitForSeconds(3.0f);
+                }
+                if (energy <= 0)
+                {
+                    GameOver();
+                }
             }
         }
     }
@@ -175,16 +201,18 @@ public class SlimeController : MonoBehaviour {
                 if (astarPath != null) {
                     int pathCost = Slime.getPathCost(astarPath);
                     //if the slime has the energy to move, take the astar path
-                    if (energy >= pathCost) {
+                    if (energy >= pathCost)
+                    {
+                        isSlimeMoving = true;
+                        usingBioLance = false;
                         loseEnergy(pathCost);
                         _currentSelectedSlime.requestExpansionAllongPath(astarPath);
                         sound.PlaySound(gameObject.transform, _slimeExpansionSFX, true);
                     }
                 }
-            } else {
-                GameOver();
             }
         }
+        isSlimeMoving = false;
     }
 
     private void handleCastInteraction() {
@@ -259,16 +287,50 @@ public class SlimeController : MonoBehaviour {
         if (entities != null) {
             foreach (TileEntity entity in entities) {
                 GenericConsumeable possibleConsumeable = entity.GetComponent<GenericConsumeable>();
-                if (possibleConsumeable != null) {
+                if (possibleConsumeable != null)
+                {
                     consume(possibleConsumeable);
+                    didSlimeEat = true;
+                }
+                else
+                {
+                    didSlimeEat = false;
                 }
             }
         }
     }
 
     private void GameOver() {
-        PauseMenu gameover = _gameUi.GetComponent<PauseMenu>();
-        gameover.GameOver();
+        
+            PauseMenu gameover = _gameUi.GetComponent<PauseMenu>();
+            gameover.GameOver();
+        
+    }
+
+    public void onSave(SavedComponent data) {
+        data.put(energy);
+        data.put(_bioLevel);
+        data.put(_electricityLevel);
+        data.put(_radiationLevel);
+    }
+
+    public void onLoad(SavedComponent data) {
+        energy = (int)data.get();
+        _gameUi.ResourceUpdate(energy, false);
+
+        _bioLevel = (int)data.get();
+        _electricityLevel = (int)data.get();
+        _radiationLevel = (int)data.get();
+
+        if (_bioLevel != 0) {
+            _gameUi.BioUpdate(_bioLevel, false);
+        }
+        if (_electricityLevel != 0) {
+            _gameUi.LightningUpdate(_electricityLevel, false);
+        }
+        if (_radiationLevel != 0) {
+            _gameUi.RadiationUpdate(_radiationLevel, false);
+        }
     }
 
     /*###############################################################################################*/
@@ -590,16 +652,17 @@ public class SlimeController : MonoBehaviour {
         settings.isWalkableFunction = Tile.isSpikeableFunction;
         settings.isNeighborWalkableFunction = Tile.isSpikeableFunction;
         Path astarPath = Astar.findPath(getStartLocation(), getCursorPosition(), settings);
-
         if (astarPath != null && astarPath.getLength() <= rangeOfAttack) {
             GameObject bioLance = Instantiate(spinePrefab, getCursorPosition(), Quaternion.identity) as GameObject;
             BioLance bio = bioLance.GetComponent<BioLance>();
             bio.setLancePath(astarPath);
             bio.setLanceDamage(getBioOffenseDamage());
+            usingBioLance = true;
             loseEnergy(BIO_OFFENSE_COST);
             sound.PlaySound(gameObject.transform, _bioOffenseSFX);
             return true;
         }
+        usingBioLance = false;
         return false;
     }
 

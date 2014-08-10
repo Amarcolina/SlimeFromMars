@@ -68,6 +68,17 @@ public class Minimap : MonoBehaviour {
         handleFogOfWar();
     }
 
+    public void setSlime(Vector2Int position) {
+        _levelTexture.SetPixel(position.x - TEXTURE_OFFSET_X, position.y - TEXTURE_OFFSET_Y, new Color(0.234f, 0.29f, 0.129f));
+        _levelTexture.Apply();
+    }
+
+    public void clearSlime(Vector2Int position) {
+        Color levelColor = Tilemap.getInstance().getTile(position).minimapColor;
+        _levelTexture.SetPixel(position.x - TEXTURE_OFFSET_X, position.y - TEXTURE_OFFSET_Y, levelColor);
+        _levelTexture.Apply();
+    }
+
     public bool isPositionInFogOfWar(Vector2Int position) {
         Color c = _fogTexture.GetPixel(position.x - TEXTURE_OFFSET_X, position.y - TEXTURE_OFFSET_Y);
         return c.a > 0.9f;

@@ -41,6 +41,10 @@ public class Astar : MonoBehaviour {
     private HashSet<Node> closedList = new HashSet<Node>();
     private MinHashHeap<Node> openList = new MinHashHeap<Node>();
 
+    public void OnDestroy() {
+        _freeObjectStack.Clear();
+    }
+
     public class Node : IComparable {
         Vector2Int position; //tilemap position of node
         private Node parent;

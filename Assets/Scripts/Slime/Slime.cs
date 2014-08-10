@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class Slime : MonoBehaviour {
+public class Slime : MonoBehaviour, ISaveable {
     public const float OPACITY_CHANGE_SPEED = 1.0f;
     public const float HEALTH_REGEN_RATE = 0.1f;
     public const float TIME_PER_EXPAND = 0.02f;
@@ -44,10 +44,15 @@ public class Slime : MonoBehaviour {
             textureRamp = Resources.Load<Sprite>("Sprites/Slime/SlimeRamp");
         }
 
-        Minimap.getInstance().clearFogOfWar(transform.position, 9, 11);
+        Minimap minimap = Minimap.getInstance();
+        minimap.clearFogOfWar(transform.position, 9, 11);
+        minimap.setSlime(transform.position);
+
         _connectedPathingIndex = _currSearchingConnectedIndex;
 
-        connectRecursively();
+        if (_isConnected) {
+            connectRecursively();
+        }
 
         _slimeRenderer = GetComponent<SlimeRenderer>();
         if (_slimeRenderer == null) {
@@ -68,7 +73,11 @@ public class Slime : MonoBehaviour {
         if (effect != null) {
             effect.wither();
         }
+
         SlimeSentinel.removeSlimeFromDestroyList(this);
+
+        Minimap.getInstance().clearSlime(transform.position);
+
         SlimeController controller = SlimeController.getInstance();
         if (controller != null && controller.getSelectedSlime() == this) {
             controller.setSelectedSlime(null);
@@ -364,5 +373,17 @@ public class Slime : MonoBehaviour {
             }
         }
         return cost;
+    }
+
+    public void onSave(SavedComponent data) {
+        data.put(_percentHealth);
+        data.put(_isConnected);
+    }
+    public void onLoad(SavedComponent data) {
+        _percentHealth = (float)data.get();
+        _isConnected = (bool)data.get();
+        if (!_isConnected) {
+            SlimeSentinel.addSlimeToDestroyList(this);
+        }
     }
 }

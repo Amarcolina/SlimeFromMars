@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
-public class SlimeContainer : MonoBehaviour, IDamageable {
+public class SlimeContainer : MonoBehaviour, IDamageable, ISaveable {
 
     public static int containerCounter = 0;
 	public static bool containeropened = false;
@@ -27,7 +28,9 @@ public class SlimeContainer : MonoBehaviour, IDamageable {
     }
 
     void Start() {
-        containerCounter++;
+        if (!broken) {
+            containerCounter++;
+        }
         _gameUi = GameUI.getInstance();
         gameObject.AddComponent<BoxCollider2D>();
     }
@@ -78,5 +81,18 @@ public class SlimeContainer : MonoBehaviour, IDamageable {
 
     public float getHealth() {
         return broken ? 0.0f : 1.0f;
+    }
+
+    public void onSave(SavedComponent data) {
+        data.put(broken);
+        data.put(partiallyDamaged);
+        data.put(mintCondition);
+    }
+
+    public void onLoad(SavedComponent data) {
+        broken = (bool)data.get();
+        partiallyDamaged = (bool)data.get();
+        mintCondition = (bool)data.get();
+        replaceContainer();
     }
 }

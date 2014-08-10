@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
-public class Irradiated : MonoBehaviour {
+public class Irradiated : MonoBehaviour, ISaveable {
     private float STUN_DURATION = 1.0f;
     private Tile _tile;
 
@@ -29,4 +30,7 @@ public class Irradiated : MonoBehaviour {
     public void Update() {
         _tile.stunTileEntities(STUN_DURATION);
     }
+
+    public void onSave(SavedComponent data) { }
+    public void onLoad(SavedComponent data) { }
 }

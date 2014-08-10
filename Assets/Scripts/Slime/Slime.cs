@@ -76,7 +76,10 @@ public class Slime : MonoBehaviour, ISaveable {
 
         SlimeSentinel.removeSlimeFromDestroyList(this);
 
-        Minimap.getInstance().clearSlime(transform.position);
+        Minimap minimap = Minimap.getInstance();
+        if (minimap != null) {
+            Minimap.getInstance().clearSlime(transform.position);
+        }
 
         SlimeController controller = SlimeController.getInstance();
         if (controller != null && controller.getSelectedSlime() == this) {

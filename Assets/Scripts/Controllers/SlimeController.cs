@@ -46,6 +46,7 @@ public class SlimeController : MonoBehaviour {
 
     private ElementalCastType _currentCastType = ElementalCastType.NONE;
     private bool _shouldSkipNext = false;
+    private bool isSlimeMoving;
     private Slime _currentSelectedSlime;
 
     //The Animator for the eye, used to transfer states via triggers
@@ -157,6 +158,10 @@ public class SlimeController : MonoBehaviour {
                 handleCastInteraction();
             }
         }
+        if (isSlimeMoving == false && energy <= 0)
+        {
+            GameOver();
+        }
     }
 
     private void handleNormalInteraction() {
@@ -175,16 +180,17 @@ public class SlimeController : MonoBehaviour {
                 if (astarPath != null) {
                     int pathCost = Slime.getPathCost(astarPath);
                     //if the slime has the energy to move, take the astar path
-                    if (energy >= pathCost) {
+                    if (energy >= pathCost)
+                    {
+                        isSlimeMoving = true;
                         loseEnergy(pathCost);
                         _currentSelectedSlime.requestExpansionAllongPath(astarPath);
                         sound.PlaySound(gameObject.transform, _slimeExpansionSFX, true);
                     }
                 }
-            } else {
-                GameOver();
             }
         }
+        isSlimeMoving = false;
     }
 
     private void handleCastInteraction() {

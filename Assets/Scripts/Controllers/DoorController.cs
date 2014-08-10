@@ -1,11 +1,11 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class DoorController : MonoBehaviour {
+public class DoorController : MonoBehaviour, ISaveable {
 
     public bool doorOpen = false;
     private Tile[] tilesUnderDoor = new Tile[6];
-    private Tile[] enemyEntranceTiles = new Tile[4]; 
+    private Tile[] enemyEntranceTiles = new Tile[4];
 
     // Use this for initialization
     void Start() {
@@ -83,5 +83,12 @@ public class DoorController : MonoBehaviour {
             }
         }
         return false;
+    }
+
+    public void onSave(SavedComponent data) {
+        data.put(doorOpen);
+    }
+    public void onLoad(SavedComponent data) {
+        doorOpen = (bool)data.get();
     }
 }

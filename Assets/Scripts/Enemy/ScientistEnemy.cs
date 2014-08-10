@@ -7,6 +7,7 @@ public class ScientistEnemy : BaseEnemy {
 
     public float wanderSpeed = 2.5f;
     public float fleeSpeed = 3.5f;
+    public float startledSpeed = 4.5f;
 
     private static ScientistHidingSpot[] _hidingSpots = null;
     private ScientistHidingSpot _currentHidingSpot = null;
@@ -117,5 +118,20 @@ public class ScientistEnemy : BaseEnemy {
         if (_currentHidingSpot != null) {
             _currentHidingSpot.release();
         }
+    }
+
+    //Startled
+    private float _startledEndTime = 0.0f;
+
+    protected override void onEnterStartledState() {
+        _startledEndTime = Time.time + 10.0f;
+    }
+
+    protected override void startledState() {
+        if (Time.time > _startledEndTime) {
+            tryEnterState(EnemyState.WANDERING);
+        }
+
+        runAwayFromSlime(startledSpeed);
     }
 }

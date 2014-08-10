@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 //Energy is given based off item's size when consumed
@@ -45,7 +45,12 @@ public class GenericConsumeable : MonoBehaviour, IGrabbable {
 
     //Displays the information for a given item and calculates potential energy
     public void OnMouseDown() {
-        _slimeControllerInstance.enableResourcePopup(gameObject.name, (int)size, bio, radiation, electricity);
+        bool ismutation = false;
+        if (isRadiationMutation || isBioMutation || isElectricityMutation)
+           ismutation = true;
+
+        _slimeControllerInstance.enableResourcePopup(gameObject.name, (int)size, bio, radiation, electricity, ismutation);
+        _slimeControllerInstance.skipNextFrame();
     }
 
 }

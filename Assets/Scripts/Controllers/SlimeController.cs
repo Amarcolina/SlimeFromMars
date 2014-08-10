@@ -46,6 +46,9 @@ public class SlimeController : MonoBehaviour, ISaveable {
 
     public ElementalCastType _currentCastType = ElementalCastType.NONE;
     private bool _shouldSkipNext = false;
+    private bool isSlimeMoving;
+    private bool didSlimeEat;
+    private bool usingBioLance;
     private Slime _currentSelectedSlime;
 
     //The Animator for the eye, used to transfer states via triggers
@@ -141,7 +144,9 @@ public class SlimeController : MonoBehaviour, ISaveable {
         if (_currentSelectedSlime != null) {
             attemptToEat();
         }
-
+        if(energy <= 0){
+            StartCoroutine(GameOverCoroutine());
+        }
         if (_shouldSkipNext) {
             _shouldSkipNext = Input.GetKey(KeyCode.Mouse0) || Input.GetKey(KeyCode.Mouse1);
         } else {
@@ -149,6 +154,31 @@ public class SlimeController : MonoBehaviour, ISaveable {
                 handleNormalInteraction();
             } else {
                 handleCastInteraction();
+            }
+        }
+    }
+
+    IEnumerator GameOverCoroutine()
+    {
+        //If slime did not eat or move at 0 energy
+        if (!didSlimeEat || !isSlimeMoving)
+        {
+            //Wait to check next frame if we land on resource
+            yield return new WaitForSeconds(0.5f);
+            if (energy <= 0)
+            {
+                //If we did not lance
+                if (!usingBioLance)
+                {
+                    GameOver();
+                }
+                else
+                    //Otherwise wait to see if we used the lance to grab something
+                    yield return new WaitForSeconds(3.0f);
+                if (energy <= 0)
+                {
+                    GameOver();
+                }
             }
         }
     }
@@ -169,16 +199,18 @@ public class SlimeController : MonoBehaviour, ISaveable {
                 if (astarPath != null) {
                     int pathCost = Slime.getPathCost(astarPath);
                     //if the slime has the energy to move, take the astar path
-                    if (energy >= pathCost) {
+                    if (energy >= pathCost)
+                    {
+                        isSlimeMoving = true;
+                        usingBioLance = false;
                         loseEnergy(pathCost);
                         _currentSelectedSlime.requestExpansionAllongPath(astarPath);
                         sound.PlaySound(gameObject.transform, _slimeExpansionSFX, true);
                     }
                 }
-            } else {
-                GameOver();
             }
         }
+        isSlimeMoving = false;
     }
 
     private void handleCastInteraction() {
@@ -253,16 +285,22 @@ public class SlimeController : MonoBehaviour, ISaveable {
         if (entities != null) {
             foreach (TileEntity entity in entities) {
                 GenericConsumeable possibleConsumeable = entity.GetComponent<GenericConsumeable>();
-                if (possibleConsumeable != null) {
+                if (possibleConsumeable != null)
+                {
                     consume(possibleConsumeable);
+                    didSlimeEat = true;
                 }
+                else
+                    didSlimeEat = false;
             }
         }
     }
 
     private void GameOver() {
-        PauseMenu gameover = _gameUi.GetComponent<PauseMenu>();
-        gameover.GameOver();
+        
+            PauseMenu gameover = _gameUi.GetComponent<PauseMenu>();
+            gameover.GameOver();
+        
     }
 
     public void onSave(SavedComponent data) {
@@ -609,16 +647,17 @@ public class SlimeController : MonoBehaviour, ISaveable {
         settings.isWalkableFunction = Tile.isSpikeableFunction;
         settings.isNeighborWalkableFunction = Tile.isSpikeableFunction;
         Path astarPath = Astar.findPath(getStartLocation(), getCursorPosition(), settings);
-
         if (astarPath != null && astarPath.getLength() <= rangeOfAttack) {
             GameObject bioLance = Instantiate(spinePrefab, getCursorPosition(), Quaternion.identity) as GameObject;
             BioLance bio = bioLance.GetComponent<BioLance>();
             bio.setLancePath(astarPath);
             bio.setLanceDamage(getBioOffenseDamage());
+            usingBioLance = true;
             loseEnergy(BIO_OFFENSE_COST);
             sound.PlaySound(gameObject.transform, _bioOffenseSFX);
             return true;
         }
+        usingBioLance = false;
         return false;
     }
 

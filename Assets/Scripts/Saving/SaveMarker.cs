@@ -1,9 +1,26 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 public class SavedComponent{
     public Queue<object> savedData = new Queue<object>();
+
+    public override bool Equals(object obj) {
+        return base.Equals(obj);
+    }
+
+    public override int GetHashCode() {
+        return base.GetHashCode();
+    }
+
+    public static bool operator ==(SavedComponent a, SavedComponent b) {
+        return a.savedData.SequenceEqual(b.savedData);
+    }
+
+    public static bool operator !=(SavedComponent a, SavedComponent b) {
+        return !(a == b);
+    }
 }
 
 public class SavedGameObjectData {
@@ -12,6 +29,41 @@ public class SavedGameObjectData {
     public Quaternion rotation;
     public Vector3 localScale;
     public string prefabPath = null;
+
+    public override bool Equals(object obj) {
+        return base.Equals(obj);
+    }
+
+    public override int GetHashCode() {
+        return base.GetHashCode();
+    }
+
+    public static bool operator ==(SavedGameObjectData a, SavedGameObjectData b){
+        if (System.Object.ReferenceEquals(a, b)) { return true; }
+        if (((object)a == null) != ((object)b == null)) { return false; }
+        if (a.position != b.position) { return false; }
+        if (a.rotation != b.rotation) { return false; }
+        if (a.localScale != b.localScale) { return false; }
+        if (a.prefabPath != b.prefabPath) { return false; }
+        if (a.componentDictionary.Count != b.componentDictionary.Count) { return false; }
+
+        foreach (var pair in a.componentDictionary) {
+            SavedComponent component;
+            if (a.componentDictionary.TryGetValue(pair.Key, out component)) {
+                if (pair.Value != component) {
+                    return false;
+                }
+            } else {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public static bool operator !=(SavedGameObjectData a, SavedGameObjectData b) {
+        return !(a == b);
+    }
 }
 
 public class SaveMarker : MonoBehaviour {
@@ -19,6 +71,12 @@ public class SaveMarker : MonoBehaviour {
     public int serialID = -1;
     [HideInInspector]
     public string prefabPath = null;
+
+    private SavedGameObjectData _dataUponAwake;
+
+    public void Awake() {
+        _dataUponAwake = saveData();
+    }
 
     public void Start() {
         if (serialID == -1) {
@@ -53,6 +111,9 @@ public class SaveMarker : MonoBehaviour {
             gameObjectData.componentDictionary[saveable.GetType()] = componentData;
         }
 
+        if (gameObjectData == _dataUponAwake) {
+            return null;
+        }
         return gameObjectData;
 	}
 

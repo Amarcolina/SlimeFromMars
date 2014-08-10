@@ -98,6 +98,9 @@ public class SaveManager : MonoBehaviour {
         SaveMarker[] existingMarkers = FindObjectsOfType<SaveMarker>();
         foreach (SaveMarker marker in existingMarkers) {
             SavedGameObjectData savedData = marker.saveData();
+            if (savedData == null) {
+                continue;
+            }
 
             if (marker.serialID < -1) {
                 _currentSavedGame.newGameObjects[marker.serialID] = savedData;

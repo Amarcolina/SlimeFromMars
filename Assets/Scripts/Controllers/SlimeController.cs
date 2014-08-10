@@ -189,26 +189,31 @@ public class SlimeController : MonoBehaviour {
         }
 
         if (Input.GetKeyDown(KeyCode.Mouse0)) {
-            bool didCast = false;
             switch (_currentCastType) {
                 case ElementalCastType.BIO_OFFENSIVE:
-                    didCast = useBioOffense();
+                    if (_gameUi.checkCanCastAbility(BIO_OFFENSE_COST)) {
+                        useBioOffense();
+                    }
                     break;
                 case ElementalCastType.ELECTRICITY_OFFENSIVE:
-                    didCast = useElectricityOffense();
+                    if (_gameUi.checkCanCastAbility(ELECTRICITY_OFFENSE_COST)) {
+                        useElectricityOffense();
+                    }
                     break;
                 case ElementalCastType.RADIATION_DEFENSIVE:
-                    didCast = useRadiationDefense();
+                    if (_gameUi.checkCanCastAbility(RADIATION_DEFENSE_COST)) {
+                        useRadiationDefense();
+                    }
+                    
                     break;
                 case ElementalCastType.RADIATION_OFFENSIVE:
-                    didCast = useRadiationOffense();
+                    if (_gameUi.checkCanCastAbility(RADIATION_OFFENSE_COST)) {
+                        useRadiationOffense();
+                    }
                     break;
                 default:
                     _currentCastType = ElementalCastType.NONE;
                     throw new System.Exception("Unexpected elemental cast type " + _currentCastType);
-            }
-            if (didCast) {
-                //_currentCastType = ElementalCastType.NONE;
             }
         }
     }

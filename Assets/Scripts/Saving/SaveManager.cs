@@ -43,7 +43,7 @@ public class SaveManager : MonoBehaviour {
                 newObject = InstantiateSaved(newObjectPair.Value.prefabPath, Vector3.zero, Quaternion.identity);
                 newMarker = newObject.GetComponent<SaveMarker>();
             } else {
-                newObject = new GameObject("New game object OMG");
+                newObject = new GameObject("Recreated Game Object");
                 newMarker = newObject.AddComponent<SaveMarker>();
             }
                 
@@ -74,8 +74,13 @@ public class SaveManager : MonoBehaviour {
     public static GameObject InstantiateSaved(string prefabPath, Vector3 position, Quaternion rotation) {
         GameObject prefab = Resources.Load<GameObject>(prefabPath);
         GameObject obj = Instantiate(prefab, position, rotation) as GameObject;
-        obj.GetComponent<SaveMarker>().prefabPath = prefabPath;
-        obj.GetComponent<SaveMarker>().serialID = Random.Range(int.MinValue, -2);
+        SaveMarker marker = obj.GetComponent<SaveMarker>();
+        if (marker == null) {
+            Debug.LogWarning(obj + " was instantiated using InstantiateSaved even though it has no SaveMarker");
+        } else {
+            marker.prefabPath = prefabPath;
+            marker.serialID = Random.Range(int.MinValue, -2);
+        }
         return obj;
     }
 

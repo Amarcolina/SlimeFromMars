@@ -8,7 +8,7 @@ using System.Collections.Generic;
 public class SaveManager : MonoBehaviour {
     public static SavedGame _currentSavedGame = null;
     private static bool _isLoading = false;
-    private static bool _isLevelQuitting = true;
+    private static bool _isLevelQuitting = false;
 
     public class SavedGame{
         public Dictionary<int, SavedGameObjectData> modifiedGameObjects = new Dictionary<int, SavedGameObjectData>();

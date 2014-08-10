@@ -156,6 +156,7 @@ public class SaveMarker : MonoBehaviour {
             if (newComponent == null) {
                 throw new System.Exception("Could not create component for type " + extraDataPair.Key);
             }
+            extraData.resetIndex();
             newComponent.onLoad(extraData);
         }
     }

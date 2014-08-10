@@ -11,14 +11,23 @@ public class SaveManagerEditor : Editor {
     private static Texture2D _dataIcon;
 
     static SaveManagerEditor() {
+        reloadImages();
+        EditorApplication.hierarchyWindowItemOnGUI += hierarchyItemDrawer;
+    }
+
+    private static void reloadImages() {
         _saveIcon = AssetDatabase.LoadAssetAtPath("Assets/Resources/Sprites/UISprites/saveIcon.png", typeof(Texture2D)) as Texture2D;
         _warningIcon = AssetDatabase.LoadAssetAtPath("Assets/Resources/Sprites/UISprites/warningIcon.png", typeof(Texture2D)) as Texture2D;
         _dataIcon = AssetDatabase.LoadAssetAtPath("Assets/Resources/Sprites/UISprites/dataIcon.png", typeof(Texture2D)) as Texture2D;
-        EditorApplication.hierarchyWindowItemOnGUI += hierarchyItemDrawer;
     }
 
     static void hierarchyItemDrawer(int instanceID, Rect drawRect){
         GameObject obj = EditorUtility.InstanceIDToObject(instanceID) as GameObject;
+
+        if (_saveIcon == null || _warningIcon == null || _dataIcon == null) {
+            reloadImages();
+        }
+
         if (obj != null) {
             SaveMarker marker = obj.GetComponentInChildren<SaveMarker>();
             if (marker != null) {

@@ -10,7 +10,7 @@ public class GameUI : MonoBehaviour {
     public UILabel RadiationLevel_Label;
     public UILabel AbilityText_Label;
     public UILabel WarningText_Label;
-	public UILabel SpecialText_Label;
+    public UILabel SpecialText_Label;
     public UISprite ResourceWindow_Sprite;
     public TweenScale ResourceCountTweener;
     public TweenScale ResourceSpriteTweener;

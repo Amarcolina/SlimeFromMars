@@ -49,7 +49,7 @@ public class GenericConsumeable : MonoBehaviour, IGrabbable {
         if (isRadiationMutation || isBioMutation || isElectricityMutation)
            ismutation = true;
 
-	    _slimeControllerInstance.enableResourcePopup(gameObject.name, (int)size, bio, radiation, electricity, ismutation);
+        _slimeControllerInstance.enableResourcePopup(gameObject.name, (int)size, bio, radiation, electricity, ismutation);
         _slimeControllerInstance.skipNextFrame();
     }
 

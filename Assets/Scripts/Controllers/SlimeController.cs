@@ -311,7 +311,7 @@ public class SlimeController : MonoBehaviour, ISaveable {
     }
 
     public void onLoad(SavedComponent data) {
-        energy = 0;
+        energy = (int)data.get();
         _gameUi.ResourceUpdate(energy, false);
 
         _bioLevel = (int)data.get();

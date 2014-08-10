@@ -280,13 +280,13 @@ public class SlimeController : MonoBehaviour, ISaveable {
         _radiationLevel = (int)data.Dequeue();
 
         if (_bioLevel != 0) {
-            _gameUi.BioUpdate(_bioLevel);
+            _gameUi.BioUpdate(_bioLevel, false);
         }
         if (_electricityLevel != 0) {
-            _gameUi.LightningUpdate(_electricityLevel);
+            _gameUi.LightningUpdate(_electricityLevel, false);
         }
         if (_radiationLevel != 0) {
-            _gameUi.RadiationUpdate(_radiationLevel);
+            _gameUi.RadiationUpdate(_radiationLevel, false);
         }
     }
 

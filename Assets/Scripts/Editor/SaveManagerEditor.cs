@@ -8,8 +8,6 @@ public class SaveManagerEditor : Editor {
     public override void OnInspectorGUI() {
         base.OnInspectorGUI();
 
-        SaveManager manager = target as SaveManager;
-
         EditorGUILayout.BeginHorizontal();
         EditorGUILayout.Separator();
         if (GUILayout.Button("Assign Serial IDs")) {
@@ -23,8 +21,6 @@ public class SaveManagerEditor : Editor {
             EditorGUILayout.LabelField("New Objects", "" + SaveManager._currentSavedGame.newGameObjects.Count);
             EditorGUILayout.LabelField("Deleted Objects", "" + SaveManager._currentSavedGame.destroyedObjects.Count);
         }
-
-        
     }
 
     public void assignSerialIDs() {

@@ -45,18 +45,14 @@ public class SaveManagerEditor : Editor {
     public override void OnInspectorGUI() {
         base.OnInspectorGUI();
 
-        EditorGUILayout.BeginHorizontal();
-        EditorGUILayout.Separator();
-        if (GUILayout.Button("Assign Serial IDs")) {
-            assignSerialIDs();
-        }
-        EditorGUILayout.Separator();
-        EditorGUILayout.EndHorizontal();
-
         if (SaveManager._currentSavedGame != null) {
             EditorGUILayout.LabelField("Modified Objects", "" + SaveManager._currentSavedGame.modifiedGameObjects.Count);
             EditorGUILayout.LabelField("New Objects", "" + SaveManager._currentSavedGame.newGameObjects.Count);
             EditorGUILayout.LabelField("Deleted Objects", "" + SaveManager._currentSavedGame.destroyedObjects.Count);
+        }
+
+        if (GUILayout.Button("Assign Serial IDs")) {
+            assignSerialIDs();
         }
     }
 

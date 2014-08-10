@@ -85,16 +85,16 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable, ISa
         return Time.time <= _stunEndTime;
     }
 
-    public virtual void onSave(Queue<object> data) {
-        data.Enqueue(health);
-        data.Enqueue(_waypointIndex);
-        data.Enqueue(_currentState);
+    public virtual void onSave(SavedComponent data) {
+        data.put(health);
+        data.put(_waypointIndex);
+        data.put(_currentState);
     }
 
-    public virtual void onLoad(Queue<object> data) {
-        health = (float) data.Dequeue();
-        _waypointIndex = (int) data.Dequeue();
-        startState = (EnemyState) data.Dequeue();
+    public virtual void onLoad(SavedComponent data) {
+        health = (float) data.get();
+        _waypointIndex = (int) data.get();
+        startState = (EnemyState) data.get();
         //forceEnterState(_currentState);
     }
 

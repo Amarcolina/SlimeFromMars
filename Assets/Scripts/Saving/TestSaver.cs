@@ -5,12 +5,12 @@ using System.Collections.Generic;
 public class TestSaver : MonoBehaviour, ISaveable {
     public int testInt = 0;
 
-    public void onSave(Queue<object> data) {
-        data.Enqueue(testInt);
+    public void onSave(SavedComponent data) {
+        data.put(testInt);
     }
 
-    public void onLoad(Queue<object> data) {
-        testInt = (int)data.Dequeue();
+    public void onLoad(SavedComponent data) {
+        testInt = (int)data.get();
     }
 
     public void Update() {

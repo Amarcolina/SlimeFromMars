@@ -368,13 +368,13 @@ public class Slime : MonoBehaviour, ISaveable {
         return cost;
     }
 
-    public void onSave(Queue<object> data) {
-        data.Enqueue(_percentHealth);
-        data.Enqueue(_isConnected);
+    public void onSave(SavedComponent data) {
+        data.put(_percentHealth);
+        data.put(_isConnected);
     }
-    public void onLoad(Queue<object> data) {
-        _percentHealth = (float)data.Dequeue();
-        _isConnected = (bool)data.Dequeue();
+    public void onLoad(SavedComponent data) {
+        _percentHealth = (float)data.get();
+        _isConnected = (bool)data.get();
         if (!_isConnected) {
             SlimeSentinel.addSlimeToDestroyList(this);
         }

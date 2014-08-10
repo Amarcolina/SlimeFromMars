@@ -4,7 +4,20 @@ using System.Collections.Generic;
 using System.Linq;
 
 public class SavedComponent{
-    public Queue<object> savedData = new Queue<object>();
+    public List<object> savedData = new List<object>();
+    private int i = -1;
+
+    public void put(object obj) {
+        savedData.Add(obj);
+    }
+
+    public object get() {
+        return savedData[++i];
+    }
+
+    public void resetIndex() {
+        i = -1;
+    }
 
     public override bool Equals(object obj) {
         return base.Equals(obj);
@@ -102,8 +115,8 @@ public class SaveMarker : MonoBehaviour {
 
         foreach (ISaveable saveable in saveableComponents) {
             SavedComponent componentData = new SavedComponent();
-            componentData.savedData = new Queue<object>();
-            saveable.onSave(componentData.savedData);
+            componentData.savedData = new List<object>();
+            saveable.onSave(componentData);
 
             if(gameObjectData.componentDictionary.ContainsKey(saveable.GetType())){
                 throw new System.Exception("Cannot save component " + (saveable as Component) + " as there are two of that type on this Game Object " + gameObject);
@@ -126,7 +139,8 @@ public class SaveMarker : MonoBehaviour {
 
             SavedComponent savedComponent;
             if (copyDict.TryGetValue(componentType, out savedComponent)) {
-                saveable.onLoad(savedComponent.savedData);
+                savedComponent.resetIndex();
+                saveable.onLoad(savedComponent);
                 copyDict.Remove(componentType);
             }
         }
@@ -142,7 +156,7 @@ public class SaveMarker : MonoBehaviour {
             if (newComponent == null) {
                 throw new System.Exception("Could not create component for type " + extraDataPair.Key);
             }
-            newComponent.onLoad(extraData.savedData);
+            newComponent.onLoad(extraData);
         }
     }
 }

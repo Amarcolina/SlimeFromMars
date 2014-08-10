@@ -265,19 +265,19 @@ public class SlimeController : MonoBehaviour, ISaveable {
         gameover.GameOver();
     }
 
-    public void onSave(Queue<object> data) {
-        data.Enqueue(energy);
-        data.Enqueue(_bioLevel);
-        data.Enqueue(_electricityLevel);
-        data.Enqueue(_radiationLevel);
+    public void onSave(SavedComponent data) {
+        data.put(energy);
+        data.put(_bioLevel);
+        data.put(_electricityLevel);
+        data.put(_radiationLevel);
     }
 
-    public void onLoad(Queue<object> data) {
+    public void onLoad(SavedComponent data) {
         energy = 0;
-        gainEnergy((int)data.Dequeue());
-        _bioLevel = (int)data.Dequeue();
-        _electricityLevel = (int)data.Dequeue();
-        _radiationLevel = (int)data.Dequeue();
+        gainEnergy((int)data.get());
+        _bioLevel = (int)data.get();
+        _electricityLevel = (int)data.get();
+        _radiationLevel = (int)data.get();
 
         if (_bioLevel != 0) {
             _gameUi.BioUpdate(_bioLevel, false);

@@ -83,16 +83,16 @@ public class SlimeContainer : MonoBehaviour, IDamageable, ISaveable {
         return broken ? 0.0f : 1.0f;
     }
 
-    public void onSave(Queue<object> data) {
-        data.Enqueue(broken);
-        data.Enqueue(partiallyDamaged);
-        data.Enqueue(mintCondition);
+    public void onSave(SavedComponent data) {
+        data.put(broken);
+        data.put(partiallyDamaged);
+        data.put(mintCondition);
     }
 
-    public void onLoad(Queue<object> data) {
-        broken = (bool)data.Dequeue();
-        partiallyDamaged = (bool)data.Dequeue();
-        mintCondition = (bool)data.Dequeue();
+    public void onLoad(SavedComponent data) {
+        broken = (bool)data.get();
+        partiallyDamaged = (bool)data.get();
+        mintCondition = (bool)data.get();
         replaceContainer();
     }
 }

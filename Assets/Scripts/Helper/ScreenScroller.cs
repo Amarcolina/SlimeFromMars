@@ -41,12 +41,12 @@ public class ScreenScroller : MonoBehaviour, ISaveable {
         camera.orthographicSize += (_goalZoom - camera.orthographicSize) / 5.0f;
     }
 
-    public void onSave(Queue<object> data) {
-        data.Enqueue(_goalZoom);
+    public void onSave(SavedComponent data) {
+        data.put(_goalZoom);
     }
 
-    public void onLoad(Queue<object> data) {
-        _goalZoom = (float)data.Dequeue();
+    public void onLoad(SavedComponent data) {
+        _goalZoom = (float)data.get();
         camera.orthographicSize = _goalZoom;    
     }
 }

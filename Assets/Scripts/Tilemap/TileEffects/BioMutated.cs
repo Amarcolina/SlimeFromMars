@@ -31,6 +31,6 @@ public class BioMutated : MonoBehaviour, ISaveable {
         Destroy(_bioRenderer.gameObject);
     }
 
-    public void onSave(Queue<object> data) { }
-    public void onLoad(Queue<object> data) { }
+    public void onSave(SavedComponent data) { }
+    public void onLoad(SavedComponent data) { }
 }

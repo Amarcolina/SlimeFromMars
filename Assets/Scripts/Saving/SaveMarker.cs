@@ -2,11 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public enum SaveType {
-    ALWAYS_SAVE,
-    SAVE_IF_CHANGED
-}
-
 public class SavedComponent{
     public Queue<object> savedData = new Queue<object>();
 }
@@ -20,16 +15,14 @@ public class SavedGameObjectData {
 }
 
 public class SaveMarker : MonoBehaviour {
-    public SaveType saveAction = SaveType.ALWAYS_SAVE;
-    //[HideInInspector]
+    [HideInInspector]
     public int serialID = -1;
+    [HideInInspector]
     public string prefabPath = null;
 
-    private bool _hasBeenChanged = false;
-
-    public void Awake() {
+    public void Start() {
         if (serialID == -1) {
-            serialID = Random.Range(int.MinValue, -2);
+            Debug.LogError("Object " + gameObject + " was created with an uninitialized SaveMarker serialID");
         }
     }
 
@@ -40,15 +33,7 @@ public class SaveMarker : MonoBehaviour {
         }
     }
 
-    public void markAsChanged() {
-        _hasBeenChanged = true;
-    }
-
     public SavedGameObjectData saveData () {
-        if (saveAction == SaveType.SAVE_IF_CHANGED && !_hasBeenChanged) {
-            return null;
-        }
-
         SavedGameObjectData gameObjectData = new SavedGameObjectData();
         gameObjectData.position = transform.position;
         gameObjectData.rotation = transform.rotation;

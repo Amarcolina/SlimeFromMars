@@ -6,7 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class SaveManager : MonoBehaviour {
-    private static SavedGame _currentSavedGame = null;
+    public static SavedGame _currentSavedGame = null;
     private static bool _isLoading = false;
 
     public class SavedGame{
@@ -75,23 +75,9 @@ public class SaveManager : MonoBehaviour {
         GameObject prefab = Resources.Load<GameObject>(prefabPath);
         GameObject obj = Instantiate(prefab, position, rotation) as GameObject;
         obj.GetComponent<SaveMarker>().prefabPath = prefabPath;
+        obj.GetComponent<SaveMarker>().serialID = Random.Range(int.MinValue, -2);
         return obj;
     }
-
-#if UNITY_EDITOR
-    [ContextMenu ("Assign Serial IDs")]
-    public void assignSerialIDs() {
-        SaveMarker[] existingMarkers = FindObjectsOfType<SaveMarker>();
-        for (int i = 0; i < existingMarkers.Length; i++) {
-            SerializedObject serializedObject = new SerializedObject(existingMarkers[i]);
-            SerializedProperty property = serializedObject.FindProperty("serialID");
-            property.intValue = i;
-            serializedObject.ApplyModifiedProperties();
-            EditorUtility.DisplayProgressBar("Assigning Serial ID's", "just a moment...", i / (float)existingMarkers.Length);
-        }
-        EditorUtility.ClearProgressBar();
-    }
-#endif
 
     private HashSet<int> _currentDestroyedObjects = new HashSet<int>();
     public void recordObjectDestruction(int serialID) {
@@ -112,9 +98,6 @@ public class SaveManager : MonoBehaviour {
         SaveMarker[] existingMarkers = FindObjectsOfType<SaveMarker>();
         foreach (SaveMarker marker in existingMarkers) {
             SavedGameObjectData savedData = marker.saveData();
-            if (savedData == null) {
-                continue;
-            }
 
             if (marker.serialID < -1) {
                 _currentSavedGame.newGameObjects[marker.serialID] = savedData;

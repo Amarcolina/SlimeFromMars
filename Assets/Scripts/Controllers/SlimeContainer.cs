@@ -5,6 +5,7 @@ using System.Collections.Generic;
 public class SlimeContainer : MonoBehaviour, IDamageable, ISaveable {
 
     public static int containerCounter = 0;
+	public static bool containeropened = false;
     private bool mintCondition = true;
     private bool partiallyDamaged = false;
     private bool broken = false;
@@ -31,6 +32,7 @@ public class SlimeContainer : MonoBehaviour, IDamageable, ISaveable {
             containerCounter++;
         }
         _gameUi = GameUI.getInstance();
+        gameObject.AddComponent<BoxCollider2D>();
     }
 
     //updates number of containers in the world minus one
@@ -43,6 +45,12 @@ public class SlimeContainer : MonoBehaviour, IDamageable, ISaveable {
             winState.Victory();
         }
     }
+
+	public void OnMouseDown() {
+        if (!containeropened && !broken) {
+            _gameUi.SlimeTankPopUp ();
+        }
+     }
 
     //replaces full container with broken one
     public void replaceContainer() {
@@ -65,6 +73,7 @@ public class SlimeContainer : MonoBehaviour, IDamageable, ISaveable {
                 broken = true;
                 decrementContainer();
                 SlimeController.getInstance().gainEnergy(20);
+                containeropened = true;
             }
             replaceContainer();
         }

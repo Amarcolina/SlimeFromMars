@@ -110,49 +110,55 @@ public class GameUI : MonoBehaviour {
 
     //Updates the lightning level by taking the current level as a float. Will show it when first called.
     //Takes in the current amount of resources. Pass the new final amount, not the amount being added.
-    public void LightningUpdate(float CurrentLevel) {
+    public void LightningUpdate(float CurrentLevel, bool canShowMessage = true) {
         if (!ElectricityActivated) {
             LightningContainer_GameObject.SetActive(true);
             ElectricityActive_GameObject.SetActive(true);
             ElectricityNonActive_GameObject.SetActive(false);
             ElectricityActivated = true;
-            WarningText_Label.enabled = true;
-            WarningText_Label.text = "Electricity Mutation Acquired!";
-            WarningText_Label.alpha = 1;
-            warningtime = 3;
-            ElectricityUnlocked_GameObject.SetActive(true);
+            if (canShowMessage) {
+                WarningText_Label.enabled = true;
+                WarningText_Label.text = "Electricity Mutation Acquired!";
+                WarningText_Label.alpha = 1;
+                warningtime = 3;
+                ElectricityUnlocked_GameObject.SetActive(true);
+            }
         }
         LightningLevel_Label.text = "Electricity Level: " + CurrentLevel;
     }
 
     //Updates the bio level by taking the current level as a float. Will show it when first called.
-    public void BioUpdate(float CurrentLevel) {
+    public void BioUpdate(float CurrentLevel, bool canShowMessage = true) {
         if (!BioActivated) {
             BioContainer_GameObject.SetActive(true);
             BioActive_GameObject.SetActive(true);
             BioNonActive_GameObject.SetActive(false);
             BioActivated = true;
-            WarningText_Label.enabled = true;
-            WarningText_Label.text = "Bio Mutation Acquired!";
-            WarningText_Label.alpha = 1;
-            warningtime = 3;
-            BioUnlocked_GameObject.SetActive(true);
+            if (canShowMessage) {
+                WarningText_Label.enabled = true;
+                WarningText_Label.text = "Bio Mutation Acquired!";
+                WarningText_Label.alpha = 1;
+                warningtime = 3;
+                BioUnlocked_GameObject.SetActive(true);
+            }
         }
         BioLevel_Label.text = "Bio Level: " + CurrentLevel;
     }
 
     //Updates the radiation level by taking the current level as a float. Will show it when first called.
-    public void RadiationUpdate(float CurrentLevel) {
+    public void RadiationUpdate(float CurrentLevel, bool canShowMessage = true) {
         if (!RadiationActivated) {
             RadiationContainer_GameObject.SetActive(true);
             RadiationActive_GameObject.SetActive(true);
             RadiationNonActive_GameObject.SetActive(false);
             RadiationActivated = true;
-            WarningText_Label.enabled = true;
-            WarningText_Label.text = "Radiation Mutation Acquired!";
-            WarningText_Label.alpha = 1;
-            warningtime = 3;
-            RadiationUnlocked_GameObject.SetActive(true);
+            if (canShowMessage) {
+                WarningText_Label.enabled = true;
+                WarningText_Label.text = "Radiation Mutation Acquired!";
+                WarningText_Label.alpha = 1;
+                warningtime = 3;
+                RadiationUnlocked_GameObject.SetActive(true);
+            }
         }
         RadiationLevel_Label.text = "Radiation Level: " + CurrentLevel;
     }

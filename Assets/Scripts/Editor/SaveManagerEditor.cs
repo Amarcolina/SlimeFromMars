@@ -6,15 +6,23 @@ using System.Collections.Generic;
 [InitializeOnLoad]
 [CustomEditor(typeof(SaveManager))]
 public class SaveManagerEditor : Editor {
+    private static Texture2D _saveIcon;
 
     static SaveManagerEditor() {
+        _saveIcon = Resources.Load<Texture2D>("Sprites/UISprites/saveIcon"); 
         EditorApplication.hierarchyWindowItemOnGUI += hierarchyItemDrawer;
     }
 
     static void hierarchyItemDrawer(int instanceID, Rect drawRect){
         GameObject obj = EditorUtility.InstanceIDToObject(instanceID) as GameObject;
-        if (obj != null && obj.name[0] == 'A') {
-            GUI.Box(drawRect, "");
+        if (obj != null) {
+            if (obj.GetComponent<SaveMarker>() != null) {
+                Rect iconRect = drawRect;
+                iconRect.x += iconRect.width - iconRect.height - 10;
+                iconRect.width = iconRect.height;
+
+                GUI.DrawTexture(iconRect, _saveIcon);
+            }
         }
     }
 

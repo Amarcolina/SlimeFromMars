@@ -18,19 +18,17 @@ public class SlimeContainer : MonoBehaviour, IDamageable {
     void Awake() {
         partiallyDamagedSprite = Resources.Load<Sprite>("Sprites/Accessories/partiallyBrokenHoldingTube");
         brokenSprite = Resources.Load<Sprite>("Sprites/Accessories/escapedHoldingTube");
-        spriteComponent = GetComponent<SpriteRenderer>();
-        containerCounter++;
+        spriteComponent = GetComponent<SpriteRenderer>();     
     }
 
-    void Start()
-    {
+    void OnLevelWasLoaded() {
+        containerCounter = 0;
+    }
+
+    void Start() {
+        containerCounter++;
         _gameUi = GameUI.getInstance();
         gameObject.AddComponent<BoxCollider2D>();
-    }
-   
-    // Update is called once per frame
-    void Update() {
-
     }
 
     //updates number of containers in the world minus one
@@ -72,5 +70,9 @@ public class SlimeContainer : MonoBehaviour, IDamageable {
             }
             replaceContainer();
         }
+    }
+
+    public float getHealth() {
+        return broken ? 0.0f : 1.0f;
     }
 }

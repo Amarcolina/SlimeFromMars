@@ -169,11 +169,13 @@ public class GameUI : MonoBehaviour {
 
     }
 
-	public void SlimeTankPopUp(){
-        SpecialText_Label.text = "It looks like it could shatter under the right conditions...";
-        SpecialText_Label.enabled = true;
-        specialtime = 3;
-	}
+    public void SlimeTankPopUp(){
+        if (_slimeControllerInstance._currentCastType == ElementalCastType.NONE) {
+            SpecialText_Label.text = "It looks like it could shatter under the right conditions...";
+            SpecialText_Label.enabled = true;
+            specialtime = 3;
+        }
+    }
 
 
     // A set of functions set out to be used upon clicking the abilities in the skills panel. Each one corresponds to the icon

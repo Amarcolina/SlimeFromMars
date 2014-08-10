@@ -4,7 +4,7 @@ using System.Collections;
 public class DoorController : MonoBehaviour {
 
     public bool doorOpen = false;
-    private Tile[] tilesUnderDoor = new Tile[6]; 
+    private Tile[] tilesUnderDoor = new Tile[6];
     // Use this for initialization
     void Start() {
         //Gets the offset of each tile under the door and stores them in an array for ease of use, later
@@ -25,17 +25,17 @@ public class DoorController : MonoBehaviour {
         if (Input.GetKeyDown(KeyCode.O) && !doorOpen) {
             doorOpenedState();
         }
-        
+
         if (Input.GetKeyDown(KeyCode.C) && doorOpen) {
             doorClosedState();
         }
     }
 
     public void doorOpenedState() {
-        doorOpen = true;
         //play opening animation and stop on open frame
         renderer.enabled = false;
-        //set tiles to walkable and slimeable
+        doorOpen = true;
+        //set tiles to passable
         for (int i = 0; i <= 5; i++) {
             tilesUnderDoor[i].isWalkable = true;
             tilesUnderDoor[i].isSlimeable = true;
@@ -46,14 +46,26 @@ public class DoorController : MonoBehaviour {
     }
 
     public void doorClosedState() {
-        doorOpen = false;
-        //play closing animation and stop on closed frame
-        renderer.enabled = true;
-        for (int i = 0; i <= 5; i++) {
-            tilesUnderDoor[i].isWalkable = false;
-            tilesUnderDoor[i].isSlimeable = false;
-            tilesUnderDoor[i].isSpikeable = false;
-            tilesUnderDoor[i].isTransparent = false;
+        if (safeToClose()) {
+            //play closing animation and stop on closed frame
+            renderer.enabled = true;
+            doorOpen = false;
+            //set tiles to unpassable
+            for (int i = 0; i <= 5; i++) {
+                tilesUnderDoor[i].isWalkable = false;
+                tilesUnderDoor[i].isSlimeable = false;
+                tilesUnderDoor[i].isSpikeable = false;
+                tilesUnderDoor[i].isTransparent = false;
+            }
         }
+    }
+
+    public bool safeToClose() {
+        for (int i = 0; i <= 5; i++) {
+            if (tilesUnderDoor[i].getTileEntities() != null || tilesUnderDoor[i].GetComponent<Slime>() != null) {
+                return false;
+            }
+        }
+        return true;
     }
 }

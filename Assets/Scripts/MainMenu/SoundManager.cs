@@ -6,7 +6,7 @@ public class SoundManager : MonoBehaviour
 {
     private GameUI gameUI;
     private static SoundManager soundInstance;
-    private List<AudioSource> sounds;
+    private List<AudioSource> sounds = new List<AudioSource>();
     private AudioSource[] sources;
 
     public static SoundManager getInstance()
@@ -24,11 +24,10 @@ public class SoundManager : MonoBehaviour
     }
 
     // Use this for initialization
-    void Start()
+    void Awake()
     {
         //Grab gameUI for menu settings
         gameUI = GameUI.getInstance();
-        sounds = new List<AudioSource>();
     }
 
     // Update is called once per frame

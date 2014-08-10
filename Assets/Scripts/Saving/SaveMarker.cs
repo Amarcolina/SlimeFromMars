@@ -73,6 +73,7 @@ public class SaveMarker : MonoBehaviour {
     public string prefabPath = null;
 
     private SavedGameObjectData _dataUponAwake;
+    private bool _shouldRegisterDestroy = true;
 
     public void Awake() {
         _dataUponAwake = saveData();
@@ -84,10 +85,16 @@ public class SaveMarker : MonoBehaviour {
         }
     }
 
+    public void OnApplicationQuit() {
+        _shouldRegisterDestroy = false;
+    }
+
     public void OnDestroy() {
-        SaveManager manager = FindObjectOfType<SaveManager>();
-        if (manager != null) {
-            manager.recordObjectDestruction(serialID);
+        if (_shouldRegisterDestroy) {
+            SaveManager manager = FindObjectOfType<SaveManager>();
+            if (manager != null) {
+                manager.recordObjectDestruction(serialID);
+            }
         }
     }
 

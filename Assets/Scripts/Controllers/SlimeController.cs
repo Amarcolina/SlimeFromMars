@@ -23,14 +23,14 @@ public class SlimeController : MonoBehaviour, ISaveable {
     public const int RADIATION_OFFENSE_COST = 10;
 
     //energy is a pool of resources used to move, attack and defend
-    public int energy;
+    public int energy = 20;
     public GameObject spinePrefab;
 
     //levels dictate how much more powerful your attacks/defenses are
     //levels also give bonuses in energy from items of that attribute
-    private int _radiationLevel;
-    private int _electricityLevel;
-    private int _bioLevel;
+    private int _radiationLevel = 0;
+    private int _electricityLevel = 0;
+    private int _bioLevel = 0;
 
     //list of sound effects for abilities
     private AudioClip _electricDefenseSFX;
@@ -107,11 +107,8 @@ public class SlimeController : MonoBehaviour, ISaveable {
         _resourcedisplaySprite = _resourcedisplayGameObject.GetComponentInChildren<UISprite>();
 
         sound = SoundManager.getInstance();
-        _radiationLevel = 0;
-        _electricityLevel = 0;
-        _bioLevel = 0;
         _gameUi = GameUI.getInstance();
-        gainEnergy(20);
+        _gameUi.ResourceUpdate(energy, false);
     }
 
     /*###############################################################################################*/

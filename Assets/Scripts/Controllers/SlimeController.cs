@@ -44,7 +44,7 @@ public class SlimeController : MonoBehaviour {
     private AudioClip _slimeEatingBioSFX;
     private AudioClip _slimeEatingElectricitySFX;
 
-    private ElementalCastType _currentCastType = ElementalCastType.NONE;
+    public ElementalCastType _currentCastType = ElementalCastType.NONE;
     private bool _shouldSkipNext = false;
     private Slime _currentSelectedSlime;
 
@@ -416,15 +416,21 @@ public class SlimeController : MonoBehaviour {
         _eyeAnimator.SetTrigger("ReverseBlink");
     }
 
-    public void enableResourcePopup(string name, int size, int bio, int radiation, int electricity) {
+    public void enableResourcePopup(string name, int size, int bio, int radiation, int electricity, bool ismutation) {
+ 
         //Don't do popup if in cast mode
         if (_currentCastType != ElementalCastType.NONE) {
             return;
         }
 
         skipNextFrame();
-
-        int potentialenergy = size + (_radiationLevel * radiation) + (_electricityLevel * electricity) + (_bioLevel * bio);
+            
+        if (ismutation) {
+           _resourcedisplayLabel.color = Color.green;
+        } else {
+           _resourcedisplayLabel.color = Color.white;   
+        }   
+         int potentialenergy = size + (_radiationLevel * radiation) + (_electricityLevel * electricity) + (_bioLevel * bio);
         _resourcedisplayLabel.text = name + "\nRadiation:" + radiation + "\nBio:" + bio + "\nElectricity:" + electricity + "\nEnergy:" + potentialenergy;
         _resourcedisplayLabel.enabled = true;
         _resourcedisplaySprite.enabled = true;
@@ -660,14 +666,16 @@ public class SlimeController : MonoBehaviour {
         sound.PlaySound(gameObject.transform, _slimeEatingSFX);
         energy += plus;
         if (plus != 0) {
-            _gameUi.ResourceUpdate(energy);
+            bool tween = true;
+            _gameUi.ResourceUpdate(energy, tween);
         }
     }
 
     private void loseEnergy(int cost) {
         energy -= cost;
         if (cost != 0) {
-            _gameUi.ResourceUpdate(energy);
+            bool tween = false;
+            _gameUi.ResourceUpdate(energy, tween);
         }
     }
 

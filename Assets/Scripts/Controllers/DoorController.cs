@@ -5,6 +5,8 @@ public class DoorController : MonoBehaviour {
 
     public bool doorOpen = false;
     private Tile[] tilesUnderDoor = new Tile[6];
+    private Tile[] enemyEntranceTiles = new Tile[4]; 
+
     // Use this for initialization
     void Start() {
         //Gets the offset of each tile under the door and stores them in an array for ease of use, later
@@ -15,6 +17,12 @@ public class DoorController : MonoBehaviour {
         tilesUnderDoor[4] = Tilemap.getInstance().getTile(transform.position + new Vector3(.5f, -1f, 0));
         tilesUnderDoor[5] = Tilemap.getInstance().getTile(transform.position + new Vector3(-.5f, -1f, 0));
 
+        //Gets tiles above door and below door in order to check for enemies that may desire entrance
+        enemyEntranceTiles[0] = Tilemap.getInstance().getTile(transform.position + new Vector3(.5f, 2f));
+        enemyEntranceTiles[1] = Tilemap.getInstance().getTile(transform.position + new Vector3(-.5f, 2f));
+        enemyEntranceTiles[2] = Tilemap.getInstance().getTile(transform.position + new Vector3(.5f, -2f));
+        enemyEntranceTiles[3] = Tilemap.getInstance().getTile(transform.position + new Vector3(-.5f, -2f));
+
         if (!doorOpen) {
             doorClosedState();
         }
@@ -22,12 +30,12 @@ public class DoorController : MonoBehaviour {
 
     // Update is called once per frame
     void Update() {
-        if (Input.GetKeyDown(KeyCode.O) && !doorOpen) {
-            doorOpenedState();
+        if (safeToClose() && doorOpen) {
+            doorClosedState();
         }
 
-        if (Input.GetKeyDown(KeyCode.C) && doorOpen) {
-            doorClosedState();
+        if (enemyDesiresEntrance() && !doorOpen) {
+            doorOpenedState();
         }
     }
 
@@ -37,7 +45,6 @@ public class DoorController : MonoBehaviour {
         doorOpen = true;
         //set tiles to passable
         for (int i = 0; i <= 5; i++) {
-            tilesUnderDoor[i].isWalkable = true;
             tilesUnderDoor[i].isSlimeable = true;
             tilesUnderDoor[i].isSpikeable = true;
             tilesUnderDoor[i].isTransparent = true;
@@ -52,7 +59,6 @@ public class DoorController : MonoBehaviour {
             doorOpen = false;
             //set tiles to unpassable
             for (int i = 0; i <= 5; i++) {
-                tilesUnderDoor[i].isWalkable = false;
                 tilesUnderDoor[i].isSlimeable = false;
                 tilesUnderDoor[i].isSpikeable = false;
                 tilesUnderDoor[i].isTransparent = false;
@@ -67,5 +73,15 @@ public class DoorController : MonoBehaviour {
             }
         }
         return true;
+    }
+
+    public bool enemyDesiresEntrance() {
+
+        for (int i = 0; i <= 3; i++) {
+            if (enemyEntranceTiles[i].getTileEntities() != null) {
+                return true;
+            }
+        }
+        return false;
     }
 }

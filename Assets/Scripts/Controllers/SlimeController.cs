@@ -179,8 +179,10 @@ public class SlimeController : MonoBehaviour {
                     GameOver();
                 }
                 else
+                {
                     //Otherwise wait to see if we used the lance to grab something
                     yield return new WaitForSeconds(3.0f);
+                }
                 if (energy <= 0)
                 {
                     GameOver();
@@ -297,7 +299,9 @@ public class SlimeController : MonoBehaviour {
                     didSlimeEat = true;
                 }
                 else
+                {
                     didSlimeEat = false;
+                }
             }
         }
     }

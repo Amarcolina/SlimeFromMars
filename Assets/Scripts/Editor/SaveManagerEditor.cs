@@ -11,9 +11,9 @@ public class SaveManagerEditor : Editor {
     private static Texture2D _dataIcon;
 
     static SaveManagerEditor() {
-        _saveIcon = Resources.Load<Texture2D>("Sprites/UISprites/saveIcon");
-        _warningIcon = Resources.Load<Texture2D>("Sprites/UISprites/warningIcon");
-        _dataIcon = Resources.Load<Texture2D>("Sprites/UISprites/dataIcon");
+        _saveIcon = AssetDatabase.LoadAssetAtPath("Assets/Resources/Sprites/UISprites/saveIcon.png", typeof(Texture2D)) as Texture2D;
+        _warningIcon = AssetDatabase.LoadAssetAtPath("Assets/Resources/Sprites/UISprites/warningIcon.png", typeof(Texture2D)) as Texture2D;
+        _dataIcon = AssetDatabase.LoadAssetAtPath("Assets/Resources/Sprites/UISprites/dataIcon.png", typeof(Texture2D)) as Texture2D;
         EditorApplication.hierarchyWindowItemOnGUI += hierarchyItemDrawer;
     }
 

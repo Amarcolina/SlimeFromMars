@@ -312,7 +312,8 @@ public class SlimeController : MonoBehaviour, ISaveable {
 
     public void onLoad(SavedComponent data) {
         energy = 0;
-        gainEnergy((int)data.get());
+        _gameUi.ResourceUpdate(energy, false);
+
         _bioLevel = (int)data.get();
         _electricityLevel = (int)data.get();
         _radiationLevel = (int)data.get();

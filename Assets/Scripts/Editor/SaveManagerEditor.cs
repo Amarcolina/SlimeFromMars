@@ -20,7 +20,7 @@ public class SaveManagerEditor : Editor {
     static void hierarchyItemDrawer(int instanceID, Rect drawRect){
         GameObject obj = EditorUtility.InstanceIDToObject(instanceID) as GameObject;
         if (obj != null) {
-            SaveMarker marker = obj.GetComponent<SaveMarker>();
+            SaveMarker marker = obj.GetComponentInChildren<SaveMarker>();
             if (marker != null) {
                 Rect iconRect = drawRect;
                 iconRect.x += iconRect.width - iconRect.height - 10;
@@ -32,7 +32,7 @@ public class SaveManagerEditor : Editor {
                     GUI.DrawTexture(iconRect, _saveIcon);
                 }
             }
-            if (obj.GetComponent(typeof(ISaveable)) != null) {
+            if (obj.GetComponentInChildren(typeof(ISaveable)) != null) {
                 Rect iconRect = drawRect;
                 iconRect.x += iconRect.width - iconRect.height - 30;
                 iconRect.width = iconRect.height;

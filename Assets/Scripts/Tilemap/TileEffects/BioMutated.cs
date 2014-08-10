@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
-public class BioMutated : MonoBehaviour {
+public class BioMutated : MonoBehaviour, ISaveable {
     private static Sprite[] _bioSprites = null;
     private SpriteRenderer _bioRenderer = null;
     private const float SLIME_HEALTH = 5;
@@ -10,7 +11,7 @@ public class BioMutated : MonoBehaviour {
         _bioSprites[0] = Resources.Load<Sprite>("Sprites/Elements/Bio/Bio00");
     }
 
-    void Awake() {
+    void Start() {
         if (_bioSprites == null) {
             initBioSprites();
         }
@@ -29,4 +30,7 @@ public class BioMutated : MonoBehaviour {
     public void OnDestroy() {
         Destroy(_bioRenderer.gameObject);
     }
+
+    public void onSave(Queue<object> data) { }
+    public void onLoad(Queue<object> data) { }
 }

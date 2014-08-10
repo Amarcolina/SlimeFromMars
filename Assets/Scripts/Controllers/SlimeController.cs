@@ -40,6 +40,9 @@ public class SlimeController : MonoBehaviour, ISaveable {
     private AudioClip _radioactiveOffenseSFX;
     private AudioClip _slimeExpansionSFX;
     private AudioClip _slimeEatingSFX;
+    private AudioClip _slimeEatingRadioActivateSFX;
+    private AudioClip _slimeEatingBioSFX;
+    private AudioClip _slimeEatingElectricitySFX;
 
     private ElementalCastType _currentCastType = ElementalCastType.NONE;
     private bool _shouldSkipNext = false;
@@ -84,6 +87,9 @@ public class SlimeController : MonoBehaviour, ISaveable {
         _radioactiveOffenseSFX = Resources.Load<AudioClip>("Sounds/SFX/radiation_offense");
         _slimeExpansionSFX = Resources.Load<AudioClip>("Sounds/SFX/slime_expanding");
         _slimeEatingSFX = Resources.Load<AudioClip>("Sounds/SFX/slime_eating");
+        _slimeEatingElectricitySFX = Resources.Load<AudioClip>("Sounds/SFX/electric_mutation");
+        _slimeEatingRadioActivateSFX = Resources.Load<AudioClip>("Sounds/SFX/radiation_mutation");
+        _slimeEatingBioSFX = Resources.Load<AudioClip>("Sounds/SFX/bio_mutation");
 
         _edgeGreenHorizontal = Resources.Load<Texture2D>("Sprites/UISprites/Interface/BoundaryEdgeGreenHorizontal");
         _edgeGreenVertical = Resources.Load<Texture2D>("Sprites/UISprites/Interface/BoundaryEdgeGreenVertical");
@@ -228,7 +234,6 @@ public class SlimeController : MonoBehaviour, ISaveable {
         if (eatenItem.isBioMutation) {
             gainBioLevel();
         }
-
         Destroy(eatenItem.gameObject);
     }
 
@@ -252,7 +257,6 @@ public class SlimeController : MonoBehaviour, ISaveable {
                 GenericConsumeable possibleConsumeable = entity.GetComponent<GenericConsumeable>();
                 if (possibleConsumeable != null) {
                     consume(possibleConsumeable);
-                    gameObject.AddComponent<SoundEffect>().sfx = _slimeEatingSFX;
                 }
             }
         }
@@ -664,6 +668,7 @@ public class SlimeController : MonoBehaviour, ISaveable {
     }
 
     public void gainEnergy(int plus) {
+        sound.PlaySound(gameObject.transform, _slimeEatingSFX);
         energy += plus;
         if (plus != 0) {
             _gameUi.ResourceUpdate(energy);
@@ -682,6 +687,7 @@ public class SlimeController : MonoBehaviour, ISaveable {
     }
 
     public void gainBioLevel() {
+        sound.PlaySound(gameObject.transform, _slimeEatingBioSFX);
         _bioLevel++;
         _gameUi.BioUpdate(_bioLevel);
     }
@@ -691,6 +697,7 @@ public class SlimeController : MonoBehaviour, ISaveable {
     }
 
     public void gainElectricityLevel() {
+        sound.PlaySound(gameObject.transform, _slimeEatingElectricitySFX);
         _electricityLevel++;
         _gameUi.LightningUpdate(_electricityLevel);
     }
@@ -700,6 +707,7 @@ public class SlimeController : MonoBehaviour, ISaveable {
     }
 
     public void gainRadiationLevel() {
+        sound.PlaySound(gameObject.transform, _slimeEatingRadioActivateSFX);
         _radiationLevel++;
         _gameUi.RadiationUpdate(_radiationLevel);
     }

@@ -10,6 +10,8 @@ public class GameUI : MonoBehaviour {
     public UILabel RadiationLevel_Label;
     public UILabel AbilityText_Label;
     public UILabel WarningText_Label;
+	public UILabel SpecialText_Label;
+    public UISprite ResourceWindow_Sprite;
     public TweenScale ResourceCountTweener;
     public TweenScale ResourceSpriteTweener;
     //GameObject References, used primarily to activate or deactivate elemental UI
@@ -35,6 +37,7 @@ public class GameUI : MonoBehaviour {
     private bool RadiationActivated = false;
     private SlimeController _slimeControllerInstance;
     private float warningtime = 0;
+    private float specialtime = 0;
 
     private static GameUI _gameuiInstance;
     public static GameUI getInstance() {
@@ -69,6 +72,12 @@ public class GameUI : MonoBehaviour {
             RadiationDefense();
         }
 
+        if (specialtime > 0) {
+            specialtime -= Time.deltaTime;
+        } else {
+            SpecialText_Label.enabled = false;   
+        }
+        
         if (warningtime > 0) {
             warningtime -= Time.deltaTime;
             WarningText_Label.alpha -= .005f;
@@ -81,12 +90,21 @@ public class GameUI : MonoBehaviour {
     }
 
     //Updates the resource counter. Takes in the current amount of resources. Pass the new final amount, not the amount being added.
+    // Color of Box is based on how close to 0 resources you are
    public void ResourceUpdate(float ResourceUpdate) {
         ResourceCounter_Label.text = "Resources: " + ResourceUpdate;
         ResourceCountTweener.Reset();
         ResourceCountTweener.Play(true);
         ResourceSpriteTweener.Reset();
         ResourceSpriteTweener.Play(true);
+        
+        if (ResourceUpdate <= 10) {
+            ResourceWindow_Sprite.color = Color.red;
+        } else if (ResourceUpdate > 10 && ResourceUpdate <= 20) {
+            ResourceWindow_Sprite.color = Color.yellow;   
+        } else {
+            ResourceWindow_Sprite.color = Color.green;   
+        }
     }
 
     //Updates the lightning level by taking the current level as a float. Will show it when first called.
@@ -151,9 +169,12 @@ public class GameUI : MonoBehaviour {
 
     }
 
-	public void SetAbilityRadius(float level, int radius){
-		
+	public void SlimeTankPopUp(){
+        SpecialText_Label.text = "It looks like it could shatter under the right conditions...";
+        SpecialText_Label.enabled = true;
+        specialtime = 3;
 	}
+
 
     // A set of functions set out to be used upon clicking the abilities in the skills panel. Each one corresponds to the icon
     // or ability on the panel.

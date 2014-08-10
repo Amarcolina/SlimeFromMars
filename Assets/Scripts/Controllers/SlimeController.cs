@@ -408,7 +408,12 @@ public class SlimeController : MonoBehaviour {
         _eyeAnimator.SetTrigger("ReverseBlink");
     }
 
-    public void enableResourcePopup(string name, int size, int bio, int radiation, int electricity) {
+    public void enableResourcePopup(string name, int size, int bio, int radiation, int electricity, bool ismutation) {
+        if (ismutation) {
+            _resourcedisplayLabel.color = Color.green;
+        } else {
+            _resourcedisplayLabel.color = Color.white;   
+        }
         int potentialenergy = size + (_radiationLevel * radiation) + (_electricityLevel * electricity) + (_bioLevel * bio);
         _resourcedisplayLabel.text = name + "\nRadiation:" + radiation + "\nBio:" + bio + "\nElectricity:" + electricity + "\nEnergy:" + potentialenergy;
         _resourcedisplayLabel.enabled = true;

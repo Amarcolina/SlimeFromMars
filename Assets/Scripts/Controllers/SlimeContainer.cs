@@ -25,6 +25,7 @@ public class SlimeContainer : MonoBehaviour, IDamageable {
     void Start()
     {
         _gameUi = GameUI.getInstance();
+        gameObject.AddComponent<BoxCollider2D>();
     }
    
     // Update is called once per frame
@@ -42,6 +43,10 @@ public class SlimeContainer : MonoBehaviour, IDamageable {
             winState.Victory();
         }
     }
+
+	public void OnMouseDown() {
+        _gameUi.SlimeTankPopUp ();
+	}
 
     //replaces full container with broken one
     public void replaceContainer() {

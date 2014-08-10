@@ -40,8 +40,11 @@ public class SlimeController : MonoBehaviour {
     private AudioClip _radioactiveOffenseSFX;
     private AudioClip _slimeExpansionSFX;
     private AudioClip _slimeEatingSFX;
+    private AudioClip _slimeEatingRadioActivateSFX;
+    private AudioClip _slimeEatingBioSFX;
+    private AudioClip _slimeEatingElectricitySFX;
 
-    private ElementalCastType _currentCastType = ElementalCastType.NONE;
+    public ElementalCastType _currentCastType = ElementalCastType.NONE;
     private bool _shouldSkipNext = false;
     private Slime _currentSelectedSlime;
 
@@ -84,6 +87,9 @@ public class SlimeController : MonoBehaviour {
         _radioactiveOffenseSFX = Resources.Load<AudioClip>("Sounds/SFX/radiation_offense");
         _slimeExpansionSFX = Resources.Load<AudioClip>("Sounds/SFX/slime_expanding");
         _slimeEatingSFX = Resources.Load<AudioClip>("Sounds/SFX/slime_eating");
+        _slimeEatingElectricitySFX = Resources.Load<AudioClip>("Sounds/SFX/electric_mutation");
+        _slimeEatingRadioActivateSFX = Resources.Load<AudioClip>("Sounds/SFX/radiation_mutation");
+        _slimeEatingBioSFX = Resources.Load<AudioClip>("Sounds/SFX/bio_mutation");
 
         _edgeGreenHorizontal = Resources.Load<Texture2D>("Sprites/UISprites/Interface/BoundaryEdgeGreenHorizontal");
         _edgeGreenVertical = Resources.Load<Texture2D>("Sprites/UISprites/Interface/BoundaryEdgeGreenVertical");
@@ -189,26 +195,31 @@ public class SlimeController : MonoBehaviour {
         }
 
         if (Input.GetKeyDown(KeyCode.Mouse0)) {
-            bool didCast = false;
             switch (_currentCastType) {
                 case ElementalCastType.BIO_OFFENSIVE:
-                    didCast = useBioOffense();
+                    if (_gameUi.checkCanCastAbility(BIO_OFFENSE_COST)) {
+                        useBioOffense();
+                    }
                     break;
                 case ElementalCastType.ELECTRICITY_OFFENSIVE:
-                    didCast = useElectricityOffense();
+                    if (_gameUi.checkCanCastAbility(ELECTRICITY_OFFENSE_COST)) {
+                        useElectricityOffense();
+                    }
                     break;
                 case ElementalCastType.RADIATION_DEFENSIVE:
-                    didCast = useRadiationDefense();
+                    if (_gameUi.checkCanCastAbility(RADIATION_DEFENSE_COST)) {
+                        useRadiationDefense();
+                    }
+                    
                     break;
                 case ElementalCastType.RADIATION_OFFENSIVE:
-                    didCast = useRadiationOffense();
+                    if (_gameUi.checkCanCastAbility(RADIATION_OFFENSE_COST)) {
+                        useRadiationOffense();
+                    }
                     break;
                 default:
                     _currentCastType = ElementalCastType.NONE;
                     throw new System.Exception("Unexpected elemental cast type " + _currentCastType);
-            }
-            if (didCast) {
-                //_currentCastType = ElementalCastType.NONE;
             }
         }
     }
@@ -227,7 +238,6 @@ public class SlimeController : MonoBehaviour {
         if (eatenItem.isBioMutation) {
             gainBioLevel();
         }
-
         Destroy(eatenItem.gameObject);
     }
 
@@ -251,7 +261,6 @@ public class SlimeController : MonoBehaviour {
                 GenericConsumeable possibleConsumeable = entity.GetComponent<GenericConsumeable>();
                 if (possibleConsumeable != null) {
                     consume(possibleConsumeable);
-                    gameObject.AddComponent<SoundEffect>().sfx = _slimeEatingSFX;
                 }
             }
         }
@@ -407,15 +416,21 @@ public class SlimeController : MonoBehaviour {
         _eyeAnimator.SetTrigger("ReverseBlink");
     }
 
-    public void enableResourcePopup(string name, int size, int bio, int radiation, int electricity) {
+    public void enableResourcePopup(string name, int size, int bio, int radiation, int electricity, bool ismutation) {
+ 
         //Don't do popup if in cast mode
         if (_currentCastType != ElementalCastType.NONE) {
             return;
         }
 
         skipNextFrame();
-
-        int potentialenergy = size + (_radiationLevel * radiation) + (_electricityLevel * electricity) + (_bioLevel * bio);
+            
+        if (ismutation) {
+           _resourcedisplayLabel.color = Color.green;
+        } else {
+           _resourcedisplayLabel.color = Color.white;   
+        }   
+         int potentialenergy = size + (_radiationLevel * radiation) + (_electricityLevel * electricity) + (_bioLevel * bio);
         _resourcedisplayLabel.text = name + "\nRadiation:" + radiation + "\nBio:" + bio + "\nElectricity:" + electricity + "\nEnergy:" + potentialenergy;
         _resourcedisplayLabel.enabled = true;
         _resourcedisplaySprite.enabled = true;
@@ -648,16 +663,19 @@ public class SlimeController : MonoBehaviour {
     }
 
     public void gainEnergy(int plus) {
+        sound.PlaySound(gameObject.transform, _slimeEatingSFX);
         energy += plus;
         if (plus != 0) {
-            _gameUi.ResourceUpdate(energy);
+            bool tween = true;
+            _gameUi.ResourceUpdate(energy, tween);
         }
     }
 
     private void loseEnergy(int cost) {
         energy -= cost;
         if (cost != 0) {
-            _gameUi.ResourceUpdate(energy);
+            bool tween = false;
+            _gameUi.ResourceUpdate(energy, tween);
         }
     }
 
@@ -666,6 +684,7 @@ public class SlimeController : MonoBehaviour {
     }
 
     public void gainBioLevel() {
+        sound.PlaySound(gameObject.transform, _slimeEatingBioSFX);
         _bioLevel++;
         _gameUi.BioUpdate(_bioLevel);
     }
@@ -675,6 +694,7 @@ public class SlimeController : MonoBehaviour {
     }
 
     public void gainElectricityLevel() {
+        sound.PlaySound(gameObject.transform, _slimeEatingElectricitySFX);
         _electricityLevel++;
         _gameUi.LightningUpdate(_electricityLevel);
     }
@@ -684,6 +704,7 @@ public class SlimeController : MonoBehaviour {
     }
 
     public void gainRadiationLevel() {
+        sound.PlaySound(gameObject.transform, _slimeEatingRadioActivateSFX);
         _radiationLevel++;
         _gameUi.RadiationUpdate(_radiationLevel);
     }

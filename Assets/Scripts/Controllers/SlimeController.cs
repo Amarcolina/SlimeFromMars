@@ -656,14 +656,16 @@ public class SlimeController : MonoBehaviour {
     public void gainEnergy(int plus) {
         energy += plus;
         if (plus != 0) {
-            _gameUi.ResourceUpdate(energy);
+            bool tween = true;
+            _gameUi.ResourceUpdate(energy, tween);
         }
     }
 
     private void loseEnergy(int cost) {
         energy -= cost;
         if (cost != 0) {
-            _gameUi.ResourceUpdate(energy);
+            bool tween = false;
+            _gameUi.ResourceUpdate(energy, tween);
         }
     }
 

@@ -4,6 +4,7 @@ using System.Collections;
 public class SlimeContainer : MonoBehaviour, IDamageable {
 
     public static int containerCounter = 0;
+	public static bool containeropened = false;
     private bool mintCondition = true;
     private bool partiallyDamaged = false;
     private bool broken = false;
@@ -43,8 +44,10 @@ public class SlimeContainer : MonoBehaviour, IDamageable {
     }
 
 	public void OnMouseDown() {
-        _gameUi.SlimeTankPopUp ();
-	}
+        if (!containeropened && !broken) {
+            _gameUi.SlimeTankPopUp ();
+        }
+     }
 
     //replaces full container with broken one
     public void replaceContainer() {
@@ -67,6 +70,7 @@ public class SlimeContainer : MonoBehaviour, IDamageable {
                 broken = true;
                 decrementContainer();
                 SlimeController.getInstance().gainEnergy(20);
+                containeropened = true;
             }
             replaceContainer();
         }

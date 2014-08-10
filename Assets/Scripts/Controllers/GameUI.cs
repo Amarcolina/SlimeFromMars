@@ -91,13 +91,14 @@ public class GameUI : MonoBehaviour {
 
     //Updates the resource counter. Takes in the current amount of resources. Pass the new final amount, not the amount being added.
     // Color of Box is based on how close to 0 resources you are
-   public void ResourceUpdate(float ResourceUpdate) {
+   public void ResourceUpdate(float ResourceUpdate, bool tween) {
         ResourceCounter_Label.text = "Resources: " + ResourceUpdate;
-        ResourceCountTweener.Reset();
-        ResourceCountTweener.Play(true);
-        ResourceSpriteTweener.Reset();
-        ResourceSpriteTweener.Play(true);
-        
+        if (tween) {
+            ResourceCountTweener.Reset ();
+            ResourceCountTweener.Play (true);
+            ResourceSpriteTweener.Reset ();
+            ResourceSpriteTweener.Play (true);
+        }
         if (ResourceUpdate <= 10) {
             ResourceWindow_Sprite.color = Color.red;
         } else if (ResourceUpdate > 10 && ResourceUpdate <= 20) {

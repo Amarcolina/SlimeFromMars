@@ -28,7 +28,15 @@ public class SavedComponent{
     }
 
     public static bool operator ==(SavedComponent a, SavedComponent b) {
-        return a.savedData.SequenceEqual(b.savedData);
+        if (a.savedData.Count != b.savedData.Count) {
+            return false;
+        }
+        for (int i = 0; i < a.savedData.Count; i++) {
+            if (a.savedData[i] != b.savedData[i]) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public static bool operator !=(SavedComponent a, SavedComponent b) {
@@ -62,7 +70,7 @@ public class SavedGameObjectData {
 
         foreach (var pair in a.componentDictionary) {
             SavedComponent component;
-            if (a.componentDictionary.TryGetValue(pair.Key, out component)) {
+            if (b.componentDictionary.TryGetValue(pair.Key, out component)) {
                 if (pair.Value != component) {
                     return false;
                 }

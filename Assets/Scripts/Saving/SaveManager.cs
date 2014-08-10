@@ -63,16 +63,12 @@ public class SaveManager : MonoBehaviour {
     }
 
     public void Update() {
-        if (Input.GetKeyDown(KeyCode.S)) {
+        if (Input.GetKeyDown(KeyCode.F10)) {
             saveGame();
         }
 
-        if (Input.GetKeyDown(KeyCode.L)) {
+        if (Input.GetKeyDown(KeyCode.F11)) {
             loadGame();
-        }
-
-        if (Input.GetKeyDown(KeyCode.I)) {
-            SaveManager.InstantiateSaved("SaveTestPrefab", Vector3.zero, Quaternion.identity);
         }
     }
 

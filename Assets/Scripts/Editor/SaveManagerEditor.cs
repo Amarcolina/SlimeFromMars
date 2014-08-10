@@ -8,10 +8,12 @@ using System.Collections.Generic;
 public class SaveManagerEditor : Editor {
     private static Texture2D _saveIcon;
     private static Texture2D _warningIcon;
+    private static Texture2D _dataIcon;
 
     static SaveManagerEditor() {
         _saveIcon = Resources.Load<Texture2D>("Sprites/UISprites/saveIcon");
         _warningIcon = Resources.Load<Texture2D>("Sprites/UISprites/warningIcon");
+        _dataIcon = Resources.Load<Texture2D>("Sprites/UISprites/dataIcon");
         EditorApplication.hierarchyWindowItemOnGUI += hierarchyItemDrawer;
     }
 
@@ -29,12 +31,13 @@ public class SaveManagerEditor : Editor {
                 } else {
                     GUI.DrawTexture(iconRect, _saveIcon);
                 }
-            }else if (obj.GetComponent(typeof(ISaveable)) != null) {
+            }
+            if (obj.GetComponent(typeof(ISaveable)) != null) {
                 Rect iconRect = drawRect;
                 iconRect.x += iconRect.width - iconRect.height - 30;
                 iconRect.width = iconRect.height;
 
-                GUI.DrawTexture(iconRect, _saveIcon);
+                GUI.DrawTexture(iconRect, _dataIcon);
             }
         }
     }

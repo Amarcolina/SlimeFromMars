@@ -8,11 +8,16 @@ using System.Collections.Generic;
 public class SaveManager : MonoBehaviour {
     public static SavedGame _currentSavedGame = null;
     private static bool _isLoading = false;
+    private static bool _isLevelQuitting = true;
 
     public class SavedGame{
         public Dictionary<int, SavedGameObjectData> modifiedGameObjects = new Dictionary<int, SavedGameObjectData>();
         public Dictionary<int, SavedGameObjectData> newGameObjects = new Dictionary<int, SavedGameObjectData>();
         public HashSet<int> destroyedObjects = new HashSet<int>();
+    }
+
+    public void OnApplicationQuit() {
+        _isLevelQuitting = true;
     }
 
     public void Awake() {
@@ -23,6 +28,9 @@ public class SaveManager : MonoBehaviour {
 
     private static SaveManager _instance = null;
     public static SaveManager getInstance() {
+        if (_isLevelQuitting || _isLoading) {
+            return null;
+        }
         if (_instance == null) {
             _instance = FindObjectOfType<SaveManager>();
         }

@@ -91,7 +91,7 @@ public class SaveMarker : MonoBehaviour {
 
     public void OnDestroy() {
         if (_shouldRegisterDestroy) {
-            SaveManager manager = FindObjectOfType<SaveManager>();
+            SaveManager manager = SaveManager.getInstance();
             if (manager != null) {
                 manager.recordObjectDestruction(serialID);
             }

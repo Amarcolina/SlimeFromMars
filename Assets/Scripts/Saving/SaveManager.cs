@@ -21,6 +21,14 @@ public class SaveManager : MonoBehaviour {
         }
     }
 
+    private static SaveManager _instance = null;
+    public static SaveManager getInstance() {
+        if (_instance == null) {
+            _instance = FindObjectOfType<SaveManager>();
+        }
+        return _instance;
+    }
+
     /* This is called when the level is loaded, and causes the game to be modified
      * to suite the state of the current save.  
      */

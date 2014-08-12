@@ -9,7 +9,6 @@ public class PauseMenu : MonoBehaviour
     public bool musicMuted;
     public bool sfxMuted;
 
-
     //Main Pause Menu
     public GameObject continuelabel;
     public GameObject optionslabel;
@@ -203,13 +202,23 @@ public class PauseMenu : MonoBehaviour
         ExitButton.SetActive(true);
     }
 
+    public void removeGameOver()
+    {
+        gameOverLabel.SetActive(false);
+        RestartButton.SetActive(false);
+        ExitButton.SetActive(false);
+    }
+
     public void RestartClicked()
     {
         Application.LoadLevel(Application.loadedLevel);
         AudioListener.pause = false;
-        gameOverLabel.SetActive(false);
-        RestartButton.SetActive(false);
-        ExitButton.SetActive(false);
+
+        pauselabel.SetActive(false);
+        restartPauseButton.SetActive(false);
+        continuelabel.SetActive(false);
+        optionslabel.SetActive(false);
+        exitlabel.SetActive(false);
     }
     public void ExitClicked()
     {

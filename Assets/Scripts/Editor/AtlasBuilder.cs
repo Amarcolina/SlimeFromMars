@@ -35,7 +35,7 @@ public class AtlasBuilder {
         }
         _atlasTexture.Apply();
 
-        Sprite newSprite = Sprite.Create(_atlasTexture, new Rect(2 + _offsetX, 2 + _offsetY, 64, 64), new Vector2(0.5f, 0.5f));
+        Sprite newSprite = Sprite.Create(_atlasTexture, new Rect(2 + _offsetX, 2 + _offsetY, 64, 64), new Vector2(0.5f, 0.5f), 64);
         AssetDatabase.AddObjectToAsset(newSprite, _atlasTexture);
         AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(newSprite));
 

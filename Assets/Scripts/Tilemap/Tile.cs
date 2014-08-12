@@ -28,7 +28,8 @@ public class Tile : MonoBehaviour {
     private HashSet<TileEntity> _containedTileEntities = null;
 
     public Vector2Int getTileSize() {
-        return new Vector2Int(groundSprite.texture.width, groundSprite.texture.height) / TILE_PIXEL_SIZE;
+        return new Vector2Int(1, 1);
+        //return new Vector2Int(groundSprite.texture.width, groundSprite.texture.height) / TILE_PIXEL_SIZE;
     }
 
     public void OnDestroy() {

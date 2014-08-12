@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class GuardEnemy : BaseEnemy {
+public class ExterminatorEnemy : BaseEnemy {
     public float wanderSpeed = 2.5f;
     public float attackSpeed = 3.5f;
     public float startledSpeed = 4.5f;

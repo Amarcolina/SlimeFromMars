@@ -6,6 +6,7 @@ using System.Collections.Generic;
 
 [CustomEditor(typeof(Tilemap))]
 public class TilemapEditor : Editor {
+    public const string ATLAS_PATH = "Assets/Resources/Sprites/Tiles/TileAtlas.asset";
     public const int PREVIEW_BORDER = 9;
     public const int PREVIEW_SIZE = 64;
 
@@ -19,6 +20,7 @@ public class TilemapEditor : Editor {
 
     private List<GameObject> _tilePrefabs = new List<GameObject>();
     private float _spriteAngle = 0.0f;
+    private AtlasBuilder _builder;
 
     public void OnEnable() {
         refreshTilePrefabList();
@@ -34,6 +36,9 @@ public class TilemapEditor : Editor {
 
         if (currentTilePrefab != null) {
             displayTileFieldEditor();
+            if (GUILayout.Button("Alas Sprites")) {
+                packSpritesIntoAtlas();
+            }
             GUILayout.Space(EditorGUIUtility.singleLineHeight);
             displayTilePreview();
             displayCopyButton();
@@ -223,8 +228,6 @@ public class TilemapEditor : Editor {
             rect.x += (rect.width - rect.height) / 2.0f;
             rect.width = rect.height;
 
-
-
             //Matrix4x4 matrixBackup = GUI.matrix;
             //GUIUtility.RotateAroundPivot(angle, rect.position + rect.size / 2.0f);
             Rect coords = sprite.textureRect;
@@ -235,6 +238,49 @@ public class TilemapEditor : Editor {
             GUI.DrawTextureWithTexCoords(rect, sprite.texture, coords);
             //GUI.DrawTexture(rect, sprite.texture, ScaleMode.ScaleToFit);
             //GUI.matrix = matrixBackup;
+        }
+    }
+
+
+    private void packSpritesIntoAtlas() {
+        HashSet<Sprite> _existingSprites = new HashSet<Sprite>();
+
+        foreach (GameObject _prefab in _tilePrefabs) {
+            Tile tile = _prefab.GetComponent<Tile>();
+            _existingSprites.Add(tile.groundSprite);
+            _existingSprites.Add(tile.groundEffectSprite);
+            _existingSprites.Add(tile.objectSprite);
+            _existingSprites.Add(tile.overlaySprite);
+        }
+
+        Dictionary<Sprite, Sprite> _spriteMap = new Dictionary<Sprite, Sprite>();
+        AtlasBuilder builder = new AtlasBuilder(1024, 1024, ATLAS_PATH);
+        foreach (Sprite sprite in _existingSprites) {
+            if (sprite != null) {
+                string path = AssetDatabase.GetAssetPath(sprite);
+                TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
+                if (!importer.isReadable) {
+                    importer.isReadable = true;
+                    AssetDatabase.ImportAsset(path);
+                }
+
+                Sprite atlasSprite = builder.addSprite(sprite);
+                _spriteMap[sprite] = atlasSprite;
+            }
+        }
+
+
+        builder.finalize();
+
+        foreach (GameObject _prefab in _tilePrefabs) {
+            Tile tile = _prefab.GetComponent<Tile>();
+            SerializedObject tileObject = new SerializedObject(tile);
+            SerializedProperty prop = tileObject.FindProperty("groundSprite");
+            Sprite currentSprite = prop.objectReferenceValue as Sprite;
+            if (currentSprite != null) {
+                prop.objectReferenceValue = _spriteMap[currentSprite];
+                tileObject.ApplyModifiedProperties();
+            }
         }
     }
 

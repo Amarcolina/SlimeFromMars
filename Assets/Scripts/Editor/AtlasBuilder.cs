@@ -46,6 +46,15 @@ public class AtlasBuilder {
         return _atlasData.originalSprites.Count;
     }
 
+    public void clear() {
+        foreach (Sprite sprite in _atlasData.atlasSprites) {
+            AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(sprite));
+        }
+        _atlasData.atlasSprites.Clear();
+        _atlasData.originalSprites.Clear();
+        AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(_atlasTexture));
+    }
+
     public Sprite addSprite(Sprite sprite) {
         Texture2D sourceTex = sprite.texture;
 
@@ -65,6 +74,8 @@ public class AtlasBuilder {
         _atlasTexture.Apply();
 
         Sprite newSprite = Sprite.Create(_atlasTexture, new Rect(2 + _offsetX, 2 + _offsetY, 64, 64), new Vector2(0.5f, 0.5f), 64);
+        newSprite.name = "[Atlas]" + sprite.name;
+
         AssetDatabase.AddObjectToAsset(newSprite, _atlasTexture);
         AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(newSprite));
 

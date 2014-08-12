@@ -1,6 +1,8 @@
 fileFormatVersion: 2
 guid: 5809e5e36bc9bea408c71b6ea86ebb95
 TextureImporter:
+  fileIDToRecycleName:
+    21300000: OverlayTest
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0

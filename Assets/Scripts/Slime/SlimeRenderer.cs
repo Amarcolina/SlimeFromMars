@@ -36,14 +36,7 @@ public class SlimeRenderer : MonoBehaviour {
         _spriteRenderer.sortingLayerName = "Slime";
         _spriteRenderer.enabled = false;
 
-        if (GetComponent<Tile>().isSlimeable) {
-            _spriteRenderer.material.shader = Shader.Find("Custom/SlimeShader");
-        } else {
-            _spriteRenderer.material.shader = Shader.Find("Custom/SlimeWallShader");
-            _spriteRenderer.sortingLayerName = "Default";
-            _spriteRenderer.sortingOrder = -1;
-            _spriteRenderer.material.SetTexture("_Smear", Resources.Load<Texture>("Sprites/Slime/SlimeWallRamp"));
-        }
+        wakeUpRenderer(false);
     }
 
     public void OnDestroy() {
@@ -90,6 +83,14 @@ public class SlimeRenderer : MonoBehaviour {
                     }
                 }
             }
+        }
+        if (GetComponent<Tile>().isSlimeable) {
+            _spriteRenderer.material.shader = Shader.Find("Custom/SlimeShader");
+        } else {
+            _spriteRenderer.material.shader = Shader.Find("Custom/SlimeWallShader");
+            _spriteRenderer.sortingLayerName = "Default";
+            _spriteRenderer.sortingOrder = -1;
+            _spriteRenderer.material.SetTexture("_Smear", Resources.Load<Texture>("Sprites/Slime/SlimeWallRamp"));
         }
         enabled = true;
     }

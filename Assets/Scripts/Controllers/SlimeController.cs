@@ -13,7 +13,7 @@ public enum ElementalCastType {
 /*This class keeps track of slime attribute values, mutation types, offense/defense abilities based on mutation type, and offense/defense values
  * 
  */
-public class SlimeController : MonoBehaviour {
+public class SlimeController : MonoBehaviour, ISaveable {
     //cost for using skills
     public const int ELECTRICITY_DEFENSE_COST = 5;
     public const int ELECTRICITY_OFFENSE_COST = 10;
@@ -23,14 +23,14 @@ public class SlimeController : MonoBehaviour {
     public const int RADIATION_OFFENSE_COST = 10;
 
     //energy is a pool of resources used to move, attack and defend
-    public int energy;
+    public int energy = 20;
     public GameObject spinePrefab;
 
     //levels dictate how much more powerful your attacks/defenses are
     //levels also give bonuses in energy from items of that attribute
-    private int _radiationLevel;
-    private int _electricityLevel;
-    private int _bioLevel;
+    private int _radiationLevel = 0;
+    private int _electricityLevel = 0;
+    private int _bioLevel = 0;
 
     //list of sound effects for abilities
     private AudioClip _electricDefenseSFX;
@@ -108,16 +108,10 @@ public class SlimeController : MonoBehaviour {
         _resourcedisplayGameObject = GameObject.FindGameObjectWithTag("ItemInfo");
         _resourcedisplayLabel = _resourcedisplayGameObject.GetComponentInChildren<UILabel>();
         _resourcedisplaySprite = _resourcedisplayGameObject.GetComponentInChildren<UISprite>();
-    }
 
-    // Use this for initialization
-    void Start() {
-        _gameUi = GameUI.getInstance();
         sound = SoundManager.getInstance();
-        _radiationLevel = 0;
-        _electricityLevel = 0;
-        _bioLevel = 0;
-        gainEnergy(20);
+        _gameUi = GameUI.getInstance();
+        _gameUi.ResourceUpdate(energy, false);
     }
 
     /*###############################################################################################*/
@@ -311,6 +305,32 @@ public class SlimeController : MonoBehaviour {
             PauseMenu gameover = _gameUi.GetComponent<PauseMenu>();
             gameover.GameOver();
         
+    }
+
+    public void onSave(SavedComponent data) {
+        data.put(energy);
+        data.put(_bioLevel);
+        data.put(_electricityLevel);
+        data.put(_radiationLevel);
+    }
+
+    public void onLoad(SavedComponent data) {
+        energy = (int)data.get();
+        _gameUi.ResourceUpdate(energy, false);
+
+        _bioLevel = (int)data.get();
+        _electricityLevel = (int)data.get();
+        _radiationLevel = (int)data.get();
+
+        if (_bioLevel != 0) {
+            _gameUi.BioUpdate(_bioLevel, false);
+        }
+        if (_electricityLevel != 0) {
+            _gameUi.LightningUpdate(_electricityLevel, false);
+        }
+        if (_radiationLevel != 0) {
+            _gameUi.RadiationUpdate(_radiationLevel, false);
+        }
     }
 
     /*###############################################################################################*/

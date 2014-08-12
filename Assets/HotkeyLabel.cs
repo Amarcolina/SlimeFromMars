@@ -12,9 +12,9 @@ public enum HotkeyType{
 
 public static class HotkeyTypeExtensions{
 #if UNITY_STANDALONE_WIN
-    private static KeyCode[] _codes = {KeyCode.F1, KeyCode.F2, KeyCode.F3, KeyCode.F4, KeyCode.F5, KeyCode.F6};
+    private static KeyCode[] _codes = {KeyCode.Q, KeyCode.W, KeyCode.E, KeyCode.A, KeyCode.S, KeyCode.D};
 #else
-    private static KeyCode[] _codes = {KeyCode.Q, KeyCode.A, KeyCode.Z, KeyCode.W, KeyCode.S, KeyCode.X};
+    private static KeyCode[] _codes = {KeyCode.Q, KeyCode.W, KeyCode.E, KeyCode.A, KeyCode.S, KeyCode.D};
 #endif
 
     public static KeyCode getKeyCode(this HotkeyType hotkeyType) {

@@ -10,7 +10,7 @@ public enum EnemyState {
     STARTLED,
 }
 
-public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable{
+public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable, ISaveable{
     public EnemyState startState = EnemyState.WANDERING;
     public bool enableStateDebug = false;
 
@@ -83,6 +83,19 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable{
 
     protected bool isStunned() {
         return Time.time <= _stunEndTime;
+    }
+
+    public virtual void onSave(SavedComponent data) {
+        data.put(health);
+        data.put(_waypointIndex);
+        data.put(_currentState);
+    }
+
+    public virtual void onLoad(SavedComponent data) {
+        health = (float) data.get();
+        _waypointIndex = (int) data.get();
+        startState = (EnemyState) data.get();
+        //forceEnterState(_currentState);
     }
 
     //Checks to see if the enemytileobject has a slime component on its tile

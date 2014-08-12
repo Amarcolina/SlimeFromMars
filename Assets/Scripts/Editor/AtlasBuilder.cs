@@ -48,17 +48,17 @@ public class AtlasBuilder {
         return null;
     }
 
-    public int spriteCount() {
+    public int getSpriteCount() {
         return _atlasData.originalSprites.Count;
     }
 
-    public Sprite addSprite(Sprite sprite) {
-        Texture2D sourceTex = sprite.texture;
+    public Sprite addSprite(Sprite sourceSprite) {
+        Texture2D sourceTex = sourceSprite.texture;
 
         for(int x=0; x<68; x++){
-            int texX = Mathf.Clamp(x-2, 0, 63) + (int)sprite.textureRect.x;
+            int texX = Mathf.Clamp(x-2, 0, 63) + (int)sourceSprite.textureRect.x;
             for(int y=0; y<68; y++){
-                int texY = Mathf.Clamp(y-2, 0, 63) + (int)sprite.textureRect.y;
+                int texY = Mathf.Clamp(y-2, 0, 63) + (int)sourceSprite.textureRect.y;
 
                 Color sourceColor = sourceTex.GetPixel(texX, texY);
                 if(x == 0 || y == 0 || x == 67 || y == 67){
@@ -71,7 +71,7 @@ public class AtlasBuilder {
         _atlasTexture.Apply();
 
         Sprite newSprite = Sprite.Create(_atlasTexture, new Rect(2 + _offsetX, 2 + _offsetY, 64, 64), new Vector2(0.5f, 0.5f), 64);
-        newSprite.name = "[Atlas]" + sprite.name;
+        newSprite.name = "[Atlas]" + sourceSprite.name;
 
         AssetDatabase.AddObjectToAsset(newSprite, _atlasTexture);
         AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(newSprite));
@@ -83,7 +83,7 @@ public class AtlasBuilder {
         }
 
         _atlasData.atlasSprites.Add(newSprite);
-        _atlasData.originalSprites.Add(sprite);
+        _atlasData.originalSprites.Add(sourceSprite);
 
         return newSprite;
     }

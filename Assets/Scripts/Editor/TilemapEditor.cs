@@ -51,10 +51,10 @@ public class TilemapEditor : Editor {
 
     private void displayAtlasOptions() {
         GUILayout.BeginHorizontal();
-        if (GUILayout.Button("Alas Sprites")) {
+        if (GUILayout.Button("Pack Sprites")) {
             packSpritesIntoAtlas();
         }
-        EditorGUI.BeginDisabledGroup(_builder.spriteCount() == 0);
+        EditorGUI.BeginDisabledGroup(_builder.getSpriteCount() == 0);
         if (GUILayout.Button("Unpack Sprites")) {
             unpackSpritesFromAtlas();
             for(int i=0; i<_tilePrefabs.Count; i++){
@@ -270,7 +270,7 @@ public class TilemapEditor : Editor {
                 SerializedProperty prop = tileObject.FindProperty(propertyName);
                 Sprite currentSprite = prop.objectReferenceValue as Sprite;
                 if (currentSprite != null) {
-                    if (_builder.spriteCount() != 0) {
+                    if (_builder.getSpriteCount() != 0) {
                         Sprite originalSprite = _builder.getOriginalSprite(currentSprite);
                         if (originalSprite != null) {
                             prop.objectReferenceValue = originalSprite;

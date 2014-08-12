@@ -28,6 +28,7 @@ public class Minimap : MonoBehaviour {
     public void Awake() {
         _fogTexture = new Texture2D(TEXTURE_SIZE, TEXTURE_SIZE, TextureFormat.ARGB32, false, true);
         _fogTexture.wrapMode = TextureWrapMode.Clamp;
+        _fogTexture.filterMode = FilterMode.Point;
 
         fogOfWarUITexture.mainTexture = _fogTexture;
         fogOfWarMinimapUITexture.mainTexture = _fogTexture;
@@ -79,11 +80,11 @@ public class Minimap : MonoBehaviour {
     }
 
     private void handleFogOfWar() {
-        float height = Camera.main.orthographicSize * 2.0f / 512.0f;
+        float height = Camera.main.orthographicSize * 2.0f / TEXTURE_SIZE;
         float width = Screen.width * height / Screen.height;
 
-        float x = (Camera.main.transform.position.x - TEXTURE_OFFSET_X) / 512.0f;
-        float y = (Camera.main.transform.position.y - TEXTURE_OFFSET_Y) / 512.0f;
+        float x = (Camera.main.transform.position.x - TEXTURE_OFFSET_X) / TEXTURE_SIZE;
+        float y = (Camera.main.transform.position.y - TEXTURE_OFFSET_Y) / TEXTURE_SIZE;
 
         fogOfWarUITexture.uvRect = new Rect(x - width / 2.0f, y - height / 2.0f, width, height);
     }

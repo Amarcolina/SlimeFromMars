@@ -5,17 +5,12 @@ public class Minimap : MonoBehaviour {
     public const int TEXTURE_SIZE = 512;
     public const int TEXTURE_OFFSET_X = -128;
     public const int TEXTURE_OFFSET_Y = -64;
-    public const int MINIMAP_ZOOM = 24;
+    public const int MINIMAP_ZOOM = 3;
 
     public UITexture fogOfWarUITexture;
     public UITexture fogOfWarMinimapUITexture;
-    public UITexture minimapUITexture;
 
-    private Texture2D _levelTexture;
     private Texture2D _fogTexture;
-
-    private bool _isFillingLevelTexture = true;
-    private int _initRow = 0;
 
     private ScreenScroller _screenScroller;
     private Rect minimapCamera = new Rect();
@@ -31,13 +26,9 @@ public class Minimap : MonoBehaviour {
     }
 
     public void Awake() {
-        _levelTexture = new Texture2D(TEXTURE_SIZE, TEXTURE_SIZE, TextureFormat.RGB24, false, true);
-        _levelTexture.filterMode = FilterMode.Point;
-        _levelTexture.wrapMode = TextureWrapMode.Clamp;
         _fogTexture = new Texture2D(TEXTURE_SIZE, TEXTURE_SIZE, TextureFormat.ARGB32, false, true);
         _fogTexture.wrapMode = TextureWrapMode.Clamp;
 
-        minimapUITexture.mainTexture = _levelTexture;
         fogOfWarUITexture.mainTexture = _fogTexture;
         fogOfWarMinimapUITexture.mainTexture = _fogTexture;
 
@@ -52,10 +43,6 @@ public class Minimap : MonoBehaviour {
     }
 
     public void Update() {
-        if (_isFillingLevelTexture) {
-            fillLevelTexture();
-        }
-
         if (Input.GetKeyDown(KeyCode.F)) {
             fogOfWarMinimapUITexture.enabled = false;
             fogOfWarUITexture.enabled = false;
@@ -66,17 +53,6 @@ public class Minimap : MonoBehaviour {
 
     public void LateUpdate() {
         handleFogOfWar();
-    }
-
-    public void setSlime(Vector2Int position) {
-        _levelTexture.SetPixel(position.x - TEXTURE_OFFSET_X, position.y - TEXTURE_OFFSET_Y, new Color(0.234f, 0.29f, 0.129f));
-        _levelTexture.Apply();
-    }
-
-    public void clearSlime(Vector2Int position) {
-        Color levelColor = Tilemap.getInstance().getTile(position).minimapColor;
-        _levelTexture.SetPixel(position.x - TEXTURE_OFFSET_X, position.y - TEXTURE_OFFSET_Y, levelColor);
-        _levelTexture.Apply();
     }
 
     public bool isPositionInFogOfWar(Vector2Int position) {
@@ -138,31 +114,13 @@ public class Minimap : MonoBehaviour {
 
             SlimeController.getInstance().skipNextFrame();
         } else {
-            minimapCamera.width = Camera.main.orthographicSize / TEXTURE_SIZE * MINIMAP_ZOOM;
-            minimapCamera.height = minimapCamera.width * minimapUITexture.transform.localScale.y / minimapUITexture.transform.localScale.x;
+            minimapCamera.height = Camera.main.orthographicSize / TEXTURE_SIZE * 6;
+            minimapCamera.width = minimapCamera.height * fogOfWarMinimapUITexture.transform.localScale.x / fogOfWarMinimapUITexture.transform.localScale.y;
 
             minimapCamera.x = (Camera.main.transform.position.x - TEXTURE_OFFSET_X) / TEXTURE_SIZE - minimapCamera.width / 2.0f;
             minimapCamera.y = (Camera.main.transform.position.y - TEXTURE_OFFSET_Y) / TEXTURE_SIZE - minimapCamera.height / 2.0f;
 
-            minimapUITexture.uvRect = minimapCamera;
             fogOfWarMinimapUITexture.uvRect = minimapCamera;
-        }
-    }
-
-    private void fillLevelTexture() {
-        Tilemap tilemap = Tilemap.getInstance();
-        for (int x = 0; x < TEXTURE_SIZE; x++) {
-            Tile tile = tilemap.getTile(new Vector2Int(x + TEXTURE_OFFSET_X, _initRow + TEXTURE_OFFSET_Y));
-            if (tile != null) {
-                _levelTexture.SetPixel(x, _initRow, tile.minimapColor);
-            } else {
-                _levelTexture.SetPixel(x, _initRow, Color.black);
-            }
-        }
-        _levelTexture.Apply();
-        _initRow++;
-        if (_initRow == TEXTURE_SIZE) {
-            _isFillingLevelTexture = false;
         }
     }
 }

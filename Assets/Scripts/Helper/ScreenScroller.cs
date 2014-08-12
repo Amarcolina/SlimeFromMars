@@ -7,11 +7,22 @@ public class ScreenScroller : MonoBehaviour, ISaveable {
     public int scrollDistance = 1;
     [MinValue(0)]
     public float scrollSpeed = 70;
+    [MinValue(0)]
+    public float minimapScale = 3;
 
     private float _goalZoom;
+    private Camera _minimapCamera = null;
 
     public void Awake() {
         _goalZoom = camera.orthographicSize;
+
+        Camera[] cameras = GetComponentsInChildren<Camera>();
+        foreach (Camera c in cameras) {
+            if (c != camera) {
+                _minimapCamera = c;
+                break;
+            }
+        }
     }
 
     // Update is called once per frame
@@ -39,6 +50,7 @@ public class ScreenScroller : MonoBehaviour, ISaveable {
         _goalZoom -= Input.GetAxis("Mouse ScrollWheel") * camera.orthographicSize;
         _goalZoom = Mathf.Clamp(_goalZoom, 5, 50);
         camera.orthographicSize += (_goalZoom - camera.orthographicSize) / 5.0f;
+        _minimapCamera.orthographicSize = camera.orthographicSize * minimapScale;
     }
 
     public void onSave(SavedComponent data) {

@@ -46,7 +46,6 @@ public class Slime : MonoBehaviour, ISaveable {
 
         Minimap minimap = Minimap.getInstance();
         minimap.clearFogOfWar(transform.position, 9, 11);
-        minimap.setSlime(transform.position);
 
         _connectedPathingIndex = _currSearchingConnectedIndex;
 
@@ -75,11 +74,6 @@ public class Slime : MonoBehaviour, ISaveable {
         }
 
         SlimeSentinel.removeSlimeFromDestroyList(this);
-
-        Minimap minimap = Minimap.getInstance();
-        if (minimap != null) {
-            Minimap.getInstance().clearSlime(transform.position);
-        }
 
         SlimeController controller = SlimeController.getInstance();
         if (controller != null && controller.getSelectedSlime() == this) {

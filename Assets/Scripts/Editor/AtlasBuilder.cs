@@ -47,12 +47,8 @@ public class AtlasBuilder {
     }
 
     public void clear() {
-        foreach (Sprite sprite in _atlasData.atlasSprites) {
-            AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(sprite));
-        }
         _atlasData.atlasSprites.Clear();
         _atlasData.originalSprites.Clear();
-        AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(_atlasTexture));
     }
 
     public Sprite addSprite(Sprite sprite) {

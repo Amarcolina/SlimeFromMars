@@ -57,7 +57,11 @@ public class TilemapEditor : Editor {
         EditorGUI.BeginDisabledGroup(_builder.spriteCount() == 0);
         if (GUILayout.Button("Unpack Sprites")) {
             unpackSpritesFromAtlas();
-            _builder.clear();
+            for(int i=0; i<_tilePrefabs.Count; i++){
+                updateTilePrefab(_tilePrefabs[i]);
+                EditorUtility.DisplayProgressBar("Unpacking Sprites", "Rebuilding prefab " + _tilePrefabs[i], (float)i / _tilePrefabs.Count);
+            }
+            EditorUtility.ClearProgressBar();
         }
         EditorGUI.EndDisabledGroup();
         GUILayout.EndHorizontal();

@@ -13,6 +13,25 @@ public class SaveManagerEditor : Editor {
     static SaveManagerEditor() {
         reloadImages();
         EditorApplication.hierarchyWindowItemOnGUI += hierarchyItemDrawer;
+        EditorApplication.playmodeStateChanged += onPlayModeChange;
+    }
+
+    private static void onPlayModeChange() {
+        SaveMarker[] markers = FindObjectsOfType<SaveMarker>();
+        if (EditorApplication.isPlayingOrWillChangePlaymode && !EditorApplication.isPlaying) {
+            bool didFindErrors = false;
+            foreach (SaveMarker marker in markers) {
+                if (marker.serialID == -1) {
+                    didFindErrors = true;
+                    break;
+                }
+            }
+
+            if (didFindErrors) {
+                EditorUtility.DisplayDialog("Found Unitialized SerialID's", "Uninitialized SerialID's were found, they will now be initialized", "Well alrighty then");
+                assignSerialIDs();
+            }
+        }
     }
 
     private static void reloadImages() {
@@ -29,19 +48,29 @@ public class SaveManagerEditor : Editor {
         }
 
         if (obj != null) {
-            SaveMarker marker = obj.GetComponentInChildren<SaveMarker>();
-            if (marker != null) {
+            SaveMarker[] markers = obj.GetComponentsInChildren<SaveMarker>();
+            Component[] dd = obj.GetComponentsInChildren(typeof(ISaveable));
+
+            if (markers.Length != 0) {
                 Rect iconRect = drawRect;
                 iconRect.x += iconRect.width - iconRect.height - 10;
                 iconRect.width = iconRect.height;
 
-                if (marker.serialID == -1) {
+                bool didFindUninitialized = false;
+                foreach (SaveMarker marker in markers) {
+                    if (marker.serialID == -1) {
+                        didFindUninitialized = true;
+                        break;
+                    }
+                }
+
+                if (didFindUninitialized) {
                     GUI.DrawTexture(iconRect, _warningIcon);
                 } else {
                     GUI.DrawTexture(iconRect, _saveIcon);
                 }
             }
-            if (obj.GetComponentInChildren(typeof(ISaveable)) != null) {
+            if (dd.Length != 0) {
                 Rect iconRect = drawRect;
                 iconRect.x += iconRect.width - iconRect.height - 30;
                 iconRect.width = iconRect.height;
@@ -65,7 +94,7 @@ public class SaveManagerEditor : Editor {
         }
     }
 
-    public void assignSerialIDs() {
+    public static void assignSerialIDs() {
         SaveMarker[] existingMarkers = FindObjectsOfType<SaveMarker>();
         for (int i = 0; i < existingMarkers.Length; i++) {
             SerializedObject serializedObject = new SerializedObject(existingMarkers[i]);
@@ -75,5 +104,6 @@ public class SaveManagerEditor : Editor {
             EditorUtility.DisplayProgressBar("Assigning Serial ID's", "just a moment...", i / (float)existingMarkers.Length);
         }
         EditorUtility.ClearProgressBar();
+        EditorApplication.RepaintHierarchyWindow();
     }
 }

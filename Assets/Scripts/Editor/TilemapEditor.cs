@@ -281,6 +281,8 @@ public class TilemapEditor : Editor {
 
             tileObject.ApplyModifiedProperties();
         }
+
+        _builder.clear();
     }
 
     private void packSpritesIntoAtlas() {

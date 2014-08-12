@@ -13,19 +13,25 @@ public class AtlasBuilder {
     private AtlasData _atlasData = null;
     private Texture2D _atlasTexture = null;
     private int _offsetX = 0, _offsetY = 0;
+    private string _path;
 
     public AtlasBuilder(string path) {
+        _path = path;
         _atlasData = AssetDatabase.LoadAssetAtPath(path, typeof(AtlasData)) as AtlasData;
         if (_atlasData == null) {
             Debug.Log("No atlas found, creating asset");
-            _atlasData = ScriptableObject.CreateInstance<AtlasData>();
-            AssetDatabase.CreateAsset(_atlasData, path);   
+            clear(); 
         } 
     }
 
+    public void clear() {
+        _atlasData = ScriptableObject.CreateInstance<AtlasData>();
+        AssetDatabase.CreateAsset(_atlasData, _path);
+    }
+
     public void startNewAtlas(int width, int height) {
-        _atlasData.originalSprites.Clear();
-        _atlasData.atlasSprites.Clear();
+        clear();
+
         _atlasTexture = new Texture2D(width, height, TextureFormat.ARGB32, false);
         _atlasTexture.filterMode = FilterMode.Trilinear;
         _offsetX = 0;
@@ -44,11 +50,6 @@ public class AtlasBuilder {
 
     public int spriteCount() {
         return _atlasData.originalSprites.Count;
-    }
-
-    public void clear() {
-        _atlasData.atlasSprites.Clear();
-        _atlasData.originalSprites.Clear();
     }
 
     public Sprite addSprite(Sprite sprite) {

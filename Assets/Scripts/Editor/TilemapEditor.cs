@@ -245,16 +245,15 @@ public class TilemapEditor : Editor {
             rect.x += (rect.width - rect.height) / 2.0f;
             rect.width = rect.height;
 
-            //Matrix4x4 matrixBackup = GUI.matrix;
-            //GUIUtility.RotateAroundPivot(angle, rect.position + rect.size / 2.0f);
+            Matrix4x4 matrixBackup = GUI.matrix;
+            GUIUtility.RotateAroundPivot(angle, rect.position + rect.size / 2.0f);
             Rect coords = sprite.textureRect;
             coords.x /= sprite.texture.width;
             coords.y /= sprite.texture.height;
             coords.width /= sprite.texture.width;
             coords.height /= sprite.texture.height;
             GUI.DrawTextureWithTexCoords(rect, sprite.texture, coords);
-            //GUI.DrawTexture(rect, sprite.texture, ScaleMode.ScaleToFit);
-            //GUI.matrix = matrixBackup;
+            GUI.matrix = matrixBackup;
         }
     }
 

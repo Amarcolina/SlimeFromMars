@@ -22,6 +22,8 @@ public class PauseMenu : MonoBehaviour
     public GameObject volumetitle;
     public GameObject backlabel;
     public GameObject volumeslider;
+    public GameObject musicslider;
+    public GameObject musiclabel;
     public GameObject fpsbox;
 
     public GameObject fpslabel;
@@ -97,6 +99,8 @@ public class PauseMenu : MonoBehaviour
         volumetitle.SetActive(true);
         backlabel.SetActive(true);
         volumeslider.SetActive(true);
+        musicslider.SetActive(true);
+        musiclabel.SetActive(true);
         muteMusicbox.SetActive(true);
         muteSFXbox.SetActive(true);
         fpsbox.SetActive(true);
@@ -116,6 +120,8 @@ public class PauseMenu : MonoBehaviour
         volumetitle.SetActive(false);
         backlabel.SetActive(false);
         volumeslider.SetActive(false);
+        musicslider.SetActive(false);
+        musiclabel.SetActive(false);
         muteMusicbox.SetActive(false);
         muteSFXbox.SetActive(false);
         fpsbox.SetActive(false);

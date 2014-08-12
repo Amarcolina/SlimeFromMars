@@ -9,6 +9,11 @@ public class AtlasBuilder {
     private Texture2D _atlasTexture = null;
     private string _path;
 
+    /* Creates a new Atlas builter which points to an atlas
+     * at the provided path.  If an atlas already exists at the path,
+     * it will simply point towards that one.  If there is no atlast,
+     * it will create a new one
+     */
     public AtlasBuilder(string path) {
         _path = path;
         _atlasData = AssetDatabase.LoadAssetAtPath(path, typeof(AtlasData)) as AtlasData;
@@ -20,12 +25,16 @@ public class AtlasBuilder {
         }
     }
 
+    /* Clears the atlas and destroys any sprites and textures
+     */
     public void clear() {
         _atlasData = ScriptableObject.CreateInstance<AtlasData>();
         AssetDatabase.CreateAsset(_atlasData, _path);
         AssetDatabase.SaveAssets();
     }
 
+    /* Creates a new atlas texture of a given width and height
+     */
     public void startNewAtlas(int width, int height) {
         clear();
 
@@ -36,10 +45,15 @@ public class AtlasBuilder {
         AssetDatabase.AddObjectToAsset(_atlasTexture, _atlasData);
     }
 
+    /* Returns whether or not this atlas has a texture currently
+     */
     public bool hasAtlas() {
         return _atlasTexture != null;
     }
 
+    /* Given an atlas sprite, return the original sprite.  If the
+     * given sprite is not in the atlas, returns null
+     */
     public Sprite getOriginalSprite(Sprite atlasSprite) {
         for (int i = 0; i < _atlasData.atlasSprites.Count; i++) {
             if (atlasSprite == _atlasData.atlasSprites[i]) {
@@ -49,6 +63,8 @@ public class AtlasBuilder {
         return null;
     }
 
+    /* Returns the number of sprites that are in this atlas
+     */
     public int getSpriteCount() {
         if (_atlasData == null) {
             return 0;
@@ -56,6 +72,10 @@ public class AtlasBuilder {
         return _atlasData.originalSprites.Count;
     }
 
+    /* Adds a sprite into this atlas. If the sprite is already in
+     * the atlas, this method does nothing.  This method always returns
+     * the atlas version of the sprite.
+     */
     public Sprite addSprite(Sprite sourceSprite) {
         Texture2D sourceTex = sourceSprite.texture;
 
@@ -98,6 +118,8 @@ public class AtlasBuilder {
         return newSprite;
     }
 
+    /* Called to re-import the atlas asset and cause a refresh of the explorer
+     */
     public void finalize() {
         AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(_atlasTexture));
     }

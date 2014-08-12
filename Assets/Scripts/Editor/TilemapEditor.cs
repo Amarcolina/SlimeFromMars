@@ -289,7 +289,9 @@ public class TilemapEditor : Editor {
         HashSet<Sprite> existingSprites = new HashSet<Sprite>();
         string[] propertyNames = { "groundSprite", "groundEffectSprite", "objectSprite", "overlaySprite" };
 
-        unpackSpritesFromAtlas();
+        if (!_builder.hasAtlas()) {
+            _builder.startNewAtlas(1024, 1024);
+        }
 
         for (int i = 0; i < _tilePrefabs.Count; i++) {
             GameObject _prefab = _tilePrefabs[i];
@@ -307,8 +309,7 @@ public class TilemapEditor : Editor {
             tileObject.ApplyModifiedProperties();
         }
 
-        Dictionary<Sprite, Sprite> _spriteMap = new Dictionary<Sprite, Sprite>();
-        _builder.startNewAtlas(1024, 1024);
+        Dictionary<Sprite, Sprite> _newSpriteMap = new Dictionary<Sprite, Sprite>();
 
         float percent = 0;
         float percentile = 1.0f / existingSprites.Count;
@@ -325,7 +326,9 @@ public class TilemapEditor : Editor {
                 EditorUtility.DisplayProgressBar("Packing Sprites", "Adding " + sprite + " to atlas...", percent);
 
                 Sprite atlasSprite = _builder.addSprite(sprite);
-                _spriteMap[sprite] = atlasSprite;
+                if (atlasSprite != null) {
+                    _newSpriteMap[sprite] = atlasSprite;
+                }
             }
 
             percent += percentile / 2.0f;
@@ -338,19 +341,27 @@ public class TilemapEditor : Editor {
             Tile tile = _prefab.GetComponent<Tile>();
             SerializedObject tileObject = new SerializedObject(tile);
 
+            bool didModify = false;
             foreach (string propertyName in propertyNames) {
                 SerializedProperty prop = tileObject.FindProperty(propertyName);
                 Sprite currentSprite = prop.objectReferenceValue as Sprite;
                 if (currentSprite != null) {
-                    prop.objectReferenceValue = _spriteMap[currentSprite];
-                    tileObject.ApplyModifiedProperties();
-                    updateTilePrefab(_prefab);
+                    Sprite atlasSprite;
+                    if (_newSpriteMap.TryGetValue(currentSprite, out atlasSprite)) {
+                        prop.objectReferenceValue = _newSpriteMap[currentSprite];
+                        didModify = true;
+                    }
 
                     EditorUtility.DisplayProgressBar("Packing Sprites", "Updating " + currentSprite, percent);
                 }
-
                 percent += percentile / 2.0f / 4.0f;
             }
+
+            if(didModify){
+                tileObject.ApplyModifiedProperties();
+                updateTilePrefab(_prefab);
+            }
+            
         }
 
         EditorUtility.ClearProgressBar();

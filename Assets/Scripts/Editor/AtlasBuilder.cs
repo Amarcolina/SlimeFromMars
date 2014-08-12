@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 
 public class AtlasData : ScriptableObject {
+    public int offsetX = 0, offsetY = 0;
     public List<Sprite> atlasSprites = new List<Sprite>();
     public List<Sprite> originalSprites = new List<Sprite>();
 }
@@ -12,7 +13,6 @@ public class AtlasData : ScriptableObject {
 public class AtlasBuilder {
     private AtlasData _atlasData = null;
     private Texture2D _atlasTexture = null;
-    private int _offsetX = 0, _offsetY = 0;
     private string _path;
 
     public AtlasBuilder(string path) {
@@ -20,8 +20,10 @@ public class AtlasBuilder {
         _atlasData = AssetDatabase.LoadAssetAtPath(path, typeof(AtlasData)) as AtlasData;
         if (_atlasData == null) {
             Debug.Log("No atlas found, creating asset");
-            clear(); 
-        } 
+            clear();
+        } else {
+            _atlasTexture = AssetDatabase.LoadAssetAtPath(AssetDatabase.GetAssetPath(_atlasData), typeof(Texture2D)) as Texture2D;
+        }
     }
 
     public void clear() {
@@ -34,9 +36,13 @@ public class AtlasBuilder {
 
         _atlasTexture = new Texture2D(width, height, TextureFormat.ARGB32, false);
         _atlasTexture.filterMode = FilterMode.Trilinear;
-        _offsetX = 0;
-        _offsetY = 0;
+        _atlasData.offsetX = 0;
+        _atlasData.offsetY = 0;
         AssetDatabase.AddObjectToAsset(_atlasTexture, _atlasData);
+    }
+
+    public bool hasAtlas() {
+        return _atlasTexture != null;
     }
 
     public Sprite getOriginalSprite(Sprite atlasSprite) {
@@ -65,21 +71,21 @@ public class AtlasBuilder {
                     sourceColor.a = 0;
                 }
 
-                _atlasTexture.SetPixel(x + _offsetX, y + _offsetY, sourceColor);
+                _atlasTexture.SetPixel(x + _atlasData.offsetX, y + _atlasData.offsetY, sourceColor);
             }
         }
         _atlasTexture.Apply();
 
-        Sprite newSprite = Sprite.Create(_atlasTexture, new Rect(2 + _offsetX, 2 + _offsetY, 64, 64), new Vector2(0.5f, 0.5f), 64);
+        Sprite newSprite = Sprite.Create(_atlasTexture, new Rect(2 + _atlasData.offsetX, 2 + _atlasData.offsetY, 64, 64), new Vector2(0.5f, 0.5f), 64);
         newSprite.name = "[Atlas]" + sourceSprite.name;
 
         AssetDatabase.AddObjectToAsset(newSprite, _atlasTexture);
         AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(newSprite));
 
-        _offsetX += 68;
-        if (_offsetX + 68 >= _atlasTexture.width) {
-            _offsetX = 0;
-            _offsetY += 68;
+        _atlasData.offsetX += 68;
+        if (_atlasData.offsetX + 68 >= _atlasTexture.width) {
+            _atlasData.offsetX = 0;
+            _atlasData.offsetY += 68;
         }
 
         _atlasData.atlasSprites.Add(newSprite);

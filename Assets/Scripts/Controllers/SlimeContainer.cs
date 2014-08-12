@@ -74,6 +74,9 @@ public class SlimeContainer : MonoBehaviour, IDamageable, ISaveable {
                 decrementContainer();
                 SlimeController.getInstance().gainEnergy(20);
                 containeropened = true;
+                if(Analytics.Enabled){
+                    GA.API.Design.NewEvent("Slime Tanks Opened", gameObject.transform.position);
+                }
             }
             replaceContainer();
         }

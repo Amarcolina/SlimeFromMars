@@ -128,7 +128,7 @@ public class SlimeController : MonoBehaviour, ISaveable {
 
     // Update is called once per frame
     public void LateUpdate() {
-        if (Input.GetKeyDown(KeyCode.E)) {
+        if (Input.GetKeyDown(KeyCode.T)) {
             gainEnergy(1000000);
         }
         if (Input.GetKeyDown(KeyCode.R)) {
@@ -180,6 +180,9 @@ public class SlimeController : MonoBehaviour, ISaveable {
                 if (energy <= 0)
                 {
                     GameOver();
+                    if(Analytics.Enabled){
+                        GA.API.Design.NewEvent("Game Over", getCursorPosition());
+                    }
                 }
             }
         }
@@ -519,7 +522,10 @@ public class SlimeController : MonoBehaviour, ISaveable {
                 Irradiated radComponent = tile.GetComponent<Irradiated>();
                 if (radComponent == null)
                 {
-                    radComponent = tile.gameObject.AddComponent<Irradiated>();
+                    if(Analytics.Enabled){
+                        GA.API.Design.NewEvent("Radiation Defensive", getCursorPosition());
+                    }
+					radComponent = tile.gameObject.AddComponent<Irradiated>();
                 }
             };
             forEveryTileInCircle(circleFunction, getCursorPosition(), getRadiationDefenceRadius(), true);
@@ -549,7 +555,10 @@ public class SlimeController : MonoBehaviour, ISaveable {
                     BaseEnemy enemy = entity.GetComponent<BaseEnemy>();
                     if (enemy != null) {
                         didCast = true;
-                        enemy.gameObject.AddComponent<RadiationLeech>();
+                        if(Analytics.Enabled){
+                            GA.API.Design.NewEvent("Radiation Offensive", getCursorPosition());
+                        }
+						enemy.gameObject.AddComponent<RadiationLeech>();
                     }
                 }
             }
@@ -580,6 +589,9 @@ public class SlimeController : MonoBehaviour, ISaveable {
             if (tile.GetComponent<Slime>() != null) {
                 Electrified electrified = tile.gameObject.AddComponent<Electrified>();
                 electrified.setDamage(getElectricityDefenseDamage());
+                if(Analytics.Enabled){
+                    GA.API.Design.NewEvent("Electricity Defensive", gameObject.transform.position);
+                }
             }
         };
         forEveryTileInCircle(circleFunction, getStartLocation(), getElectricityDefenceRadius(), true);
@@ -604,7 +616,9 @@ public class SlimeController : MonoBehaviour, ISaveable {
                 GameObject electricityArc = new GameObject("ElectricityArc");
                 electricityArc.transform.position = getStartLocation();
                 ElectricityArc arc = electricityArc.AddComponent<ElectricityArc>();
-
+                if(Analytics.Enabled){
+                    GA.API.Design.NewEvent("Electricity Offensive", getCursorPosition());
+                }
                 arc.setArcRadius(_electricityLevel + 1);
                 arc.setArcDamage(getElectricityOffenseDamage());
                 arc.setArcNumber(_electricityLevel + 1);
@@ -634,6 +648,9 @@ public class SlimeController : MonoBehaviour, ISaveable {
                 tile.isSlimeable = true;
                 tile.isTransparent = true;
                 tile.gameObject.AddComponent<BioMutated>();
+                if(Analytics.Enabled){
+                    GA.API.Design.NewEvent("Bio Defensive", gameObject.transform.position);
+                }
             }
         };
         forEveryTileInCircle(circleFuction, getStartLocation(), getBioDefenceRadius(), true);
@@ -660,6 +677,9 @@ public class SlimeController : MonoBehaviour, ISaveable {
             usingBioLance = true;
             loseEnergy(BIO_OFFENSE_COST);
             sound.PlaySound(gameObject.transform, _bioOffenseSFX);
+            if(Analytics.Enabled){
+                GA.API.Design.NewEvent("Bio Offensive", getCursorPosition());
+            }
             return true;
         }
         usingBioLance = false;
@@ -747,6 +767,9 @@ public class SlimeController : MonoBehaviour, ISaveable {
     }
 
     public void gainBioLevel() {
+        if(Analytics.Enabled){
+            GA.API.Design.NewEvent("Bio Levels Gained", gameObject.transform.position);
+        }
         sound.PlaySound(gameObject.transform, _slimeEatingBioSFX);
         _bioLevel++;
         _gameUi.BioUpdate(_bioLevel);
@@ -757,6 +780,9 @@ public class SlimeController : MonoBehaviour, ISaveable {
     }
 
     public void gainElectricityLevel() {
+        if(Analytics.Enabled){
+            GA.API.Design.NewEvent("Electricity Levels Gained", gameObject.transform.position);
+        }
         sound.PlaySound(gameObject.transform, _slimeEatingElectricitySFX);
         _electricityLevel++;
         _gameUi.LightningUpdate(_electricityLevel);
@@ -767,6 +793,9 @@ public class SlimeController : MonoBehaviour, ISaveable {
     }
 
     public void gainRadiationLevel() {
+        if(Analytics.Enabled){
+            GA.API.Design.NewEvent("Radiation Levels Gained", gameObject.transform.position);
+        }
         sound.PlaySound(gameObject.transform, _slimeEatingRadioActivateSFX);
         _radiationLevel++;
         _gameUi.RadiationUpdate(_radiationLevel);

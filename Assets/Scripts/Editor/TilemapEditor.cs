@@ -269,18 +269,22 @@ public class TilemapEditor : Editor {
             }
         }
 
-
         builder.finalize();
+
+        string[] propertyNames = { "groundSprite", "groundEffectSprite", "objectSprite", "overlaySprite" };
 
         foreach (GameObject _prefab in _tilePrefabs) {
             Tile tile = _prefab.GetComponent<Tile>();
             SerializedObject tileObject = new SerializedObject(tile);
-            SerializedProperty prop = tileObject.FindProperty("groundSprite");
-            Sprite currentSprite = prop.objectReferenceValue as Sprite;
-            if (currentSprite != null) {
-                prop.objectReferenceValue = _spriteMap[currentSprite];
-                tileObject.ApplyModifiedProperties();
-                updateTilePrefab(_prefab);
+
+            foreach (string propertyName in propertyNames) {
+                SerializedProperty prop = tileObject.FindProperty(propertyName);
+                Sprite currentSprite = prop.objectReferenceValue as Sprite;
+                if (currentSprite != null) {
+                    prop.objectReferenceValue = _spriteMap[currentSprite];
+                    tileObject.ApplyModifiedProperties();
+                    updateTilePrefab(_prefab);
+                }
             }
         }
     }

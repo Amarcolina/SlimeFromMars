@@ -1,20 +1,49 @@
 ﻿using UnityEngine;
 using UnityEditor;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 
+public class AtlasData : ScriptableObject {
+    public List<Sprite> atlasSprites = new List<Sprite>();
+    public List<Sprite> originalSprites = new List<Sprite>();
+}
+
 public class AtlasBuilder {
+    private AtlasData _atlasData = null;
     private Texture2D _atlasTexture = null;
     private int _offsetX = 0, _offsetY = 0;
 
-    public AtlasBuilder(int width, int height, string path) {
-        _atlasTexture = new Texture2D(width, height, TextureFormat.ARGB32, true, false);
-        _atlasTexture.filterMode = FilterMode.Trilinear;
-        AssetDatabase.CreateAsset(_atlasTexture, path);   
+    public AtlasBuilder(string path) {
+        _atlasData = AssetDatabase.LoadAssetAtPath(path, typeof(AtlasData)) as AtlasData;
+        if (_atlasData == null) {
+            Debug.Log("No atlas found, creating asset");
+            _atlasData = ScriptableObject.CreateInstance<AtlasData>();
+            AssetDatabase.CreateAsset(_atlasData, path);   
+        } 
     }
 
-    public void clear() {
+    public void startNewAtlas(int width, int height) {
+        _atlasData.originalSprites.Clear();
+        _atlasData.atlasSprites.Clear();
+        _atlasTexture = new Texture2D(width, height, TextureFormat.ARGB32, false);
+        _atlasTexture.filterMode = FilterMode.Trilinear;
+        _offsetX = 0;
+        _offsetY = 0;
+        AssetDatabase.AddObjectToAsset(_atlasTexture, _atlasData);
+    }
 
+    public Sprite getOriginalSprite(Sprite atlasSprite) {
+        for (int i = 0; i < _atlasData.atlasSprites.Count; i++) {
+            if (atlasSprite == _atlasData.atlasSprites[i]) {
+                return _atlasData.originalSprites[i];
+            }
+        }
+        return null;
+    }
+
+    public int spriteCount() {
+        return _atlasData.originalSprites.Count;
     }
 
     public Sprite addSprite(Sprite sprite) {
@@ -44,6 +73,9 @@ public class AtlasBuilder {
             _offsetX = 0;
             _offsetY += 68;
         }
+
+        _atlasData.atlasSprites.Add(newSprite);
+        _atlasData.originalSprites.Add(sprite);
 
         return newSprite;
     }

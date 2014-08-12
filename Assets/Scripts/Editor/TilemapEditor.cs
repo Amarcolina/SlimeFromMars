@@ -24,6 +24,7 @@ public class TilemapEditor : Editor {
 
     public void OnEnable() {
         refreshTilePrefabList();
+        _builder = new AtlasBuilder(ATLAS_PATH);
     }
 
     /* Draws the new inspector interfatce for the tilemap.  This allows
@@ -243,19 +244,36 @@ public class TilemapEditor : Editor {
 
 
     private void packSpritesIntoAtlas() {
-        HashSet<Sprite> _existingSprites = new HashSet<Sprite>();
+        HashSet<Sprite> existingSprites = new HashSet<Sprite>();
+        string[] propertyNames = { "groundSprite", "groundEffectSprite", "objectSprite", "overlaySprite" };
 
         foreach (GameObject _prefab in _tilePrefabs) {
             Tile tile = _prefab.GetComponent<Tile>();
-            _existingSprites.Add(tile.groundSprite);
-            _existingSprites.Add(tile.groundEffectSprite);
-            _existingSprites.Add(tile.objectSprite);
-            _existingSprites.Add(tile.overlaySprite);
+            SerializedObject tileObject = new SerializedObject(tile);
+
+            foreach (string propertyName in propertyNames) {
+                SerializedProperty prop = tileObject.FindProperty(propertyName);
+                Sprite currentSprite = prop.objectReferenceValue as Sprite;
+                if (currentSprite != null) {
+                    if (_builder.spriteCount() != 0) {
+                        Sprite originalSprite = _builder.getOriginalSprite(currentSprite);
+                        if(originalSprite != null){
+                            prop.objectReferenceValue = originalSprite;
+                            currentSprite = originalSprite;
+                        }
+                    }
+
+                    existingSprites.Add(currentSprite);
+                }
+            }
+
+            tileObject.ApplyModifiedProperties();
         }
 
         Dictionary<Sprite, Sprite> _spriteMap = new Dictionary<Sprite, Sprite>();
-        AtlasBuilder builder = new AtlasBuilder(1024, 1024, ATLAS_PATH);
-        foreach (Sprite sprite in _existingSprites) {
+        _builder.startNewAtlas(1024, 1024);
+
+        foreach (Sprite sprite in existingSprites) {
             if (sprite != null) {
                 string path = AssetDatabase.GetAssetPath(sprite);
                 TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
@@ -264,14 +282,12 @@ public class TilemapEditor : Editor {
                     AssetDatabase.ImportAsset(path);
                 }
 
-                Sprite atlasSprite = builder.addSprite(sprite);
+                Sprite atlasSprite = _builder.addSprite(sprite);
                 _spriteMap[sprite] = atlasSprite;
             }
         }
 
-        builder.finalize();
-
-        string[] propertyNames = { "groundSprite", "groundEffectSprite", "objectSprite", "overlaySprite" };
+        _builder.finalize(); 
 
         foreach (GameObject _prefab in _tilePrefabs) {
             Tile tile = _prefab.GetComponent<Tile>();

@@ -34,12 +34,10 @@ public class TilemapEditor : Editor {
     public override void OnInspectorGUI() {
         displayEditorHeader();
         displayTileChoiceScroller();
+        displayAtlasOptions();
 
         if (currentTilePrefab != null) {
             displayTileFieldEditor();
-            if (GUILayout.Button("Alas Sprites")) {
-                packSpritesIntoAtlas();
-            }
             GUILayout.Space(EditorGUIUtility.singleLineHeight);
             displayTilePreview();
             displayCopyButton();
@@ -49,6 +47,19 @@ public class TilemapEditor : Editor {
         }
 
         displayResetButton();
+    }
+
+    private void displayAtlasOptions() {
+        GUILayout.BeginHorizontal();
+        if (GUILayout.Button("Alas Sprites")) {
+            packSpritesIntoAtlas();
+        }
+        EditorGUI.BeginDisabledGroup(_builder.spriteCount() == 0);
+        if (GUILayout.Button("Unpack Sprites")) {
+            unpackSpritesFromAtlas();
+        }
+        EditorGUI.EndDisabledGroup();
+        GUILayout.EndHorizontal();
     }
 
     /* Draws the header for the editor.  This includes the Title bar, as
@@ -242,12 +253,48 @@ public class TilemapEditor : Editor {
         }
     }
 
+    private void unpackSpritesFromAtlas() {
+        string[] propertyNames = { "groundSprite", "groundEffectSprite", "objectSprite", "overlaySprite" };
+
+        float percentile = 1.0f / _tilePrefabs.Count;
+        for (int i=0; i<_tilePrefabs.Count; i++){
+            GameObject _prefab = _tilePrefabs[i];
+            Tile tile = _prefab.GetComponent<Tile>();
+            SerializedObject tileObject = new SerializedObject(tile);
+        
+            float percent = i * percentile;
+
+            foreach (string propertyName in propertyNames) {
+                SerializedProperty prop = tileObject.FindProperty(propertyName);
+                Sprite currentSprite = prop.objectReferenceValue as Sprite;
+                if (currentSprite != null) {
+                    if (_builder.spriteCount() != 0) {
+                        EditorUtility.DisplayProgressBar("Unpacking Sprites", "Unpacking " + currentSprite, percent);
+                        Sprite originalSprite = _builder.getOriginalSprite(currentSprite);
+                        if (originalSprite != null) {
+                            prop.objectReferenceValue = originalSprite;
+                        }
+                    }
+                }
+            }
+
+            tileObject.ApplyModifiedProperties();
+        }
+
+        EditorUtility.ClearProgressBar();
+    }
 
     private void packSpritesIntoAtlas() {
         HashSet<Sprite> existingSprites = new HashSet<Sprite>();
         string[] propertyNames = { "groundSprite", "groundEffectSprite", "objectSprite", "overlaySprite" };
 
-        foreach (GameObject _prefab in _tilePrefabs) {
+        unpackSpritesFromAtlas();
+
+        float percent = 0;
+        float percentile = 1.0f / _tilePrefabs.Count;
+
+        for (int i = 0; i < _tilePrefabs.Count; i++) {
+            GameObject _prefab = _tilePrefabs[i];
             Tile tile = _prefab.GetComponent<Tile>();
             SerializedObject tileObject = new SerializedObject(tile);
 
@@ -255,16 +302,11 @@ public class TilemapEditor : Editor {
                 SerializedProperty prop = tileObject.FindProperty(propertyName);
                 Sprite currentSprite = prop.objectReferenceValue as Sprite;
                 if (currentSprite != null) {
-                    if (_builder.spriteCount() != 0) {
-                        Sprite originalSprite = _builder.getOriginalSprite(currentSprite);
-                        if(originalSprite != null){
-                            prop.objectReferenceValue = originalSprite;
-                            currentSprite = originalSprite;
-                        }
-                    }
-
+                    EditorUtility.DisplayProgressBar("Packing Sprites", "Logging " + currentSprite, percent);
                     existingSprites.Add(currentSprite);
                 }
+
+                percent += percentile / 3.0f / 4.0f;
             }
 
             tileObject.ApplyModifiedProperties();
@@ -273,6 +315,8 @@ public class TilemapEditor : Editor {
         Dictionary<Sprite, Sprite> _spriteMap = new Dictionary<Sprite, Sprite>();
         _builder.startNewAtlas(1024, 1024);
 
+        percentile = 1.0f / existingSprites.Count;
+        
         foreach (Sprite sprite in existingSprites) {
             if (sprite != null) {
                 string path = AssetDatabase.GetAssetPath(sprite);
@@ -282,13 +326,18 @@ public class TilemapEditor : Editor {
                     AssetDatabase.ImportAsset(path);
                 }
 
+                EditorUtility.DisplayProgressBar("Packing Sprites", "Adding " + sprite + " to atlas...", percent);
+
                 Sprite atlasSprite = _builder.addSprite(sprite);
                 _spriteMap[sprite] = atlasSprite;
             }
+
+            percent += percentile / 3.0f;
         }
 
-        _builder.finalize(); 
+        _builder.finalize();
 
+        percentile = 1.0f / _tilePrefabs.Count;
         foreach (GameObject _prefab in _tilePrefabs) {
             Tile tile = _prefab.GetComponent<Tile>();
             SerializedObject tileObject = new SerializedObject(tile);
@@ -300,7 +349,11 @@ public class TilemapEditor : Editor {
                     prop.objectReferenceValue = _spriteMap[currentSprite];
                     tileObject.ApplyModifiedProperties();
                     updateTilePrefab(_prefab);
+
+                    EditorUtility.DisplayProgressBar("Packing Sprites", "Updating " + currentSprite, percent);
                 }
+
+                percent += percentile / 3.0f / 4.0f;
             }
         }
     }

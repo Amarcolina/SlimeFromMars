@@ -4,6 +4,7 @@ using System.Collections;
 //Energy is given based off item's size when consumed
 //Enemies are also considered consumeable
 public enum ItemSize {
+    TINY = 1,
     SMALL = 4,
     MEDIUM = 8,
     LARGE = 12

@@ -257,6 +257,9 @@ public class TilemapEditor : Editor {
         }
     }
 
+    /* Unpacks all of the sprites in the tile pool from the atlas.  This also
+     * clears out the atlas and removes any atlased sprites or texture
+     */
     private void unpackSpritesFromAtlas() {
         string[] propertyNames = { "groundSprite", "groundEffectSprite", "objectSprite", "overlaySprite" };
 
@@ -284,6 +287,9 @@ public class TilemapEditor : Editor {
         _builder.clear();
     }
 
+    /* Packs all of the sprites in the tile pool into the atlas.  This will only
+     * pack sprites which are not currently in the atlas already.  
+     */
     private void packSpritesIntoAtlas() {
         HashSet<Sprite> existingSprites = new HashSet<Sprite>();
         string[] propertyNames = { "groundSprite", "groundEffectSprite", "objectSprite", "overlaySprite" };

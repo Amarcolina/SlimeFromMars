@@ -130,7 +130,7 @@ public class TilemapEditor : Editor {
         }
 
         if (obj.ApplyModifiedProperties()) {
-            updateTilePrefab();
+            updateTilePrefab(currentTilePrefab);
         }
     }
 
@@ -280,6 +280,7 @@ public class TilemapEditor : Editor {
             if (currentSprite != null) {
                 prop.objectReferenceValue = _spriteMap[currentSprite];
                 tileObject.ApplyModifiedProperties();
+                updateTilePrefab(_prefab);
             }
         }
     }
@@ -294,11 +295,11 @@ public class TilemapEditor : Editor {
         }
     }
 
-    private void updateTilePrefab() {
-        GameObject obj = (GameObject)PrefabUtility.InstantiatePrefab(currentTilePrefab);
+    private void updateTilePrefab(GameObject tilePrefab) {
+        GameObject obj = (GameObject)PrefabUtility.InstantiatePrefab(tilePrefab);
         obj.hideFlags = HideFlags.HideAndDontSave;
         obj.GetComponent<Tile>().updateTileWithSettings();
-        PrefabUtility.ReplacePrefab(obj, currentTilePrefab);
+        PrefabUtility.ReplacePrefab(obj, tilePrefab);
         DestroyImmediate(obj);
     }
 

@@ -26,6 +26,7 @@ public class BackgroundMusic : MonoBehaviour
     void Awake()
     {
         volume = 1f;
+        DontDestroyOnLoad(this);
     }
 
     // Use this for initialization

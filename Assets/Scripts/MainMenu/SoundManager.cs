@@ -30,6 +30,7 @@ public class SoundManager : MonoBehaviour
         //Grab gameUI for menu settings
         gameUI = GameUI.getInstance();
         volume = 1f;
+        DontDestroyOnLoad(this);
     }
 
     // Update is called once per frame

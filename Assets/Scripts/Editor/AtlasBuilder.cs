@@ -4,12 +4,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 
-public class AtlasData : ScriptableObject {
-    public int offsetX = 0, offsetY = 0;
-    public List<Sprite> atlasSprites = new List<Sprite>();
-    public List<Sprite> originalSprites = new List<Sprite>();
-}
-
 public class AtlasBuilder {
     private AtlasData _atlasData = null;
     private Texture2D _atlasTexture = null;
@@ -29,6 +23,7 @@ public class AtlasBuilder {
     public void clear() {
         _atlasData = ScriptableObject.CreateInstance<AtlasData>();
         AssetDatabase.CreateAsset(_atlasData, _path);
+        AssetDatabase.SaveAssets();
     }
 
     public void startNewAtlas(int width, int height) {
@@ -55,19 +50,28 @@ public class AtlasBuilder {
     }
 
     public int getSpriteCount() {
+        if (_atlasData == null) {
+            return 0;
+        }
         return _atlasData.originalSprites.Count;
     }
 
     public Sprite addSprite(Sprite sourceSprite) {
         Texture2D sourceTex = sourceSprite.texture;
 
-        for(int x=0; x<68; x++){
-            int texX = Mathf.Clamp(x-2, 0, 63) + (int)sourceSprite.textureRect.x;
-            for(int y=0; y<68; y++){
-                int texY = Mathf.Clamp(y-2, 0, 63) + (int)sourceSprite.textureRect.y;
+        for (int i = 0; i < _atlasData.originalSprites.Count; i++) {
+            if (_atlasData.originalSprites[i] == sourceSprite) {
+                return _atlasData.atlasSprites[i];
+            }
+        }
+
+        for (int x = 0; x < 68; x++) {
+            int texX = Mathf.Clamp(x - 2, 0, 63) + (int)sourceSprite.textureRect.x;
+            for (int y = 0; y < 68; y++) {
+                int texY = Mathf.Clamp(y - 2, 0, 63) + (int)sourceSprite.textureRect.y;
 
                 Color sourceColor = sourceTex.GetPixel(texX, texY);
-                if(x == 0 || y == 0 || x == 67 || y == 67){
+                if (x == 0 || y == 0 || x == 67 || y == 67) {
                     sourceColor.a = 0;
                 }
 

@@ -318,6 +318,11 @@ public class TilemapEditor : Editor {
             if (sprite != null) {
                 string path = AssetDatabase.GetAssetPath(sprite);
                 TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
+
+                if (importer == null) {
+                    continue;
+                }
+
                 if (!importer.isReadable) {
                     importer.isReadable = true;
                     AssetDatabase.ImportAsset(path);

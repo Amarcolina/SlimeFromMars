@@ -215,6 +215,23 @@ public class SoldierEnemy : BaseEnemy {
         yield return StartCoroutine(Astar.findPathCoroutine(newPath, transform.position, _investigateLocation, settings));
 
         _investigatePath = newPath.Count == 0 ? null : newPath;
+
+        Vector2Int currNode = _investigatePath.getCurrent();
+        while(true){
+            if (!_investigatePath.hasNext()) {
+                break;
+            }
+
+            Vector2Int nextNode = _investigatePath.getNext();
+
+            float currDist = Vector2Int.distance(transform.position, currNode);
+            float nextDist = Vector2Int.distance(transform.position, nextNode);
+            
+            if (currDist < nextDist) {
+                break;
+            }
+        }
+
         _isCalculatingInvestigatePath = false;
     }
 }

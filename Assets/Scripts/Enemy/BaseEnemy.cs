@@ -7,7 +7,7 @@ public enum EnemyState {
     FLEEING,
     HIDING,
     ATTACKING,
-    STARTLED,
+    STARTLED
 }
 
 public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable, ISaveable{
@@ -363,7 +363,7 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable, ISa
     private Slime _nearestSlime = null;
     private float _nextUpdateNearestSlimeTime = -1;
     private float _lastTimeViewedSlime = 0.0f;
-    protected Slime getNearestVisibleSlime(int maxTileDistance = 20, bool forceUpdate = false) {
+    protected virtual Slime getNearestVisibleSlime(int maxTileDistance = 20, bool forceUpdate = false) {
         if (Time.time < _nextUpdateNearestSlimeTime && !forceUpdate) {
             if (_nearestSlime != null) {
                 _lastTimeViewedSlime = Time.time;
@@ -406,9 +406,6 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable, ISa
     }
 
     public static bool tileRayHitSlime(GameObject tileObj) {
-        if ((tileObj != null) && (tileObj.GetComponent<Tile>() == null)) {
-            Debug.Log(tileObj);
-        }
         if (tileObj == null || !tileObj.GetComponent<Tile>().isTransparent) {
             return true;
         }
@@ -467,7 +464,7 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable, ISa
         return false;
     }
 
-    public void OnDrawGizmos() {
+    public virtual void OnDrawGizmos() {
         if (_fleePath != null) {
             Gizmos.color = Color.blue;
             for (int i = 0; i < _fleePath.Count - 1; i++) {

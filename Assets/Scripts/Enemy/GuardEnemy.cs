@@ -1,29 +1,31 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
-public class GuardEnemy : BaseEnemy {
-    public float wanderSpeed = 2.5f;
-    public float attackSpeed = 3.5f;
-    public float startledSpeed = 4.5f;
-
+public class GuardEnemy : SoldierEnemy {
+    public Transform locationToWatch;
     [MinValue(0)]
-    public float timePerShot = 1.5f;
-    [MinValue(0)]
-    public float fireRange = 8.0f;
+    public float locationSize = 3;
 
-    public GameObject shotPrefab = null;
-    public GameObject flamethrowerEffect = null;
-    public Transform shotOrigin;
-
-    private float _shotCooldownLeft = 0.0f;
-
-    private AudioClip flameThrowerSFX;
+    protected Vector3 _locationToStandGuard;
+    protected Vector3 _locationToWatch;
+    protected List<Vector2Int> _locationsToWatch = new List<Vector2Int>();
+    protected Path _pathBackToGuardLocatin = null;
 
     public override void Awake() {
         base.Awake();
-        _currentState = startState;
 
-        flameThrowerSFX = Resources.Load<AudioClip>("Sounds/SFX/guard_flamethrower");
+        _locationToStandGuard = transform.position;
+        _locationToWatch = locationToWatch.position;
+
+        Vector3 delta = locationToWatch.position - transform.position;
+        Vector3 tangent = new Vector3(delta.y, -delta.x, 0).normalized;
+        for (float t = -locationSize / 2.0f; t <= locationSize / 2.0f; t += 0.25f) {
+            Vector2Int tileLocation = locationToWatch.position + tangent * t;
+            if (!_locationsToWatch.Contains(tileLocation)) {
+                _locationsToWatch.Add(tileLocation);
+            }
+        }
     }
 
     void Update() {
@@ -36,75 +38,95 @@ public class GuardEnemy : BaseEnemy {
 
     //Wander state
     protected override void onEnterWanderState() {
-        recalculateMovementPatternPath();
+        _pathBackToGuardLocatin = Astar.findPath(transform.position, _locationToStandGuard);
     }
 
     protected override void wanderState() {
-        followMovementPattern(wanderSpeed);
+        bool isAtDestination = false;
+        if (_pathBackToGuardLocatin == null) {
+            isAtDestination = moveTowardsPointAstar(_locationToStandGuard);
+        } else {
+            isAtDestination = followPath(_pathBackToGuardLocatin);
+        }
+
+        if (isAtDestination) {
+            _enemyAnimation.Flip(_locationToStandGuard.x - transform.position.x > 0.0f ? 1.0f : -1.0f);
+        }
+
         tryEnterState(EnemyState.ATTACKING);
+        tryEnterState(EnemyState.FLEEING);
     }
 
     //Attack state
     protected override bool canEnterAttackState() {
-        return getNearestVisibleSlime() != null;
-    }
-
-    protected override void onEnterAttackState() {
-        _shotCooldownLeft = 0.0f;
-    }
-
-    protected override void attackState() {
-        if (_shotCooldownLeft >= 0.0f) {
-            _shotCooldownLeft -= Time.deltaTime;
-            _enemyAnimation.EnemyStopped();
-            return;
-        }
-
-        if (getNearestVisibleSlime() == null) {
-            tryEnterState(EnemyState.WANDERING);
-            return;
-        }
-
-        if (Vector3.Distance(shotOrigin.position, getNearestVisibleSlime().transform.position) > fireRange ||
-            Mathf.Abs(transform.position.y - getNearestVisibleSlime().transform.position.y) > 0.1f) {
-                moveTowardsPointAstar(getNearestVisibleSlime().transform.position, attackSpeed);
+        if (isAtPost()) {
+            return getSlimeInVisionCone() != null && bullets != 0;
         } else {
-            if (getNearestVisibleSlime(20, true) != null) {
-                _shotCooldownLeft = timePerShot;
-                _enemyAnimation.EnemyShoot(getNearestVisibleSlime().transform.position.x > shotOrigin.position.x ? 1.0f : -1.0f);
-                _soundManager.PlaySound(gameObject.transform, flameThrowerSFX);
+            return getNearestVisibleSlime() != null && bullets != 0;
+        }
+    }
+
+    //Flee state
+    protected override bool canEnterFleeState() {
+        if (isAtPost()) {
+            return getSlimeInVisionCone() != null && bullets == 0;
+        } else {
+            return getNearestVisibleSlime() != null && bullets == 0;
+        }
+    }
+
+    //Functions
+
+    protected bool isAtPost() {
+        Vector2Int pos0 = transform.position;
+        Vector2Int pos1 = _locationToStandGuard;
+        return pos0 == pos1;
+    }
+
+    protected override Slime getNearestVisibleSlime(int maxTileDistance = 20, bool forceUpdate = false) {
+        Slime s = getSlimeInVisionCone();
+        if (s == null) {
+            s = base.getNearestVisibleSlime(maxTileDistance, forceUpdate);
+        }
+        return s;
+    }
+
+    protected Slime getSlimeInVisionCone() {
+        foreach (Vector2Int pos in _locationsToWatch) {
+            TileRayHit hit = TilemapUtilities.castTileRay(transform.position, pos, BaseEnemy.tileRayHitSlime);
+
+            if (hit.didHit) {
+                GameObject hitObj = _tilemap.getTileGameObject(hit.hitPosition);
+                if (hitObj != null) {
+                    Slime slime = hitObj.GetComponent<Slime>();
+                    if (slime != null) {
+                        return slime;
+                    }
+                }
             }
         }
+
+        return null;
     }
 
-    public void OnEnemyFire() {
-        Vector3 direction = transform.localScale.x > 0.0f ? Vector3.right : Vector3.left;
-        float fireAngle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
-        Quaternion particleRotation = Quaternion.Euler(0, 0, fireAngle);
-        GameObject effect = Instantiate(flamethrowerEffect, shotOrigin.position, particleRotation) as GameObject;
-        Destroy(effect, 10.0f);
+    public override void OnDrawGizmos() {
+        base.OnDrawGizmos();
 
-        for (int i = 0; i < 20; i++) {
-            float angleInsideOfCone = fireAngle + Random.Range(-30, 30);
-            Quaternion shotRotation = Quaternion.Euler(0, 0, angleInsideOfCone);
-            Instantiate(shotPrefab, shotOrigin.position, shotRotation);
+        Gizmos.color = Color.green;
+
+        Vector3 watch;
+        if (Application.isPlaying) {
+            watch = _locationToWatch;
+        } else {
+            watch = locationToWatch.position;
         }
 
-        Instantiate(shotPrefab, transform.position, particleRotation);
-    }
-
-    //Startled
-    private float _startledEndTime = 0.0f;
-
-    protected override void onEnterStartledState() {
-        _startledEndTime = Time.time + 2.0f;
-    }
-
-    protected override void startledState() {
-        if (Time.time > _startledEndTime) {
-            tryEnterState(EnemyState.WANDERING);
-        }
-
-        runAwayFromSlime(startledSpeed);
+        Vector3 delta = watch - transform.position;
+        Vector3 tangent = new Vector3(delta.y, -delta.x, 0).normalized;
+        Vector3 pos0 = watch + tangent * locationSize / 2.0f;
+        Vector3 pos1 = watch - tangent * locationSize / 2.0f;
+        Gizmos.DrawLine(transform.position, pos0);
+        Gizmos.DrawLine(transform.position, pos1);
+        Gizmos.DrawLine(pos1, pos0);
     }
 }

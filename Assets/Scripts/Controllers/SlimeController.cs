@@ -144,9 +144,16 @@ public class SlimeController : MonoBehaviour, ISaveable {
         if (_currentSelectedSlime != null) {
             attemptToEat();
         }
-        if(energy <= 0){
+        if (energy <= 0)
+        {
             StartCoroutine(GameOverCoroutine());
         }
+        else
+        {
+            PauseMenu pause = _gameUi.GetComponent<PauseMenu>();
+            pause.removeGameOver();
+        }
+            
         if (_shouldSkipNext) {
             _shouldSkipNext = Input.GetKey(KeyCode.Mouse0) || Input.GetKey(KeyCode.Mouse1);
         } else {

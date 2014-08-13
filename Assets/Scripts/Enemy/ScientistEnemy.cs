@@ -21,8 +21,8 @@ public class ScientistEnemy : BaseEnemy {
         _hidingSpots = null;
     }
 
-    public override void Awake() {
-        base.Awake();
+    public override void Start() {
+        base.Start();
         if (_hidingSpots == null) {
             _hidingSpots = FindObjectsOfType<ScientistHidingSpot>();
         }

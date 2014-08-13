@@ -2,12 +2,14 @@
 using System.Collections;
 
 public class SoldierEnemy : BaseEnemy {
+    public const int MAX_BULLETS = 8;
+
     public float wanderSpeed = 2.5f;
     public float fleeSpeed = 3.5f;
     public float startledSpeed = 4.5f;
 
-    [MinValue (0)]
-    public int bullets = 20;
+    [Range (0, MAX_BULLETS)]
+    public int bullets = MAX_BULLETS;
     [MinValue (0)]
     public float timePerShot = 1.5f;
     [MinValue (0)]
@@ -125,11 +127,11 @@ public class SoldierEnemy : BaseEnemy {
         bool shouldSearchForCache = Time.time > _startSearchingForCacheTime && cache != null;
 
         if (shouldSearchForCache) {
-            bool doneWithPath = pathTowardsLocation(cache.transform.position);
+            bool doneWithPath = pathTowardsLocation(cache.pathingWaypoint.position);
 
             if (doneWithPath) {
-                if (isAtDestination(cache.transform.position)) {
-                    bullets += 1;
+                if (isAtDestination(cache.pathingWaypoint.position)) {
+                    bullets += cache.takeBullets(MAX_BULLETS);
                     if (!tryEnterState(EnemyState.INVESTIGATE)) {
                         tryEnterState(EnemyState.WANDERING);
                     }

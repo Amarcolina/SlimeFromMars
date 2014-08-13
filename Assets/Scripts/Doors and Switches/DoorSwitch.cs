@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class DoorSwitch: MonoBehaviour, IDamageable, ISaveable {
+public class DoorSwitch: MonoBehaviour, IDamageable{
 
     public GenericDoor door;
     //if the switch is damaged it will activate the door with which it is affiliated
@@ -14,14 +14,6 @@ public class DoorSwitch: MonoBehaviour, IDamageable, ISaveable {
     }
 
     public float getHealth() {
-        throw new System.NotImplementedException();
-    }
-
-    public void onSave(SavedComponent data) {
-        throw new System.NotImplementedException();
-    }
-
-    public void onLoad(SavedComponent data) {
-        throw new System.NotImplementedException();
+        return 1;
     }
 }

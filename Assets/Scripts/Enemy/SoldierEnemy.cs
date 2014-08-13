@@ -170,4 +170,40 @@ public class SoldierEnemy : BaseEnemy {
 
         runAwayFromSlime(startledSpeed);
     }
+
+    //Investigate
+    protected Path _investigatePath = null;
+    protected bool _isCalculatingInvestigatePath = false;
+
+    protected override bool canEnterInvestigateState() {
+        return bullets != 0;
+    }
+
+    protected override void investigateState() {
+        if (_isCalculatingInvestigatePath) {
+            moveTowardsPointAstar(_lastSlimeViewed.transform.position);
+        } else {
+            if (_investigatePath == null) {
+                tryEnterState(EnemyState.WANDERING);
+            } else {
+                if (followPath(_investigatePath)) {
+                    tryEnterState(EnemyState.WANDERING);
+                }
+                tryEnterState(EnemyState.ATTACKING);
+            }
+        }
+    }
+
+    private IEnumerator calculateInvestigatePath() {
+        _isCalculatingInvestigatePath = true;
+
+        Path newPath = new Path();
+        AstarSettings settings = new AstarSettings();
+        settings.maxNodesToCheck = 1;
+
+        yield return StartCoroutine(Astar.findPathCoroutine(newPath, transform.position, _lastSlimeViewed.transform.position, settings));
+
+        _investigatePath = newPath.Count == 0 ? null : newPath;
+        _isCalculatingInvestigatePath = false;
+    }
 }

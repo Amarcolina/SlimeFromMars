@@ -529,15 +529,15 @@ public class SlimeController : MonoBehaviour, ISaveable {
                 Irradiated radComponent = tile.GetComponent<Irradiated>();
                 if (radComponent == null)
                 {
-                    if(Analytics.Enabled){
-                        GA.API.Design.NewEvent("Radiation Defensive", getCursorPosition());
-                    }
+                   
 					radComponent = tile.gameObject.AddComponent<Irradiated>();
                 }
             };
             forEveryTileInCircle(circleFunction, getCursorPosition(), getRadiationDefenceRadius(), true);
-
-            loseEnergy(RADIATION_DEFENSE_COST);
+			if(Analytics.Enabled){
+				GA.API.Design.NewEvent("Radiation Defensive", getCursorPosition());
+			}
+			loseEnergy(RADIATION_DEFENSE_COST);
             return true;
         }
         return false;

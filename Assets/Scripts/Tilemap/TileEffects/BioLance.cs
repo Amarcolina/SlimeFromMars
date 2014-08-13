@@ -11,6 +11,14 @@ public class BioLance : MonoBehaviour {
     public AnimationCurve outLengthCurve;
     public AnimationCurve inLengthCurve;
 
+    private SoundManager sound;
+    private AudioClip _bioOffenseSFX;
+    void Awake()
+    {
+        _bioOffenseSFX = Resources.Load<AudioClip>("Sounds/SFX/bio_offense_impale");
+        sound = SoundManager.getInstance();
+    }
+
     // Use this for initialization
     void Start() {
         _spineRenderer = GetComponent<SpineRenderer>();
@@ -54,7 +62,9 @@ public class BioLance : MonoBehaviour {
             objDamageable.damage(lanceDamage);
         }
 
-        if (objGrabbable != null) {
+        if (objGrabbable != null)
+        {
+            sound.PlaySound(gameObject.transform, _bioOffenseSFX);
             interactionObject.GetComponent<TileEntity>().pickUp();
         }
 

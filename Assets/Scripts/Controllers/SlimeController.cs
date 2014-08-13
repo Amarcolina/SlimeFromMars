@@ -85,7 +85,7 @@ public class SlimeController : MonoBehaviour, ISaveable {
         //Load all sounds from File
         _electricDefenseSFX = Resources.Load<AudioClip>("Sounds/SFX/electricity_defense");
         _bioDefenseSFX = Resources.Load<AudioClip>("Sounds/SFX/bio_defense");
-        _bioOffenseSFX = Resources.Load<AudioClip>("Sounds/SFX/bio_offense_impale");
+        _bioOffenseSFX = Resources.Load<AudioClip>("Sounds/SFX/bio_offense_begin");
         _radioactiveDefenseSFX = Resources.Load<AudioClip>("Sounds/SFX/radiation_defense");
         _radioactiveOffenseSFX = Resources.Load<AudioClip>("Sounds/SFX/radiation_offense");
         _slimeExpansionSFX = Resources.Load<AudioClip>("Sounds/SFX/slime_expanding");

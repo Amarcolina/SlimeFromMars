@@ -130,7 +130,11 @@ public class SoldierEnemy : BaseEnemy {
 
         if (_pathToWeaponCache != null) {
             if (followPath(_pathToWeaponCache)) {
-                //Get ammo!
+                bullets += 1;
+                _investigateLocation = _lastSlimeViewed.transform.position;
+                if (!tryEnterState(EnemyState.INVESTIGATE)) {
+                    tryEnterState(EnemyState.WANDERING);
+                }
             }
         } else {
             runAwayFromSlime();
@@ -174,9 +178,16 @@ public class SoldierEnemy : BaseEnemy {
     //Investigate
     protected Path _investigatePath = null;
     protected bool _isCalculatingInvestigatePath = false;
+    protected Vector3 _investigateLocation;
 
     protected override bool canEnterInvestigateState() {
         return bullets != 0;
+    }
+
+    protected override void onEnterInvestigateState() {
+        _investigatePath = null;
+        _isCalculatingInvestigatePath = false;
+        StartCoroutine(calculateInvestigatePath());
     }
 
     protected override void investigateState() {
@@ -201,7 +212,7 @@ public class SoldierEnemy : BaseEnemy {
         AstarSettings settings = new AstarSettings();
         settings.maxNodesToCheck = 1;
 
-        yield return StartCoroutine(Astar.findPathCoroutine(newPath, transform.position, _lastSlimeViewed.transform.position, settings));
+        yield return StartCoroutine(Astar.findPathCoroutine(newPath, transform.position, _investigateLocation, settings));
 
         _investigatePath = newPath.Count == 0 ? null : newPath;
         _isCalculatingInvestigatePath = false;

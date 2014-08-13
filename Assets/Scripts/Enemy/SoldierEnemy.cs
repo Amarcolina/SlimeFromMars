@@ -2,12 +2,14 @@
 using System.Collections;
 
 public class SoldierEnemy : BaseEnemy {
+    public const int MAX_BULLETS = 8;
+
     public float wanderSpeed = 2.5f;
     public float fleeSpeed = 3.5f;
     public float startledSpeed = 4.5f;
 
-    [MinValue (0)]
-    public int bullets = 20;
+    [Range (0, MAX_BULLETS)]
+    public int bullets = MAX_BULLETS;
     [MinValue (0)]
     public float timePerShot = 1.5f;
     [MinValue (0)]
@@ -17,12 +19,20 @@ public class SoldierEnemy : BaseEnemy {
     public Transform shotSpawn;
 
     private float _shotCooldownLeft = 0.0f;
-    
+    protected ProximitySearcher<WeaponCache> _cacheSearcher;
+    protected static WeaponCache[] _weaponCacheArray = null;
 
     private AudioClip bulletSFX;
 
     public override void Awake() {
         base.Awake();
+
+        if (_weaponCacheArray == null) {
+            _weaponCacheArray = FindObjectsOfType<WeaponCache>();
+        }
+
+        _cacheSearcher = new ProximitySearcher<WeaponCache>(_weaponCacheArray, 60.0f);
+
         _currentState = startState;
         bulletSFX = Resources.Load<AudioClip>("Sounds/SFX/soldier_bullet");
     }
@@ -43,7 +53,10 @@ public class SoldierEnemy : BaseEnemy {
     protected override void wanderState() {
         followMovementPattern(wanderSpeed);
         tryEnterState(EnemyState.ATTACKING);
-        tryEnterState(EnemyState.FLEEING);
+        if (bullets < MAX_BULLETS / 2) {
+            _investigateLocation = transform.position;
+            tryEnterState(EnemyState.FLEEING);
+        }
     }
 
     //Attack state
@@ -63,21 +76,22 @@ public class SoldierEnemy : BaseEnemy {
         }
 
         if (bullets == 0) {
-            if (!tryEnterState(EnemyState.FLEEING)) {
-                tryEnterState(EnemyState.WANDERING);
-            }
-        } else {
-            if (getNearestVisibleSlime() == null) {
-                tryEnterState(EnemyState.WANDERING);
-                return;
-            }
+            tryEnterState(EnemyState.FLEEING);
+            return;
+        }
 
-            if (Vector3.Distance(transform.position, getNearestVisibleSlime().transform.position) > fireRange) {
-                moveTowardsPointAstar(getNearestVisibleSlime().transform.position);
-            } else {
-                _shotCooldownLeft = timePerShot;
-                _enemyAnimation.EnemyShoot(getNearestVisibleSlime().transform.position.x > transform.position.x ? 1.0f : -1.0f);  
-            }
+        if (getNearestVisibleSlime() == null) {
+            tryEnterState(EnemyState.WANDERING);
+            return;
+        }
+
+        _investigateLocation = getNearestVisibleSlime().transform.position;
+
+        if (Vector3.Distance(transform.position, getNearestVisibleSlime().transform.position) > fireRange) {
+            moveTowardsPointAstar(getNearestVisibleSlime().transform.position);
+        } else {
+            _shotCooldownLeft = timePerShot;
+            _enemyAnimation.EnemyShoot(getNearestVisibleSlime().transform.position.x > transform.position.x ? 1.0f : -1.0f);  
         }
     }
 
@@ -98,12 +112,33 @@ public class SoldierEnemy : BaseEnemy {
     }
 
     //Flee state
-    protected override bool canEnterFleeState() {
-        return getNearestVisibleSlime() != null && bullets == 0;
+    protected float _startSearchingForCacheTime = 0;
+
+    protected override void onExitFleeState() {
+        _startSearchingForCacheTime = Time.time + 5.0f;
     }
 
     protected override void fleeState(){
-        runAwayFromSlime(fleeSpeed);
+        WeaponCache cache = _cacheSearcher.searchForClosest(transform.position);
+
+        bool shouldSearchForCache = Time.time > _startSearchingForCacheTime && cache != null;
+
+        if (shouldSearchForCache) {
+            bool doneWithPath = pathTowardsLocation(cache.pathingWaypoint.position);
+
+            if (doneWithPath) {
+                if (isAtDestination(cache.pathingWaypoint.position)) {
+                    bullets += cache.takeBullets(MAX_BULLETS);
+                    if (!tryEnterState(EnemyState.INVESTIGATE)) {
+                        tryEnterState(EnemyState.WANDERING);
+                    }
+                } else {
+                    tryEnterState(EnemyState.WANDERING);
+                }
+            }
+        } else {
+            runAwayFromSlime();
+        }
     }
 
     //Startled
@@ -119,5 +154,22 @@ public class SoldierEnemy : BaseEnemy {
         }
 
         runAwayFromSlime(startledSpeed);
+    }
+
+    //Investigate
+    protected Vector3 _investigateLocation;
+
+    protected override bool canEnterInvestigateState() {
+        return bullets != 0;
+    }
+
+    protected override void investigateState() {
+        tryEnterState(EnemyState.ATTACKING);
+
+        bool donePathing = pathTowardsLocation(_investigateLocation);
+
+        if (donePathing) {
+            tryEnterState(EnemyState.WANDERING);
+        }
     }
 }

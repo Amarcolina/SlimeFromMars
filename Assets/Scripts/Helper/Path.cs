@@ -115,4 +115,22 @@ public class Path {
         Vector2 dir = distance == 0.0f ? getSmoothPoint(distance + 0.1f) - point : point - getSmoothPoint(distance - 0.1f);
         return dir.normalized;
     }
+
+    public void truncateBegining(Vector2Int currentPosition) {
+        Vector2Int currNode = getCurrent();
+        while (true) {
+            if (!hasNext()) {
+                break;
+            }
+
+            Vector2Int nextNode = getNext();
+
+            float currDist = Vector2Int.distance(currentPosition, currNode);
+            float nextDist = Vector2Int.distance(currentPosition, nextNode);
+
+            if (currDist < nextDist) {
+                break;
+            }
+        }
+    }
 }

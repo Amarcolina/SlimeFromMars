@@ -16,10 +16,13 @@ public class SlimeContainer : MonoBehaviour, IDamageable, ISaveable {
     //upon creation, update container number plus one
 
     private static GameUI _gameUi;
+    private SoundManager sound;
+    private AudioClip breakSFX;
 
     void Awake() {
         partiallyDamagedSprite = Resources.Load<Sprite>("Sprites/Accessories/partiallyBrokenHoldingTube");
         brokenSprite = Resources.Load<Sprite>("Sprites/Accessories/escapedHoldingTube");
+        breakSFX = Resources.Load<AudioClip>("Sounds/SFX/container_break");
         spriteComponent = GetComponent<SpriteRenderer>();     
     }
 
@@ -32,6 +35,7 @@ public class SlimeContainer : MonoBehaviour, IDamageable, ISaveable {
             containerCounter++;
         }
         _gameUi = GameUI.getInstance();
+        sound = SoundManager.getInstance();
         gameObject.AddComponent<BoxCollider2D>();
     }
 
@@ -71,6 +75,7 @@ public class SlimeContainer : MonoBehaviour, IDamageable, ISaveable {
             } else if (partiallyDamaged) {
                 partiallyDamaged = false;
                 broken = true;
+                sound.PlaySound(gameObject.transform, breakSFX);
                 decrementContainer();
                 SlimeController.getInstance().gainEnergy(20);
                 containeropened = true;

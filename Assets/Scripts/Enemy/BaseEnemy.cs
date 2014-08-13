@@ -373,7 +373,6 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable, ISa
      * allon the 4 main axes and the 4 diagonals, so it will not return
      * correctly in every case
      */
-    protected Slime _lastSlimeViewed = null;
     private Slime _nearestSlime = null;
     private float _nextUpdateNearestSlimeTime = -1;
     private float _lastTimeViewedSlime = 0.0f;
@@ -397,7 +396,6 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable, ISa
                         float dist = (slime.transform.position - transform.position).sqrMagnitude;
                         if (dist < closestDistance) {
                             _nearestSlime = slime;
-                            _lastSlimeViewed = _nearestSlime;
                             closestDistance = dist;
                         }
                     }

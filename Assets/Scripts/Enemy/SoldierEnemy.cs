@@ -78,6 +78,8 @@ public class SoldierEnemy : BaseEnemy {
             if (getNearestVisibleSlime() == null) {
                 tryEnterState(EnemyState.WANDERING);
                 return;
+            } else {
+                _investigateLocation = getNearestVisibleSlime().transform.position;
             }
 
             if (Vector3.Distance(transform.position, getNearestVisibleSlime().transform.position) > fireRange) {
@@ -131,7 +133,6 @@ public class SoldierEnemy : BaseEnemy {
         if (_pathToWeaponCache != null) {
             if (followPath(_pathToWeaponCache)) {
                 bullets += 1;
-                _investigateLocation = _lastSlimeViewed.transform.position;
                 if (!tryEnterState(EnemyState.INVESTIGATE)) {
                     tryEnterState(EnemyState.WANDERING);
                 }
@@ -157,6 +158,10 @@ public class SoldierEnemy : BaseEnemy {
         yield return StartCoroutine(Astar.findPathCoroutine(newPath, transform.position, _currentCacheDestination.transform.position, settings));
 
         _pathToWeaponCache = newPath.Count == 0 ? null : newPath;
+        if (_pathToWeaponCache != null) {
+            _pathToWeaponCache.truncateBegining(transform.position);
+        }
+
         _isCalculatingWeaponCachePath = false;
     }
 
@@ -192,7 +197,7 @@ public class SoldierEnemy : BaseEnemy {
 
     protected override void investigateState() {
         if (_isCalculatingInvestigatePath) {
-            moveTowardsPointAstar(_lastSlimeViewed.transform.position);
+            moveTowardsPointAstar(_investigateLocation);
         } else {
             if (_investigatePath == null) {
                 tryEnterState(EnemyState.WANDERING);
@@ -215,7 +220,9 @@ public class SoldierEnemy : BaseEnemy {
         yield return StartCoroutine(Astar.findPathCoroutine(newPath, transform.position, _investigateLocation, settings));
 
         _investigatePath = newPath.Count == 0 ? null : newPath;
-        _investigatePath.truncateBegining();
+        if (_investigatePath != null) {
+            _investigatePath.truncateBegining(transform.position);
+        }
 
         _isCalculatingInvestigatePath = false;
     }

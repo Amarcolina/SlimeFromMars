@@ -53,7 +53,10 @@ public class SoldierEnemy : BaseEnemy {
     protected override void wanderState() {
         followMovementPattern(wanderSpeed);
         tryEnterState(EnemyState.ATTACKING);
-        tryEnterState(EnemyState.FLEEING);
+        if (bullets < MAX_BULLETS / 2) {
+            _investigateLocation = transform.position;
+            tryEnterState(EnemyState.FLEEING);
+        }
     }
 
     //Attack state
@@ -73,9 +76,7 @@ public class SoldierEnemy : BaseEnemy {
         }
 
         if (bullets == 0) {
-            if (!tryEnterState(EnemyState.FLEEING)) {
-                tryEnterState(EnemyState.WANDERING);
-            }
+            tryEnterState(EnemyState.FLEEING);
             return;
         }
 
@@ -112,10 +113,6 @@ public class SoldierEnemy : BaseEnemy {
 
     //Flee state
     protected float _startSearchingForCacheTime = 0;
-
-    protected override bool canEnterFleeState() {
-        return bullets == 0;
-    }
 
     protected override void onExitFleeState() {
         _startSearchingForCacheTime = Time.time + 5.0f;

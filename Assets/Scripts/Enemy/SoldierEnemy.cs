@@ -109,61 +109,37 @@ public class SoldierEnemy : BaseEnemy {
     }
 
     //Flee state
-    protected WeaponCache _currentCacheDestination = null;
-    protected Path _pathToWeaponCache = null;
-    protected bool _isCalculatingWeaponCachePath = false;
+    protected float _startSearchingForCacheTime = 0;
 
     protected override bool canEnterFleeState() {
         return bullets == 0;
     }
 
-    protected override void onEnterFleeState() {
-        _pathToWeaponCache = null;
-        _currentCacheDestination = null;
-        StartCoroutine(calculateWeaponCachePath(60));
+    protected override void onExitFleeState() {
+        _startSearchingForCacheTime = Time.time + 5.0f;
     }
 
     protected override void fleeState(){
-        if(!_isCalculatingWeaponCachePath){
-            WeaponCache newCache = _cacheSearcher.searchForClosest(transform.position);
-            if (newCache != _currentCacheDestination) {
-                StartCoroutine(calculateWeaponCachePath(0));
-            }
-        }
+        WeaponCache cache = _cacheSearcher.searchForClosest(transform.position);
 
-        if (_pathToWeaponCache != null) {
-            if (followPath(_pathToWeaponCache)) {
-                bullets += 1;
-                if (!tryEnterState(EnemyState.INVESTIGATE)) {
+        bool shouldSearchForCache = Time.time > _startSearchingForCacheTime && cache != null;
+
+        if (shouldSearchForCache) {
+            bool doneWithPath = pathTowardsLocation(cache.transform.position);
+
+            if (doneWithPath) {
+                if (isAtDestination(cache.transform.position)) {
+                    bullets += 1;
+                    if (!tryEnterState(EnemyState.INVESTIGATE)) {
+                        tryEnterState(EnemyState.WANDERING);
+                    }
+                } else {
                     tryEnterState(EnemyState.WANDERING);
                 }
             }
         } else {
             runAwayFromSlime();
         }
-    }
-    
-    private IEnumerator calculateWeaponCachePath(int preSearchAmount) {
-        _isCalculatingWeaponCachePath = true;
-
-        //Search for the closest for a an amount of time before starting Astar
-        for (int i = 0; i < preSearchAmount; i++) {
-            _currentCacheDestination = _cacheSearcher.searchForClosest(transform.position);
-            yield return null;
-        }
-
-        Path newPath = new Path();
-        AstarSettings settings = new AstarSettings();
-        settings.maxNodesToCheck = 1;
-
-        yield return StartCoroutine(Astar.findPathCoroutine(newPath, transform.position, _currentCacheDestination.transform.position, settings));
-
-        _pathToWeaponCache = newPath.Count == 0 ? null : newPath;
-        if (_pathToWeaponCache != null) {
-            _pathToWeaponCache.truncateBegining(transform.position);
-        }
-
-        _isCalculatingWeaponCachePath = false;
     }
 
     //Startled
@@ -182,49 +158,19 @@ public class SoldierEnemy : BaseEnemy {
     }
 
     //Investigate
-    protected Path _investigatePath = null;
-    protected bool _isCalculatingInvestigatePath = false;
     protected Vector3 _investigateLocation;
 
     protected override bool canEnterInvestigateState() {
         return bullets != 0;
     }
 
-    protected override void onEnterInvestigateState() {
-        _investigatePath = null;
-        _isCalculatingInvestigatePath = false;
-        StartCoroutine(calculateInvestigatePath());
-    }
-
     protected override void investigateState() {
-        if (_isCalculatingInvestigatePath) {
-            moveTowardsPointAstar(_investigateLocation);
-        } else {
-            if (_investigatePath == null) {
-                tryEnterState(EnemyState.WANDERING);
-            } else {
-                if (followPath(_investigatePath)) {
-                    tryEnterState(EnemyState.WANDERING);
-                }
-                tryEnterState(EnemyState.ATTACKING);
-            }
+        tryEnterState(EnemyState.ATTACKING);
+
+        bool donePathing = pathTowardsLocation(_investigateLocation);
+
+        if (donePathing) {
+            tryEnterState(EnemyState.WANDERING);
         }
-    }
-
-    private IEnumerator calculateInvestigatePath() {
-        _isCalculatingInvestigatePath = true;
-
-        Path newPath = new Path();
-        AstarSettings settings = new AstarSettings();
-        settings.maxNodesToCheck = 1;
-
-        yield return StartCoroutine(Astar.findPathCoroutine(newPath, transform.position, _investigateLocation, settings));
-
-        _investigatePath = newPath.Count == 0 ? null : newPath;
-        if (_investigatePath != null) {
-            _investigatePath.truncateBegining(transform.position);
-        }
-
-        _isCalculatingInvestigatePath = false;
     }
 }

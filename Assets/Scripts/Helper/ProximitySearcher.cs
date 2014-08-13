@@ -51,6 +51,10 @@ public class ProximitySearcher<T> where T : Component{
      * This method returns the closest element so far that has been found.  
      */
     public T searchForClosest(Vector3 position, int globalCount = 1, int localCount = 1) {
+        if (_length == 0) {
+            return null;
+        }
+
         for (int i = 0; i < globalCount; i++) {
             proccessGlobalElement(position);
         }
@@ -89,6 +93,9 @@ public class ProximitySearcher<T> where T : Component{
         }
 
         if (checkNull(_currentLocalElement)) {
+            if (_length == 0) {
+                return;
+            }
             _currentLocalElement = (_currentLocalElement + 1) % _thresholdPointer;
             return;
         }
@@ -109,6 +116,9 @@ public class ProximitySearcher<T> where T : Component{
 
     private void proccessGlobalElement(Vector3 position) {
         if (checkNull(_currentGlobalElement)) {
+            if (_length == 0) {
+                return;
+            }
             _currentGlobalElement = (_currentGlobalElement + 1) % _length;
             return;
         }

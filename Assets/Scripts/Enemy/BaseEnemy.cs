@@ -229,6 +229,10 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable, ISa
     //##---------   MOVEMENT FUNCTIONS ------------------------------------------##
     //#############################################################################
 
+    protected bool isAtDestination(Vector2Int destination) {
+        return (Vector2Int) == destination;
+    }
+
     /* Calling this function every frame will result in the enemy following
      * their set movement path.  This handles everything from pathing using
      * Astar to automatically re-pathing if a path gets blocked.
@@ -347,6 +351,53 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable, ISa
         }
 
         return (Vector2Int)destination == (Vector2Int)transform.position;
+    }
+
+    private Vector2Int _pathTowardsLocationDestination = null;
+    private Path _pathTowardsLocationPath = null;
+    private bool _calculatingPathTowardsLocation = false;
+    protected bool pathTowardsLocation(Vector2Int location, float speed = 2.5f) {
+        if (location != _pathTowardsLocationDestination) {
+            _pathTowardsLocationDestination = location;
+            if (_calculatingPathTowardsLocation) {
+                StopCoroutine("calculatePathTowardsLocation");
+            }
+            StartCoroutine("calculatePathTowardsLocation");
+        }
+
+        if (!_calculatingPathTowardsLocation && _pathTowardsLocationPath == null) {
+            return true;
+        }
+
+        if (_pathTowardsLocationPath != null) {
+            Vector2Int delta = _pathTowardsLocationPath.getCurrent() - (Vector2Int)transform.position;
+            if (delta.getLengthSqrd() > 2) {
+                moveTowardsPointAstar(_pathTowardsLocationPath.getCurrent(), speed);
+            } else {
+                followPath(_pathTowardsLocationPath, speed);
+            }
+        } else {
+            moveTowardsPointAstar(location, speed);
+        }
+
+        return (Vector2Int)transform.position == location;
+    }
+
+    private IEnumerator calculatePathTowardsLocation() {
+        _calculatingPathTowardsLocation = true;
+
+        Path newPath = new Path();
+        AstarSettings settings = new AstarSettings();
+        settings.maxNodesToCheck = 1;
+
+        yield return StartCoroutine(Astar.findPathCoroutine(newPath, transform.position, _pathTowardsLocationDestination, settings));
+
+        _pathTowardsLocationPath = newPath.Count == 0 ? null : newPath;
+        if (_pathTowardsLocationPath != null) {
+            _pathTowardsLocationPath.truncateBegining(transform.position);
+        }
+
+        _calculatingPathTowardsLocation = false;
     }
 
     /* Calling this method every frame will move the enemy allong a given path

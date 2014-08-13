@@ -58,7 +58,9 @@ public class BioLance : MonoBehaviour {
         IDamageable objDamageable = interactionObject == null ? null : interactionObject.GetComponent(typeof(IDamageable)) as IDamageable;
         IGrabbable objGrabbable = interactionObject == null ? null : interactionObject.GetComponent(typeof(IGrabbable)) as IGrabbable;
 
-        if (objDamageable != null) {
+        if (objDamageable != null)
+        {
+            sound.PlaySound(gameObject.transform, _bioOffenseSFX);
             objDamageable.damage(lanceDamage);
         }
 

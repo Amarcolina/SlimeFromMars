@@ -7,6 +7,18 @@ public class DoorController : MonoBehaviour, ISaveable {
     private Tile[] tilesUnderDoor = new Tile[6];
     private Tile[] enemyEntranceTiles = new Tile[4];
 
+    private SoundManager sound;
+    private AudioClip openDoorSFX;
+    private AudioClip closeDoorSFX;
+    private AudioSource source;
+
+    void Awake()
+    {
+        sound = SoundManager.getInstance();
+        openDoorSFX = Resources.Load<AudioClip>("Sounds/SFX/door_open");
+        closeDoorSFX = Resources.Load<AudioClip>("Sounds/SFX/door_close");
+    }
+
     // Use this for initialization
     void Start() {
         //Gets the offset of each tile under the door and stores them in an array for ease of use, later
@@ -32,10 +44,12 @@ public class DoorController : MonoBehaviour, ISaveable {
     void Update() {
         if (safeToClose() && doorOpen) {
             doorClosedState();
+            sound.PlaySound(gameObject.transform, closeDoorSFX, true);
         }
 
         if (enemyDesiresEntrance() && !doorOpen) {
             doorOpenedState();
+            sound.PlaySound(gameObject.transform, openDoorSFX, true);
         }
     }
 

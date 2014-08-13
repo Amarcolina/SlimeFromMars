@@ -6,6 +6,7 @@ using System.Collections.Generic;
 
 [CustomEditor(typeof(Tilemap))]
 public class TilemapEditor : Editor {
+    public const string ATLAS_PATH = "Assets/Resources/Sprites/Tiles/TileAtlas.asset";
     public const int PREVIEW_BORDER = 9;
     public const int PREVIEW_SIZE = 64;
 
@@ -19,9 +20,11 @@ public class TilemapEditor : Editor {
 
     private List<GameObject> _tilePrefabs = new List<GameObject>();
     private float _spriteAngle = 0.0f;
+    private AtlasBuilder _builder;
 
     public void OnEnable() {
         refreshTilePrefabList();
+        _builder = new AtlasBuilder(ATLAS_PATH);
     }
 
     /* Draws the new inspector interfatce for the tilemap.  This allows
@@ -31,6 +34,7 @@ public class TilemapEditor : Editor {
     public override void OnInspectorGUI() {
         displayEditorHeader();
         displayTileChoiceScroller();
+        displayAtlasOptions();
 
         if (currentTilePrefab != null) {
             displayTileFieldEditor();
@@ -43,6 +47,24 @@ public class TilemapEditor : Editor {
         }
 
         displayResetButton();
+    }
+
+    private void displayAtlasOptions() {
+        GUILayout.BeginHorizontal();
+        if (GUILayout.Button("Pack Sprites")) {
+            packSpritesIntoAtlas();
+        }
+        EditorGUI.BeginDisabledGroup(_builder.getSpriteCount() == 0);
+        if (GUILayout.Button("Unpack Sprites")) {
+            unpackSpritesFromAtlas();
+            for(int i=0; i<_tilePrefabs.Count; i++){
+                updateTilePrefab(_tilePrefabs[i]);
+                EditorUtility.DisplayProgressBar("Unpacking Sprites", "Rebuilding prefab " + _tilePrefabs[i], (float)i / _tilePrefabs.Count);
+            }
+            EditorUtility.ClearProgressBar();
+        }
+        EditorGUI.EndDisabledGroup();
+        GUILayout.EndHorizontal();
     }
 
     /* Draws the header for the editor.  This includes the Title bar, as
@@ -125,7 +147,7 @@ public class TilemapEditor : Editor {
         }
 
         if (obj.ApplyModifiedProperties()) {
-            updateTilePrefab();
+            updateTilePrefab(currentTilePrefab);
         }
     }
 
@@ -220,11 +242,139 @@ public class TilemapEditor : Editor {
 
     private void drawSprite(Rect rect, Sprite sprite, float angle = 0.0f) {
         if (sprite) {
+            rect.x += (rect.width - rect.height) / 2.0f;
+            rect.width = rect.height;
+
             Matrix4x4 matrixBackup = GUI.matrix;
             GUIUtility.RotateAroundPivot(angle, rect.position + rect.size / 2.0f);
-            GUI.DrawTexture(rect, sprite.texture, ScaleMode.ScaleToFit);
+            Rect coords = sprite.textureRect;
+            coords.x /= sprite.texture.width;
+            coords.y /= sprite.texture.height;
+            coords.width /= sprite.texture.width;
+            coords.height /= sprite.texture.height;
+            GUI.DrawTextureWithTexCoords(rect, sprite.texture, coords);
             GUI.matrix = matrixBackup;
         }
+    }
+
+    /* Unpacks all of the sprites in the tile pool from the atlas.  This also
+     * clears out the atlas and removes any atlased sprites or texture
+     */
+    private void unpackSpritesFromAtlas() {
+        string[] propertyNames = { "groundSprite", "groundEffectSprite", "objectSprite", "overlaySprite" };
+
+        for (int i=0; i<_tilePrefabs.Count; i++){
+            GameObject _prefab = _tilePrefabs[i];
+            Tile tile = _prefab.GetComponent<Tile>();
+            SerializedObject tileObject = new SerializedObject(tile);
+        
+            foreach (string propertyName in propertyNames) {
+                SerializedProperty prop = tileObject.FindProperty(propertyName);
+                Sprite currentSprite = prop.objectReferenceValue as Sprite;
+                if (currentSprite != null) {
+                    if (_builder.getSpriteCount() != 0) {
+                        Sprite originalSprite = _builder.getOriginalSprite(currentSprite);
+                        if (originalSprite != null) {
+                            prop.objectReferenceValue = originalSprite;
+                        }
+                    }
+                }
+            }
+
+            tileObject.ApplyModifiedProperties();
+        }
+
+        _builder.clear();
+    }
+
+    /* Packs all of the sprites in the tile pool into the atlas.  This will only
+     * pack sprites which are not currently in the atlas already.  
+     */
+    private void packSpritesIntoAtlas() {
+        HashSet<Sprite> existingSprites = new HashSet<Sprite>();
+        string[] propertyNames = { "groundSprite", "groundEffectSprite", "objectSprite", "overlaySprite" };
+
+        if (!_builder.hasAtlas()) {
+            _builder.startNewAtlas(1024, 1024);
+        }
+
+        for (int i = 0; i < _tilePrefabs.Count; i++) {
+            GameObject _prefab = _tilePrefabs[i];
+            Tile tile = _prefab.GetComponent<Tile>();
+            SerializedObject tileObject = new SerializedObject(tile);
+
+            foreach (string propertyName in propertyNames) {
+                SerializedProperty prop = tileObject.FindProperty(propertyName);
+                Sprite currentSprite = prop.objectReferenceValue as Sprite;
+                if (currentSprite != null) {
+                    existingSprites.Add(currentSprite);
+                }
+            }
+
+            tileObject.ApplyModifiedProperties();
+        }
+
+        Dictionary<Sprite, Sprite> _newSpriteMap = new Dictionary<Sprite, Sprite>();
+
+        float percent = 0;
+        float percentile = 1.0f / existingSprites.Count;
+        
+        foreach (Sprite sprite in existingSprites) {
+            if (sprite != null) {
+                string path = AssetDatabase.GetAssetPath(sprite);
+                TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
+
+                if (importer == null) {
+                    continue;
+                }
+
+                if (!importer.isReadable) {
+                    importer.isReadable = true;
+                    AssetDatabase.ImportAsset(path);
+                }
+
+                EditorUtility.DisplayProgressBar("Packing Sprites", "Adding " + sprite + " to atlas...", percent);
+
+                Sprite atlasSprite = _builder.addSprite(sprite);
+                if (atlasSprite != null) {
+                    _newSpriteMap[sprite] = atlasSprite;
+                }
+            }
+
+            percent += percentile / 2.0f;
+        }
+
+        _builder.finalize();
+
+        percentile = 1.0f / _tilePrefabs.Count;
+        foreach (GameObject _prefab in _tilePrefabs) {
+            Tile tile = _prefab.GetComponent<Tile>();
+            SerializedObject tileObject = new SerializedObject(tile);
+
+            bool didModify = false;
+            foreach (string propertyName in propertyNames) {
+                SerializedProperty prop = tileObject.FindProperty(propertyName);
+                Sprite currentSprite = prop.objectReferenceValue as Sprite;
+                if (currentSprite != null) {
+                    Sprite atlasSprite;
+                    if (_newSpriteMap.TryGetValue(currentSprite, out atlasSprite)) {
+                        prop.objectReferenceValue = _newSpriteMap[currentSprite];
+                        didModify = true;
+                    }
+
+                    EditorUtility.DisplayProgressBar("Packing Sprites", "Updating " + currentSprite, percent);
+                }
+                percent += percentile / 2.0f / 4.0f;
+            }
+
+            if(didModify){
+                tileObject.ApplyModifiedProperties();
+                updateTilePrefab(_prefab);
+            }
+            
+        }
+
+        EditorUtility.ClearProgressBar();
     }
 
     private void refreshTilePrefabList() {
@@ -237,11 +387,11 @@ public class TilemapEditor : Editor {
         }
     }
 
-    private void updateTilePrefab() {
-        GameObject obj = (GameObject)PrefabUtility.InstantiatePrefab(currentTilePrefab);
+    private void updateTilePrefab(GameObject tilePrefab) {
+        GameObject obj = (GameObject)PrefabUtility.InstantiatePrefab(tilePrefab);
         obj.hideFlags = HideFlags.HideAndDontSave;
         obj.GetComponent<Tile>().updateTileWithSettings();
-        PrefabUtility.ReplacePrefab(obj, currentTilePrefab);
+        PrefabUtility.ReplacePrefab(obj, tilePrefab);
         DestroyImmediate(obj);
     }
 

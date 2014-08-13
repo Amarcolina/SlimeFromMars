@@ -3,6 +3,6 @@ using System.Collections;
 
 public static class Analytics{
 	
-	public const bool Enabled = false;
+	public static bool Enabled = false;
 	
 }

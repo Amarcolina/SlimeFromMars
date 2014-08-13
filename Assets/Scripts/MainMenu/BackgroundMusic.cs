@@ -5,8 +5,47 @@ public class BackgroundMusic : MonoBehaviour
 {
     public AudioClip music;
     private AudioSource source;
+    private static BackgroundMusic musicInstance;
     private int scene = -1;
+    public float volume;
 
+    public static BackgroundMusic getInstance()
+    {
+        if (musicInstance == null)
+        {
+            musicInstance = FindObjectOfType<BackgroundMusic>();
+            if (musicInstance == null)
+            {
+                GameObject obj = new GameObject("BackgroundMusic");
+                musicInstance = obj.AddComponent<BackgroundMusic>();
+            }
+        }
+        return musicInstance;
+    }
+
+    void Awake()
+    {
+        volume = 1f;
+        DontDestroyOnLoad(this);
+    }
+
+    // Use this for initialization
+    void Start()
+    {
+        BackgroundMusic[] musics = FindObjectsOfType<BackgroundMusic>();
+        if (musics.Length != 1)
+        {
+            Destroy(gameObject);
+        }
+
+        //DontDestroyOnLoad(gameObject);
+        scene = Application.loadedLevel;
+        source = gameObject.AddComponent<AudioSource>();
+        source.clip = music;
+        source.loop = true;
+        source.Play();
+        source.volume = volume;
+    }
     void OnLevelWasLoaded()
     {
         if (scene != -1 && Application.loadedLevel != scene)
@@ -28,23 +67,7 @@ public class BackgroundMusic : MonoBehaviour
         {
             mute(!source.mute);
         }
+        source.volume = volume;
     }
 
-    // Use this for initialization
-    void Start()
-    {
-        BackgroundMusic[] musics = FindObjectsOfType<BackgroundMusic>();
-        if (musics.Length != 1)
-        {
-            Destroy(gameObject);
-        }
-
-        //DontDestroyOnLoad(gameObject);
-        scene = Application.loadedLevel;
-
-        source = gameObject.AddComponent<AudioSource>();
-        source.clip = music;
-        source.loop = true;
-        source.Play();
-    }
 }

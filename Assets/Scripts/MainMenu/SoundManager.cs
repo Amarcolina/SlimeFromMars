@@ -8,6 +8,7 @@ public class SoundManager : MonoBehaviour
     private static SoundManager soundInstance;
     private List<AudioSource> sounds = new List<AudioSource>();
     private AudioSource[] sources;
+    public float volume;
 
     public static SoundManager getInstance()
     {
@@ -28,6 +29,8 @@ public class SoundManager : MonoBehaviour
     {
         //Grab gameUI for menu settings
         gameUI = GameUI.getInstance();
+        volume = 1f;
+        DontDestroyOnLoad(this);
     }
 
     // Update is called once per frame
@@ -37,6 +40,7 @@ public class SoundManager : MonoBehaviour
         {
             if (sounds[i] != null)
             {
+                sounds[i].volume = volume;
                 if (gameUI.GetComponent<PauseMenu>().sfxMuted)
                 {
                     sounds[i].mute = true;

@@ -98,6 +98,7 @@ public class Astar : MonoBehaviour {
             instance = _freeObjectStack.Peek();
         } else {
             GameObject obj = new GameObject("AstarSolver");
+            obj.hideFlags = HideFlags.HideAndDontSave;
             instance = obj.AddComponent<Astar>();
             _freeObjectStack.Push(instance);
         }

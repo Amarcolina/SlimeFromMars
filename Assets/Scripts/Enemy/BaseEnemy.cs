@@ -7,7 +7,8 @@ public enum EnemyState {
     FLEEING,
     HIDING,
     ATTACKING,
-    STARTLED
+    STARTLED,
+    INVESTIGATE
 }
 
 public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable, ISaveable{
@@ -163,6 +164,13 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable, ISa
                     exitFunction = onExitStartledState;
                 }
                 break;
+            case EnemyState.INVESTIGATE:
+                if (canEnterInvestigateState() || force) {
+                    newStateFunction = investigateState;
+                    enterFunction = onEnterinvestigateState;
+                    exitFunction = onExitinvestigateState;
+                }
+                break;
             default:
                 Debug.LogWarning("Cannot transition to state " + _currentState);
                 break;
@@ -211,6 +219,11 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable, ISa
     protected virtual void onEnterStartledState() { }
     protected virtual void onExitStartledState() { }
     protected virtual void startledState() { }
+
+    protected virtual bool canEnterInvestigateState() { return true; }
+    protected virtual void onEnterInvestigateState() { }
+    protected virtual void onExitInvestigateState() { }
+    protected virtual void investigateState() { }
 
     //#############################################################################
     //##---------   MOVEMENT FUNCTIONS ------------------------------------------##

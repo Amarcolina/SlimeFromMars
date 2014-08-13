@@ -17,12 +17,20 @@ public class SoldierEnemy : BaseEnemy {
     public Transform shotSpawn;
 
     private float _shotCooldownLeft = 0.0f;
-    
+    protected ProximitySearcher<WeaponCache> _cacheSearcher;
+    protected static WeaponCache[] _weaponCacheArray = null;
 
     private AudioClip bulletSFX;
 
     public override void Awake() {
         base.Awake();
+
+        if (_weaponCacheArray == null) {
+            _weaponCacheArray = FindObjectsOfType<WeaponCache>();
+        }
+
+        _cacheSearcher = new ProximitySearcher<WeaponCache>(_weaponCacheArray, 60.0f);
+
         _currentState = startState;
         bulletSFX = Resources.Load<AudioClip>("Sounds/SFX/soldier_bullet");
     }
@@ -98,12 +106,54 @@ public class SoldierEnemy : BaseEnemy {
     }
 
     //Flee state
+    protected WeaponCache _currentCacheDestination = null;
+    protected Path _pathToWeaponCache = null;
+    protected bool _isCalculatingWeaponCachePath = false;
+
     protected override bool canEnterFleeState() {
-        return getNearestVisibleSlime() != null && bullets == 0;
+        return bullets == 0;
+    }
+
+    protected override void onEnterFleeState() {
+        _pathToWeaponCache = null;
+        _currentCacheDestination = null;
+        StartCoroutine(calculateWeaponCachePath(60));
     }
 
     protected override void fleeState(){
-        runAwayFromSlime(fleeSpeed);
+        if(!_isCalculatingWeaponCachePath){
+            WeaponCache newCache = _cacheSearcher.searchForClosest(transform.position);
+            if (newCache != _currentCacheDestination) {
+                StartCoroutine(calculateWeaponCachePath(0));
+            }
+        }
+
+        if (_pathToWeaponCache != null) {
+            if (followPath(_pathToWeaponCache)) {
+                //Get ammo!
+            }
+        } else {
+            runAwayFromSlime();
+        }
+    }
+    
+    private IEnumerator calculateWeaponCachePath(int preSearchAmount) {
+        _isCalculatingWeaponCachePath = true;
+
+        //Search for the closest for a an amount of time before starting Astar
+        for (int i = 0; i < preSearchAmount; i++) {
+            _currentCacheDestination = _cacheSearcher.searchForClosest(transform.position);
+            yield return null;
+        }
+
+        Path newPath = new Path();
+        AstarSettings settings = new AstarSettings();
+        settings.maxNodesToCheck = 1;
+
+        yield return StartCoroutine(Astar.findPathCoroutine(newPath, transform.position, _currentCacheDestination.transform.position, settings));
+
+        _pathToWeaponCache = newPath.Count == 0 ? null : newPath;
+        _isCalculatingWeaponCachePath = false;
     }
 
     //Startled

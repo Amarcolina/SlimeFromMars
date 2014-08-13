@@ -5,6 +5,8 @@ using System.Collections.Generic;
 public class ProximitySearcher<T> where T : Component{
     private byte[] _indices;
     private T[] _objects;
+    private int _length;
+
     //This pointer points to the START of the discard pile
     private int _thresholdPointer = 0;
     private float _distanceThresholdSqrd = 0;
@@ -28,6 +30,8 @@ public class ProximitySearcher<T> where T : Component{
         if (objects.Length >= 255) {
             throw new System.Exception("Cannot operate on more than 256 objects at once");
         }
+
+        _length = objects.Length;
 
         _distanceThresholdSqrd = distanceThreshold * distanceThreshold;
         _objects = objects;
@@ -80,9 +84,17 @@ public class ProximitySearcher<T> where T : Component{
             return;
         }
 
+        if (_currentClosest == null) {
+            _currentClosest = _objects[_indices[0]];
+        }
+
+        if (checkNull(_currentLocalElement)) {
+            _currentLocalElement = (_currentLocalElement + 1) % _thresholdPointer;
+            return;
+        }
+
         _currentLocalElement = _currentLocalElement % _thresholdPointer;
         int elementIndex = _indices[_currentLocalElement];
-        _currentLocalElement++;
 
         T checkingElement = _objects[elementIndex];
         float distanceToCheckingElementSqrd = (checkingElement.transform.position - position).sqrMagnitude;
@@ -91,9 +103,17 @@ public class ProximitySearcher<T> where T : Component{
         if (distanceToCheckingElementSqrd < distanceToCurrElementSqrd) {
             _currentClosest = checkingElement;
         }
+
+        _currentLocalElement = (_currentLocalElement + 1) % _thresholdPointer;
     }
 
     private void proccessGlobalElement(Vector3 position) {
+        if (checkNull(_currentGlobalElement)) {
+            _currentGlobalElement = (_currentGlobalElement + 1) % _length;
+            return;
+        }
+
+        _currentGlobalElement = _currentGlobalElement % _length;
         int elementIndex = _indices[_currentGlobalElement];  
 
         T element = _objects[elementIndex];
@@ -109,7 +129,24 @@ public class ProximitySearcher<T> where T : Component{
             _thresholdPointer++;
         }
 
-        _currentGlobalElement = (_currentGlobalElement + 1) % _indices.Length;
+        _currentGlobalElement = (_currentGlobalElement + 1) % _length;
+    }
+
+    private bool checkNull(int index) {
+        int elementIndex = _indices[index];
+        if (_objects[elementIndex] == null) {
+            if (index < _thresholdPointer) {
+                _thresholdPointer--;
+                _length--;
+                swap(index, _thresholdPointer);
+                swap(_thresholdPointer, _length);
+            } else {
+                _length--;
+                swap(index, _length);
+            }
+            return true;
+        }
+        return false;
     }
 
     private void swap(int index0, int index1) {

@@ -60,14 +60,17 @@ public class BioLance : MonoBehaviour {
 
         if (objDamageable != null)
         {
-            sound.PlaySound(gameObject.transform, _bioOffenseSFX);
             objDamageable.damage(lanceDamage);
         }
 
         if (objGrabbable != null)
         {
-            sound.PlaySound(gameObject.transform, _bioOffenseSFX);
             interactionObject.GetComponent<TileEntity>().pickUp();
+        }
+
+        if (objGrabbable != null || objDamageable != null)
+        {
+            sound.PlaySound(gameObject.transform, _bioOffenseSFX);
         }
 
         for (float percent = 0; percent <= 1; percent += (SPINE_SPEED / (lancePath.getLength())) * Time.deltaTime) {

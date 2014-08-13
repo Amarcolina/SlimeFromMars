@@ -230,7 +230,7 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable, ISa
     //#############################################################################
 
     protected bool isAtDestination(Vector2Int destination) {
-        return (Vector2Int) == destination;
+        return (Vector2Int)transform.position == destination;
     }
 
     /* Calling this function every frame will result in the enemy following

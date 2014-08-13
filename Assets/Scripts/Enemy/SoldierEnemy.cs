@@ -74,20 +74,21 @@ public class SoldierEnemy : BaseEnemy {
             if (!tryEnterState(EnemyState.FLEEING)) {
                 tryEnterState(EnemyState.WANDERING);
             }
-        } else {
-            if (getNearestVisibleSlime() == null) {
-                tryEnterState(EnemyState.WANDERING);
-                return;
-            } else {
-                _investigateLocation = getNearestVisibleSlime().transform.position;
-            }
+            return;
+        }
 
-            if (Vector3.Distance(transform.position, getNearestVisibleSlime().transform.position) > fireRange) {
-                moveTowardsPointAstar(getNearestVisibleSlime().transform.position);
-            } else {
-                _shotCooldownLeft = timePerShot;
-                _enemyAnimation.EnemyShoot(getNearestVisibleSlime().transform.position.x > transform.position.x ? 1.0f : -1.0f);  
-            }
+        if (getNearestVisibleSlime() == null) {
+            tryEnterState(EnemyState.WANDERING);
+            return;
+        }
+
+        _investigateLocation = getNearestVisibleSlime().transform.position;
+
+        if (Vector3.Distance(transform.position, getNearestVisibleSlime().transform.position) > fireRange) {
+            moveTowardsPointAstar(getNearestVisibleSlime().transform.position);
+        } else {
+            _shotCooldownLeft = timePerShot;
+            _enemyAnimation.EnemyShoot(getNearestVisibleSlime().transform.position.x > transform.position.x ? 1.0f : -1.0f);  
         }
     }
 

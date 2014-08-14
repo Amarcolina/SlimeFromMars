@@ -138,7 +138,7 @@ public class Astar : MonoBehaviour {
             yield break;
         }
 
-        if (!settings.isWalkableFunction(goal)) {
+        if (!settings.returnBestPathUponFail && !settings.isWalkableFunction(goal)) {
             yield break;
         }
 

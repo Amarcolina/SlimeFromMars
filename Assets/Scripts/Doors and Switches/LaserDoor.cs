@@ -25,7 +25,8 @@ public class LaserDoor : GenericDoor {
         //set tiles to unpassable
         for (int i = 4; i <= 5; i++) {
             tilesUnderDoor[i].isSlimeable = false;
-            tilesUnderDoor[i].isTransparent = false;
+            tilesUnderDoor[i].isWalkable = false;
+            //tilesUnderDoor[i].isTransparent = false;
         }
     }
 
@@ -36,7 +37,8 @@ public class LaserDoor : GenericDoor {
         //set tiles to passable
         for (int i = 4; i <= 5; i++) {
             tilesUnderDoor[i].isSlimeable = true;
-            tilesUnderDoor[i].isTransparent = true;
+            tilesUnderDoor[i].isWalkable = true;
+            //tilesUnderDoor[i].isTransparent = true;
         }
 
     }

@@ -20,6 +20,7 @@ public class ElectricityArc : MonoBehaviour {
             _alreadyHitEntities = new HashSet<TileEntity>();
         }
         sound = SoundManager.getInstance();
+
         HashSet<TileEntity> _tileEntities = Tilemap.getInstance().getTile(_destination).getTileEntities();
         if (_tileEntities != null) {
             foreach (TileEntity entity in _tileEntities) {
@@ -94,9 +95,11 @@ public class ElectricityArc : MonoBehaviour {
                         HashSet<TileEntity> _potentialEntities = tile.getTileEntities();
                         bool foundNewEntity = false;
                         foreach (TileEntity entity in _potentialEntities) {
-                            if (!_alreadyHitEntities.Contains(entity)) {
-                                foundNewEntity = true;
-                                break;
+                            if (entity.GetComponent(typeof(IDamageable)) != null) {
+                                if (!_alreadyHitEntities.Contains(entity)) {
+                                    foundNewEntity = true;
+                                    break;
+                                }
                             }
                         }
 

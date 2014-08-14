@@ -25,7 +25,6 @@ public class Electrified : MonoBehaviour {
         }
 
         _tile = GetComponent<Tile>();
-        _tile.damageTileEntities(0, true);
         _electricityEffect = Instantiate(_electricityParticleEffectPrefab) as GameObject;
         _electricityEffect.transform.position = transform.position + Vector3.back;
 

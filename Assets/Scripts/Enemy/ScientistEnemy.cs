@@ -4,6 +4,8 @@ using System.Collections;
 public class ScientistEnemy : BaseEnemy {
     public const float CHECK_RADIUS_FOR_HIDING_SPOTS = 25.0f;
     public const float MAX_DISTANCE_TO_HIDING_SPOT_SQRD = 8.0f * 8.0f;
+    public const float MAX_HIDING_TIME = 30.0f;
+    public const float HIDING_COOLDOWN = 30.0f;
 
     public float wanderSpeed = 2.5f;
     public float fleeSpeed = 3.5f;
@@ -81,7 +83,14 @@ public class ScientistEnemy : BaseEnemy {
     }
 
     //Hide state
+    protected float _canHideAgainTime = 0;
+    protected float _timeToLeaveHidingSpot = 0;
+
     protected override bool canEnterHideState(){
+        if (Time.time < _canHideAgainTime) {
+            return false;
+        }
+
         ScientistHidingSpot spot = _hidingSpotSearcher.searchForClosest(transform.position, 9, 1);
         if (getNearestVisibleSlime(1) != null) {
             return false;
@@ -98,7 +107,16 @@ public class ScientistEnemy : BaseEnemy {
         return false;
     }
 
+    protected override void onEnterHideState() {
+        _timeToLeaveHidingSpot = Time.time + MAX_HIDING_TIME;
+    }
+
     protected override void hideState() {
+        if (Time.time > _timeToLeaveHidingSpot) {
+            _leavingHidingSpot = true;
+            _pathToHidingSpot = null;
+        }
+
         if (_pathToHidingSpot != null) {
             if (followPath(_pathToHidingSpot, fleeSpeed)) {
                 _pathToHidingSpot = null;
@@ -117,6 +135,7 @@ public class ScientistEnemy : BaseEnemy {
     }
 
     protected override void onExitHideState() {
+        _canHideAgainTime = Time.time + HIDING_COOLDOWN;
         if (_currentHidingSpot != null) {
             _currentHidingSpot.release();
         }

@@ -181,6 +181,7 @@ public class SaveManager : MonoBehaviour {
      * the game is modified to be equal to the save state
      */
     public void loadGame() {
+        _isLoading = true;
         Application.LoadLevel(Application.loadedLevel);
     }
 }

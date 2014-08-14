@@ -5,7 +5,7 @@ using System.Collections;
 // their intended direction. 1 indicates facing right, -1 indicates facing left. The animator is the animatior that the prefab this script
 // is attached to uses. It may be beneficial in the future to add this to the enemy movement decision code for simplicity.
 public class EnemyAnimation : MonoBehaviour {
-
+    public int flip = 1;
 	public Animator enemy;
 	public const string WALK_KEY = "walk";
 	public const string SHOOT_KEY = "shoot";
@@ -26,7 +26,7 @@ public class EnemyAnimation : MonoBehaviour {
 	//Takes a directional float in order to flip the sprite in the correct direction. -1 for left facing, 1 for right facing.
 	public void Flip(float direction){
 		Vector3 absolutescale = new Vector3(Mathf.Abs(gameObject.transform.localScale.x), transform.localScale.y, transform.localScale.z);
-		gameObject.transform.localScale = new Vector3(absolutescale.x * direction, gameObject.transform.localScale.y, gameObject.transform.localScale.z);
+        gameObject.transform.localScale = new Vector3(absolutescale.x * direction * flip, gameObject.transform.localScale.y, gameObject.transform.localScale.z);
 	}
 
 	//Called when the enemy needs to move, will play the enemy walking animation. Requires a directional float.

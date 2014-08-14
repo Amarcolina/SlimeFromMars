@@ -26,6 +26,30 @@ TextureImporter:
     21300042: spritefinal_21
     21300044: spritefinal_22
     21300046: spritefinal_23
+    21300048: soldier_spritesheet_0
+    21300050: soldier_spritesheet_1
+    21300052: soldier_spritesheet_2
+    21300054: soldier_spritesheet_3
+    21300056: soldier_spritesheet_4
+    21300058: soldier_spritesheet_5
+    21300060: soldier_spritesheet_6
+    21300062: soldier_spritesheet_7
+    21300064: soldier_spritesheet_8
+    21300066: soldier_spritesheet_9
+    21300068: soldier_spritesheet_10
+    21300070: soldier_spritesheet_11
+    21300072: soldier_spritesheet_12
+    21300074: soldier_spritesheet_13
+    21300076: soldier_spritesheet_14
+    21300078: soldier_spritesheet_15
+    21300080: soldier_spritesheet_16
+    21300082: soldier_spritesheet_17
+    21300084: soldier_spritesheet_18
+    21300086: soldier_spritesheet_19
+    21300088: soldier_spritesheet_20
+    21300090: soldier_spritesheet_21
+    21300092: soldier_spritesheet_22
+    21300094: soldier_spritesheet_23
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0
@@ -67,245 +91,245 @@ TextureImporter:
   buildTargetSettings: []
   spriteSheet:
     sprites:
-    - name: spritefinal_0
+    - name: soldier_spritesheet_0
       rect:
         serializedVersion: 2
-        x: 8
-        y: 123
-        width: 51
-        height: 50
-      alignment: 9
-      pivot: {x: .5, y: .150000006}
+        x: 16
+        y: 246
+        width: 102
+        height: 100
+      alignment: 0
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: spritefinal_1
+    - name: soldier_spritesheet_1
       rect:
         serializedVersion: 2
-        x: 59
-        y: 123
-        width: 51
-        height: 50
-      alignment: 9
-      pivot: {x: .5, y: .150000006}
+        x: 118
+        y: 246
+        width: 102
+        height: 100
+      alignment: 0
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: spritefinal_2
+    - name: soldier_spritesheet_2
       rect:
         serializedVersion: 2
-        x: 110
-        y: 123
-        width: 51
-        height: 50
-      alignment: 9
-      pivot: {x: .5, y: .150000006}
+        x: 220
+        y: 246
+        width: 102
+        height: 100
+      alignment: 0
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: spritefinal_3
+    - name: soldier_spritesheet_3
       rect:
         serializedVersion: 2
-        x: 161
-        y: 123
-        width: 51
-        height: 50
-      alignment: 9
-      pivot: {x: .5, y: .150000006}
+        x: 322
+        y: 246
+        width: 102
+        height: 100
+      alignment: 0
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: spritefinal_4
+    - name: soldier_spritesheet_4
       rect:
         serializedVersion: 2
-        x: 212
-        y: 123
-        width: 51
-        height: 50
-      alignment: 9
-      pivot: {x: .5, y: .150000006}
+        x: 424
+        y: 246
+        width: 102
+        height: 100
+      alignment: 0
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: spritefinal_5
+    - name: soldier_spritesheet_5
       rect:
         serializedVersion: 2
-        x: 263
-        y: 123
-        width: 51
-        height: 50
-      alignment: 9
-      pivot: {x: .5, y: .150000006}
+        x: 526
+        y: 246
+        width: 102
+        height: 100
+      alignment: 0
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: spritefinal_6
+    - name: soldier_spritesheet_6
       rect:
         serializedVersion: 2
-        x: 314
-        y: 123
-        width: 51
-        height: 50
-      alignment: 9
-      pivot: {x: .5, y: .150000006}
+        x: 628
+        y: 246
+        width: 102
+        height: 100
+      alignment: 0
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: spritefinal_7
+    - name: soldier_spritesheet_7
       rect:
         serializedVersion: 2
-        x: 365
-        y: 123
-        width: 51
-        height: 50
-      alignment: 9
-      pivot: {x: .5, y: .150000006}
+        x: 730
+        y: 246
+        width: 102
+        height: 100
+      alignment: 0
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: spritefinal_8
+    - name: soldier_spritesheet_8
       rect:
         serializedVersion: 2
-        x: 8
-        y: 67
-        width: 51
-        height: 50
-      alignment: 9
-      pivot: {x: .5, y: .150000006}
+        x: 16
+        y: 134
+        width: 102
+        height: 100
+      alignment: 0
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: spritefinal_9
+    - name: soldier_spritesheet_9
       rect:
         serializedVersion: 2
-        x: 59
-        y: 67
-        width: 51
-        height: 50
-      alignment: 9
-      pivot: {x: .5, y: .150000006}
+        x: 118
+        y: 134
+        width: 102
+        height: 100
+      alignment: 0
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: spritefinal_10
+    - name: soldier_spritesheet_10
       rect:
         serializedVersion: 2
-        x: 110
-        y: 67
-        width: 51
-        height: 50
-      alignment: 9
-      pivot: {x: .5, y: .150000006}
+        x: 220
+        y: 134
+        width: 102
+        height: 100
+      alignment: 0
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: spritefinal_11
+    - name: soldier_spritesheet_11
       rect:
         serializedVersion: 2
-        x: 161
-        y: 67
-        width: 51
-        height: 50
-      alignment: 9
-      pivot: {x: .5, y: .150000006}
+        x: 322
+        y: 134
+        width: 102
+        height: 100
+      alignment: 0
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: spritefinal_12
+    - name: soldier_spritesheet_12
       rect:
         serializedVersion: 2
-        x: 212
-        y: 67
-        width: 51
-        height: 50
-      alignment: 9
-      pivot: {x: .5, y: .150000006}
+        x: 424
+        y: 134
+        width: 102
+        height: 100
+      alignment: 0
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: spritefinal_13
+    - name: soldier_spritesheet_13
       rect:
         serializedVersion: 2
-        x: 263
-        y: 67
-        width: 51
-        height: 50
-      alignment: 9
-      pivot: {x: .5, y: .150000006}
+        x: 526
+        y: 134
+        width: 102
+        height: 100
+      alignment: 0
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: spritefinal_14
+    - name: soldier_spritesheet_14
       rect:
         serializedVersion: 2
-        x: 314
-        y: 67
-        width: 51
-        height: 50
-      alignment: 9
-      pivot: {x: .5, y: .150000006}
+        x: 628
+        y: 134
+        width: 102
+        height: 100
+      alignment: 0
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: spritefinal_15
+    - name: soldier_spritesheet_15
       rect:
         serializedVersion: 2
-        x: 365
-        y: 67
-        width: 51
-        height: 50
-      alignment: 9
-      pivot: {x: .5, y: .150000006}
+        x: 730
+        y: 134
+        width: 102
+        height: 100
+      alignment: 0
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: spritefinal_16
+    - name: soldier_spritesheet_16
       rect:
         serializedVersion: 2
-        x: 8
-        y: 11
-        width: 51
-        height: 50
-      alignment: 9
-      pivot: {x: .5, y: .150000006}
+        x: 16
+        y: 22
+        width: 102
+        height: 100
+      alignment: 0
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: spritefinal_17
+    - name: soldier_spritesheet_17
       rect:
         serializedVersion: 2
-        x: 59
-        y: 11
-        width: 51
-        height: 50
-      alignment: 9
-      pivot: {x: .5, y: .150000006}
+        x: 118
+        y: 22
+        width: 102
+        height: 100
+      alignment: 0
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: spritefinal_18
+    - name: soldier_spritesheet_18
       rect:
         serializedVersion: 2
-        x: 110
-        y: 11
-        width: 51
-        height: 50
-      alignment: 9
-      pivot: {x: .5, y: .150000006}
+        x: 220
+        y: 22
+        width: 102
+        height: 100
+      alignment: 0
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: spritefinal_19
+    - name: soldier_spritesheet_19
       rect:
         serializedVersion: 2
-        x: 161
-        y: 11
-        width: 51
-        height: 50
-      alignment: 9
-      pivot: {x: .5, y: .150000006}
+        x: 322
+        y: 22
+        width: 102
+        height: 100
+      alignment: 0
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: spritefinal_20
+    - name: soldier_spritesheet_20
       rect:
         serializedVersion: 2
-        x: 212
-        y: 11
-        width: 51
-        height: 50
-      alignment: 9
-      pivot: {x: .5, y: .150000006}
+        x: 424
+        y: 22
+        width: 102
+        height: 100
+      alignment: 0
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: spritefinal_21
+    - name: soldier_spritesheet_21
       rect:
         serializedVersion: 2
-        x: 263
-        y: 11
-        width: 51
-        height: 50
-      alignment: 9
-      pivot: {x: .5, y: .150000006}
+        x: 526
+        y: 22
+        width: 102
+        height: 100
+      alignment: 0
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: spritefinal_22
+    - name: soldier_spritesheet_22
       rect:
         serializedVersion: 2
-        x: 314
-        y: 11
-        width: 51
-        height: 50
-      alignment: 9
-      pivot: {x: .5, y: .150000006}
+        x: 628
+        y: 22
+        width: 102
+        height: 100
+      alignment: 0
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: spritefinal_23
+    - name: soldier_spritesheet_23
       rect:
         serializedVersion: 2
-        x: 365
-        y: 11
-        width: 51
-        height: 50
-      alignment: 9
-      pivot: {x: .5, y: .150000006}
+        x: 730
+        y: 22
+        width: 102
+        height: 100
+      alignment: 0
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
   spritePackingTag: 
   userData: 

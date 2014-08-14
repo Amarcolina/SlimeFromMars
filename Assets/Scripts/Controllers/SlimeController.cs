@@ -611,7 +611,7 @@ public class SlimeController : MonoBehaviour, ISaveable {
     }
 
     private float getElectricityDefenseDamage() {
-        return _electricityLevel * 0.2f + 0.2f;
+        return _electricityLevel * 0.3f + 0.1f;
     }
 
     //sends a bolt of electricity at an enemy, up to a max distance away, and ars to nearby enemies for chain damage
@@ -698,7 +698,7 @@ public class SlimeController : MonoBehaviour, ISaveable {
     }
 
     private float getBioOffenseDamage() {
-        return _bioLevel * 0.21f;
+        return _bioLevel * 0.08f;
     }
 
     private bool canCastToCursor(float castRange) {

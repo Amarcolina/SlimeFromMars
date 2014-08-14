@@ -72,7 +72,7 @@ TextureImporter:
   textureFormat: -3
   maxTextureSize: 1024
   textureSettings:
-    filterMode: 2
+    filterMode: 1
     aniso: 1
     mipBias: -1
     wrapMode: 1
@@ -81,11 +81,11 @@ TextureImporter:
   compressionQuality: 50
   spriteMode: 2
   spriteExtrude: 1
-  spriteMeshType: 1
+  spriteMeshType: 0
   alignment: 0
   spritePivot: {x: .5, y: .5}
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
-  spritePixelsToUnits: 64
+  spritePixelsToUnits: 128
   alphaIsTransparency: 1
   textureType: 5
   buildTargetSettings: []
@@ -98,8 +98,8 @@ TextureImporter:
         y: 246
         width: 102
         height: 100
-      alignment: 0
-      pivot: {x: 0, y: 0}
+      alignment: 9
+      pivot: {x: .5, y: .150000006}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: soldier_spritesheet_1
       rect:
@@ -108,8 +108,8 @@ TextureImporter:
         y: 246
         width: 102
         height: 100
-      alignment: 0
-      pivot: {x: 0, y: 0}
+      alignment: 9
+      pivot: {x: .5, y: .150000006}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: soldier_spritesheet_2
       rect:
@@ -118,8 +118,8 @@ TextureImporter:
         y: 246
         width: 102
         height: 100
-      alignment: 0
-      pivot: {x: 0, y: 0}
+      alignment: 9
+      pivot: {x: .5, y: .150000006}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: soldier_spritesheet_3
       rect:
@@ -129,7 +129,7 @@ TextureImporter:
         width: 102
         height: 100
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: .5, y: .5}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: soldier_spritesheet_4
       rect:
@@ -139,7 +139,7 @@ TextureImporter:
         width: 102
         height: 100
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: .5, y: .5}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: soldier_spritesheet_5
       rect:
@@ -149,7 +149,7 @@ TextureImporter:
         width: 102
         height: 100
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: .5, y: .5}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: soldier_spritesheet_6
       rect:
@@ -159,7 +159,7 @@ TextureImporter:
         width: 102
         height: 100
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: .5, y: .5}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: soldier_spritesheet_7
       rect:
@@ -169,7 +169,7 @@ TextureImporter:
         width: 102
         height: 100
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: .5, y: .5}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: soldier_spritesheet_8
       rect:
@@ -178,8 +178,8 @@ TextureImporter:
         y: 134
         width: 102
         height: 100
-      alignment: 0
-      pivot: {x: 0, y: 0}
+      alignment: 9
+      pivot: {x: .5, y: .150000006}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: soldier_spritesheet_9
       rect:
@@ -188,8 +188,8 @@ TextureImporter:
         y: 134
         width: 102
         height: 100
-      alignment: 0
-      pivot: {x: 0, y: 0}
+      alignment: 9
+      pivot: {x: .5, y: .150000006}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: soldier_spritesheet_10
       rect:
@@ -198,8 +198,8 @@ TextureImporter:
         y: 134
         width: 102
         height: 100
-      alignment: 0
-      pivot: {x: 0, y: 0}
+      alignment: 9
+      pivot: {x: .5, y: .150000006}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: soldier_spritesheet_11
       rect:
@@ -208,8 +208,8 @@ TextureImporter:
         y: 134
         width: 102
         height: 100
-      alignment: 0
-      pivot: {x: 0, y: 0}
+      alignment: 9
+      pivot: {x: .5, y: .150000006}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: soldier_spritesheet_12
       rect:
@@ -218,8 +218,8 @@ TextureImporter:
         y: 134
         width: 102
         height: 100
-      alignment: 0
-      pivot: {x: 0, y: 0}
+      alignment: 9
+      pivot: {x: .5, y: .150000006}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: soldier_spritesheet_13
       rect:
@@ -228,8 +228,8 @@ TextureImporter:
         y: 134
         width: 102
         height: 100
-      alignment: 0
-      pivot: {x: 0, y: 0}
+      alignment: 9
+      pivot: {x: .5, y: .150000006}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: soldier_spritesheet_14
       rect:
@@ -238,8 +238,8 @@ TextureImporter:
         y: 134
         width: 102
         height: 100
-      alignment: 0
-      pivot: {x: 0, y: 0}
+      alignment: 9
+      pivot: {x: .5, y: .150000006}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: soldier_spritesheet_15
       rect:
@@ -248,8 +248,8 @@ TextureImporter:
         y: 134
         width: 102
         height: 100
-      alignment: 0
-      pivot: {x: 0, y: 0}
+      alignment: 9
+      pivot: {x: .5, y: .150000006}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: soldier_spritesheet_16
       rect:
@@ -259,7 +259,7 @@ TextureImporter:
         width: 102
         height: 100
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: .5, y: .5}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: soldier_spritesheet_17
       rect:
@@ -269,7 +269,7 @@ TextureImporter:
         width: 102
         height: 100
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: .5, y: .5}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: soldier_spritesheet_18
       rect:
@@ -279,7 +279,7 @@ TextureImporter:
         width: 102
         height: 100
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: .5, y: .5}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: soldier_spritesheet_19
       rect:
@@ -289,7 +289,7 @@ TextureImporter:
         width: 102
         height: 100
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: .5, y: .5}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: soldier_spritesheet_20
       rect:
@@ -299,7 +299,7 @@ TextureImporter:
         width: 102
         height: 100
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: .5, y: .5}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: soldier_spritesheet_21
       rect:
@@ -309,7 +309,7 @@ TextureImporter:
         width: 102
         height: 100
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: .5, y: .5}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: soldier_spritesheet_22
       rect:
@@ -319,7 +319,7 @@ TextureImporter:
         width: 102
         height: 100
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: .5, y: .5}
       border: {x: 0, y: 0, z: 0, w: 0}
     - name: soldier_spritesheet_23
       rect:
@@ -329,7 +329,7 @@ TextureImporter:
         width: 102
         height: 100
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: .5, y: .5}
       border: {x: 0, y: 0, z: 0, w: 0}
   spritePackingTag: 
   userData: 

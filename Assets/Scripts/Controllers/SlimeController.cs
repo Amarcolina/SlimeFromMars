@@ -626,9 +626,9 @@ public class SlimeController : MonoBehaviour, ISaveable {
                 if(Analytics.Enabled){
                     GA.API.Design.NewEvent("Electricity Offensive", getCursorPosition());
                 }
-                arc.setArcRadius(_electricityLevel + 1);
+                arc.setArcRadius(getElectricityOffenseRange());
                 arc.setArcDamage(getElectricityOffenseDamage());
-                arc.setArcNumber(_electricityLevel + 1);
+                arc.setArcNumber(_electricityLevel);
                 arc.setDestination(getCursorPosition());
                 return true;
             }
@@ -641,7 +641,7 @@ public class SlimeController : MonoBehaviour, ISaveable {
     }
 
     private float getElectricityOffenseDamage() {
-        return 0.15f;
+        return 0.16f + 0.10f * _electricityLevel;
     }
 
     //outputs a circle of thick, high health slime from central point of selected slime tile

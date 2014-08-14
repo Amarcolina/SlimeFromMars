@@ -9,23 +9,29 @@ public class SaveManager : MonoBehaviour {
     public static SavedGame _currentSavedGame = null;
     private static bool _isLoading = false;
     private static bool _isLevelQuitting = false;
-
+    public UILabel SaveLabel;
+    private float savelabeltime = 0;
+    private bool _isSaving = false;
+    
     public class SavedGame{
         public Dictionary<int, SavedGameObjectData> modifiedGameObjects = new Dictionary<int, SavedGameObjectData>();
         public Dictionary<int, SavedGameObjectData> newGameObjects = new Dictionary<int, SavedGameObjectData>();
         public HashSet<int> destroyedObjects = new HashSet<int>();
     }
-
+    
     public void OnApplicationQuit() {
         _isLevelQuitting = true;
     }
-
+    
     public void Awake() {
+        SaveLabel = GameObject.FindGameObjectWithTag("SaveLabel").GetComponent<UILabel>();
+        SaveLabel.enabled = false;
         if (_currentSavedGame == null) {
             _currentSavedGame = new SavedGame();
+            
         }
     }
-
+    
     private static SaveManager _instance = null;
     public static SaveManager getInstance() {
         if (_isLevelQuitting || _isLoading) {
@@ -36,11 +42,13 @@ public class SaveManager : MonoBehaviour {
         }
         return _instance;
     }
-
+    
     /* This is called when the level is loaded, and causes the game to be modified
      * to suite the state of the current save.  
      */
     public void OnLevelWasLoaded() {
+        SaveLabel = GameObject.FindGameObjectWithTag("SaveLabel").GetComponent<UILabel>();
+        SaveLabel.enabled = false;
         if (_isLoading) {
             SaveMarker[] markers = FindObjectsOfType<SaveMarker>();
             foreach (SaveMarker marker in markers) {
@@ -48,14 +56,14 @@ public class SaveManager : MonoBehaviour {
                     Destroy(marker.gameObject);
                     continue;
                 }
-
+                
                 SavedGameObjectData data;
                 if (_currentSavedGame.modifiedGameObjects.TryGetValue(marker.serialID, out data)) {
                     marker.loadData(data);
                     continue;
                 }
             }
-
+            
             foreach (var newObjectPair in _currentSavedGame.newGameObjects) {
                 GameObject newObject;
                 SaveMarker newMarker;
@@ -66,28 +74,49 @@ public class SaveManager : MonoBehaviour {
                     newObject = new GameObject("Recreated Game Object");
                     newMarker = newObject.AddComponent<SaveMarker>();
                 }
-
+                
                 newMarker.serialID = newObjectPair.Key;
                 newMarker.loadData(newObjectPair.Value);
             }
-
+            
             _currentDestroyedObjects.Clear();
             _currentDestroyedObjects.UnionWith(_currentSavedGame.destroyedObjects);
-
+            
+            
             _isLoading = false;
+            
         }
     }
-
+    
     public void Update() {
+        if (_isSaving) {
+            if (savelabeltime > 0) {
+                savelabeltime -= Time.deltaTime;
+                SaveLabel.alpha -= .05f;
+            } else {
+                SaveLabel.alpha = 0;
+                SaveLabel.enabled = false;
+                _isSaving = false;
+            }
+        }
+        
         if (Input.GetKeyDown(KeyCode.F10)) {
+            SaveLabel.text = "Game Saved";
+            SaveLabel.enabled = true;
+            SaveLabel.alpha = 1;
+            savelabeltime = 2;
+            _isSaving = true;
             saveGame();
         }
-
+        
         if (Input.GetKeyDown(KeyCode.F11)) {
+            SaveLabel.enabled = true;
+            SaveLabel.text = "Loading Save...";
+            SaveLabel.alpha = 1;
             loadGame();
         }
     }
-
+    
     /* Use this if you want to Instantiate a prefab that you want to persist when
      * a game is saved and reloaded.  Using this method stores the relevant information
      * to re-create the prefab in the correct way when the game is re-loaded
@@ -104,7 +133,7 @@ public class SaveManager : MonoBehaviour {
         }
         return obj;
     }
-
+    
     /* This method is called by a SaveMarker whenever it is destroyed.  This keeps track
      * of any methods that have been destroyed so that when a game is re-loaded, 
      * any objects that should be destroyed can do so.
@@ -114,7 +143,7 @@ public class SaveManager : MonoBehaviour {
         if (_isLoading) {
             return;
         }
-
+        
         if (serialID < -1) {
             _currentSavedGame.newGameObjects.Remove(serialID);
         } else if (serialID > -1) {
@@ -123,19 +152,19 @@ public class SaveManager : MonoBehaviour {
             throw new System.Exception("Destroyed an object that had an uninitialized serialID");
         }
     }
-
+    
     /* Calling this saves the current game
      */
     public void saveGame() {
         SaveMarker[] existingMarkers = FindObjectsOfType<SaveMarker>();
         foreach (SaveMarker marker in existingMarkers) {
             SavedGameObjectData savedData = marker.saveData();
-
+            
             //If the saved data is null, there has been no change so we don't need to save it
             if (savedData == null) {
                 continue;
             }
-
+            
             if (marker.serialID < -1) {
                 _currentSavedGame.newGameObjects[marker.serialID] = savedData;
             } else if (marker.serialID > -1){
@@ -144,10 +173,10 @@ public class SaveManager : MonoBehaviour {
                 throw new System.Exception("Trying to save an object with an uninitialized serialID");
             }
         }
-
+        
         _currentSavedGame.destroyedObjects.UnionWith(_currentDestroyedObjects);
     }
-
+    
     /* Calling this loads the game.  This first causes a level reload, after which
      * the game is modified to be equal to the save state
      */

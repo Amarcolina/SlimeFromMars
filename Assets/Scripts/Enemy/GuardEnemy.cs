@@ -38,19 +38,13 @@ public class GuardEnemy : SoldierEnemy {
 
     //Wander state
     protected override void onEnterWanderState() {
-        _pathBackToGuardLocatin = Astar.findPath(transform.position, _locationToStandGuard);
     }
 
     protected override void wanderState() {
-        bool isAtDestination = false;
-        if (_pathBackToGuardLocatin == null) {
-            isAtDestination = moveTowardsPointAstar(_locationToStandGuard);
-        } else {
-            isAtDestination = followPath(_pathBackToGuardLocatin);
-        }
+        bool isAtDestination = pathTowardsLocation(_locationToStandGuard);
 
         if (isAtDestination) {
-            _enemyAnimation.Flip(_locationToStandGuard.x - transform.position.x > 0.0f ? 1.0f : -1.0f);
+            _enemyAnimation.Flip(_locationToWatch.x - transform.position.x > 0.0f ? 1.0f : -1.0f);
         }
 
         tryEnterState(EnemyState.ATTACKING);

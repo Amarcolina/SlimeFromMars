@@ -18,6 +18,7 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable, ISa
     public MovementPattern movementPattern;
     public GameObject corpsePrefab = null;
     public float health = 1.0f;
+    private float _maxHealth = 0;
 
     protected delegate void StateFunction();
     protected EnemyState _currentState;
@@ -36,6 +37,9 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable, ISa
     protected float _stunEndTime = 0.0f;
 
     public virtual void Awake(){
+        _maxHealth = health;
+        renderer.material.SetFloat("_Health", 1.0f);
+
         _tilemap = Tilemap.getInstance();
         _enemyAnimation = GetComponent<EnemyAnimation>();
         _soundManager = SoundManager.getInstance();
@@ -46,10 +50,14 @@ public class BaseEnemy : MonoBehaviour, IDamageable, IStunnable, IGrabbable, ISa
     }
 
     private int _previousDamageFrame = 0;
+    
     public virtual void damage(float damage) {
         if (health > 0 && Time.frameCount != _previousDamageFrame) {
             _previousDamageFrame = Time.frameCount;
             health -= damage;
+
+            renderer.material.SetFloat("_Health", health / _maxHealth);
+
             if (_enemyAnimation != null) {
                 _enemyAnimation.EnemyHit();
             }

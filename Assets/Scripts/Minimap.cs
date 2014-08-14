@@ -56,7 +56,7 @@ public class Minimap : MonoBehaviour {
             fillLevelTexture();
         }
 
-        if (Input.GetKeyDown(KeyCode.F)) {
+        if (Input.GetKeyDown(KeyCode.M)) {
             fogOfWarMinimapUITexture.enabled = false;
             fogOfWarUITexture.enabled = false;
         }

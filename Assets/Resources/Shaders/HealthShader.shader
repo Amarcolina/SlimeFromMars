@@ -8,35 +8,70 @@
         _EmptyColor ("Empty Color", Color) = (1,0,0,1)
     }
     SubShader {
-        Tags { "RenderType"="Opaque" }
-        LOD 200
+        Tags { 
+			"Queue"="Transparent" 
+			"IgnoreProjector"="True" 
+			"RenderType"="Transparent" 
+			"PreviewType"="Plane"
+			"CanUseSpriteAtlas"="True"
+		}
+
+        Cull Off
+		Lighting Off
+		ZWrite Off
+		Fog { Mode Off }
+		Blend SrcAlpha OneMinusSrcAlpha
         
-        CGPROGRAM
-        #pragma surface surf Lambert
+        Pass {
+		CGPROGRAM
+			#pragma vertex vert
+			#pragma fragment frag
+			#pragma multi_compile DUMMY PIXELSNAP_ON
+			#include "UnityCG.cginc"
+			
+			struct appdata_t{
+				float4 vertex   : POSITION;
+				float4 color    : COLOR;
+				float2 texcoord : TEXCOORD0;
+			};
 
-        sampler2D _MainTex;
-        half _Health;
-        half4 _Replace;
-        half4 _Color;
-        half4 _HealthColor;
-        half4 _EmptyColor;
+			struct v2f{
+				float4 vertex   : SV_POSITION;
+				fixed4 color    : COLOR;
+				half2 texcoord  : TEXCOORD0;
+			};
 
-        struct Input {
-            float2 uv_MainTex;
-        };
+            half4 _Color;
 
-        void surf (Input IN, inout SurfaceOutput o) {
-            half4 c = tex2D (_MainTex, IN.uv_MainTex);
+			v2f vert(appdata_t IN)
+			{
+				v2f OUT;
+				OUT.vertex = mul(UNITY_MATRIX_MVP, IN.vertex);
+				OUT.texcoord = IN.texcoord;
+				OUT.color = IN.color * _Color;
+				#ifdef PIXELSNAP_ON
+				OUT.vertex = UnityPixelSnap (OUT.vertex);
+				#endif
 
-            half anyDiff = any(c.rgb - _Replace.rgb);
-            half4 replaceColor = lerp(_HealthColor, _EmptyColor, smoothstep(_Health, _Health + 1.0 / 256.0, c.a));
+				return OUT;
+			}
 
-            c = lerp(replaceColor, c, anyDiff) * _Color;
+			sampler2D _MainTex;
+            half _Health;
+            half4 _Replace;
+            half4 _HealthColor;
+            half4 _EmptyColor;
 
-            o.Albedo = c.rgb;
-            o.Alpha = c.a;
-        }
-        ENDCG
+			fixed4 frag(v2f IN) : SV_Target{
+                half4 c = tex2D (_MainTex, IN.texcoord);
+
+                half anyDiff = any(c.rgb - _Replace.rgb);
+                half4 replaceColor = lerp(_HealthColor, _EmptyColor, smoothstep(_Health, _Health + 1.0 / 256.0, c.a));
+
+                return lerp(replaceColor, c, anyDiff) * _Color;
+			}
+		ENDCG
+		}
     } 
     FallBack "Diffuse"
 }

@@ -1,59 +1,60 @@
 fileFormatVersion: 2
-guid: 9ac077c8fde522e408d2682ed43d7df4
+guid: e696fbae4e5d99b42841408ff58c86cc
 TextureImporter:
   fileIDToRecycleName:
-    21300000: spritefinal_0
-    21300002: spritefinal_1
-    21300004: spritefinal_2
-    21300006: spritefinal_3
-    21300008: spritefinal_4
-    21300010: spritefinal_5
-    21300012: spritefinal_6
-    21300014: spritefinal_7
-    21300016: spritefinal_8
-    21300018: spritefinal_9
-    21300020: spritefinal_10
-    21300022: spritefinal_11
-    21300024: spritefinal_12
-    21300026: spritefinal_13
-    21300028: spritefinal_14
-    21300030: spritefinal_15
-    21300032: spritefinal_16
-    21300034: spritefinal_17
-    21300036: spritefinal_18
-    21300038: spritefinal_19
-    21300040: spritefinal_20
-    21300042: spritefinal_21
-    21300044: spritefinal_22
-    21300046: spritefinal_23
-    21300048: soldier_spritesheet_0
-    21300050: soldier_spritesheet_1
-    21300052: soldier_spritesheet_2
-    21300054: soldier_spritesheet_3
-    21300056: soldier_spritesheet_4
-    21300058: soldier_spritesheet_5
-    21300060: soldier_spritesheet_6
-    21300062: soldier_spritesheet_7
-    21300064: soldier_spritesheet_8
-    21300066: soldier_spritesheet_9
-    21300068: soldier_spritesheet_10
-    21300070: soldier_spritesheet_11
-    21300072: soldier_spritesheet_12
-    21300074: soldier_spritesheet_13
-    21300076: soldier_spritesheet_14
-    21300078: soldier_spritesheet_15
-    21300080: soldier_spritesheet_16
-    21300082: soldier_spritesheet_17
-    21300084: soldier_spritesheet_18
-    21300086: soldier_spritesheet_19
-    21300088: soldier_spritesheet_20
-    21300090: soldier_spritesheet_21
-    21300092: soldier_spritesheet_22
-    21300094: soldier_spritesheet_23
+    21300000: soldier_spritesheet
+    21300002: soldier_spritesheet_0
+    21300004: soldier_spritesheet_1
+    21300006: soldier_spritesheet_2
+    21300008: soldier_spritesheet_3
+    21300010: soldier_spritesheet_4
+    21300012: soldier_spritesheet_5
+    21300014: soldier_spritesheet_6
+    21300016: soldier_spritesheet_7
+    21300018: soldier_spritesheet_8
+    21300020: soldier_spritesheet_9
+    21300022: soldier_spritesheet_10
+    21300024: soldier_spritesheet_11
+    21300026: soldier_spritesheet_12
+    21300028: soldier_spritesheet_13
+    21300030: soldier_spritesheet_14
+    21300032: soldier_spritesheet_15
+    21300034: soldier_spritesheet_16
+    21300036: soldier_spritesheet_17
+    21300038: soldier_spritesheet_18
+    21300040: soldier_spritesheet_19
+    21300042: soldier_spritesheet_20
+    21300044: soldier_spritesheet_21
+    21300046: soldier_spritesheet_22
+    21300048: soldier_spritesheet_23
+    21300050: exterminator_spritesheet_0
+    21300052: exterminator_spritesheet_1
+    21300054: exterminator_spritesheet_2
+    21300056: exterminator_spritesheet_3
+    21300058: exterminator_spritesheet_4
+    21300060: exterminator_spritesheet_5
+    21300062: exterminator_spritesheet_6
+    21300064: exterminator_spritesheet_7
+    21300066: exterminator_spritesheet_8
+    21300068: exterminator_spritesheet_9
+    21300070: exterminator_spritesheet_10
+    21300072: exterminator_spritesheet_11
+    21300074: exterminator_spritesheet_12
+    21300076: exterminator_spritesheet_13
+    21300078: exterminator_spritesheet_14
+    21300080: exterminator_spritesheet_15
+    21300082: exterminator_spritesheet_16
+    21300084: exterminator_spritesheet_17
+    21300086: exterminator_spritesheet_18
+    21300088: exterminator_spritesheet_19
+    21300090: exterminator_spritesheet_20
+    21300092: exterminator_spritesheet_21
+    21300094: exterminator_spritesheet_22
+    21300096: exterminator_spritesheet_23
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0
-    enableMipMap: 1
+    enableMipMap: 0
     linearTexture: 0
     correctGamma: 0
     fadeOut: 0
@@ -69,10 +70,10 @@ TextureImporter:
   grayScaleToAlpha: 0
   generateCubemap: 0
   seamlessCubemap: 0
-  textureFormat: -3
+  textureFormat: -1
   maxTextureSize: 1024
   textureSettings:
-    filterMode: 1
+    filterMode: -1
     aniso: 1
     mipBias: -1
     wrapMode: 1
@@ -81,17 +82,17 @@ TextureImporter:
   compressionQuality: 50
   spriteMode: 2
   spriteExtrude: 1
-  spriteMeshType: 0
+  spriteMeshType: 1
   alignment: 0
   spritePivot: {x: .5, y: .5}
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spritePixelsToUnits: 128
   alphaIsTransparency: 1
-  textureType: 5
+  textureType: 8
   buildTargetSettings: []
   spriteSheet:
     sprites:
-    - name: soldier_spritesheet_0
+    - name: exterminator_spritesheet_0
       rect:
         serializedVersion: 2
         x: 16
@@ -101,7 +102,7 @@ TextureImporter:
       alignment: 9
       pivot: {x: .5, y: .150000006}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: soldier_spritesheet_1
+    - name: exterminator_spritesheet_1
       rect:
         serializedVersion: 2
         x: 118
@@ -111,7 +112,7 @@ TextureImporter:
       alignment: 9
       pivot: {x: .5, y: .150000006}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: soldier_spritesheet_2
+    - name: exterminator_spritesheet_2
       rect:
         serializedVersion: 2
         x: 220
@@ -121,215 +122,215 @@ TextureImporter:
       alignment: 9
       pivot: {x: .5, y: .150000006}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: soldier_spritesheet_3
+    - name: exterminator_spritesheet_3
       rect:
         serializedVersion: 2
         x: 322
         y: 246
         width: 102
         height: 100
-      alignment: 0
-      pivot: {x: .5, y: .5}
+      alignment: 7
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: soldier_spritesheet_4
+    - name: exterminator_spritesheet_4
       rect:
         serializedVersion: 2
         x: 424
         y: 246
         width: 102
         height: 100
-      alignment: 0
-      pivot: {x: .5, y: .5}
+      alignment: 7
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: soldier_spritesheet_5
+    - name: exterminator_spritesheet_5
       rect:
         serializedVersion: 2
         x: 526
         y: 246
         width: 102
         height: 100
-      alignment: 0
-      pivot: {x: .5, y: .5}
+      alignment: 7
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: soldier_spritesheet_6
+    - name: exterminator_spritesheet_6
       rect:
         serializedVersion: 2
         x: 628
         y: 246
         width: 102
         height: 100
-      alignment: 0
-      pivot: {x: .5, y: .5}
+      alignment: 7
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: soldier_spritesheet_7
+    - name: exterminator_spritesheet_7
       rect:
         serializedVersion: 2
         x: 730
         y: 246
         width: 102
         height: 100
-      alignment: 0
-      pivot: {x: .5, y: .5}
+      alignment: 7
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: soldier_spritesheet_8
+    - name: exterminator_spritesheet_8
+      rect:
+        serializedVersion: 2
+        x: 15
+        y: 134
+        width: 102
+        height: 100
+      alignment: 9
+      pivot: {x: .5, y: .150000006}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: exterminator_spritesheet_9
+      rect:
+        serializedVersion: 2
+        x: 118
+        y: 134
+        width: 102
+        height: 100
+      alignment: 9
+      pivot: {x: .5, y: .150000006}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: exterminator_spritesheet_10
+      rect:
+        serializedVersion: 2
+        x: 220
+        y: 134
+        width: 102
+        height: 100
+      alignment: 9
+      pivot: {x: .5, y: .150000006}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: exterminator_spritesheet_11
+      rect:
+        serializedVersion: 2
+        x: 322
+        y: 134
+        width: 102
+        height: 100
+      alignment: 9
+      pivot: {x: .5, y: .150000006}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: exterminator_spritesheet_12
+      rect:
+        serializedVersion: 2
+        x: 424
+        y: 134
+        width: 102
+        height: 100
+      alignment: 9
+      pivot: {x: .5, y: .150000006}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: exterminator_spritesheet_13
+      rect:
+        serializedVersion: 2
+        x: 525
+        y: 134
+        width: 102
+        height: 100
+      alignment: 9
+      pivot: {x: .5, y: .150000006}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: exterminator_spritesheet_14
+      rect:
+        serializedVersion: 2
+        x: 628
+        y: 134
+        width: 102
+        height: 100
+      alignment: 9
+      pivot: {x: .5, y: .150000006}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: exterminator_spritesheet_15
+      rect:
+        serializedVersion: 2
+        x: 730
+        y: 134
+        width: 102
+        height: 100
+      alignment: 9
+      pivot: {x: .5, y: .150000006}
+      border: {x: 0, y: 0, z: 0, w: 0}
+    - name: exterminator_spritesheet_16
       rect:
         serializedVersion: 2
         x: 16
-        y: 134
-        width: 102
-        height: 100
-      alignment: 9
-      pivot: {x: .5, y: .150000006}
-      border: {x: 0, y: 0, z: 0, w: 0}
-    - name: soldier_spritesheet_9
-      rect:
-        serializedVersion: 2
-        x: 118
-        y: 134
-        width: 102
-        height: 100
-      alignment: 9
-      pivot: {x: .5, y: .150000006}
-      border: {x: 0, y: 0, z: 0, w: 0}
-    - name: soldier_spritesheet_10
-      rect:
-        serializedVersion: 2
-        x: 220
-        y: 134
-        width: 102
-        height: 100
-      alignment: 9
-      pivot: {x: .5, y: .150000006}
-      border: {x: 0, y: 0, z: 0, w: 0}
-    - name: soldier_spritesheet_11
-      rect:
-        serializedVersion: 2
-        x: 322
-        y: 134
-        width: 102
-        height: 100
-      alignment: 9
-      pivot: {x: .5, y: .150000006}
-      border: {x: 0, y: 0, z: 0, w: 0}
-    - name: soldier_spritesheet_12
-      rect:
-        serializedVersion: 2
-        x: 424
-        y: 134
-        width: 102
-        height: 100
-      alignment: 9
-      pivot: {x: .5, y: .150000006}
-      border: {x: 0, y: 0, z: 0, w: 0}
-    - name: soldier_spritesheet_13
-      rect:
-        serializedVersion: 2
-        x: 526
-        y: 134
-        width: 102
-        height: 100
-      alignment: 9
-      pivot: {x: .5, y: .150000006}
-      border: {x: 0, y: 0, z: 0, w: 0}
-    - name: soldier_spritesheet_14
-      rect:
-        serializedVersion: 2
-        x: 628
-        y: 134
-        width: 102
-        height: 100
-      alignment: 9
-      pivot: {x: .5, y: .150000006}
-      border: {x: 0, y: 0, z: 0, w: 0}
-    - name: soldier_spritesheet_15
-      rect:
-        serializedVersion: 2
-        x: 730
-        y: 134
-        width: 102
-        height: 100
-      alignment: 9
-      pivot: {x: .5, y: .150000006}
-      border: {x: 0, y: 0, z: 0, w: 0}
-    - name: soldier_spritesheet_16
-      rect:
-        serializedVersion: 2
-        x: 16
         y: 22
         width: 102
         height: 100
-      alignment: 0
-      pivot: {x: .5, y: .5}
+      alignment: 7
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: soldier_spritesheet_17
+    - name: exterminator_spritesheet_17
       rect:
         serializedVersion: 2
         x: 118
         y: 22
         width: 102
         height: 100
-      alignment: 0
-      pivot: {x: .5, y: .5}
+      alignment: 7
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: soldier_spritesheet_18
+    - name: exterminator_spritesheet_18
       rect:
         serializedVersion: 2
         x: 220
         y: 22
         width: 102
         height: 100
-      alignment: 0
-      pivot: {x: .5, y: .5}
+      alignment: 7
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: soldier_spritesheet_19
+    - name: exterminator_spritesheet_19
       rect:
         serializedVersion: 2
         x: 322
         y: 22
         width: 102
         height: 100
-      alignment: 0
-      pivot: {x: .5, y: .5}
+      alignment: 7
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: soldier_spritesheet_20
+    - name: exterminator_spritesheet_20
       rect:
         serializedVersion: 2
         x: 424
         y: 22
         width: 102
         height: 100
-      alignment: 0
-      pivot: {x: .5, y: .5}
+      alignment: 7
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: soldier_spritesheet_21
+    - name: exterminator_spritesheet_21
       rect:
         serializedVersion: 2
         x: 526
         y: 22
         width: 102
         height: 100
-      alignment: 0
-      pivot: {x: .5, y: .5}
+      alignment: 7
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: soldier_spritesheet_22
+    - name: exterminator_spritesheet_22
       rect:
         serializedVersion: 2
         x: 628
         y: 22
         width: 102
         height: 100
-      alignment: 0
-      pivot: {x: .5, y: .5}
+      alignment: 7
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
-    - name: soldier_spritesheet_23
+    - name: exterminator_spritesheet_23
       rect:
         serializedVersion: 2
         x: 730
         y: 22
         width: 102
         height: 100
-      alignment: 0
-      pivot: {x: .5, y: .5}
+      alignment: 7
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
   spritePackingTag: 
   userData: 

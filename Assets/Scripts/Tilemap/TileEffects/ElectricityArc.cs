@@ -22,7 +22,10 @@ public class ElectricityArc : MonoBehaviour {
         }
         sound = SoundManager.getInstance();
 
-        HashSet<TileEntity> _tileEntities = Tilemap.getInstance().getTile(_destination).getTileEntities();
+        Tile destinationTile = Tilemap.getInstance().getTile(_destination);
+        destinationTile.damageTileEntities(arcDamage);
+
+        HashSet<TileEntity> _tileEntities = destinationTile.getTileEntities();
         if (_tileEntities != null) {
             foreach (TileEntity entity in _tileEntities) {
                 _alreadyHitEntities.Add(entity);
@@ -132,8 +135,6 @@ public class ElectricityArc : MonoBehaviour {
         if (closestTile != null) {
             GameObject electricityArc = new GameObject("ElectricityArc");
             electricityArc.transform.position = _destination;
-
-            closestTile.damageTileEntities(arcDamage);
 
             foreach (TileEntity entity in closestTile.getTileEntities()) {
                 _alreadyHitEntities.Add(entity);

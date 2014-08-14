@@ -3,7 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class ElectricityArc : MonoBehaviour {
-    int arcRadius, arcNumber;
+    float arcRadius;
+    int arcNumber;
     float arcDamage;
     private float timeUntilArc = 0.2f;
     private Vector3 _destination;
@@ -58,7 +59,7 @@ public class ElectricityArc : MonoBehaviour {
         }
     }
 
-    public void setArcRadius(int radius) {
+    public void setArcRadius(float radius) {
         arcRadius = radius;
     }
 
@@ -80,13 +81,20 @@ public class ElectricityArc : MonoBehaviour {
 
     //creates a single arc 
     private void doArc() {
+        int intRadius = (int)arcRadius + 1;
 
-        List<Tile> _newJumpableTiles = new List<Tile>();
-        List<Tile> _oldJumpableTiles = new List<Tile>();
-        for (int dx = -arcRadius; dx <= arcRadius; dx++) {
-            for (int dy = -arcRadius; dy <= arcRadius; dy++) {
+        Tile closestTile = null;
+        float closestDistanceSqr = float.MaxValue;
+
+        for (int dx = -intRadius; dx <= intRadius; dx++) {
+            for (int dy = -intRadius; dy <= intRadius; dy++) {
                 Vector2 tileOffset = new Vector2(dx, dy);
-                if (tileOffset.sqrMagnitude <= arcRadius * arcRadius) {
+                float sqrDistance = tileOffset.sqrMagnitude;
+                if (sqrDistance > closestDistanceSqr) {
+                    continue;
+                }
+
+                if (sqrDistance <= arcRadius * arcRadius) {
                     Vector2Int potentialJumpLocation = (Vector2Int)_destination + new Vector2Int(dx, dy);
                     Tile tile = Tilemap.getInstance().getTile(potentialJumpLocation);
 
@@ -103,42 +111,41 @@ public class ElectricityArc : MonoBehaviour {
                             }
                         }
 
-                        TileRayHit hit = TilemapUtilities.castTileRay(_destination, potentialJumpLocation, null);
-                        if(hit.didHit){
-
+                        //If this tile doesn't hold an entity we havent jumped to yet, we cannot jump to it, so we stop
+                        if (!foundNewEntity) {
                             continue;
                         }
 
-                        if (foundNewEntity) {
-                            _newJumpableTiles.Add(tile);
+                        //If we can't see the tile, we skip it.  This is way down here because it is expensive
+                        TileRayHit hit = TilemapUtilities.castTileRay(_destination, potentialJumpLocation, null);
+                        if(hit.didHit){
+                            continue;
                         }
-                        _oldJumpableTiles.Add(tile);
+
+                        closestTile = tile;
+                        closestDistanceSqr = sqrDistance;
                     }
                 }
             }
         }
 
-        if (_newJumpableTiles.Count == 0) {
-            _newJumpableTiles = _oldJumpableTiles;
-        }
-
-        if (_newJumpableTiles.Count != 0) {
-            Tile jumpTile = _newJumpableTiles[Random.Range(0, _newJumpableTiles.Count)];
+        if (closestTile != null) {
             GameObject electricityArc = new GameObject("ElectricityArc");
             electricityArc.transform.position = _destination;
 
-            jumpTile.damageTileEntities(arcDamage);
+            closestTile.damageTileEntities(arcDamage);
 
-            foreach (TileEntity entity in jumpTile.getTileEntities()) {
+            foreach (TileEntity entity in closestTile.getTileEntities()) {
                 _alreadyHitEntities.Add(entity);
             }
 
             ElectricityArc arcComponent = electricityArc.AddComponent<ElectricityArc>();
 
-            arcComponent.setArcDamage(arcDamage);
+            arcComponent.setArcDamage(arcDamage * 0.75f);
             arcComponent.setArcNumber(arcNumber - 1);
-            arcComponent.setDestination(jumpTile.transform.position);
+            arcComponent.setDestination(closestTile.transform.position);
             arcComponent.setAlreadyHitSet(_alreadyHitEntities);
+
             //initializes arcRadius in new component for created game object
             arcComponent.setArcRadius(arcRadius);
         }

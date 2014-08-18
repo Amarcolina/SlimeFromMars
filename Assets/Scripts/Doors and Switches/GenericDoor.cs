@@ -4,7 +4,6 @@ using System.Collections;
 public class GenericDoor : MonoBehaviour, ISaveable {
 
     public bool doorOpen = false;
-    private float timer;
     private int doorAnimationState;
     //Tile variables
     protected Tile[] tilesUnderDoor = new Tile[6];

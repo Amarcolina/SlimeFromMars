@@ -1,8 +1,9 @@
 fileFormatVersion: 2
-guid: 62792d91315e0434c99f6b7e0e5d46da
+guid: f080d54a7705ae143bc762601a44f9e4
 TextureImporter:
   fileIDToRecycleName:
-    21300000: openDoors1
+    21300000: openDoors2
+    21300002: openDoors1
   serializedVersion: 2
   mipmaps:
     mipMapMode: 0

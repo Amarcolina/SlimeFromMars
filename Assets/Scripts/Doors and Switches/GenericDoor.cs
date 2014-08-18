@@ -4,19 +4,35 @@ using System.Collections;
 public class GenericDoor : MonoBehaviour, ISaveable {
 
     public bool doorOpen = false;
+    private float timer;
+    private int doorAnimationState;
+    //Tile variables
     protected Tile[] tilesUnderDoor = new Tile[6];
     protected Tile[] enemyEntranceTiles = new Tile[4];
 
+    //Sprite variables
+    SpriteRenderer genericSpriteComponent;
+    protected Sprite[] openDoorSprites = new Sprite[5];
+    protected Sprite[] closeDoorSprites = new Sprite[5];
+
+    //Audio variables
     private SoundManager sound;
     private AudioClip openDoorSFX;
     private AudioClip closeDoorSFX;
     private AudioSource source;
 
-    void Awake()
-    {
+    void Awake() {
         sound = SoundManager.getInstance();
         openDoorSFX = Resources.Load<AudioClip>("Sounds/SFX/door_open");
         closeDoorSFX = Resources.Load<AudioClip>("Sounds/SFX/door_close");
+        genericSpriteComponent = GetComponent<SpriteRenderer>();
+        doorAnimationState = 0;
+        timer = 5;
+        //Loads door sprites for animation
+        for (int i = 0; i < 5; i++) {
+            openDoorSprites[i] = Resources.Load<Sprite>("Sprites/Doors and Switches/Sliding Door/openDoors" + i);
+            closeDoorSprites[i] = Resources.Load<Sprite>("Sprites/Doors and Switches/Sliding Door/closeDoors" + i);
+        }
     }
 
     // Use this for initialization

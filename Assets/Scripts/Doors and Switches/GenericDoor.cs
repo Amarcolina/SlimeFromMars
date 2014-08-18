@@ -26,7 +26,6 @@ public class GenericDoor : MonoBehaviour, ISaveable {
         closeDoorSFX = Resources.Load<AudioClip>("Sounds/SFX/door_close");
         genericSpriteComponent = GetComponent<SpriteRenderer>();
         doorAnimationState = 0;
-        timer = 5;
         //Loads door sprites for animation
         for (int i = 0; i < 5; i++) {
             openDoorSprites[i] = Resources.Load<Sprite>("Sprites/Doors and Switches/Sliding Door/openDoors" + i);
